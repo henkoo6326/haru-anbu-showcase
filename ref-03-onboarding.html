@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onboarding — 뚝스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{
+  background:#0c0c0c;
+  color:#fff;
+  font-family:'Noto Sans KR',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+}
+
+/* ──────────────────────────────
+   1. 상단 고정 영역 (아이콘 + 제목)
+────────────────────────────── */
+.top-area{
+  position:absolute;
+  top:48px;
+  left:50%;transform:translateX(-50%);
+  text-align:center;z-index:20;
+  width:max-content;
+}
+.ob-emoji{font-size:36px;line-height:1;margin-bottom:8px}
+.ob-label{font-size:13px;color:#f59e0b;font-weight:600;letter-spacing:.04em;margin-bottom:22px}
+.ob-heading{font-size:28px;font-weight:700;line-height:1.55;color:#fff}
+
+/* ──────────────────────────────
+   2. 반구 돔 (하단 고정)
+   원본: 화면 아래쪽 약 55%부터 시작하는 거대한 타원호
+────────────────────────────── */
+.dome-wrap{
+  position:absolute;
+  /* 돔의 꼭대기가 화면 높이의 약 40% 지점 */
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  /* 화면보다 넓게 설정해 납작한 호를 만듦 */
+  width:160vw;
+  z-index:5;
+  pointer-events:none;
+}
+.dome{
+  width:100%;
+  /* 패딩으로 높이 조절 — 약 40% 로 설정해 돔이 화면 하단 60% 차지 */
+  padding-top:39%;
+  border-radius:50% 50% 0 0 / 100% 100% 0 0;
+  background:linear-gradient(180deg,#141414 0%,#0c0c0c 100%);
+  border:1px solid rgba(255,255,255,.06);
+  border-bottom:none;
+  position:relative;
+}
+/* 돔 중앙 세로선 */
+.dome::before{
+  content:'';
+  position:absolute;
+  top:8%;left:50%;
+  width:1px;height:68%;
+  background:linear-gradient(to bottom,rgba(255,255,255,.1),transparent);
+}
+
+/* ──────────────────────────────
+   3. 별(파티클)
+────────────────────────────── */
+.star{
+  position:absolute;
+  border-radius:50%;background:#fff;
+  pointer-events:none;z-index:4;
+}
+
+/* ──────────────────────────────
+   4. 중간 카피 텍스트
+   원본: 돔 상단 바로 위, 화면 상하 약 64% 지점
+────────────────────────────── */
+.mid-copy{
+  position:absolute;
+  top:58%;
+  left:50%;transform:translateX(-50%);
+  text-align:center;z-index:20;
+  width:max-content;
+}
+.mid-copy p{
+  font-size:20px;font-weight:700;
+  line-height:1.6;color:#fff;
+}
+
+/* ──────────────────────────────
+   5. 사이드 텍스트 (희미하게 기울어진)
+────────────────────────────── */
+.side-txt{
+  position:absolute;
+  font-size:11px;color:rgba(255,255,255,.22);
+  line-height:1.5;z-index:8;
+  pointer-events:none;
+}
+
+/* ──────────────────────────────
+   6. 카드 캐러셀 (화면 최하단)
+   원본: 카드들이 반원 안쪽 가장자리에 앉아있음
+────────────────────────────── */
+.carousel{
+  position:absolute;
+  bottom:-24px;  /* 카드 아래가 잘리게 */
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:flex-end;
+  gap:12px;
+  z-index:30;
+}
+
+/* 카드 공통 */
+.card{
+  border-radius:20px;
+  padding:16px 14px;
+  flex-shrink:0;
+  position:relative;
+  transition:transform .2s;
+}
+/* 메인 카드 */
+.card-main{
+  width:188px;
+  background:#2e2e2e;
+  box-shadow:0 20px 60px rgba(0,0,0,.9);
+  z-index:5;
+  transform:translateY(0);
+}
+/* 1단계 사이드 카드 */
+.card-side{
+  width:148px;
+  background:#242424;
+  opacity:.7;
+  transform:translateY(18px) scale(.95);
+  z-index:3;
+}
+/* 2단계 끝 카드 */
+.card-far{
+  width:130px;
+  background:#1e1e1e;
+  opacity:.4;
+  transform:translateY(32px) scale(.88);
+  z-index:1;
+}
+
+.card-count{font-size:11px;color:rgba(255,255,255,.38);text-align:right;margin-bottom:10px}
+
+.card-icon-wrap{
+  width:52px;height:52px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;
+  margin:0 auto 12px;
+}
+.card-icon-sm{
+  width:38px;height:38px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  margin:0 auto 10px;
+  background:rgba(255,255,255,.07);
+}
+
+.card-name{
+  font-size:14px;font-weight:700;text-align:center;
+  line-height:1.4;margin-bottom:12px;
+}
+.card-name-sm{
+  font-size:11px;font-weight:600;text-align:center;
+  color:rgba(255,255,255,.5);line-height:1.4;
+}
+.tags{
+  display:flex;gap:5px;flex-wrap:wrap;
+  justify-content:center;margin-bottom:14px;
+}
+.tag{
+  background:rgba(255,255,255,.1);
+  border-radius:20px;padding:4px 10px;
+  font-size:10.5px;color:rgba(255,255,255,.5);
+}
+.enter-btn{
+  width:100%;background:#f59e0b;
+  border:none;border-radius:12px;
+  padding:13px;font-size:15px;font-weight:700;
+  color:#000;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+</style>
+</head>
+<body>
+
+<!-- 별 파티클 -->
+<div class="star" style="width:3px;height:3px;top:18%;left:20%;opacity:.5"></div>
+<div class="star" style="width:2px;height:2px;top:30%;left:72%;opacity:.4"></div>
+<div class="star" style="width:2px;height:2px;top:48%;left:88%;opacity:.45"></div>
+<div class="star" style="width:3px;height:3px;top:35%;left:10%;opacity:.35"></div>
+<div class="star" style="width:2px;height:2px;top:23%;left:55%;opacity:.3"></div>
+
+<!-- 상단 영역 -->
+<div class="top-area">
+  <div class="ob-emoji">🙂</div>
+  <div class="ob-label">Onboarding</div>
+  <h1 class="ob-heading">안녕하세요.<br>당신을 기다리고 있었어요</h1>
+</div>
+
+<!-- 반구 돔 -->
+<div class="dome-wrap">
+  <div class="dome"></div>
+</div>
+
+<!-- 중간 카피 (돔 위, 카드 위) -->
+<div class="mid-copy">
+  <p>내가 만든 퀴즈로 스터디로 재미있게,<br>뚝스에 오신 것을 환영합니다</p>
+</div>
+
+<!-- 사이드 흐릿 텍스트 -->
+<div class="side-txt" style="bottom:120px;left:8%;transform:rotate(-15deg)">
+  파이썬 코딩의 기술<br>(Effective Python)
+</div>
+<div class="side-txt" style="bottom:120px;right:7%;transform:rotate(12deg)">
+  리액트로 다루는 기술<br>온라인 스터디
+</div>
+
+<!-- 카드 캐러셀 -->
+<div class="carousel">
+  <div class="card card-far">
+    <div class="card-icon-sm">😑</div>
+    <div class="card-name-sm">이것이 자바다<br>북스터디</div>
+  </div>
+
+  <div class="card card-side">
+    <div class="card-icon-sm">😶</div>
+    <div class="card-name-sm">딥러닝 3달안에<br>달성하기</div>
+  </div>
+
+  <div class="card card-main">
+    <div class="card-count">6명 참여</div>
+    <div class="card-icon-wrap" style="background:rgba(245,158,11,.2)">🙂</div>
+    <div class="card-name">뚝스와 함께하는<br>뚝뚝한 스터디</div>
+    <div class="tags">
+      <span class="tag">Javascript</span>
+      <span class="tag">설계</span>
+      <span class="tag">시스템</span>
+    </div>
+    <button class="enter-btn">입장하기 👆</button>
+  </div>
+
+  <div class="card card-side">
+    <div class="card-icon-sm">😐</div>
+    <div class="card-name-sm">리액트로 다루는<br>기술 스터디</div>
+  </div>
+
+  <div class="card card-far">
+    <div class="card-icon-sm">😮</div>
+    <div class="card-name-sm">파이썬 코딩<br>기술 북스터디</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 시간표 관리</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:108px; }
+    .content { padding:0 var(--space-lg); }
+    .page-head { padding:var(--space-xl) 0 var(--space-md); }
+    .page-head h1 { font-size:var(--text-display); font-weight:var(--weight-bold); }
+    .page-head p { font-size:var(--text-callout); color:var(--text-secondary); margin-top:4px; }
+
+    .seg-ctrl { display:inline-flex; background:rgba(0,0,0,0.06); border-radius:var(--radius-full); padding:3px; gap:2px; margin-bottom:var(--space-lg); }
+    .seg-btn { padding:7px 18px; border-radius:var(--radius-full); border:none; background:transparent; font-family:var(--font-family); font-size:var(--text-caption); font-weight:var(--weight-semibold); color:var(--text-secondary); cursor:pointer; transition:all 0.25s; }
+    .seg-btn.active { background:var(--surface); color:var(--text-primary); box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+
+    /* 타임라인 */
+    .timeline { position:relative; padding-left:20px; }
+    .timeline::before { content:''; position:absolute; left:7px; top:0; bottom:0; width:2px; background:var(--divider); }
+    .time-block { position:relative; margin-bottom:var(--space-lg); }
+    .time-dot { position:absolute; left:-17px; top:4px; width:12px; height:12px; border-radius:50%; border:2.5px solid var(--primary); background:var(--surface); z-index:1; }
+    .time-dot--done { background:var(--primary); border-color:var(--primary); }
+    .time-dot--active { background:var(--accent); border-color:var(--accent); box-shadow:0 0 0 4px rgba(245,211,16,0.25); }
+    .time-label { font-size:var(--text-mini); font-weight:var(--weight-semibold); color:var(--text-tertiary); margin-bottom:6px; }
+    .time-card {
+      background:var(--surface); border-radius:var(--radius-md); padding:var(--space-md) var(--space-lg);
+      box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:var(--space-md);
+    }
+    .time-card--active { border-left:3px solid var(--accent); }
+    .time-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .time-info { flex:1; }
+    .time-title { font-size:var(--text-headline); font-weight:var(--weight-semibold); }
+    .time-meta { font-size:var(--text-caption); color:var(--text-secondary); margin-top:2px; }
+    .time-check { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .time-check--done { background:var(--bg-success); color:var(--success); }
+    .time-check--pending { border:2px solid var(--divider); }
+
+    /* 하단 근무표 카드 */
+    .shift-card { background:var(--surface); border-radius:var(--radius-xl); padding:var(--space-xl); box-shadow:var(--shadow-sm); margin-top:var(--space-lg); }
+    .shift-title { font-size:var(--text-headline); font-weight:var(--weight-bold); margin-bottom:var(--space-md); }
+    .shift-row { display:flex; align-items:center; justify-content:space-between; padding:var(--space-sm) 0; }
+    .shift-row + .shift-row { border-top:0.5px solid var(--divider); }
+    .shift-day { font-size:var(--text-callout); font-weight:var(--weight-medium); }
+    .shift-day.today { color:var(--primary); font-weight:var(--weight-bold); }
+    .shift-type { font-size:var(--text-caption); padding:4px 10px; border-radius:var(--radius-full); font-weight:var(--weight-semibold); }
+    .shift-type--am { background:#D1FAE5; color:#2E7D32; }
+    .shift-type--pm { background:#FFF3E0; color:#E65100; }
+    .shift-type--night { background:#EEF2FD; color:#4E78EB; }
+    .shift-type--off { background:var(--bg); color:var(--text-tertiary); }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="page-head">
+      <h1>시간표</h1>
+      <p>오늘의 케어 스케줄 · 4월 2일 수요일</p>
+    </div>
+
+    <div class="seg-ctrl">
+      <button class="seg-btn active">환자 일과</button>
+      <button class="seg-btn" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active');">내 근무</button>
+    </div>
+
+    <!-- 환자 일과 타임라인 -->
+    <div class="timeline">
+      <div class="time-block">
+        <div class="time-dot time-dot--done"></div>
+        <div class="time-label">07:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#FFF3E0;"><i data-lucide="sunrise" style="width:18px;height:18px;color:#E65100;"></i></div>
+          <div class="time-info"><div class="time-title">기상 및 위생</div><div class="time-meta">세면, 구강케어 · 15명</div></div>
+          <div class="time-check time-check--done"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot time-dot--done"></div>
+        <div class="time-label">08:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#FFF3E0;"><i data-lucide="utensils" style="width:18px;height:18px;color:#E65100;"></i></div>
+          <div class="time-info"><div class="time-title">아침 식사</div><div class="time-meta">식사량 기록 완료 · 15명</div></div>
+          <div class="time-check time-check--done"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot time-dot--done"></div>
+        <div class="time-label">09:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#FCE4EC;"><i data-lucide="pill" style="width:18px;height:18px;color:#C62828;"></i></div>
+          <div class="time-info"><div class="time-title">오전 투약</div><div class="time-meta">투약 완료 · 12명</div></div>
+          <div class="time-check time-check--done"><i data-lucide="check" style="width:14px;height:14px;"></i></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot time-dot--active"></div>
+        <div class="time-label">10:00 · 현재</div>
+        <div class="time-card time-card--active">
+          <div class="time-icon" style="background:#E3F2FD;"><i data-lucide="heart-pulse" style="width:18px;height:18px;color:#1565C0;"></i></div>
+          <div class="time-info"><div class="time-title">바이탈 체크</div><div class="time-meta">진행 중 · 8/15명 완료</div></div>
+          <div class="time-check time-check--pending"></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot"></div>
+        <div class="time-label">11:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#F3E5F5;"><i data-lucide="dumbbell" style="width:18px;height:18px;color:#7B1FA2;"></i></div>
+          <div class="time-info"><div class="time-title">재활 운동</div><div class="time-meta">물리치료실 · 5명</div></div>
+          <div class="time-check time-check--pending"></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot"></div>
+        <div class="time-label">12:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#FFF3E0;"><i data-lucide="utensils" style="width:18px;height:18px;color:#E65100;"></i></div>
+          <div class="time-info"><div class="time-title">점심 식사</div><div class="time-meta">식사 보조 · 15명</div></div>
+          <div class="time-check time-check--pending"></div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-dot"></div>
+        <div class="time-label">14:00</div>
+        <div class="time-card">
+          <div class="time-icon" style="background:#E8F5E9;"><i data-lucide="trees" style="width:18px;height:18px;color:#2E7D32;"></i></div>
+          <div class="time-info"><div class="time-title">산책 · 여가활동</div><div class="time-meta">야외 활동 · 10명</div></div>
+          <div class="time-check time-check--pending"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주간 근무표 -->
+    <div class="shift-card">
+      <div class="shift-title">이번 주 근무표</div>
+      <div class="shift-row"><span class="shift-day">월</span><span class="shift-type shift-type--am">오전</span></div>
+      <div class="shift-row"><span class="shift-day">화</span><span class="shift-type shift-type--am">오전</span></div>
+      <div class="shift-row"><span class="shift-day today">수 (오늘)</span><span class="shift-type shift-type--am">오전</span></div>
+      <div class="shift-row"><span class="shift-day">목</span><span class="shift-type shift-type--pm">오후</span></div>
+      <div class="shift-row"><span class="shift-day">금</span><span class="shift-type shift-type--pm">오후</span></div>
+      <div class="shift-row"><span class="shift-day">토</span><span class="shift-type shift-type--off">휴무</span></div>
+      <div class="shift-row"><span class="shift-day">일</span><span class="shift-type shift-type--night">야간</span></div>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;height:calc(50px + 44px + 8px);padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab"><span class="tab-icon"><i data-lucide="home"></i></span><span class="tab-label">홈</span></a>
+    <a href="n02-patients.html" class="tab"><span class="tab-icon"><i data-lucide="users"></i></span><span class="tab-label">환자</span></a>
+    <a href="n07-chat.html" class="tab"><span class="tab-icon"><i data-lucide="message-circle"></i></span><span class="tab-label">채팅</span></a>
+    <a href="n03-checklist.html" class="tab"><span class="tab-icon"><i data-lucide="list-checks"></i></span><span class="tab-label">체크리스트</span></a>
+    <a href="n04-mypage.html" class="tab"><span class="tab-icon"><i data-lucide="user"></i></span><span class="tab-label">내 정보</span></a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

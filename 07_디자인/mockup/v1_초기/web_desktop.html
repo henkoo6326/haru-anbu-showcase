@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>하루안부 — 의료진 PC 대시보드</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1440px; min-height: 900px; background: #F5F6F8; font-family: 'Pretendard', -apple-system, sans-serif; color: #1E2A3A; display: flex; }
+
+/* Sidebar */
+.sidebar { width: 260px; background: #1E2A3A; min-height: 100vh; padding: 0; flex-shrink: 0; display: flex; flex-direction: column; }
+.sidebar-logo { padding: 28px 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-logo h1 { font-size: 24px; font-weight: 800; color: #fff; }
+.sidebar-logo h1 span { color: #4ABAEB; }
+.sidebar-logo p { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+.sidebar-nav { padding: 16px 0; flex: 1; }
+.nav-section { padding: 8px 20px; font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; margin-top: 16px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; font-size: 14px; color: rgba(255,255,255,0.6); cursor: pointer; border-left: 3px solid transparent; transition: all 0.2s; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); }
+.nav-item.active { background: rgba(74,186,235,0.1); color: #fff; border-left-color: #4ABAEB; }
+.nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.nav-badge { margin-left: auto; background: #E53935; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+.sidebar-user { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px; }
+.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #5BAE8C; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; font-weight: 700; }
+.user-name { font-size: 14px; color: #fff; font-weight: 600; }
+.user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* Main */
+.main { flex: 1; display: flex; flex-direction: column; }
+
+/* Top bar */
+.topbar { height: 68px; background: #fff; border-bottom: 1px solid #E8E8E8; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-title { font-size: 20px; font-weight: 700; }
+.topbar-date { font-size: 14px; color: #8C939A; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.search-box { background: #F5F6F8; border: none; border-radius: 10px; padding: 10px 16px; font-size: 14px; width: 240px; outline: none; }
+.topbar-btn { width: 40px; height: 40px; border-radius: 10px; background: #F5F6F8; border: none; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; position: relative; }
+
+/* Dashboard content */
+.dashboard { padding: 28px 32px; overflow-y: auto; flex: 1; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: #fff; border-radius: 16px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.stat-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.stat-change { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+.stat-value { font-size: 28px; font-weight: 800; }
+.stat-label { font-size: 13px; color: #8C939A; margin-top: 2px; }
+
+/* Two column layout */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.panel { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.panel-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.panel-more { font-size: 13px; color: #8C939A; cursor: pointer; }
+
+/* Patient list */
+.patient-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F5F5F5; gap: 14px; }
+.patient-row:last-child { border: none; }
+.p-avatar { width: 40px; height: 40px; border-radius: 50%; background: #F0F4F8; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.p-info { flex: 1; }
+.p-name { font-size: 14px; font-weight: 600; }
+.p-room { font-size: 12px; color: #8C939A; }
+.p-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+.p-status.good { background: #E8F5E9; color: #4CAF50; }
+.p-status.warn { background: #FFF3E0; color: #FF9800; }
+.p-status.alert { background: #FFEBEE; color: #E53935; }
+.p-action { width: 32px; height: 32px; border-radius: 8px; background: #F5F6F8; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+/* Checklist */
+.check-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F5F5F5; gap: 12px; }
+.check-item:last-child { border: none; }
+.check-box { width: 24px; height: 24px; border-radius: 8px; border: 2px solid #E0E0E0; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
+.check-box.done { background: #4A7FBF; border-color: #4A7FBF; color: #fff; }
+.check-text { flex: 1; font-size: 14px; }
+.check-text.done-text { color: #8C939A; text-decoration: line-through; }
+.check-time { font-size: 12px; color: #8C939A; }
+
+/* SOS button */
+.sos-section { margin-bottom: 28px; }
+.sos-btn { width: 100%; background: linear-gradient(135deg, #E53935, #C62828); color: #fff; border: none; border-radius: 16px; padding: 20px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 16px rgba(229,57,53,0.3); }
+
+/* Chat preview */
+.chat-preview { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F5F5F5; gap: 12px; cursor: pointer; }
+.chat-preview:last-child { border: none; }
+.chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: #4A7FBF; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
+.chat-info { flex: 1; }
+.chat-name { font-size: 14px; font-weight: 600; }
+.chat-msg { font-size: 13px; color: #8C939A; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+.chat-meta { text-align: right; }
+.chat-time { font-size: 11px; color: #8C939A; }
+.chat-unread { background: #4A7FBF; color: #fff; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 4px; margin-left: auto; }
+
+/* Handoff */
+.handoff-card { background: linear-gradient(135deg, #F0F7FF, #E8F0FE); border-radius: 14px; padding: 18px; margin-bottom: 12px; }
+.handoff-title { font-size: 14px; font-weight: 700; color: #4A7FBF; margin-bottom: 8px; }
+.handoff-text { font-size: 13px; line-height: 1.6; color: #1E2A3A; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>하루<span>안부</span></h1>
+    <p>의료진 대시보드</p>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section">메인</div>
+    <div class="nav-item active"><span class="nav-icon">📊</span>대시보드</div>
+    <div class="nav-item"><span class="nav-icon">✅</span>체크리스트</div>
+    <div class="nav-item"><span class="nav-icon">🚨</span>SOS 알림<span class="nav-badge">1</span></div>
+
+    <div class="nav-section">소통</div>
+    <div class="nav-item"><span class="nav-icon">💬</span>채팅<span class="nav-badge">3</span></div>
+    <div class="nav-item"><span class="nav-icon">🔄</span>인수인계</div>
+
+    <div class="nav-section">관리</div>
+    <div class="nav-item"><span class="nav-icon">📅</span>시간표</div>
+    <div class="nav-item"><span class="nav-icon">💊</span>처방전</div>
+    <div class="nav-item"><span class="nav-icon">📋</span>진료기록</div>
+    <div class="nav-item"><span class="nav-icon">📈</span>의료 타임라인</div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">간호사 · 주간근무</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">대시보드</div>
+      <div class="topbar-date">2026년 3월 23일 일요일 · 주간근무</div>
+    </div>
+    <div class="topbar-right">
+      <input class="search-box" placeholder="환자 검색..." />
+      <div class="topbar-btn" style="position:relative">🔔<div class="badge" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#E53935;border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">4</div></div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon" style="background:#E3F2FD">👥</div>
+          <span class="stat-change" style="background:#E8F5E9;color:#4CAF50">정상</span>
+        </div>
+        <div class="stat-value">15</div>
+        <div class="stat-label">담당 환자</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon" style="background:#E8F5E9">✅</div>
+          <span class="stat-change" style="background:#E8F5E9;color:#4CAF50">+12%</span>
+        </div>
+        <div class="stat-value">73%</div>
+        <div class="stat-label">오늘 케어 완료율</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon" style="background:#FFEBEE">🚨</div>
+          <span class="stat-change" style="background:#FFEBEE;color:#E53935">주의</span>
+        </div>
+        <div class="stat-value">1</div>
+        <div class="stat-label">미응답 SOS</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon" style="background:#FFF3E0">💬</div>
+          <span class="stat-change" style="background:#FFF3E0;color:#FF9800">3건</span>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">읽지 않은 채팅</div>
+      </div>
+    </div>
+
+    <!-- SOS -->
+    <div class="sos-section">
+      <button class="sos-btn">🚨 SOS 긴급 알림 발송</button>
+    </div>
+
+    <!-- Two column -->
+    <div class="two-col">
+      <!-- Patient list -->
+      <div class="panel">
+        <div class="panel-title">담당 환자 현황 <span class="panel-more">전체보기 →</span></div>
+        <div class="patient-row">
+          <div class="p-avatar">👵</div>
+          <div class="p-info"><div class="p-name">김순자</div><div class="p-room">101호 · 3등급</div></div>
+          <div class="p-status good">양호</div>
+          <div class="p-action">→</div>
+        </div>
+        <div class="patient-row">
+          <div class="p-avatar">👴</div>
+          <div class="p-info"><div class="p-name">이영수</div><div class="p-room">102호 · 2등급</div></div>
+          <div class="p-status warn">주의</div>
+          <div class="p-action">→</div>
+        </div>
+        <div class="patient-row">
+          <div class="p-avatar">👵</div>
+          <div class="p-info"><div class="p-name">박영희</div><div class="p-room">103호 · 4등급</div></div>
+          <div class="p-status good">양호</div>
+          <div class="p-action">→</div>
+        </div>
+        <div class="patient-row">
+          <div class="p-avatar">👴</div>
+          <div class="p-info"><div class="p-name">최만호</div><div class="p-room">105호 · 2등급</div></div>
+          <div class="p-status alert">긴급</div>
+          <div class="p-action">→</div>
+        </div>
+        <div class="patient-row">
+          <div class="p-avatar">👵</div>
+          <div class="p-info"><div class="p-name">정옥순</div><div class="p-room">106호 · 3등급</div></div>
+          <div class="p-status good">양호</div>
+          <div class="p-action">→</div>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div class="panel">
+        <div class="panel-title">오늘 체크리스트 — 김순자 <span class="panel-more">환자 변경 ↓</span></div>
+        <div class="check-item">
+          <div class="check-box done">✓</div>
+          <div class="check-text done-text">오전 투약 완료</div>
+          <div class="check-time">09:00</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box done">✓</div>
+          <div class="check-text done-text">혈압 측정 120/80</div>
+          <div class="check-time">09:30</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box done">✓</div>
+          <div class="check-text done-text">재활운동 30분</div>
+          <div class="check-time">10:00</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box done">✓</div>
+          <div class="check-text done-text">점심 식사 85%</div>
+          <div class="check-time">12:30</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">오후 투약</div>
+          <div class="check-time">14:00 예정</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">위생 케어</div>
+          <div class="check-time">15:00 예정</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second row -->
+    <div class="two-col">
+      <!-- Handoff -->
+      <div class="panel">
+        <div class="panel-title">🔄 인수인계 리포트 <span class="panel-more">AI 자동 생성</span></div>
+        <div class="handoff-card">
+          <div class="handoff-title">⚠️ 주의 환자</div>
+          <div class="handoff-text">최만호 (105호) — 오전 혈압 160/95로 높음. 11시에 안정되었으나 야간 모니터링 필요.</div>
+        </div>
+        <div class="handoff-card">
+          <div class="handoff-title">📋 미완료 항목</div>
+          <div class="handoff-text">이영수 (102호) — 오후 투약 미완료 (14:00 예정)<br>김순자 (101호) — 위생 케어 미완료 (15:00 예정)</div>
+        </div>
+        <div class="handoff-card">
+          <div class="handoff-title">💬 보호자 요청</div>
+          <div class="handoff-text">김미영 (김순자 보호자) — "어머니 오늘 기분은 어떠셨나요?" 채팅 회신 필요</div>
+        </div>
+      </div>
+
+      <!-- Chat -->
+      <div class="panel">
+        <div class="panel-title">💬 최근 채팅 <span class="panel-more">전체보기 →</span></div>
+        <div class="chat-preview">
+          <div class="chat-avatar">김</div>
+          <div class="chat-info">
+            <div class="chat-name">김미영 (김순자 보호자)</div>
+            <div class="chat-msg">어머니 오늘 기분은 어떠셨나요?</div>
+          </div>
+          <div class="chat-meta">
+            <div class="chat-time">10:32</div>
+            <div class="chat-unread">1</div>
+          </div>
+        </div>
+        <div class="chat-preview">
+          <div class="chat-avatar" style="background:#5BAE8C">이</div>
+          <div class="chat-info">
+            <div class="chat-name">이수연 (이영수 보호자)</div>
+            <div class="chat-msg">아버지 약 바뀐 거 확인했습니다. 감사합니다.</div>
+          </div>
+          <div class="chat-meta">
+            <div class="chat-time">09:15</div>
+          </div>
+        </div>
+        <div class="chat-preview">
+          <div class="chat-avatar" style="background:#D4A574">박</div>
+          <div class="chat-info">
+            <div class="chat-name">박지은 (박영희 보호자)</div>
+            <div class="chat-msg">내일 면회 가도 될까요?</div>
+          </div>
+          <div class="chat-meta">
+            <div class="chat-time">어제</div>
+            <div class="chat-unread">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

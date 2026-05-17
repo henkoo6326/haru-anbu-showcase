@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 케어 가이드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%;background:#d4e4ff}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.14)0%,transparent 65%);filter:blur(30px)}
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 112px)}
+
+    /* 헤더 */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+
+    .content{position:relative;z-index:1;padding:0 16px}
+
+    /* ── 개인화 추천 카드 ── */
+    .rec-card{background:rgba(255,255,255,.86);border:1px solid rgba(44,122,252,.08);border-radius:20px;padding:20px;margin-bottom:24px;cursor:pointer;transition:transform .12s}
+    .rec-card:active{transform:scale(.98)}
+    .rec-card-top{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .rec-card-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,rgba(44,122,252,.12),rgba(44,122,252,.05));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rec-card-label{font-size:11.5px;font-weight:700;color:var(--blue);letter-spacing:-.1px}
+    .rec-card-title{font-size:16px;font-weight:800;line-height:1.4;letter-spacing:-.3px;margin-bottom:6px}
+    .rec-card-desc{font-size:13px;color:var(--t2);line-height:1.5}
+    .rec-card-action{display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--blue)}
+
+    /* ── 카테고리 필터 ── */
+    .cat-row{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .cat-row::-webkit-scrollbar{display:none}
+    .cat-chip{flex-shrink:0;padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;color:var(--t2);background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.55);cursor:pointer;font-family:var(--font);transition:all .15s}
+    .cat-chip.active{color:#fff;background:var(--blue);border-color:transparent}
+
+    /* ── 질문 리스트 ── */
+    .q-section{margin-bottom:28px}
+    .q-list{display:flex;flex-direction:column;gap:6px}
+    .q-item{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:14px;cursor:pointer;transition:transform .12s,border-color .2s;color:inherit;overflow:hidden}
+    .q-item:active{transform:scale(.97)}
+    .q-item.open{border-color:rgba(44,122,252,.18)}
+    .q-item-row{display:flex;align-items:center;gap:10px;padding:15px 16px}
+    .q-badge{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:rgba(44,122,252,.1);color:var(--blue);letter-spacing:-.2px}
+    .q-text{flex:1;font-size:14.5px;font-weight:600;line-height:1.35}
+    .q-arrow{color:var(--t3);flex-shrink:0;transition:transform .22s}
+    .q-item.open .q-arrow{transform:rotate(90deg)}
+    /* 답변 영역 */
+    .q-answer{max-height:0;overflow:hidden;transition:max-height .32s ease}
+    .q-answer-inner{padding:0 16px 16px}
+    .q-answer-row{display:flex;gap:10px;align-items:flex-start;padding-top:12px;border-top:1px solid rgba(44,122,252,.07)}
+    .q-a-badge{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;background:rgba(44,122,252,.9);color:#fff;letter-spacing:-.2px}
+    .q-answer-text{flex:1;font-size:13.5px;color:var(--t2);line-height:1.65}
+    .q-chat-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding:11px 16px;background:rgba(44,122,252,.07);border-radius:10px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;transition:background .15s}
+    .q-chat-btn:active{background:rgba(44,122,252,.14)}
+
+    /* ── 섹션 헤딩 ── */
+    .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .sec-title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+    .sec-more{font-size:12px;font-weight:600;color:var(--t3);cursor:pointer}
+
+    /* ── 콘텐츠 피드 ── */
+    .article-list{display:flex;flex-direction:column;gap:10px}
+    .article-card{display:flex;gap:14px;padding:16px;background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:16px;cursor:pointer;transition:transform .12s}
+    .article-card:active{transform:scale(.97)}
+    .article-body{flex:1;min-width:0}
+    .article-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:6px}
+    .article-title{font-size:14.5px;font-weight:700;line-height:1.35;margin-bottom:4px;letter-spacing:-.2px}
+    .article-desc{font-size:12px;color:var(--t2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .article-thumb{width:72px;height:72px;border-radius:12px;background:rgba(0,0,0,.03);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+    /* 탭바 */
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+  <div class="bg"><div class="g1"></div></div>
+  <div class="app">
+
+    <!-- 헤더 -->
+    <div class="header" id="header">
+      <div class="header-inner">
+        <span class="header-title">AI 케어 가이드</span>
+        <a href="g06-alert.html" class="nav-btn" aria-label="알림">
+          <iconify-icon icon="fluent:alert-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── 개인화 추천 카드 ── -->
+      <div class="rec-card" onclick="location.href='g-guardian-live.html?chat=1'">
+        <div class="rec-card-top">
+          <div class="rec-card-icon">
+            <svg width="16" height="16" viewBox="0 0 2526 2526" fill="var(--blue)"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+          </div>
+          <span class="rec-card-label">정희님 맞춤 정보</span>
+        </div>
+        <div class="rec-card-title">어머니가 복용 중인 아모디핀,<br>자몽과 함께 드시면 안 돼요</div>
+        <div class="rec-card-desc">아모디핀은 자몽 주스와 함께 복용하면 약물 농도가 높아질 수 있습니다. 식사 시 주의사항을 확인해보세요.</div>
+        <div class="rec-card-action">
+          자세히 보기
+          <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px"></iconify-icon>
+        </div>
+      </div>
+
+      <!-- ── 질문 카테고리 ── -->
+      <div class="q-section">
+        <div class="sec-head">
+          <span class="sec-title">AI에게 물어보세요</span>
+          <span class="sec-more" id="q-more-btn" onclick="toggleAllQ()">전체보기</span>
+        </div>
+        <div class="cat-row">
+          <button class="cat-chip active" onclick="filterQ('all',this)">전체</button>
+          <button class="cat-chip" onclick="filterQ('med',this)">복약·건강</button>
+          <button class="cat-chip" onclick="filterQ('care',this)">일상 케어</button>
+          <button class="cat-chip" onclick="filterQ('cost',this)">비용·제도</button>
+          <button class="cat-chip" onclick="filterQ('mental',this)">감정 지원</button>
+        </div>
+        <div class="q-list">
+          <div class="q-item" data-cat="med" data-idx="0" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">어머니 약 부작용이 걱정돼요</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">복용 중인 약의 설명서에 기재된 부작용을 먼저 확인해 보세요. 두통, 어지럼증, 소화불량은 흔한 초기 반응이지만, 심한 알레르기 반응·호흡 곤란·의식 저하가 나타나면 즉시 병원에 가야 합니다. 처방 약사나 담당 의사에게 현재 복용 중인 모든 약을 알려 상호 작용도 확인하는 것이 중요해요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="med" data-idx="1" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">혈압·혈당 수치 어떻게 봐야 하나요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">정상 혈압은 120/80mmHg 미만이며, 130 이상이면 고혈압 전단계로 주의가 필요합니다. 공복 혈당은 100mg/dL 미만이 정상이고, 126 이상이면 당뇨병으로 진단됩니다. 가정에서 측정 시 아침 기상 후 안정된 상태에서 재는 것이 가장 정확해요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="care" data-idx="2" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">고혈압 환자 식단 어떻게 하나요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">하루 나트륨 섭취를 2,000mg(소금 5g) 이하로 줄이는 게 핵심입니다. 국·찌개 국물은 적게, 가공식품은 피하고, 칼륨이 풍부한 바나나·감자·토마토를 자주 드시면 혈압 조절에 도움이 됩니다. 포화지방 섭취도 줄이고 등 푸른 생선을 주 2회 이상 드시는 것을 권장해요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="care" data-idx="3" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">낙상 예방하려면 어떤 운동이 좋을까요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">의자를 잡고 하는 한 발 서기, 발뒤꿈치 들기, 앉았다 일어서기가 효과적입니다. 하루 10~15분씩 꾸준히 하면 하체 근력과 균형감각이 향상돼 낙상 위험을 크게 줄일 수 있어요. 집 안 미끄러운 매트나 문지방 등 환경 정비도 함께 하시면 더욱 좋습니다.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="cost" data-idx="4" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">요양 등급 신청은 어떻게 하나요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">국민건강보험공단 지사 방문, 전화(1577-1000), 또는 공단 홈페이지에서 신청할 수 있습니다. 신청 후 공단 직원이 방문해 심신 기능 상태를 조사하고, 등급판정위원회에서 1~5등급 또는 인지지원등급을 결정합니다. 신청부터 판정까지 보통 30일 정도 소요돼요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="cost" data-idx="5" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">요양비 지원 받을 수 있는 제도가 있나요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">장기요양보험 등급을 받으면 재가급여(방문요양·목욕 등)나 시설급여를 지원받을 수 있습니다. 또한 가족요양비, 특례요양비, 요양병원 간병지원 등 다양한 제도가 있어요. 소득 수준에 따라 본인 부담률(15~20%)도 감면받을 수 있으니 공단에 문의해 보세요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="mental" data-idx="6" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">보호자인 제가 너무 지칠 때는요?</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">보호자 번아웃은 매우 흔하고 자연스러운 반응입니다. 하루 30분이라도 나만의 시간을 확보하고, 가능하다면 단기 보호 서비스(단기입소·주간보호)를 활용해 잠깐 쉬는 것이 중요해요. 혼자 모든 걸 감당하려 하지 말고, 가족이나 사회복지사에게 도움을 요청하는 것도 좋은 방법입니다.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="q-item" data-cat="mental" data-idx="7" onclick="toggleQ(this)">
+            <div class="q-item-row">
+              <span class="q-badge">Q</span>
+              <span class="q-text">치매 부모님과 대화하는 방법</span>
+              <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="q-arrow"></iconify-icon>
+            </div>
+            <div class="q-answer">
+              <div class="q-answer-inner">
+                <div class="q-answer-row">
+                <span class="q-a-badge">A</span>
+                <p class="q-answer-text">짧고 단순한 문장으로 천천히, 눈을 맞추며 대화하는 것이 기본입니다. 틀린 말을 바로잡으려 하기보다 감정에 공감해 주세요. "오늘 어떠세요?"처럼 열린 질문보다 "밥 드셨어요?"처럼 예·아니오로 답할 수 있는 질문이 편안함을 줍니다. 익숙한 음악이나 사진을 활용하면 소통이 더 쉬워질 수 있어요.</p>
+                </div>
+                <a href="g-guardian-live.html?chat=1" class="q-chat-btn" onclick="event.stopPropagation()">
+                  <svg width="14" height="14" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+                  AI로 더 물어보기
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 케어 지식 콘텐츠 ── -->
+      <div class="sec-head">
+        <span class="sec-title">케어 지식</span>
+        <span class="sec-more">전체보기</span>
+      </div>
+      <div class="article-list">
+
+        <div class="article-card" onclick="location.href='g-guardian-live.html?chat=1'">
+          <div class="article-body">
+            <span class="article-tag" style="color:var(--blue);background:rgba(44,122,252,.1)">식단</span>
+            <div class="article-title">고혈압 환자를 위한 저염식 가이드</div>
+            <div class="article-desc">나트륨 섭취를 줄이면서도 맛있게 먹을 수 있는 조리법과 식단 구성 방법을 알아보세요.</div>
+          </div>
+          <div class="article-thumb" style="background:#f0fdf4;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=144&q=80&fit=crop&crop=center" alt="저염식" style="width:100%;height:100%;object-fit:cover;border-radius:12px">
+          </div>
+        </div>
+
+        <div class="article-card" onclick="location.href='g-guardian-live.html?chat=1'">
+          <div class="article-body">
+            <span class="article-tag" style="color:var(--blue);background:rgba(44,122,252,.08)">운동</span>
+            <div class="article-title">집에서 할 수 있는 낙상 예방 체조 5가지</div>
+            <div class="article-desc">하체 근력과 균형감각을 키우는 간단한 운동으로 낙상 위험을 줄일 수 있습니다.</div>
+          </div>
+          <div class="article-thumb" style="background:#eff6ff;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=144&q=80&fit=crop&crop=center" alt="낙상 예방 운동" style="width:100%;height:100%;object-fit:cover;border-radius:12px">
+          </div>
+        </div>
+
+        <div class="article-card" onclick="location.href='g-guardian-live.html?chat=1'">
+          <div class="article-body">
+            <span class="article-tag" style="color:#92400E;background:rgba(44,122,252,.08)">복약</span>
+            <div class="article-title">약 먹는 시간, 왜 중요한가요?</div>
+            <div class="article-desc">같은 약이라도 복용 시간에 따라 효과가 달라집니다. 올바른 복약 시간 관리법을 확인하세요.</div>
+          </div>
+          <div class="article-thumb" style="background:#fffbeb;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=144&q=80&fit=crop&crop=center" alt="복약 관리" style="width:100%;height:100%;object-fit:cover;border-radius:12px">
+          </div>
+        </div>
+
+        <div class="article-card" onclick="location.href='g-guardian-live.html?chat=1'">
+          <div class="article-body">
+            <span class="article-tag" style="color:#B91C1C;background:rgba(239,68,68,.06)">마음 건강</span>
+            <div class="article-title">보호자 번아웃, 이런 신호가 보이면 쉬세요</div>
+            <div class="article-desc">장기 간병은 보호자에게도 큰 부담입니다. 번아웃 초기 징후와 자가 관리법을 소개합니다.</div>
+          </div>
+          <div class="article-thumb" style="background:#fff1f2;overflow:hidden">
+            <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=144&q=80&fit=crop&crop=center" alt="마음 건강" style="width:100%;height:100%;object-fit:cover;border-radius:12px">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 탭바 -->
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab active"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+
+  <script>
+    window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+
+    var qExpanded = false;
+    var currentCat = 'all';
+
+    function applyQVisibility(){
+      var items = document.querySelectorAll('.q-item');
+      var btn = document.getElementById('q-more-btn');
+      if(currentCat === 'all'){
+        var visCount = 0;
+        items.forEach(function(item){
+          if(qExpanded){
+            item.style.display='';
+          } else {
+            if(visCount < 3){ item.style.display=''; visCount++; }
+            else { item.style.display='none'; }
+          }
+        });
+        btn.style.display = '';
+        btn.textContent = qExpanded ? '접기' : '전체보기';
+      } else {
+        items.forEach(function(item){
+          item.style.display = item.getAttribute('data-cat')===currentCat ? '' : 'none';
+        });
+        btn.style.display = 'none';
+      }
+    }
+
+    function filterQ(cat,btn){
+      document.querySelectorAll('.cat-chip').forEach(function(c){c.classList.remove('active');});
+      btn.classList.add('active');
+      currentCat = cat;
+      if(cat === 'all') qExpanded = false;
+      applyQVisibility();
+    }
+
+    function toggleAllQ(){
+      qExpanded = !qExpanded;
+      applyQVisibility();
+    }
+
+    // 초기 상태: 전체 카테고리에서 3개만 표시
+    applyQVisibility();
+
+    function toggleQ(el){
+      var isOpen = el.classList.contains('open');
+      // 다른 열린 항목 닫기
+      document.querySelectorAll('.q-item.open').forEach(function(item){
+        item.classList.remove('open');
+        item.querySelector('.q-answer').style.maxHeight = '0';
+      });
+      // 클릭한 항목 토글
+      if(!isOpen){
+        el.classList.add('open');
+        var answer = el.querySelector('.q-answer');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    }
+  </script>
+</body>
+</html>

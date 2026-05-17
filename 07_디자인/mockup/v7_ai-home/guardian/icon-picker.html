@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네비바 아이콘 피커</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:#0a0e1a;
+    color:#fff;
+    padding:20px;
+    min-height:100vh;
+  }
+  h1 { text-align:center; font-size:22px; margin-bottom:8px; font-weight:700; }
+  .sub { text-align:center; color:#8899aa; font-size:13px; margin-bottom:32px; }
+
+  .set-title {
+    font-size:16px; font-weight:700; margin:32px 0 8px;
+    padding:8px 16px;
+    background:rgba(44,122,252,.15);
+    border-radius:12px;
+    display:inline-block;
+  }
+  .set-desc { color:#8899aa; font-size:12px; margin:4px 0 16px; padding-left:4px; }
+
+  /* 네비바 미리보기 */
+  .navbar-preview {
+    width:100%; max-width:393px; margin:0 auto 40px;
+    background:rgba(255,255,255,.06);
+    backdrop-filter:blur(28px) saturate(1.4);
+    -webkit-backdrop-filter:blur(28px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:24px;
+    padding:10px 0 8px;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+  }
+  .tab {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    text-decoration:none; color:rgba(255,255,255,.4);
+    min-width:52px;
+    transition:color .2s;
+  }
+  .tab.on { color:#fff; }
+  .tab svg { width:24px; height:24px; }
+  .tab-label { font-size:10px; font-weight:500; }
+
+  /* 개별 아이콘 그리드 */
+  .icon-grid {
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    max-width:393px; margin:0 auto 12px;
+  }
+  .icon-cell {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:14px 4px;
+    background:rgba(255,255,255,.04);
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .icon-cell svg { width:28px; height:28px; fill:#fff; }
+  .icon-cell span { font-size:10px; color:#8899aa; }
+
+  .divider { border:none; border-top:1px solid rgba(255,255,255,.06); margin:40px 0; }
+
+  /* 라이트모드 프리뷰 */
+  .light-section {
+    background:rgba(255,255,255,.95);
+    border-radius:24px;
+    padding:24px 20px;
+    max-width:440px; margin:40px auto;
+  }
+  .light-section .set-title { color:#111; background:rgba(44,122,252,.1); }
+  .light-section .navbar-preview {
+    background:rgba(255,255,255,.7);
+    border:1px solid rgba(0,0,0,.06);
+  }
+  .light-section .tab { color:rgba(0,0,0,.3); }
+  .light-section .tab.on { color:#2C7AFC; }
+  .light-section .tab.on svg { fill:#2C7AFC; }
+  .light-section .tab svg { fill:rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+
+<h1>네비바 아이콘 세트</h1>
+<p class="sub">홈 · 리포트 · AI · 채팅 · 마이 — 세트별로 비교해보고 골라줘</p>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET A: 미니멀 라운드 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">A. 미니멀 라운드</div>
+<p class="set-desc">둥글고 심플한 filled 아이콘 — iOS 스타일</p>
+<div class="navbar-preview">
+  <!-- 홈 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4a2 2 0 012-2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm9 0v5h5l-5-5zM8 13h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v4a3 3 0 01-3 3h-1v1a4 4 0 01-8 0v-1H7a3 3 0 01-3-3v-4a3 3 0 013-3h1V6a4 4 0 014-4zm-2 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET B: SF 심볼 스타일 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">B. SF 심볼</div>
+<p class="set-desc">Apple SF Symbols 느낌 — 깔끔하고 정돈된 스타일</p>
+<div class="navbar-preview">
+  <!-- 홈 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12.5l9-9 9 9h-2.5V20h-4v-5h-5v5h-4v-7.5H3z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a3 3 0 110 6 3 3 0 010-6zm-1 8h2l1 5h-4l1-5z"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16a2 2 0 012 2v10a2 2 0 01-2 2H7l-4 4V6a2 2 0 012-2zm4 5a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 110 10 5 5 0 010-10zM4 20v-1c0-3.31 3.58-6 8-6s8 2.69 8 6v1H4z"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET C: 토스 스타일 볼드 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">C. 토스 볼드</div>
+<p class="set-desc">두껍고 무게감 있는 filled — 토스/카카오뱅크 스타일</p>
+<div class="navbar-preview">
+  <!-- 홈 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4L1.2 11.6h3.2V22h5.2v-6.4h4.8V22h5.2V11.6h3.2L12 2.4z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2h10l6 6v14H4V2zm3 10v2h10v-2H7zm0 4v2h7v-2H7z"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI: 스파클 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 1z"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 4a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H6.83L2 22.5V4zm6 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a6 6 0 110 12 6 6 0 010-12zM4 22v-2c0-3.31 3.58-6 8-6s8 2.69 8 6v2H4z"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET D: 글래스 모던 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">D. 글래스 모던</div>
+<p class="set-desc">가벼우면서 면이 채워진 모던 아이콘</p>
+<div class="navbar-preview">
+  <!-- 홈: 지붕 없는 모던 하우스 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h5v-7h6v7h5V9l-8-6z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트: 차트 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 14v-5h2v5H7zm4 0V8h2v9h-2zm4 0v-7h2v7h-2z"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI: 브레인 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 00-7 7c0 2.5 1.5 4.8 3.5 6v2.5a1.5 1.5 0 001.5 1.5h4a1.5 1.5 0 001.5-1.5V15c2-1.2 3.5-3.5 3.5-6a7 7 0 00-7-7zm-1 19h2v1h-2v-1zm-1 0a1 1 0 001 1h2a1 1 0 001-1"/><circle cx="9.5" cy="9" r="1"/><circle cx="14.5" cy="9" r="1"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅: 라운드 버블 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 110 10 5 5 0 010-10zM5 20a7 7 0 0114 0H5z"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET E: 스파클 AI 강조 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">E. 스파클 AI 강조</div>
+<p class="set-desc">AI 탭을 반짝이 아이콘으로 특별하게 — 나머지는 깔끔하게</p>
+<div class="navbar-preview">
+  <!-- 홈 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h16V9l-8-6zm-2 15v-5h4v5h-4z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트: 클립보드 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2a1 1 0 00-1 1H5a2 2 0 00-2 2v15a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-3a1 1 0 00-1-1H9zm0 2h6v1H9V4zM7 10h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI: 더블 스파클 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2l1.5 4.5L15 9l-4.5 1.5L9 15l-1.5-4.5L3 9l4.5-1.5L9 2z"/><path d="M17 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity=".7"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SET F: 미니멀 지오메트릭 -->
+<!-- ══════════════════════════════════════ -->
+<div class="set-title">F. 미니멀 지오메트릭</div>
+<p class="set-desc">기하학적이고 심플한 도형 기반 아이콘</p>
+<div class="navbar-preview">
+  <!-- 홈: 심플 삼각+사각 -->
+  <a class="tab on" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 7h3v8h10v-8h3l-8-7z"/></svg>
+    <span class="tab-label">홈</span>
+  </a>
+  <!-- 리포트: 바차트 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>
+    <span class="tab-label">리포트</span>
+  </a>
+  <!-- AI: 원+점 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#0a0e1a"/></svg>
+    <span class="tab-label">AI</span>
+  </a>
+  <!-- 채팅 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5a3 3 0 013-3h12a3 3 0 013 3v10a3 3 0 01-3 3H8l-5 4V5z"/></svg>
+    <span class="tab-label">채팅</span>
+  </a>
+  <!-- 마이 -->
+  <a class="tab" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="5"/><ellipse cx="12" cy="20" rx="8" ry="4"/></svg>
+    <span class="tab-label">마이</span>
+  </a>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<!-- 개별 아이콘별 대안 -->
+<!-- ══════════════════════════════════════ -->
+<h1 style="margin-top:20px;">개별 아이콘 대안</h1>
+<p class="sub">세트에서 고르기 어려우면 각 탭별로 하나씩 골라서 조합해도 돼</p>
+
+<div class="set-title">홈 아이콘</div>
+<div class="icon-grid">
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
+    <span>클래식</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3L4 9v12h16V9l-8-6zm-2 15v-5h4v5h-4z"/></svg>
+    <span>창문</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 4l-8 7h3v8h10v-8h3l-8-7z"/></svg>
+    <span>지오</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M3 12.5l9-9 9 9h-2.5V20h-4v-5h-5v5h-4v-7.5H3z"/></svg>
+    <span>SF</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.4L1.2 11.6h3.2V22h5.2v-6.4h4.8V22h5.2V11.6h3.2L12 2.4z"/></svg>
+    <span>볼드</span>
+  </div>
+</div>
+
+<div class="set-title">리포트 아이콘</div>
+<div class="icon-grid">
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4a2 2 0 012-2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm9 0v5h5l-5-5zM8 13h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+    <span>문서</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 14v-5h2v5H7zm4 0V8h2v9h-2zm4 0v-7h2v7h-2z"/></svg>
+    <span>바차트</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>
+    <span>막대</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M9 2a1 1 0 00-1 1H5a2 2 0 00-2 2v15a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2h-3a1 1 0 00-1-1H9zm0 2h6v1H9V4zM7 10h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+    <span>클립보드</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+    <span>그리드</span>
+  </div>
+</div>
+
+<div class="set-title">AI 아이콘</div>
+<div class="icon-grid">
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 1l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 1z"/></svg>
+    <span>스파클</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M9 2l1.5 4.5L15 9l-4.5 1.5L9 15l-1.5-4.5L3 9l4.5-1.5L9 2z"/><path d="M17 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity=".7"/></svg>
+    <span>더블스파클</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v4a3 3 0 01-3 3h-1v1a4 4 0 01-8 0v-1H7a3 3 0 01-3-3v-4a3 3 0 013-3h1V6a4 4 0 014-4zm-2 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+    <span>로봇</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#0a0e1a"/></svg>
+    <span>오브</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 00-7 7c0 2.5 1.5 4.8 3.5 6v2.5a1.5 1.5 0 001.5 1.5h4a1.5 1.5 0 001.5-1.5V15c2-1.2 3.5-3.5 3.5-6a7 7 0 00-7-7z"/><circle cx="9.5" cy="9" r="1"/><circle cx="14.5" cy="9" r="1"/></svg>
+    <span>브레인</span>
+  </div>
+</div>
+
+<div class="set-title">채팅 아이콘</div>
+<div class="icon-grid">
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+    <span>심플</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16a2 2 0 012 2v10a2 2 0 01-2 2H7l-4 4V6a2 2 0 012-2zm4 5a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+    <span>말풍선+점</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg>
+    <span>메신저</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M3 5a3 3 0 013-3h12a3 3 0 013 3v10a3 3 0 01-3 3H8l-5 4V5z"/></svg>
+    <span>라운드</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M2 4a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2H6.83L2 22.5V4zm6 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm4 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+    <span>볼드+점</span>
+  </div>
+</div>
+
+<div class="set-title">마이 아이콘</div>
+<div class="icon-grid">
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/></svg>
+    <span>클래식</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg>
+    <span>라운드</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a5 5 0 110 10 5 5 0 010-10zM5 20a7 7 0 0114 0H5z"/></svg>
+    <span>모던</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a6 6 0 110 12 6 6 0 010-12zM4 22v-2c0-3.31 3.58-6 8-6s8 2.69 8 6v2H4z"/></svg>
+    <span>볼드</span>
+  </div>
+  <div class="icon-cell">
+    <svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="5"/><ellipse cx="12" cy="20" rx="8" ry="4"/></svg>
+    <span>지오</span>
+  </div>
+</div>
+
+</body>
+</html>

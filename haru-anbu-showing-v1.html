@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — Showing v1</title>
+  <link rel="preload" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    /* ───────────────────────── RESET & BASE ───────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green:   #22C55E;
+      --green-d: #16A34A;
+      --blue:    #0891B2;
+      --orange:  #FB923C;
+      --red:     #EF4444;
+      --warn:    #F59E0B;
+      --ink:     #FFFFFF;
+      --ink-2:   rgba(255,255,255,0.72);
+      --ink-3:   rgba(255,255,255,0.45);
+      --ink-4:   rgba(255,255,255,0.24);
+      --ink-5:   rgba(255,255,255,0.10);
+      --ink-6:   rgba(255,255,255,0.05);
+      --bg:      #0A0A0A;
+      --bg-2:    #111111;
+      --bg-3:    #181818;
+      --line:    rgba(255,255,255,0.08);
+      --font:    'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      --ease:    cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ───────────────────────── PROGRESS BAR ───────────────────────── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 1px;
+      background: var(--line); z-index: 300; pointer-events: none;
+    }
+    #progress-fill {
+      height: 100%; width: 0%; background: var(--green);
+      transition: width 0.12s linear;
+    }
+
+    /* ───────────────────────── NAV DOTS ───────────────────────── */
+    #nav-dots {
+      position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 10px; z-index: 200;
+    }
+    .ndot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--ink-4); cursor: pointer;
+      transition: background 0.35s, transform 0.35s;
+    }
+    .ndot.on { background: var(--green); transform: scale(1.8); }
+
+    /* ───────────────────────── SECTION BASE ───────────────────────── */
+    .slide {
+      height: 100vh; width: 100%;
+      scroll-snap-align: start; scroll-snap-stop: always;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ───────────────────────── SCROLL CUE ───────────────────────── */
+    .scroll-cue {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--ink-4); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+      animation: bob 2.6s ease-in-out infinite;
+    }
+    .scroll-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, transparent, var(--ink-3));
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.8; }
+      55%       { transform: translateX(-50%) translateY(10px); opacity: 0.25; }
+    }
+
+    /* ───────────────────────── REVEAL ───────────────────────── */
+    .r {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    }
+    .r.in { opacity: 1; transform: translateY(0); }
+    .r.d1 { transition-delay: 0.1s; }
+    .r.d2 { transition-delay: 0.22s; }
+    .r.d3 { transition-delay: 0.36s; }
+    .r.d4 { transition-delay: 0.52s; }
+    .r.d5 { transition-delay: 0.68s; }
+    .r.d6 { transition-delay: 0.84s; }
+
+    /* ═══════════════════════════════════════════════════════════
+       0. COVER
+    ══════════════════════════════════════════════════════════════ */
+    #s0 {
+      background: var(--bg);
+      flex-direction: column;
+    }
+    #s0::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 100%, rgba(34,197,94,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cover-eyebrow {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 28px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cover-eyebrow::before, .cover-eyebrow::after {
+      content: ''; display: block; height: 1px; width: 24px; background: var(--green); opacity: 0.5;
+    }
+
+    .cover-title {
+      font-size: clamp(80px, 14vw, 180px);
+      font-weight: 700; letter-spacing: -0.05em; line-height: 0.9;
+      color: var(--ink); text-align: center;
+    }
+    .cover-title em {
+      display: block; font-style: normal;
+      color: var(--green);
+      font-size: 0.26em; font-weight: 500;
+      letter-spacing: 0.01em; line-height: 2.4;
+    }
+
+    .cover-tagline {
+      font-size: clamp(14px, 1.4vw, 17px);
+      font-weight: 400; color: var(--ink-3);
+      letter-spacing: -0.01em; line-height: 1.7;
+      text-align: center; max-width: 44ch; margin-top: 32px;
+    }
+
+    .cover-meta {
+      position: absolute; bottom: 36px; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 0 clamp(24px, 5vw, 80px);
+      font-size: 10px; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--ink-4);
+    }
+    .cover-logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cover-logo svg { width: 16px; height: 16px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       1. PROBLEM STATS
+    ══════════════════════════════════════════════════════════════ */
+    #s1 { background: var(--bg); }
+
+    .stats-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .stats-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 20px;
+    }
+    .stats-headline {
+      font-size: clamp(28px, 3.8vw, 48px); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.2; color: var(--ink);
+      margin-bottom: 64px;
+    }
+    .stats-headline em { font-style: normal; color: var(--green); }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--line);
+      border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
+    }
+    .stat-cell {
+      background: var(--bg-2); padding: 48px 40px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .stat-num {
+      font-size: clamp(52px, 6.5vw, 84px); font-weight: 700;
+      letter-spacing: -0.05em; line-height: 1;
+      color: var(--ink); font-feature-settings: "tnum";
+    }
+    .stat-num .unit {
+      font-size: 0.36em; font-weight: 500; color: var(--ink-3);
+      letter-spacing: 0; margin-left: 6px;
+    }
+    .stat-desc {
+      font-size: 15px; line-height: 1.65; color: var(--ink-3);
+      letter-spacing: -0.005em; max-width: 22ch;
+    }
+    .stat-source {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-4); margin-top: 4px;
+    }
+    .stat-cell.accent { background: #0D1F15; }
+    .stat-cell.accent .stat-num { color: var(--green); }
+
+    /* ═══════════════════════════════════════════════════════════
+       2. COMPETITOR MATRIX
+    ══════════════════════════════════════════════════════════════ */
+    #s2 { background: var(--bg); flex-direction: column; align-items: center; }
+
+    .matrix-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .matrix-headline {
+      font-size: clamp(24px, 3.2vw, 42px); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.2;
+      color: var(--ink); margin-bottom: 8px;
+    }
+    .matrix-sub {
+      font-size: 14px; color: var(--ink-3); letter-spacing: -0.01em;
+      margin-bottom: 36px; max-width: 50ch;
+    }
+
+    .matrix-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .matrix-table th, .matrix-table td {
+      text-align: center; padding: 13px 10px;
+      font-size: 12px; letter-spacing: -0.01em;
+      border-bottom: 1px solid var(--line);
+    }
+    .matrix-table th {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ink-3);
+      background: var(--bg); padding-bottom: 16px;
+    }
+    .matrix-table th.feature-head { text-align: left; }
+    .matrix-table td:first-child {
+      text-align: left; font-weight: 600;
+      color: var(--ink-2); font-size: 13px;
+    }
+    .matrix-table tr:last-child td { border-bottom: none; }
+
+    .matrix-table tr.ha-row td {
+      background: rgba(34,197,94,0.07);
+    }
+    .matrix-table tr.ha-row td:first-child {
+      color: var(--green);
+    }
+
+    .ci-o  { color: var(--green);  font-weight: 700; }
+    .ci-x  { color: var(--ink-4); font-weight: 500; }
+    .ci-d  { color: var(--warn);   font-weight: 600; }
+
+    .matrix-note {
+      margin-top: 18px; font-size: 12px; color: var(--ink-4);
+      letter-spacing: -0.005em;
+    }
+    .matrix-note strong { color: var(--green); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════════════
+       3. THREE VOICES
+    ══════════════════════════════════════════════════════════════ */
+    #s3 { background: var(--bg); }
+
+    .voices-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .voices-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 20px;
+    }
+    .voices-headline {
+      font-size: clamp(28px, 3.8vw, 48px); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--ink); margin-bottom: 48px;
+    }
+    .voices-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--line); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden;
+    }
+    .voice-card {
+      background: var(--bg-2); padding: 40px 32px;
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .voice-role {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .voice-role.guardian { color: var(--blue); }
+    .voice-role.caregiver { color: var(--green); }
+    .voice-role.nurse { color: #A78BFA; }
+    .voice-role.patient { color: var(--orange); }
+
+    .voice-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .voice-avatar.guardian  { background: rgba(8,145,178,0.15); color: var(--blue); }
+    .voice-avatar.caregiver { background: rgba(34,197,94,0.12); color: var(--green); }
+    .voice-avatar.nurse     { background: rgba(167,139,250,0.12); color: #A78BFA; }
+    .voice-avatar.patient   { background: rgba(251,146,60,0.12); color: var(--orange); }
+
+    .voice-name {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.025em;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    .voice-meta {
+      font-size: 12px; color: var(--ink-4); letter-spacing: -0.005em;
+      margin-bottom: 24px;
+    }
+    .voice-quote {
+      font-size: 14px; line-height: 1.75; color: var(--ink-3);
+      letter-spacing: -0.01em; flex: 1;
+      padding: 16px 18px; background: var(--ink-6); border-radius: 12px;
+    }
+    .voice-pain {
+      margin-top: 16px; font-size: 11px; color: var(--ink-4);
+      letter-spacing: -0.005em; display: flex; align-items: center; gap: 6px;
+    }
+    .voice-pain::before {
+      content: ''; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--ink-4); flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       4. CONCEPT
+    ══════════════════════════════════════════════════════════════ */
+    #s4 {
+      background: var(--bg);
+      flex-direction: column;
+    }
+    #s4::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.05) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .concept-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center;
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .concept-left {}
+    .concept-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 28px;
+    }
+    .concept-statement {
+      font-size: clamp(28px, 3.4vw, 44px); font-weight: 400;
+      line-height: 1.45; letter-spacing: -0.025em; color: var(--ink);
+      margin-bottom: 36px;
+    }
+    .concept-statement strong {
+      font-weight: 700; color: var(--green);
+    }
+    .concept-detail {
+      font-size: 15px; line-height: 1.8; color: var(--ink-3);
+      letter-spacing: -0.008em;
+    }
+
+    .concept-right {
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .concept-cell {
+      padding: 24px 28px;
+      background: var(--ink-6); border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .cc-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-4); margin-bottom: 8px;
+    }
+    .cc-body {
+      font-size: 14px; line-height: 1.7; color: var(--ink-3);
+      letter-spacing: -0.008em;
+    }
+
+    /* Logo mark large */
+    .logo-large {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 24px;
+    }
+    .logo-large svg {
+      width: 56px; height: 56px; opacity: 0.9;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       5. SERVICE ARCHITECTURE
+    ══════════════════════════════════════════════════════════════ */
+    #s5 { background: var(--bg); }
+
+    .arch-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .arch-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 20px;
+    }
+    .arch-headline {
+      font-size: clamp(28px, 3.8vw, 48px); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--ink); margin-bottom: 8px;
+    }
+    .arch-sub {
+      font-size: 15px; color: var(--ink-3); letter-spacing: -0.01em;
+      margin-bottom: 48px; max-width: 52ch; line-height: 1.7;
+    }
+
+    .arch-diagram {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--line); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden; position: relative;
+    }
+    .arch-role {
+      background: var(--bg-2); padding: 36px 28px;
+      display: flex; flex-direction: column; gap: 0;
+      position: relative;
+    }
+    .arch-num {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+      color: var(--ink-4); margin-bottom: 16px;
+    }
+    .arch-role-name {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    .arch-role-en {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--ink-4); margin-bottom: 20px;
+    }
+    .arch-role-desc {
+      font-size: 13px; line-height: 1.7; color: var(--ink-3);
+      letter-spacing: -0.008em; flex: 1;
+    }
+    .arch-platform {
+      margin-top: 24px; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+    }
+    .arch-platform.mobile   { color: var(--blue); }
+    .arch-platform.tablet   { color: var(--orange); }
+    .arch-platform.desktop  { color: #A78BFA; }
+
+    .arch-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 14px; font-weight: 700;
+    }
+    .arch-dot.g { background: rgba(8,145,178,0.15); color: var(--blue); }
+    .arch-dot.c { background: rgba(34,197,94,0.12); color: var(--green); }
+    .arch-dot.p { background: rgba(251,146,60,0.12); color: var(--orange); }
+    .arch-dot.n { background: rgba(167,139,250,0.12); color: #A78BFA; }
+
+    /* center connector arrow */
+    .arch-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 10px; color: var(--ink-4); pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       6. APP SHOWCASE — CSS PHONE MOCKUPS
+    ══════════════════════════════════════════════════════════════ */
+    #s6 { background: var(--bg-2); flex-direction: column; }
+
+    .showcase-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .showcase-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 20px;
+    }
+    .showcase-headline {
+      font-size: clamp(28px, 3.4vw, 44px); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--ink); margin-bottom: 36px;
+    }
+
+    .showcase-tabs {
+      display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap;
+    }
+    .sc-tab {
+      padding: 8px 20px; border-radius: 100px;
+      font-family: var(--font); font-size: 12px; font-weight: 500;
+      letter-spacing: -0.01em; cursor: pointer;
+      background: var(--ink-6); border: 1px solid var(--line);
+      color: var(--ink-3); transition: all 0.2s;
+    }
+    .sc-tab:hover { border-color: var(--ink-4); color: var(--ink); }
+    .sc-tab.active { background: var(--green); color: #000; border-color: var(--green); font-weight: 600; }
+
+    .showcase-stage {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 32px; min-height: 480px;
+    }
+
+    /* ─── CSS Phone Frame ─── */
+    .phone-frame {
+      width: 240px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2c2c2e 0%, #1c1c1e 100%);
+      border-radius: 44px;
+      padding: 12px 10px 28px;
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255,255,255,0.08),
+        0 2px 4px rgba(0,0,0,0.4),
+        0 20px 60px rgba(0,0,0,0.5),
+        0 48px 80px -20px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .phone-frame.featured { width: 272px; }
+    .phone-frame::before {
+      content: ''; position: absolute;
+      left: -2px; top: 88px;
+      width: 2px; height: 26px;
+      background: #2a2a2c; border-radius: 1px 0 0 1px;
+      box-shadow: 0 38px 0 #2a2a2c;
+    }
+    .phone-frame::after {
+      content: ''; position: absolute;
+      right: -2px; top: 108px;
+      width: 2px; height: 56px;
+      background: #2a2a2c; border-radius: 0 1px 1px 0;
+    }
+    .phone-island {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 72px; height: 22px; background: #0d0d0f; border-radius: 100px;
+      z-index: 15; pointer-events: none;
+    }
+    .phone-screen {
+      background: white; border-radius: 34px; overflow: hidden;
+      position: relative;
+      height: 440px;
+    }
+    .phone-frame.featured .phone-screen { height: 498px; }
+
+    /* Screen content panels (shown/hidden by JS) */
+    .sc-panel { display: none; height: 100%; flex-direction: column; }
+    .sc-panel.visible { display: flex; }
+
+    /* ── Guardian home screen ── */
+    .g-screen {
+      background: linear-gradient(180deg, #D9F0F7 0%, #F0F4F8 80px);
+      flex: 1; display: flex; flex-direction: column;
+    }
+    .g-header {
+      padding: 52px 16px 12px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .g-greeting { font-size: 11px; font-weight: 600; color: #0891B2; }
+    .g-name { font-size: 20px; font-weight: 700; color: #1C1C1E; letter-spacing: -0.025em; margin-top: 2px; }
+    .g-notif-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(8,145,178,0.1); display: flex; align-items: center; justify-content: center;
+    }
+    .g-notif-dot::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #EF4444; }
+    .g-card {
+      margin: 8px 12px; background: white;
+      border-radius: 18px; padding: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      flex: 1;
+    }
+    .g-card-label { font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #8E8E93; margin-bottom: 10px; }
+    .g-score-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 14px; }
+    .g-score { font-size: 42px; font-weight: 700; letter-spacing: -0.04em; color: #1C1C1E; }
+    .g-score-unit { font-size: 14px; color: #8E8E93; }
+    .g-bar-wrap { background: #F2F2F7; border-radius: 6px; height: 6px; margin-bottom: 14px; overflow: hidden; }
+    .g-bar-fill { height: 100%; width: 87%; background: linear-gradient(90deg, #0891B2, #22C55E); border-radius: 6px; }
+    .g-items { display: flex; flex-direction: column; gap: 7px; }
+    .g-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #3C3C43; }
+    .g-item-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .g-item-dot.ok { background: #22C55E; }
+    .g-item-dot.warn { background: #F59E0B; }
+    .g-item-val { margin-left: auto; font-weight: 600; color: #1C1C1E; font-size: 11px; }
+
+    /* ── Caregiver today screen ── */
+    .c-screen { background: #F0F4F8; flex: 1; display: flex; flex-direction: column; }
+    .c-header { padding: 52px 14px 12px; }
+    .c-header-label { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #22C55E; }
+    .c-header-title { font-size: 18px; font-weight: 700; color: #1C1C1E; letter-spacing: -0.02em; margin-top: 2px; }
+    .c-progress-text { font-size: 11px; color: #8E8E93; margin-top: 3px; }
+    .c-list { padding: 0 12px; display: flex; flex-direction: column; gap: 0; }
+    .c-step {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .c-step-num {
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .c-step-num.done { background: #22C55E; color: white; }
+    .c-step-num.active { background: #1C1C1E; color: white; }
+    .c-step-num.pending { background: #E5E5EA; color: #8E8E93; }
+    .c-step-info { flex: 1; }
+    .c-step-name { font-size: 12px; font-weight: 600; color: #1C1C1E; }
+    .c-step-sub { font-size: 10px; color: #8E8E93; margin-top: 1px; }
+    .c-step-time { font-size: 10px; color: #8E8E93; flex-shrink: 0; }
+    .c-sos-btn {
+      margin: 12px; background: #EF4444; border-radius: 14px;
+      padding: 12px; text-align: center;
+      font-size: 13px; font-weight: 700; color: white;
+    }
+
+    /* ── Patient tablet screen ── */
+    .p-screen { background: #FFEDD5; flex: 1; display: flex; flex-direction: column; padding: 24px 16px; }
+    .p-greeting { font-size: 12px; font-weight: 600; color: #FB923C; letter-spacing: -0.01em; margin-bottom: 6px; }
+    .p-name { font-size: 24px; font-weight: 700; color: #1C1C1E; letter-spacing: -0.025em; margin-bottom: 20px; }
+    .p-status-card {
+      background: white; border-radius: 16px; padding: 14px;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .p-status-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .p-status-icon.meal { background: #DCFCE7; }
+    .p-status-icon.med  { background: #FEF3C7; }
+    .p-status-icon.call { background: #DBEAFE; }
+    .p-status-title { font-size: 13px; font-weight: 600; color: #1C1C1E; }
+    .p-status-sub { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+    .p-sos {
+      margin-top: auto; background: #EF4444;
+      border-radius: 16px; padding: 16px; text-align: center;
+      font-size: 18px; font-weight: 800; color: white; letter-spacing: -0.01em;
+    }
+
+    /* ── Nurse AI report screen ── */
+    .n-screen { background: #F0F4F8; flex: 1; display: flex; flex-direction: column; }
+    .n-header { padding: 52px 14px 12px; }
+    .n-header-label { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #059669; }
+    .n-header-title { font-size: 16px; font-weight: 700; color: #1C1C1E; letter-spacing: -0.02em; margin-top: 2px; }
+    .n-patient-list { padding: 0 12px; display: flex; flex-direction: column; gap: 0; overflow: hidden; }
+    .n-patient {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .n-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .n-avatar.g { background: #D1FAE5; color: #059669; }
+    .n-avatar.y { background: #FEF3C7; color: #B45309; }
+    .n-avatar.r { background: #FEE2E2; color: #DC2626; }
+    .n-name { flex: 1; font-size: 12px; font-weight: 600; color: #1C1C1E; }
+    .n-room { font-size: 10px; color: #8E8E93; }
+    .n-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 3px 8px; border-radius: 100px;
+    }
+    .n-badge.ok   { background: #D1FAE5; color: #059669; }
+    .n-badge.warn { background: #FEF3C7; color: #B45309; }
+    .n-badge.sos  { background: #FEE2E2; color: #DC2626; }
+    .n-ai-card {
+      margin: 10px 12px; background: #0D0D12;
+      border-radius: 14px; padding: 12px;
+    }
+    .n-ai-label { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(44,122,252,0.8); margin-bottom: 6px; }
+    .n-ai-text { font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+    .n-ai-text strong { color: white; font-weight: 600; }
+
+    /* showcase caption */
+    .showcase-caption {
+      text-align: center; margin-top: 20px;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-4);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       7. SOS FLOW JOURNEY
+    ══════════════════════════════════════════════════════════════ */
+    #s7 { background: var(--bg); flex-direction: column; }
+
+    .flow-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .flow-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--red); margin-bottom: 20px;
+    }
+    .flow-headline {
+      font-size: clamp(26px, 3.4vw, 44px); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--ink); margin-bottom: 8px;
+    }
+    .flow-sub {
+      font-size: 14px; color: var(--ink-3); margin-bottom: 48px; max-width: 48ch; line-height: 1.7;
+    }
+
+    .flow-timeline {
+      display: flex; align-items: flex-start; gap: 0; position: relative;
+    }
+    .flow-step-wrap {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    .flow-connector {
+      position: absolute; top: 16px; left: 50%; right: -50%;
+      height: 1px; background: var(--line);
+    }
+    .flow-step-wrap:last-child .flow-connector { display: none; }
+
+    .flow-node {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; z-index: 2;
+      margin-bottom: 16px;
+    }
+    .flow-node.sos      { background: var(--red); color: white; }
+    .flow-node.care     { background: var(--green); color: white; }
+    .flow-node.nurse    { background: #A78BFA; color: white; }
+    .flow-node.ai       { background: #2C7AFC; color: white; }
+    .flow-node.guardian { background: var(--blue); color: white; }
+    .flow-node.report   { background: var(--ink-5); color: var(--ink); border: 1px solid var(--line); }
+
+    .flow-card {
+      background: var(--bg-2); border: 1px solid var(--line);
+      border-radius: 14px; padding: 16px 14px; width: 100%; max-width: 160px;
+    }
+    .flow-card-time {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px;
+    }
+    .flow-card-title {
+      font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+      letter-spacing: -0.01em; line-height: 1.3;
+    }
+    .flow-card-desc {
+      font-size: 11px; color: var(--ink-4); line-height: 1.5; letter-spacing: -0.005em;
+    }
+
+    .flow-result {
+      margin-top: 40px; padding: 24px 28px;
+      background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 16px; display: flex; align-items: center; gap: 20px;
+    }
+    .flow-result-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .flow-result-icon svg { width: 20px; height: 20px; }
+    .flow-result-text { font-size: 15px; line-height: 1.65; color: var(--ink-3); letter-spacing: -0.01em; }
+    .flow-result-text strong { color: var(--ink); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════════════
+       8. DESIGN SYSTEM PREVIEW
+    ══════════════════════════════════════════════════════════════ */
+    #s8 { background: var(--bg-2); }
+
+    .ds-wrap {
+      width: 100%; max-width: 1100px; padding: 0 clamp(24px, 5vw, 80px);
+    }
+    .ds-eyebrow {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 20px;
+    }
+    .ds-headline {
+      font-size: clamp(26px, 3.4vw, 44px); font-weight: 700;
+      letter-spacing: -0.03em; color: var(--ink); margin-bottom: 48px;
+    }
+    .ds-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
+      background: var(--line); border: 1px solid var(--line);
+      border-radius: 20px; overflow: hidden;
+    }
+    .ds-cell {
+      background: var(--bg-3); padding: 32px 28px;
+    }
+    .ds-cell-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-4); margin-bottom: 20px;
+    }
+
+    /* Color swatches */
+    .color-row { display: flex; flex-direction: column; gap: 8px; }
+    .color-swatch {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .color-chip {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    }
+    .color-info {}
+    .color-name { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+    .color-hex  { font-size: 10px; color: var(--ink-4); letter-spacing: 0.06em; margin-top: 1px; }
+
+    /* Type scale */
+    .type-row { display: flex; flex-direction: column; gap: 10px; }
+    .type-item { display: flex; align-items: baseline; gap: 12px; }
+    .type-sample { color: var(--ink-2); white-space: nowrap; }
+    .type-meta { font-size: 10px; color: var(--ink-4); flex-shrink: 0; }
+
+    /* Component samples */
+    .comp-row { display: flex; flex-direction: column; gap: 12px; }
+    .comp-btn {
+      padding: 10px 18px; border-radius: 12px; font-family: var(--font);
+      font-size: 13px; font-weight: 600; letter-spacing: -0.01em;
+      text-align: center; cursor: default;
+    }
+    .comp-btn.primary   { background: var(--green); color: #000; }
+    .comp-btn.secondary { background: var(--ink-6); color: var(--ink-2); border: 1px solid var(--line); }
+    .comp-btn.danger    { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+
+    .comp-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .comp-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 4px 10px; border-radius: 100px;
+    }
+    .comp-badge.done  { background: rgba(34,197,94,0.12); color: var(--green); }
+    .comp-badge.warn  { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .comp-badge.alert { background: rgba(239,68,68,0.12); color: var(--red); }
+    .comp-badge.info  { background: rgba(8,145,178,0.12); color: var(--blue); }
+
+    /* ═══════════════════════════════════════════════════════════
+       9. CLOSING
+    ══════════════════════════════════════════════════════════════ */
+    #s9 {
+      background: var(--bg);
+      flex-direction: column; text-align: center;
+    }
+    #s9::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 55% at 50% 60%, rgba(34,197,94,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .closing-mark {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.28em;
+      text-transform: uppercase; color: var(--ink-4); margin-bottom: 40px;
+    }
+    .closing-title {
+      font-size: clamp(42px, 6vw, 88px); font-weight: 700;
+      letter-spacing: -0.045em; line-height: 1.1; color: var(--ink);
+      margin-bottom: 24px;
+    }
+    .closing-title em { font-style: normal; color: var(--green); }
+    .closing-line {
+      font-size: clamp(15px, 1.4vw, 18px); line-height: 1.8; color: var(--ink-3);
+      max-width: 38ch; margin: 0 auto 52px; letter-spacing: -0.01em;
+    }
+    .closing-tags {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    }
+    .closing-tag {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--ink-4);
+      padding: 7px 16px; border-radius: 100px;
+      border: 1px solid var(--line);
+    }
+
+    .closing-foot {
+      position: absolute; bottom: 36px; left: 0; right: 0;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .closing-foot svg { width: 14px; height: 14px; }
+    .closing-foot-text {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--ink-4);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .stats-grid     { grid-template-columns: 1fr; }
+      .voices-grid    { grid-template-columns: 1fr; }
+      .arch-diagram   { grid-template-columns: 1fr 1fr; }
+      .concept-inner  { grid-template-columns: 1fr; gap: 36px; }
+      .ds-grid        { grid-template-columns: 1fr; }
+      .flow-timeline  { flex-direction: column; align-items: flex-start; gap: 24px; }
+      .flow-step-wrap { flex-direction: row; align-items: flex-start; gap: 12px; }
+      .flow-connector { display: none; }
+      .flow-node      { margin-bottom: 0; }
+      .showcase-stage { flex-direction: column; align-items: center; }
+      #nav-dots       { display: none; }
+      .matrix-table th:nth-child(n+4), .matrix-table td:nth-child(n+4) { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .arch-diagram { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<div id="nav-dots"></div>
+
+<!-- ═══════════════════════════ 0. COVER ═══════════════════════════ -->
+<section class="slide" id="s0">
+  <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1">
+    <div class="cover-eyebrow r d1">AI Care Communication Platform</div>
+    <h1 class="cover-title r d2">
+      하루안부.
+      <em>Haru Anbu</em>
+    </h1>
+    <p class="cover-tagline r d3">
+      보호자 · 의료진 · 환자,<br>
+      흩어진 세 시선을 하루의 안부 한 줄로 잇는 케어 플랫폼.
+    </p>
+  </div>
+  <div class="cover-meta r d5">
+    <div class="cover-logo">
+      <svg viewBox="0 0 2526 2526" fill="none">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+        <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+      </svg>
+      <span style="font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4)">하루안부</span>
+    </div>
+    <span>2026 · UX / UI Design</span>
+    <span>Care Communication</span>
+  </div>
+  <div class="scroll-cue">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 1. PROBLEM STATS ═══════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="stats-wrap">
+    <div class="stats-eyebrow r">Problem</div>
+    <h2 class="stats-headline r d1">아무도 다루지 않던<br>자리가 있었다.</h2>
+    <div class="stats-grid">
+      <div class="stat-cell r d2">
+        <div class="stat-num">187<span class="unit">만 가구</span></div>
+        <div class="stat-desc">국내 65세 이상 1인 가구. 5년간 38% 증가. 요양시설 입소 후 가족과 단절되는 이들.</div>
+        <div class="stat-source">통계청 2024</div>
+      </div>
+      <div class="stat-cell r d3">
+        <div class="stat-num">22<span class="unit">통 / 일</span></div>
+        <div class="stat-desc">중형 요양원 의료진의 일일 안부 응대 전화 수. 하루 평균 2시간 소요.</div>
+        <div class="stat-source">현장 인터뷰 v2.1</div>
+      </div>
+      <div class="stat-cell accent r d4">
+        <div class="stat-num">0<span class="unit">곳</span></div>
+        <div class="stat-desc">입소 후 3자 실시간 소통 시장의 국내 사업자 수. 공백이 곧 기회.</div>
+        <div class="stat-source">경쟁사 6곳 분석</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 2. COMPETITOR MATRIX ═══════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="matrix-wrap">
+    <div class="stats-eyebrow r">Competitor Analysis</div>
+    <h2 class="matrix-headline r d1">6개 경쟁사,<br>모두 같은 자리에 있었다.</h2>
+    <p class="matrix-sub r d2">시설 매칭, 시설 운영, 보호자 결제 — '입소 후 3자 실시간 소통'을 다루는 곳은 단 한 곳도 없었습니다.</p>
+    <div class="r d3">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th class="feature-head">서비스</th>
+            <th>시설 매칭</th>
+            <th>안부 소통</th>
+            <th>AI 리포트</th>
+            <th>3자 실시간</th>
+            <th>환자 앱</th>
+            <th>모바일</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>케어닥</td>
+            <td class="ci-o">O</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr>
+            <td>케어링</td>
+            <td class="ci-o">O</td>
+            <td class="ci-d">△</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr>
+            <td>실버링크</td>
+            <td class="ci-x">—</td>
+            <td class="ci-d">△</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr>
+            <td>요양이즈</td>
+            <td class="ci-o">O</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr>
+            <td>케어카카오</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr>
+            <td>돌봄파트너</td>
+            <td class="ci-o">O</td>
+            <td class="ci-d">△</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+          </tr>
+          <tr class="ha-row">
+            <td>하루안부</td>
+            <td class="ci-x">—</td>
+            <td class="ci-o">O</td>
+            <td class="ci-o">O</td>
+            <td class="ci-o">O</td>
+            <td class="ci-o">O</td>
+            <td class="ci-o">O</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="matrix-note">O: 기능 있음 &nbsp;△: 부분 지원 &nbsp;—: 없음 &nbsp;|&nbsp; <strong>하루안부만이 AI 리포트 + 3자 실시간 소통 + 환자 앱 3가지를 동시에 제공합니다.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 3. THREE VOICES ═══════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="voices-wrap">
+    <div class="voices-eyebrow r">Three Voices</div>
+    <h2 class="voices-headline r d1">기능이 아니라<br>안심을 설계한다.</h2>
+    <div class="voices-grid">
+      <div class="voice-card r d2">
+        <div class="voice-role guardian">Guardian</div>
+        <div class="voice-avatar guardian">김</div>
+        <div class="voice-name">김미영</div>
+        <div class="voice-meta">53세 · 보호자 · 모친 5년 입소</div>
+        <div class="voice-quote">오늘 엄마가 식사를 하셨는지 알 길이 없다. 전화하긴 죄송하고, 기다리긴 불안하다.</div>
+        <div class="voice-pain">하루 1~3회 전화 문의 → 의료진 업무 방해</div>
+      </div>
+      <div class="voice-card r d3">
+        <div class="voice-role nurse">Nurse</div>
+        <div class="voice-avatar nurse">박</div>
+        <div class="voice-name">박지현</div>
+        <div class="voice-meta">38세 · 간호사 · 환자 47명 담당</div>
+        <div class="voice-quote">전화 응대에 하루 2시간. 같은 질문을 47번 받고 나면, 정작 환자를 볼 시간이 없다.</div>
+        <div class="voice-pain">안부 전화 → 월 660통, 기록은 종이에</div>
+      </div>
+      <div class="voice-card r d4">
+        <div class="voice-role patient">Patient</div>
+        <div class="voice-avatar patient">김</div>
+        <div class="voice-name">김순자</div>
+        <div class="voice-meta">82세 · 입소 환자 · 치매 초기</div>
+        <div class="voice-quote">아들 얼굴이 보고 싶다. 휴대폰은 어렵고, 누군가 도와주면 좋겠다.</div>
+        <div class="voice-pain">디지털 기기 접근성 전무 → 완전 단절</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 4. CONCEPT ═══════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="concept-inner">
+    <div class="concept-left">
+      <div class="concept-label r">Brand Concept</div>
+      <div class="logo-large r d1">
+        <svg viewBox="0 0 2526 2526" fill="none">
+          <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#22C55E"/>
+          <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+        </svg>
+      </div>
+      <p class="concept-statement r d2">
+        두 개의 곡선이 만나<br>
+        <strong>하나의 안부</strong>가 됩니다.
+      </p>
+      <p class="concept-detail r d3">
+        멀리서 묻는 가족의 마음과 현장에서 답하는 의료진의 손길. 두 곡선이 중앙에서 맞물려 매일 안부를 잇습니다.
+      </p>
+    </div>
+    <div class="concept-right">
+      <div class="concept-cell r d2">
+        <div class="cc-label">Symbol</div>
+        <div class="cc-body">닫히지 않은 두 곡선. 매일 새 안부가 흘러들어오는 열린 공간을 의미합니다.</div>
+      </div>
+      <div class="concept-cell r d3">
+        <div class="cc-label">Color — #22C55E</div>
+        <div class="cc-body">생명의 녹색. 회복과 연결을 상징합니다. 무채색 기반 위에 단일 포인트로만 사용합니다.</div>
+      </div>
+      <div class="concept-cell r d4">
+        <div class="cc-label">Tagline</div>
+        <div class="cc-body" style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.72);letter-spacing:-0.015em;">
+          오늘 하루도,<br>안녕하셨습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 5. ARCHITECTURE ═══════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="arch-wrap">
+    <div class="arch-eyebrow r">Service Architecture</div>
+    <h2 class="arch-headline r d1">한 번의 안부,<br>네 개의 화면.</h2>
+    <p class="arch-sub r d2">같은 데이터를 보호자는 안심 지수로, 요양보호사는 스텝퍼로, 환자는 큰 글씨 한 화면으로, 의료진은 47명 대시보드로 봅니다.</p>
+    <div class="arch-diagram r d3">
+      <div class="arch-role">
+        <div class="arch-num">01</div>
+        <div class="arch-dot g">G</div>
+        <div class="arch-role-name">보호자 앱</div>
+        <div class="arch-role-en">Guardian</div>
+        <div class="arch-role-desc">멀리 있어도 오늘이 보이는 한 화면. 식사·복약·기분 흐름과 AI 안심 지수를 1일 1회 자동 수신합니다.</div>
+        <div class="arch-platform mobile">Mobile</div>
+      </div>
+      <div class="arch-role">
+        <div class="arch-num">02</div>
+        <div class="arch-dot c">C</div>
+        <div class="arch-role-name">요양보호사 앱</div>
+        <div class="arch-role-en">Caregiver</div>
+        <div class="arch-role-desc">방문 동선 위에서 8단계 스텝퍼로 빠르게 기록. SOS 버튼 하나로 간호사 즉시 연결됩니다.</div>
+        <div class="arch-platform mobile">Mobile</div>
+      </div>
+      <div class="arch-role">
+        <div class="arch-num">03</div>
+        <div class="arch-dot p">P</div>
+        <div class="arch-role-name">환자 앱</div>
+        <div class="arch-role-en">Patient</div>
+        <div class="arch-role-desc">거실 거치형 태블릿. 화면 3개 · 터치 56px · 글자 +2px. 조작이 아니라 '있는 것'입니다.</div>
+        <div class="arch-platform tablet">Tablet</div>
+      </div>
+      <div class="arch-role">
+        <div class="arch-num">04</div>
+        <div class="arch-dot n">N</div>
+        <div class="arch-role-name">의료진 웹</div>
+        <div class="arch-role-en">Medical</div>
+        <div class="arch-role-desc">47명의 환자를 한 대시보드에. AI가 이상 신호를 중요도 순으로 정렬합니다.</div>
+        <div class="arch-platform desktop">Desktop</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 6. APP SHOWCASE ═══════════════════════════ -->
+<section class="slide" id="s6">
+  <div class="showcase-wrap">
+    <div class="showcase-eyebrow r">App Showcase</div>
+    <h2 class="showcase-headline r d1">역할마다 다른 시선,<br>하나의 데이터.</h2>
+    <div class="showcase-tabs r d2" id="sc-tabs">
+      <button class="sc-tab active" data-sc="guardian">보호자 앱</button>
+      <button class="sc-tab" data-sc="caregiver">요양보호사 앱</button>
+      <button class="sc-tab" data-sc="patient">환자 앱</button>
+      <button class="sc-tab" data-sc="nurse">의료진 대시보드</button>
+    </div>
+    <div class="showcase-stage r d3" id="sc-stage">
+
+      <!-- Guardian panel -->
+      <div class="sc-panel visible" id="sc-guardian">
+        <div class="phone-frame featured">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <div class="g-screen">
+              <div class="g-header">
+                <div>
+                  <div class="g-greeting">안녕하세요, 보호자님</div>
+                  <div class="g-name">오늘의 안부</div>
+                </div>
+                <div class="g-notif-dot"></div>
+              </div>
+              <div class="g-card">
+                <div class="g-card-label">AI 안심지수 · 오늘</div>
+                <div class="g-score-row">
+                  <div class="g-score">87</div>
+                  <div class="g-score-unit">점</div>
+                </div>
+                <div class="g-bar-wrap"><div class="g-bar-fill"></div></div>
+                <div class="g-items">
+                  <div class="g-item"><span class="g-item-dot ok"></span>아침 식사<span class="g-item-val">완료</span></div>
+                  <div class="g-item"><span class="g-item-dot ok"></span>오전 투약<span class="g-item-val">완료</span></div>
+                  <div class="g-item"><span class="g-item-dot warn"></span>오후 산책<span class="g-item-val">미완료</span></div>
+                  <div class="g-item"><span class="g-item-dot ok"></span>저녁 식사<span class="g-item-val">완료</span></div>
+                  <div class="g-item"><span class="g-item-dot ok"></span>취침 복약<span class="g-item-val">완료</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caregiver panel -->
+      <div class="sc-panel" id="sc-caregiver">
+        <div class="phone-frame featured">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <div class="c-screen">
+              <div class="c-header">
+                <div class="c-header-label">오늘의 방문 · 305호</div>
+                <div class="c-header-title">김순자 어르신</div>
+                <div class="c-progress-text">5 / 8 단계 완료</div>
+              </div>
+              <div class="c-list">
+                <div class="c-step">
+                  <div class="c-step-num done">1</div>
+                  <div class="c-step-info"><div class="c-step-name">아침 인사</div><div class="c-step-sub">활력 체크 완료</div></div>
+                  <div class="c-step-time">08:12</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num done">2</div>
+                  <div class="c-step-info"><div class="c-step-name">식사 보조</div><div class="c-step-sub">죽 350ml 섭취</div></div>
+                  <div class="c-step-time">08:35</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num done">3</div>
+                  <div class="c-step-info"><div class="c-step-name">투약 확인</div><div class="c-step-sub">혈압약, 진통제</div></div>
+                  <div class="c-step-time">09:00</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num done">4</div>
+                  <div class="c-step-info"><div class="c-step-name">구강 케어</div><div class="c-step-sub">양치 및 가글</div></div>
+                  <div class="c-step-time">09:20</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num done">5</div>
+                  <div class="c-step-info"><div class="c-step-name">활동 기록</div><div class="c-step-sub">휠체어 산책 30분</div></div>
+                  <div class="c-step-time">10:05</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num active">6</div>
+                  <div class="c-step-info"><div class="c-step-name">오후 투약</div><div class="c-step-sub">진행 중</div></div>
+                  <div class="c-step-time">—</div>
+                </div>
+                <div class="c-step">
+                  <div class="c-step-num pending">7</div>
+                  <div class="c-step-info"><div class="c-step-name">저녁 식사</div><div class="c-step-sub">예정</div></div>
+                  <div class="c-step-time">—</div>
+                </div>
+              </div>
+              <div class="c-sos-btn">SOS — 즉시 간호사 연결</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient panel -->
+      <div class="sc-panel" id="sc-patient">
+        <div class="phone-frame featured">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <div class="p-screen">
+              <div class="p-greeting">좋은 아침이에요</div>
+              <div class="p-name">김순자 어르신</div>
+              <div class="p-status-card">
+                <div class="p-status-icon meal">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M12 2v6m0 0c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6z"/></svg>
+                </div>
+                <div>
+                  <div class="p-status-title">아침 식사 완료</div>
+                  <div class="p-status-sub">오전 8:35 · 죽 350ml</div>
+                </div>
+              </div>
+              <div class="p-status-card">
+                <div class="p-status-icon med">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div>
+                  <div class="p-status-title">오전 투약 완료</div>
+                  <div class="p-status-sub">오전 9:00 · 혈압약, 진통제</div>
+                </div>
+              </div>
+              <div class="p-status-card">
+                <div class="p-status-icon call">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="m22 7-10 8L2 7"/></svg>
+                </div>
+                <div>
+                  <div class="p-status-title">아들이 보고 싶으세요?</div>
+                  <div class="p-status-sub">눌러서 화상 연결</div>
+                </div>
+              </div>
+              <div class="p-sos">SOS — 도움 요청</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nurse panel -->
+      <div class="sc-panel" id="sc-nurse">
+        <div class="phone-frame featured">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <div class="n-screen">
+              <div class="n-header">
+                <div class="n-header-label">오늘 · 박지현 간호사</div>
+                <div class="n-header-title">담당 환자 현황 (47명)</div>
+              </div>
+              <div class="n-ai-card">
+                <div class="n-ai-label">AI 요약</div>
+                <div class="n-ai-text">오늘 <strong>305호 김순자</strong> 어르신 오후 투약 미완료. <strong>201호 이영자</strong> 어르신 혈압 수치 주의 필요.</div>
+              </div>
+              <div class="n-patient-list">
+                <div class="n-patient">
+                  <div class="n-avatar r">김</div>
+                  <div class="n-name">김순자</div>
+                  <div class="n-room">305호</div>
+                  <div class="n-badge warn">주의</div>
+                </div>
+                <div class="n-patient">
+                  <div class="n-avatar r">이</div>
+                  <div class="n-name">이영자</div>
+                  <div class="n-room">201호</div>
+                  <div class="n-badge sos">SOS</div>
+                </div>
+                <div class="n-patient">
+                  <div class="n-avatar g">박</div>
+                  <div class="n-name">박철수</div>
+                  <div class="n-room">108호</div>
+                  <div class="n-badge ok">정상</div>
+                </div>
+                <div class="n-patient">
+                  <div class="n-avatar g">최</div>
+                  <div class="n-name">최영희</div>
+                  <div class="n-room">214호</div>
+                  <div class="n-badge ok">정상</div>
+                </div>
+                <div class="n-patient">
+                  <div class="n-avatar y">정</div>
+                  <div class="n-name">정말순</div>
+                  <div class="n-room">319호</div>
+                  <div class="n-badge warn">주의</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p class="showcase-caption r d5" id="sc-caption">보호자 앱 — 보호자 화면</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 7. SOS FLOW ═══════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="flow-wrap">
+    <div class="flow-eyebrow r">SOS Journey</div>
+    <h2 class="flow-headline r d1">새벽 2시 34분,<br>3분 안에 연결됩니다.</h2>
+    <p class="flow-sub r d2">305호 김순자 어르신의 SOS 요청이 들어온 순간부터 보호자가 안심할 때까지의 실제 흐름입니다.</p>
+    <div class="flow-timeline r d3">
+      <div class="flow-step-wrap">
+        <div class="flow-connector"></div>
+        <div class="flow-node sos">!</div>
+        <div class="flow-card">
+          <div class="flow-card-time">02:34 — 환자</div>
+          <div class="flow-card-title">SOS 버튼 터치</div>
+          <div class="flow-card-desc">305호 김순자 어르신. 통증으로 도움 요청.</div>
+        </div>
+      </div>
+      <div class="flow-step-wrap">
+        <div class="flow-connector"></div>
+        <div class="flow-node care">C</div>
+        <div class="flow-card">
+          <div class="flow-card-time">02:35 — 요양보호사</div>
+          <div class="flow-card-title">즉시 알림 수신</div>
+          <div class="flow-card-desc">이서연 요양보호사 앱 푸시 → 1분 이내 방문.</div>
+        </div>
+      </div>
+      <div class="flow-step-wrap">
+        <div class="flow-connector"></div>
+        <div class="flow-node nurse">N</div>
+        <div class="flow-card">
+          <div class="flow-card-time">02:36 — 간호사</div>
+          <div class="flow-card-title">간호사 연결</div>
+          <div class="flow-card-desc">통증 원인 판단, 투약 여부 검토.</div>
+        </div>
+      </div>
+      <div class="flow-step-wrap">
+        <div class="flow-connector"></div>
+        <div class="flow-node ai">AI</div>
+        <div class="flow-card">
+          <div class="flow-card-time">02:37 — AI</div>
+          <div class="flow-card-title">케어 데이터 분석</div>
+          <div class="flow-card-desc">투약 이력·낙상 지수 분석 → 진통제 권장.</div>
+        </div>
+      </div>
+      <div class="flow-step-wrap">
+        <div class="flow-connector"></div>
+        <div class="flow-node guardian">G</div>
+        <div class="flow-card">
+          <div class="flow-card-time">02:38 — 보호자</div>
+          <div class="flow-card-title">보호자 허용</div>
+          <div class="flow-card-desc">김미영님 투약 동의 → 처치 진행.</div>
+        </div>
+      </div>
+      <div class="flow-step-wrap">
+        <div class="flow-node report">R</div>
+        <div class="flow-card">
+          <div class="flow-card-time">08:02 — 다음 날</div>
+          <div class="flow-card-title">AI 일일 리포트</div>
+          <div class="flow-card-desc">새벽 응급 처치 완료 · 안심 지수 87점 자동 발송.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-result r d4">
+      <div class="flow-result-icon">
+        <svg viewBox="0 0 20 20" fill="white"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+      </div>
+      <p class="flow-result-text">
+        새벽 SOS 발생 후 <strong>3분 안에 간호사 연결</strong>, 다음 날 아침 보호자는 <strong>AI 리포트로 안심</strong>합니다. 전화 한 통 없이.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 8. DESIGN SYSTEM ═══════════════════════════ -->
+<section class="slide" id="s8">
+  <div class="ds-wrap">
+    <div class="ds-eyebrow r">Design System</div>
+    <h2 class="ds-headline r d1">Pretendard + 무채색 기반<br>단일 그린 포인트.</h2>
+    <div class="ds-grid r d2">
+      <div class="ds-cell">
+        <div class="ds-cell-label">Color System</div>
+        <div class="color-row">
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#22C55E"></div>
+            <div class="color-info"><div class="color-name">Brand Green</div><div class="color-hex">#22C55E</div></div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#0891B2"></div>
+            <div class="color-info"><div class="color-name">Guardian Blue</div><div class="color-hex">#0891B2</div></div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#059669"></div>
+            <div class="color-info"><div class="color-name">Care Green</div><div class="color-hex">#059669</div></div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#FB923C"></div>
+            <div class="color-info"><div class="color-name">Warm Orange</div><div class="color-hex">#FB923C</div></div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#EF4444"></div>
+            <div class="color-info"><div class="color-name">Danger</div><div class="color-hex">#EF4444</div></div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-chip" style="background:#F59E0B"></div>
+            <div class="color-info"><div class="color-name">Warning</div><div class="color-hex">#F59E0B</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-cell-label">Type Scale — Pretendard Variable</div>
+        <div class="type-row">
+          <div class="type-item"><span class="type-sample" style="font-size:28px;font-weight:700;letter-spacing:-0.04em;">Aa</span><span class="type-meta">Display 32px 700</span></div>
+          <div class="type-item"><span class="type-sample" style="font-size:20px;font-weight:600;letter-spacing:-0.025em;">Aa</span><span class="type-meta">Title 22px 600</span></div>
+          <div class="type-item"><span class="type-sample" style="font-size:16px;font-weight:600;letter-spacing:-0.015em;">Aa</span><span class="type-meta">Headline 17px 600</span></div>
+          <div class="type-item"><span class="type-sample" style="font-size:14px;font-weight:400;">Aa</span><span class="type-meta">Body 16px 400</span></div>
+          <div class="type-item"><span class="type-sample" style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.45);">Aa</span><span class="type-meta">Callout 14px 400</span></div>
+          <div class="type-item"><span class="type-sample" style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.3);">Aa</span><span class="type-meta">Caption 13px 400</span></div>
+        </div>
+      </div>
+      <div class="ds-cell">
+        <div class="ds-cell-label">Components</div>
+        <div class="comp-row">
+          <div class="comp-btn primary">완료하기</div>
+          <div class="comp-btn secondary">나중에</div>
+          <div class="comp-btn danger">삭제</div>
+          <div class="comp-badges">
+            <span class="comp-badge done">완료</span>
+            <span class="comp-badge warn">주의</span>
+            <span class="comp-badge alert">긴급</span>
+            <span class="comp-badge info">정보</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ 9. CLOSING ═══════════════════════════ -->
+<section class="slide" id="s9">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="closing-mark r">— Epilogue —</div>
+    <h2 class="closing-title r d1">오늘 하루도,<br><em>안녕하셨습니다.</em></h2>
+    <p class="closing-line r d2">
+      매일 잊지 않고 안부를 묻는 마음.<br>
+      전화 한 통 없이, 걱정 한 줄 없이.
+    </p>
+    <div class="closing-tags r d3">
+      <span class="closing-tag">UX / UI</span>
+      <span class="closing-tag">Care Communication</span>
+      <span class="closing-tag">AI Platform</span>
+      <span class="closing-tag">2026</span>
+    </div>
+  </div>
+  <div class="closing-foot r d5">
+    <svg viewBox="0 0 2526 2526" fill="none">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="rgba(255,255,255,0.25)"/>
+      <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="rgba(255,255,255,0.25)"/>
+    </svg>
+    <span class="closing-foot-text">하루안부 · Showing v1 · 2026</span>
+  </div>
+</section>
+
+<script>
+/* ── SECTION SETUP ── */
+const SECTIONS = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+const N = SECTIONS.length;
+
+/* ── NAV DOTS ── */
+const dotsEl = document.getElementById('nav-dots');
+SECTIONS.forEach((id, i) => {
+  const d = document.createElement('div');
+  d.className = 'ndot' + (i === 0 ? ' on' : '');
+  d.title = id;
+  d.addEventListener('click', () => {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  });
+  dotsEl.appendChild(d);
+});
+const dots = dotsEl.querySelectorAll('.ndot');
+
+/* ── PROGRESS + DOTS ── */
+const fill = document.getElementById('progress-fill');
+function updateProgress() {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  fill.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+}
+
+/* ── INTERSECTION OBSERVER — reveal + dots ── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      // Activate dot
+      const idx = SECTIONS.indexOf(e.target.id);
+      if (idx >= 0) dots.forEach((d, i) => d.classList.toggle('on', i === idx));
+      // Reveal children
+      e.target.querySelectorAll('.r').forEach(el => el.classList.add('in'));
+    }
+  });
+}, { threshold: 0.35 });
+
+SECTIONS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) io.observe(el);
+});
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+/* Trigger cover on load */
+setTimeout(() => {
+  document.getElementById('s0').querySelectorAll('.r').forEach(el => el.classList.add('in'));
+}, 100);
+
+/* ── SHOWCASE TABS ── */
+const tabBtns = document.querySelectorAll('.sc-tab');
+const panels = {
+  guardian:  document.getElementById('sc-guardian'),
+  caregiver: document.getElementById('sc-caregiver'),
+  patient:   document.getElementById('sc-patient'),
+  nurse:     document.getElementById('sc-nurse'),
+};
+const captions = {
+  guardian:  '보호자 앱 — AI 안심지수 & 오늘의 안부',
+  caregiver: '요양보호사 앱 — 8단계 스텝퍼 & SOS',
+  patient:   '환자 앱 — 거실 거치형 태블릿 UI',
+  nurse:     '의료진 대시보드 — 47명 환자 현황',
+};
+const captionEl = document.getElementById('sc-caption');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.sc;
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.entries(panels).forEach(([k, el]) => {
+      el.classList.toggle('visible', k === key);
+    });
+    captionEl.textContent = captions[key] || '';
+  });
+});
+</script>
+</body>
+</html>

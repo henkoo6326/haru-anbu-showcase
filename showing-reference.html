@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쇼잉 — 레퍼런스</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+    }
+
+    body {
+      background: #0a0a0a;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 탑바 */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: #fff;
+      width: 0%;
+      z-index: 200;
+      transition: width 0.1s linear;
+    }
+
+    /* 진행 도트 */
+    .dots {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+    .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transition: background 0.35s, transform 0.35s;
+    }
+    .dot.on {
+      background: #fff;
+      transform: scale(1.7);
+    }
+
+    /* 인트로 섹션 */
+    .intro {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      position: relative;
+    }
+    .intro-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .intro-title {
+      font-size: clamp(34px, 5.5vw, 64px);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      color: #fff;
+    }
+    .intro-sub {
+      font-size: clamp(13px, 1.4vw, 16px);
+      color: rgba(255,255,255,0.38);
+      margin-top: 2px;
+    }
+    .scroll-cue {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.25);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      animation: bob 2.4s ease-in-out infinite;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.25));
+    }
+    @keyframes bob {
+      0%,100% { transform: translateY(0); opacity: .8; }
+      55%      { transform: translateY(8px); opacity: .3; }
+    }
+
+    /* 이미지 스냅 섹션 */
+    .ref-slide {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 배경 블러 블롭 */
+    .ref-slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .ref-img-wrap {
+      position: relative;
+      max-width: min(880px, 90vw);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* 이미지 프레임 */
+    .ref-frame {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.5),
+        0 8px 24px rgba(0,0,0,0.55),
+        0 32px 80px rgba(0,0,0,0.45);
+      transform: translateY(24px) scale(0.96);
+      opacity: 0;
+      transition:
+        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity   0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .ref-slide.in-view .ref-frame {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .ref-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 72vh;
+      object-fit: contain;
+      background: #111;
+    }
+
+    /* 슬라이드 번호 + 캡션 */
+    .ref-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.7s ease 0.25s, transform 0.7s ease 0.25s;
+    }
+    .ref-slide.in-view .ref-meta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .ref-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.25);
+    }
+    .ref-divider {
+      width: 28px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+    }
+    .ref-caption {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.01em;
+    }
+
+    /* 아웃트로 */
+    .outro {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .outro-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+    }
+    .outro-title {
+      font-size: clamp(24px, 3.6vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .outro.in-view .outro-title { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="topbar" id="topbar"></div>
+<div class="dots" id="dots"></div>
+
+<!-- 인트로 -->
+<section class="intro" id="sec-0">
+  <span class="intro-eyebrow">Reference</span>
+  <h1 class="intro-title">쇼잉 레퍼런스</h1>
+  <p class="intro-sub">5개의 레퍼런스 이미지를 순서대로 확인합니다.</p>
+  <div class="scroll-cue">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- 이미지 1 -->
+<section class="ref-slide" id="sec-1">
+  <div class="ref-img-wrap">
+    <div class="ref-frame">
+      <img src="레퍼런스/쇼잉/31c918c30959753f36aba9b99169d3f9.jpg" alt="Service Direction — Pin & Pong" />
+    </div>
+    <div class="ref-meta">
+      <span class="ref-num">01 / 05</span>
+      <div class="ref-divider"></div>
+      <span class="ref-caption">Service Direction — Pin &amp; Pong, Layered Pinning</span>
+    </div>
+  </div>
+</section>
+
+<!-- 이미지 2 -->
+<section class="ref-slide" id="sec-2">
+  <div class="ref-img-wrap">
+    <div class="ref-frame">
+      <img src="레퍼런스/쇼잉/Toks Quiz Study Service.jpg" alt="Toks Quiz Study Service — Competitor Analysis" />
+    </div>
+    <div class="ref-meta">
+      <span class="ref-num">02 / 05</span>
+      <div class="ref-divider"></div>
+      <span class="ref-caption">Toks Quiz Study Service — Competitor Analysis &amp; Positioning Map</span>
+    </div>
+  </div>
+</section>
+
+<!-- 이미지 3 -->
+<section class="ref-slide" id="sec-3">
+  <div class="ref-img-wrap">
+    <div class="ref-frame">
+      <img src="레퍼런스/쇼잉/b0901d41908fa1148e896cc753e198bb.jpg" alt="Onboarding Screen — 뚝스 퀴즈 스터디" />
+    </div>
+    <div class="ref-meta">
+      <span class="ref-num">03 / 05</span>
+      <div class="ref-divider"></div>
+      <span class="ref-caption">Onboarding Screen — 뚝스 퀴즈 스터디 앱</span>
+    </div>
+  </div>
+</section>
+
+<!-- 이미지 4 -->
+<section class="ref-slide" id="sec-4">
+  <div class="ref-img-wrap">
+    <div class="ref-frame">
+      <img src="레퍼런스/쇼잉/포트폴리오.jpg" alt="포트폴리오 — 구슬 리뉴얼 빈티지 패션 라이브 커머스" />
+    </div>
+    <div class="ref-meta">
+      <span class="ref-num">04 / 05</span>
+      <div class="ref-divider"></div>
+      <span class="ref-caption">포트폴리오 — 구슬 리뉴얼 UI/UX 케이스 스터디</span>
+    </div>
+  </div>
+</section>
+
+<!-- 이미지 5 -->
+<section class="ref-slide" id="sec-5">
+  <div class="ref-img-wrap">
+    <div class="ref-frame">
+      <img src="레퍼런스/쇼잉/히어로 구성.png" alt="히어로 구성 — Top-Notch Mechanical Tools" />
+    </div>
+    <div class="ref-meta">
+      <span class="ref-num">05 / 05</span>
+      <div class="ref-divider"></div>
+      <span class="ref-caption">히어로 구성 — Top-Notch Mechanical Tools 웹사이트</span>
+    </div>
+  </div>
+</section>
+
+<!-- 아웃트로 -->
+<section class="outro" id="sec-6">
+  <span class="outro-label">End of References</span>
+  <p class="outro-title">레퍼런스 검토 완료</p>
+</section>
+
+<script>
+  const topbar  = document.getElementById('topbar');
+  const dotsWrap = document.getElementById('dots');
+
+  // 섹션 목록 (인트로 + 5 슬라이드 + 아웃트로)
+  const sections = Array.from(document.querySelectorAll('[id^="sec-"]'));
+
+  // 도트 생성
+  sections.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    dotsWrap.appendChild(d);
+  });
+  const dotEls = Array.from(dotsWrap.querySelectorAll('.dot'));
+
+  // 탑바
+  function updateBar() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    topbar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateBar, { passive: true });
+
+  // IntersectionObserver — 슬라이드 진입 애니메이션 + 도트
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const idx = sections.indexOf(entry.target);
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        dotEls.forEach((d, i) => d.classList.toggle('on', i === idx));
+      }
+    });
+  }, { threshold: 0.45 });
+
+  sections.forEach(s => obs.observe(s));
+
+  // 초기 탑바
+  updateBar();
+</script>
+</body>
+</html>

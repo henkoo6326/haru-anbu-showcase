@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 인수인계</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); padding-bottom: var(--space-xl); }
+
+    .report-hero {
+      text-align: center;
+      padding: var(--space-xl) 0 var(--space-lg);
+    }
+    .report-hero-icon {
+      width: 56px; height: 56px;
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--space-md);
+    }
+    .report-hero-title {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-xs);
+    }
+    .report-hero-date {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .report-hero-badge {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      margin-top: var(--space-sm);
+      padding: 4px var(--space-md);
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: var(--radius-full);
+      font-size: var(--text-mini);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* 요약 카드 */
+    .summary-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      font-size: var(--text-body);
+      line-height: var(--line-height-relaxed);
+    }
+    .summary-card p + p { margin-top: var(--space-md); }
+
+    /* 통계 바 */
+    .stats-bar {
+      display: flex;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--radius-full);
+      font-size: var(--text-mini);
+      font-weight: var(--weight-semibold);
+    }
+    .stat-pill--done { background: #E8F8ED; color: var(--success); }
+    .stat-pill--progress { background: #FFF3E0; color: #E65100; }
+    .stat-pill--pending { background: #FFEBEE; color: var(--critical); }
+
+    /* 환자별 하이라이트 카드 */
+    .patient-highlight {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .patient-highlight--alert { }
+    .patient-highlight--caution { }
+    .patient-highlight--normal { }
+    .ph-header {
+      display: flex; align-items: center; gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .ph-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .ph-badge {
+      padding: 2px var(--space-sm);
+      border-radius: var(--radius-full);
+      font-size: var(--text-mini);
+      font-weight: var(--weight-semibold);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .ph-meta {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+    .ph-items {
+      display: flex; flex-direction: column; gap: var(--space-xs);
+    }
+    .ph-item {
+      display: flex; align-items: center; gap: var(--space-sm);
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+    }
+    .ph-item-dot {
+      width: 6px; height: 6px;
+      border-radius: var(--radius-full);
+      flex-shrink: 0;
+    }
+    .ph-item-dot--critical { background: var(--critical); }
+    .ph-item-dot--warning { background: var(--warning); }
+    .ph-item-dot--done { background: var(--success); }
+
+    /* 주의사항 카드 */
+    .note-card {
+      background: #FFF8E1;
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      border-left: 3px solid var(--warning);
+    }
+    .note-title {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: #E65100;
+      margin-bottom: var(--space-sm);
+      display: flex; align-items: center; gap: var(--space-xs);
+    }
+    .note-text {
+      font-size: var(--text-body);
+      color: var(--text-primary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* CTA */
+    .cta-group {
+      display: flex; gap: var(--space-sm);
+      padding: var(--space-lg) 0;
+    }
+
+    /* 토스트 */
+    .toast-custom {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      padding: var(--space-md) var(--space-xl);
+      background: var(--text-primary);
+      color: var(--surface);
+      border-radius: var(--radius-full);
+      font-size: var(--text-callout);
+      font-weight: var(--weight-medium);
+      box-shadow: var(--shadow-lg);
+      z-index: var(--z-toast);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .toast-custom.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <a href="n01-dashboard.html" class="btn-icon" aria-label="뒤로 가기">‹</a>
+    </div>
+    <span class="header-title">인수인계 리포트</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+    <div class="report-hero">
+      <div class="report-hero-icon"><i data-lucide="clipboard-list" style="width:28px;height:28px;color:var(--primary)"></i></div>
+      <h1 class="report-hero-title">오전 근무 인수인계</h1>
+      <p class="report-hero-date">2026년 4월 2일 수요일 · 07:00–15:00</p>
+      <span class="report-hero-badge"><img src="../../logo/haru.svg" style="width:14px;height:14px;display:inline-block;vertical-align:middle;flex-shrink:0;filter:brightness(0) invert(1);"> AI가 자동으로 정리했어요</span>
+    </div>
+
+    <!-- 요약 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">요약</h2></div>
+      <div class="summary-card">
+        <p>오전 근무 동안 <strong>담당 환자 15명</strong> 중 대부분 양호한 상태를 유지했어요.</p>
+        <p>주의가 필요한 환자 <strong>2명</strong>, 미완료 업무 <strong>2건</strong>이 남아있어요. 아래 내용을 오후 근무자에게 전달해주세요.</p>
+        <div class="stats-bar">
+          <span class="stat-pill stat-pill--done"><i data-lucide="check" style="width:12px;height:12px;"></i> 완료 11</span>
+          <span class="stat-pill stat-pill--progress"><i data-lucide="clock" style="width:12px;height:12px;"></i> 진행 2</span>
+          <span class="stat-pill stat-pill--pending"><i data-lucide="alert-circle" style="width:12px;height:12px;"></i> 미완료 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주의 환자 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">특별 관찰 환자</h2></div>
+
+      <div class="patient-highlight patient-highlight--alert">
+        <div class="ph-header">
+          <span class="ph-name">박영수</span>
+          <span class="ph-badge" style="background:#FFEBEE;color:var(--critical);"><i data-lucide="alert-circle" style="width:12px;height:12px;"></i> 경고</span>
+        </div>
+        <div class="ph-meta">82세 · 305호</div>
+        <div class="ph-items">
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--critical"></span> 오전 혈압 150/95 → 재측정 140/90 (약간 하락)</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--critical"></span> 13:00 가슴 답답함 호소 → SOS 대응 완료</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--warning"></span> 15:00 전 혈압 3차 측정 필요 (미완료)</div>
+        </div>
+      </div>
+
+      <div class="patient-highlight patient-highlight--caution">
+        <div class="ph-header">
+          <span class="ph-name">손정희</span>
+          <span class="ph-badge" style="background:#FFF3E0;color:#E65100;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> 주의</span>
+        </div>
+        <div class="ph-meta">78세 · 302호</div>
+        <div class="ph-items">
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--warning"></span> 점심 식사량 평소 대비 20% 감소 (80% 섭취)</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 오전 투약 정상 완료</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--warning"></span> 저녁 식사 모니터링 필요</div>
+        </div>
+      </div>
+
+      <div class="patient-highlight patient-highlight--caution">
+        <div class="ph-header">
+          <span class="ph-name">이순자</span>
+          <span class="ph-badge" style="background:#FFF3E0;color:#E65100;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> 주의</span>
+        </div>
+        <div class="ph-meta">75세 · 310호</div>
+        <div class="ph-items">
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--critical"></span> 오후 투약 미완료 (14:00 예정 시간 경과)</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 기타 케어 항목 정상</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 전체 현황 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">전체 케어 현황</h2></div>
+
+      <div class="patient-highlight patient-highlight--normal">
+        <div class="ph-header">
+          <span class="ph-name">양호 환자 12명</span>
+          <span class="ph-badge" style="background:#E8F8ED;color:var(--success);"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> 정상</span>
+        </div>
+        <div class="ph-items">
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 아침·점심 식사 정상 완료</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 오전·점심 투약 전원 완료</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 오전 세면·위생 관리 완료</div>
+          <div class="ph-item"><span class="ph-item-dot ph-item-dot--done"></span> 오전 스트레칭 12명, 오후 산책 8명 참여</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주의사항 -->
+    <div class="section">
+      <div class="note-card">
+        <div class="note-title"><i data-lucide="alert-triangle" style="width:16px;height:16px;"></i> 오후 근무자 참고</div>
+        <p class="note-text">
+          1. 박영수(305호) 혈압 3차 측정 후 수치에 따라 당직의 보고 필요<br>
+          2. 이순자(310호) 오후 투약 즉시 시행 필요<br>
+          3. 손정희(302호) 저녁 식사량 꼼꼼히 확인 → 보호자(예찬님) 채팅으로 공유
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-group">
+      <button class="btn btn-secondary btn-full btn-sm" onclick="showToast('수정 모드로 전환했어요')">
+        <i data-lucide="edit" style="width:18px;height:18px;"></i> 수정하기
+      </button>
+      <button class="btn btn-primary btn-full btn-sm" onclick="showToast('인수인계를 완료했어요!')">
+        <i data-lucide="check-circle" style="width:18px;height:18px;"></i> 인수인계 확인
+      </button>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast-custom" id="toast"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

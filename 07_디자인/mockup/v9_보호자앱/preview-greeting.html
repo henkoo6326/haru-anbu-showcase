@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>인사말 A vs B 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',-apple-system,sans-serif;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);min-height:100vh;padding:40px 20px;color:#1C1C1E}
+  .wrap{max-width:900px;margin:0 auto}
+  h2{font-size:14px;font-weight:600;color:rgba(28,28,30,.5);margin-bottom:12px;letter-spacing:.3px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:768px){.row{grid-template-columns:1fr}}
+  .phone{background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);border:1px solid rgba(0,0,0,.06);border-radius:32px;padding:28px 22px;box-shadow:0 20px 60px rgba(0,0,0,.08)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .logo{font-weight:800;font-size:15px;color:#2C7AFC}
+  .icons{display:flex;gap:8px;color:rgba(28,28,30,.5)}
+
+  /* 공통 */
+  .greeting-main{font-size:26px;font-weight:800;line-height:1.2;letter-spacing:-.8px;color:#1C1C1E;margin-bottom:14px}
+
+  /* 안 A: 내러티브형 */
+  .narrative{font-size:15px;line-height:1.65;color:rgba(28,28,30,.72);font-weight:500;letter-spacing:-.2px}
+
+  /* 안 B: 스냅샷 3줄형 */
+  .snapshot{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .snap-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.04);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .snap-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+  .snap-ic.morning{background:rgba(245,158,11,.14);color:#F59E0B}
+  .snap-ic.noon{background:rgba(52,211,153,.14);color:#059669}
+  .snap-ic.night{background:rgba(44,122,252,.14);color:#2C7AFC}
+  .snap-body{flex:1;min-width:0}
+  .snap-head{display:flex;align-items:baseline;gap:6px;margin-bottom:1px}
+  .snap-title{font-size:13.5px;font-weight:600;color:#1C1C1E}
+  .snap-val{font-size:13px;font-weight:700;color:#2C7AFC}
+  .snap-note{font-size:12.5px;color:rgba(28,28,30,.55);line-height:1.35}
+
+  /* 하단 라벨 */
+  .label{font-size:12px;color:rgba(28,28,30,.5);margin-top:10px;text-align:center;font-weight:500}
+</style></head><body>
+<div class="wrap">
+  <h2>홈 인사말 · A vs B 시각 비교 (저녁 22시 기준)</h2>
+  <div class="row">
+
+    <!-- 안 A -->
+    <div>
+      <div class="phone">
+        <div class="topbar">
+          <div class="logo">하루안부</div>
+          <div class="icons"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:20px"></span><span class="iconify" data-icon="fluent:person-circle-24-filled" style="font-size:22px"></span></div>
+        </div>
+        <h1 class="greeting-main">편안한 밤 되세요,<br>예찬님</h1>
+        <p class="narrative">정희님은 오전 산책으로 하루를 시작하셨고, 저녁 식사도 평소보다 잘 드셨어요. 지금은 편히 주무시고 계세요.</p>
+      </div>
+      <div class="label">안 A · 내러티브형</div>
+    </div>
+
+    <!-- 안 B -->
+    <div>
+      <div class="phone">
+        <div class="topbar">
+          <div class="logo">하루안부</div>
+          <div class="icons"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:20px"></span><span class="iconify" data-icon="fluent:person-circle-24-filled" style="font-size:22px"></span></div>
+        </div>
+        <h1 class="greeting-main">편안한 밤 되세요,<br>예찬님</h1>
+        <div class="snapshot">
+          <div class="snap-item">
+            <div class="snap-ic morning"><span class="iconify" data-icon="fluent:weather-sunny-24-filled" style="font-size:20px"></span></div>
+            <div class="snap-body"><div class="snap-head"><span class="snap-title">오전 산책</span><span class="snap-val">15분</span></div><div class="snap-note">햇빛이 좋았어요</div></div>
+          </div>
+          <div class="snap-item">
+            <div class="snap-ic noon"><span class="iconify" data-icon="fluent:food-24-filled" style="font-size:20px"></span></div>
+            <div class="snap-body"><div class="snap-head"><span class="snap-title">저녁 식사</span><span class="snap-val">90%</span></div><div class="snap-note">평소보다 잘 드셨어요</div></div>
+          </div>
+          <div class="snap-item">
+            <div class="snap-ic night"><span class="iconify" data-icon="fluent:weather-moon-24-filled" style="font-size:20px"></span></div>
+            <div class="snap-body"><div class="snap-head"><span class="snap-title">저녁 투약</span><span class="snap-val">완료</span></div><div class="snap-note">편히 주무시고 계세요</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="label">안 B · 스냅샷 3줄형 (Iconify 아이콘)</div>
+    </div>
+
+  </div>
+</div>
+</body></html>

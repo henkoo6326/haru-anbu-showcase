@@ -1,0 +1,21 @@
+{
+  "name": "haru-anbu-promo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "still": "remotion still HaruAnbuPromo --frame=300 --scale=0.35",
+    "render": "remotion render HaruAnbuPromo out/haru-anbu-promo.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.369",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.369"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.8.0"
+  }
+}

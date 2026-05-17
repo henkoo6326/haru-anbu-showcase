@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 가족 그룹 채팅</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body {
+      background: transparent;
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      -webkit-overflow-scrolling: touch;
+    }
+    .chat-messages::-webkit-scrollbar { display: none; }
+
+    .chat-date-divider {
+      text-align: center;
+      font-size: var(--text-mini);
+      color: var(--text-tertiary);
+      padding: var(--space-sm) 0;
+    }
+
+    .msg {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: var(--space-xs);
+      max-width: 85%;
+    }
+    .msg.in  { align-self: flex-start; }
+    .msg.out { align-self: flex-end; flex-direction: row-reverse; }
+
+    /* 그룹 채팅: 발신자 아바타 */
+    .msg.in {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: var(--space-sm);
+      align-items: start;
+    }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: white;
+      grid-row: 1 / 3;
+      flex-shrink: 0;
+      border: 0.5px solid rgba(255,255,255,0.5);
+    }
+    .msg.in .msg-sender {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+      padding-left: 2px;
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .msg.in .msg-bubble-wrap {
+      grid-column: 2;
+      grid-row: 2;
+      display: flex;
+      align-items: flex-end;
+      gap: var(--space-xs);
+    }
+    .msg.out .msg-bubble-wrap {
+      display: flex;
+      align-items: flex-end;
+      flex-direction: row-reverse;
+      gap: var(--space-xs);
+    }
+
+    .msg-bubble {
+      padding: var(--space-md) var(--space-lg);
+      font-size: var(--text-body);
+      line-height: var(--line-height-normal);
+      word-break: break-word;
+      max-width: 240px;
+      position: relative; overflow: hidden;
+    }
+    .msg-bubble::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .msg.in .msg-bubble {
+      background: rgba(255,255,255,0.26);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.70);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
+    }
+    .msg.out .msg-bubble {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+    }
+    .msg-time {
+      font-size: var(--text-mini);
+      color: var(--text-tertiary);
+      align-self: flex-end;
+      flex-shrink: 0;
+      padding-bottom: 4px;
+    }
+    .msg-read {
+      font-size: var(--text-mini);
+      color: var(--primary);
+      text-align: right;
+      padding-top: 2px;
+    }
+
+    /* 읽지 않은 구분선 */
+    .unread-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xs) 0;
+    }
+    .unread-divider::before, .unread-divider::after {
+      content: '';
+      flex: 1;
+      height: 0.5px;
+      background: rgba(16,185,129,0.4);
+    }
+    .unread-divider span {
+      font-size: var(--text-mini);
+      color: #10B981;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* 입력바 — 홈 채팅바 톤 */
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 8px 10px 8px 10px;
+      position: fixed;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 370px;
+      z-index: 41;
+      background: #fff;
+      border: 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .chat-input-wrap {
+      flex: 1; display: flex; align-items: center;
+      height: 36px; border-radius: 999px;
+      background: transparent;
+      border: 0;
+      padding: 0 6px;
+    }
+    .chat-input {
+      flex: 1; height: 100%;
+      padding: 0 var(--space-xs); border: none;
+      font-family: var(--font-family); font-size: 15px;
+      outline: none; background: transparent;
+      color: var(--text-primary);
+    }
+    .chat-input::placeholder { color: rgba(28,28,30,0.4); }
+    .chat-emoji-btn {
+      width: 36px; height: 36px; border: none; border-radius: var(--radius-full);
+      background: transparent; color: var(--text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .chat-attach-btn {
+      width: 36px; height: 36px; border: none; border-radius: var(--radius-full);
+      background: transparent;
+      color: rgba(28,28,30,0.55); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+
+    .btn-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.38);
+      backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset;
+      color: rgba(28,28,30,0.7);
+      text-decoration: none; font-size: 22px; font-weight: 300; flex-shrink: 0;
+    }
+
+    html { background: #EEF5FF; }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.55)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.48)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.42)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.38)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+    }
+    .chat-messages {
+      padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 24px + 68px + 12px + 52px + 16px) !important;
+      position: relative; z-index: 1;
+    }
+    /* Tabbar override */
+    .tabbar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:rgba(180,210,250,.15);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.35);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div style="flex-shrink:0; background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(160%); -webkit-backdrop-filter:blur(40px) saturate(160%); border-bottom:0.5px solid rgba(255,255,255,0.18); padding-top:max(env(safe-area-inset-top,0px),44px); padding-left:var(--space-lg); padding-right:var(--space-lg); padding-bottom:var(--space-md); position:relative; z-index:2;">
+    <div style="display:flex; align-items:center; gap:var(--space-md);">
+      <a href="g03-sotong.html" class="btn-icon" aria-label="뒤로 가기"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon></a>
+      <div style="display:flex; align-items:center; gap:var(--space-md); flex:1;">
+        <div style="width:40px; height:40px; border-radius:var(--radius-full); background:linear-gradient(135deg,#10B981,#34D399); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <iconify-icon icon="fluent:people-24-filled" style="font-size:20px;color:white;"></iconify-icon>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:var(--text-headline); font-weight:var(--weight-semibold);">가족 그룹 채팅</div>
+          <div style="font-size:var(--text-mini); color:var(--text-secondary);">손예찬 · 손예린 · 손민호 · 3명</div>
+        </div>
+        <iconify-icon icon="fluent:info-24-filled" style="font-size:20px;color:var(--text-tertiary);"></iconify-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages">
+    <div class="chat-date-divider">어제</div>
+
+    <div class="msg out">
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">오늘 어머니 AI 리포트 보셨어요? 식사량이 좀 줄었대요.</div>
+        <span class="msg-time">오후 2:10</span>
+      </div>
+      <span class="msg-read">읽음 2</span>
+    </div>
+
+    <div class="msg in">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);">예린</div>
+      <span class="msg-sender">손예린</span>
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">네 저도 봤어요. 걱정되네요. 간호사 선생님께 여쭤봤어요?</div>
+        <span class="msg-time">오후 2:15</span>
+      </div>
+    </div>
+
+    <div class="msg in">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#64748B,#94A3B8);">아버지</div>
+      <span class="msg-sender">손민호</span>
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">김미영 간호사한테 물어봐라. 내가 오늘 전화해볼게</div>
+        <span class="msg-time">오후 2:18</span>
+      </div>
+    </div>
+
+    <div class="msg out">
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">제가 채팅으로 확인했는데 입맛이 조금 없으신 것 같다고 하시더라고요. 주말에 좋아하시는 거 사다드리려고요 🍊</div>
+        <span class="msg-time">오후 2:30</span>
+      </div>
+      <span class="msg-read">읽음 2</span>
+    </div>
+
+    <div class="msg in">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);">예린</div>
+      <span class="msg-sender">손예린</span>
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">오빠 잘했다 👍 나도 같이 갈게!</div>
+        <span class="msg-time">오후 2:32</span>
+      </div>
+    </div>
+
+    <div class="chat-date-divider">오늘</div>
+
+    <div class="msg in">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);">예린</div>
+      <span class="msg-sender">손예린</span>
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">오빠 오늘 어머니 상태 어때요? 오후에 산책 하셨대요?</div>
+        <span class="msg-time">오전 10:00</span>
+      </div>
+    </div>
+
+    <!-- 읽지 않은 구분선 -->
+    <div class="unread-divider"><span>읽지 않은 메시지 1개</span></div>
+
+    <div class="msg in">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);">예린</div>
+      <span class="msg-sender">손예린</span>
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">오빠 이번 주말에 같이 면회 갈 수 있어?</div>
+        <span class="msg-time">오전 11:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-bar">
+    <button class="chat-attach-btn" aria-label="사진/파일 첨부">
+      <iconify-icon icon="fluent:add-24-filled" style="font-size:18px;"></iconify-icon>
+    </button>
+    <div class="chat-input-wrap">
+      <input class="chat-input" type="text" placeholder="메시지 입력" aria-label="메시지 입력">
+      <button class="chat-emoji-btn" aria-label="이모지 선택">
+        <iconify-icon icon="fluent:emoji-24-filled" style="font-size:20px;"></iconify-icon>
+      </button>
+    </div>
+  </div>
+
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 2526 2526"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g03-sotong.html" class="tab active">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="10" y="6" width="4" height="14" rx="2"/><rect x="16" y="9" width="4" height="11" rx="2"/></svg></span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="16" rx="3"/><rect x="2" y="10" width="20" height="3" fill="rgba(255,255,255,0.35)"/><rect x="5" y="15" width="4" height="2" rx="1" fill="rgba(255,255,255,0.6)"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <script>
+    var chatMessages = document.querySelector('.chat-messages');
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+  </script>
+</body>
+</html>

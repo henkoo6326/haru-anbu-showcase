@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — 의료진 대시보드</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    html,body { height: 100%; }
+    .alert-list { padding: 10px 14px; }
+  </style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="bg-g1"></div><div class="bg-g2"></div><div class="bg-g3"></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heartbeat-bold" width="22" style="color:#fff"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">오늘 하루도, 안녕하셨습니다</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <span class="facility-name">햇살요양원 · 2병동</span>
+  </div>
+  <div class="nav-section-label">메인 메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item"><a class="nav-link active">
+      <iconify-icon class="nav-icon" icon="ph:house-bold"></iconify-icon>대시보드
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:users-bold"></iconify-icon>환자 관리
+      <span class="nav-badge yellow">3</span>
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:clipboard-text-bold"></iconify-icon>케어 체크리스트
+      <span class="nav-badge">2</span>
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:arrows-clockwise-bold"></iconify-icon>AI 인수인계
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:siren-bold"></iconify-icon>SOS 센터
+      <span class="nav-badge">1</span>
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:chats-bold"></iconify-icon>보호자 채팅
+      <span class="nav-badge green">5</span>
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:calendar-bold"></iconify-icon>시간표 관리
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:pill-bold"></iconify-icon>처방전 관리
+    </a></li>
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:clock-countdown-bold"></iconify-icon>의료 타임라인
+    </a></li>
+  </ul>
+  <div class="nav-section-label">내 정보</div>
+  <ul class="nav-list" style="flex:0">
+    <li class="nav-item"><a class="nav-link">
+      <iconify-icon class="nav-icon" icon="ph:user-circle-bold"></iconify-icon>내 프로필
+    </a></li>
+  </ul>
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrapper with-panel">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">대시보드</span>
+      <span class="page-date">2026년 4월 16일 목요일</span>
+    </div>
+    <div class="search-wrap">
+      <iconify-icon class="search-icon" icon="ph:magnifying-glass-bold"></iconify-icon>
+      <input class="search-input" type="text" placeholder="환자명, 방번호 검색...">
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn">
+        <iconify-icon icon="ph:gear-bold"></iconify-icon>
+      </button>
+      <button class="sos-btn">
+        <iconify-icon icon="ph:siren-bold"></iconify-icon>SOS
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- Greeting -->
+    <div class="greeting">
+      <h1>안녕하세요, 박지현 간호사님 👋</h1>
+      <p>오늘 담당 환자 <strong>12명</strong> · 체크리스트 완료율 <strong>73%</strong> · 미처리 알림 <strong>3건</strong></p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="glass-card s-card">
+        <div class="s-card-head">
+          <span class="s-label">담당 환자</span>
+          <div class="s-icon green"><iconify-icon icon="ph:users-bold"></iconify-icon></div>
+        </div>
+        <div class="s-value">12</div>
+        <div class="s-sub"><span class="s-dot" style="background:var(--nurse)"></span>2병동 전체</div>
+        <div class="s-bar"><div class="s-fill" style="width:100%;background:var(--nurse)"></div></div>
+      </div>
+      <div class="glass-card s-card">
+        <div class="s-card-head">
+          <span class="s-label">체크리스트 완료율</span>
+          <div class="s-icon green"><iconify-icon icon="ph:check-circle-bold"></iconify-icon></div>
+        </div>
+        <div class="s-value">73<span style="font-size:16px;font-weight:600;color:var(--slate-400)">%</span></div>
+        <div class="s-sub"><span class="s-dot" style="background:var(--orange-500)"></span>미완 체크 27%</div>
+        <div class="s-bar"><div class="s-fill" style="width:73%;background:var(--nurse)"></div></div>
+      </div>
+      <div class="glass-card s-card">
+        <div class="s-card-head">
+          <span class="s-label">SOS 알림</span>
+          <div class="s-icon red"><iconify-icon icon="ph:siren-bold"></iconify-icon></div>
+        </div>
+        <div class="s-value danger">1</div>
+        <div class="s-sub"><span class="s-dot" style="background:var(--red-500)"></span>즉시 대응 필요</div>
+        <div class="s-bar"><div class="s-fill" style="width:8%;background:var(--red-500)"></div></div>
+      </div>
+      <div class="glass-card s-card">
+        <div class="s-card-head">
+          <span class="s-label">보호자 채팅</span>
+          <div class="s-icon blue"><iconify-icon icon="ph:chats-bold"></iconify-icon></div>
+        </div>
+        <div class="s-value">5</div>
+        <div class="s-sub"><span class="s-dot" style="background:var(--blue-500)"></span>미읽음 메시지</div>
+        <div class="s-bar"><div class="s-fill" style="width:42%;background:var(--blue-500)"></div></div>
+      </div>
+      <div class="glass-card s-card">
+        <div class="s-card-head">
+          <span class="s-label">투약 미완료</span>
+          <div class="s-icon orange"><iconify-icon icon="ph:pill-bold"></iconify-icon></div>
+        </div>
+        <div class="s-value warning">3</div>
+        <div class="s-sub"><span class="s-dot" style="background:var(--orange-500)"></span>오전 투약 기준</div>
+        <div class="s-bar"><div class="s-fill" style="width:25%;background:var(--orange-500)"></div></div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid-2">
+      <!-- 오늘 일정 타임라인 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="title-dot green"></span>오늘 케어 타임라인</div>
+          <span class="card-more">전체 보기</span>
+        </div>
+        <div class="tl-wrap">
+          <div class="tl-now"><span class="tl-now-dot"></span>현재 — 오후 2:30</div>
+          <div class="tl-row">
+            <div class="tl-time">07:00</div>
+            <div class="tl-dot-col"><div class="tl-dot done"></div></div>
+            <div class="tl-body">
+              <div class="tl-name done">기상 체크 · 식전 활력징후</div>
+              <div class="tl-desc">12명 · 평균 혈압 128/82</div>
+              <span class="tl-tag done">완료</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">08:00</div>
+            <div class="tl-dot-col"><div class="tl-dot done"></div></div>
+            <div class="tl-body">
+              <div class="tl-name done">아침 식사 배식 · 섭취 기록</div>
+              <div class="tl-desc">평균 섭취율 82%</div>
+              <span class="tl-tag done">완료</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">09:00</div>
+            <div class="tl-dot-col"><div class="tl-dot done"></div></div>
+            <div class="tl-body">
+              <div class="tl-name done">오전 투약</div>
+              <div class="tl-desc">9/12 완료 · 미완 3건 있음</div>
+              <span class="tl-tag alert">미완료 3</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">10:30</div>
+            <div class="tl-dot-col"><div class="tl-dot done"></div></div>
+            <div class="tl-body">
+              <div class="tl-name done">재활 프로그램</div>
+              <div class="tl-desc">5명 참여 · 이상 없음</div>
+              <span class="tl-tag done">완료</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">14:00</div>
+            <div class="tl-dot-col"><div class="tl-dot current"></div></div>
+            <div class="tl-body">
+              <div class="tl-name current">오후 케어 라운드</div>
+              <div class="tl-desc">진행 중 · 8/12 완료</div>
+              <span class="tl-tag current">진행 중</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">17:00</div>
+            <div class="tl-dot-col"><div class="tl-dot upcoming"></div></div>
+            <div class="tl-body">
+              <div class="tl-name">저녁 식사 · 오후 투약</div>
+              <div class="tl-desc">예정</div>
+              <span class="tl-tag upcoming">예정</span>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-time">21:00</div>
+            <div class="tl-dot-col"><div class="tl-dot upcoming"></div></div>
+            <div class="tl-body">
+              <div class="tl-name">취침 전 활력징후 · 야간 인수인계</div>
+              <div class="tl-desc">예정</div>
+              <span class="tl-tag upcoming">예정</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 긴급 알림 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="title-dot red"></span>긴급 알림</div>
+          <span class="card-more">전체 보기</span>
+        </div>
+        <div class="alert-list">
+          <div class="al-item critical">
+            <div class="al-icon critical"><iconify-icon icon="ph:siren-bold"></iconify-icon></div>
+            <div class="al-body">
+              <div class="al-patient">201호 · 김순자 (82세)</div>
+              <div class="al-msg">낙상 감지 — AI가 이상 움직임 탐지. 즉시 확인 필요</div>
+              <div class="al-time">2분 전</div>
+            </div>
+            <button class="al-btn critical">확인</button>
+          </div>
+          <div class="al-item warning">
+            <div class="al-icon warning"><iconify-icon icon="ph:pill-bold"></iconify-icon></div>
+            <div class="al-body">
+              <div class="al-patient">205호 · 이철수 (77세)</div>
+              <div class="al-msg">오전 투약 미완료 — 고혈압약 아직 투약 안됨</div>
+              <div class="al-time">45분 전</div>
+            </div>
+            <button class="al-btn warning">처리</button>
+          </div>
+          <div class="al-item caution">
+            <div class="al-icon caution"><iconify-icon icon="ph:fork-knife-bold"></iconify-icon></div>
+            <div class="al-body">
+              <div class="al-patient">208호 · 박복순 (85세)</div>
+              <div class="al-msg">점심 섭취율 30% — 평소보다 현저히 낮음. 확인 권장</div>
+              <div class="al-time">1시간 30분 전</div>
+            </div>
+          </div>
+          <div class="al-item info">
+            <div class="al-icon info"><iconify-icon icon="ph:chat-bold"></iconify-icon></div>
+            <div class="al-body">
+              <div class="al-patient">202호 보호자 · 이민준</div>
+              <div class="al-msg">"어머니 오늘 상태가 어떠신가요? 연락 주세요"</div>
+              <div class="al-time">2시간 전</div>
+            </div>
+            <button class="al-btn info">답장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 인수인계 + 환자 현황 -->
+    <div class="grid-2">
+      <!-- AI 인수인계 패널 -->
+      <div class="ai-panel">
+        <div class="ai-head">
+          <div class="ai-head-icon">🤖</div>
+          <div>
+            <h3>AI 인수인계 리포트</h3>
+            <span>오후 2:00 자동 생성 · Claude API</span>
+          </div>
+        </div>
+        <div class="ai-grid">
+          <div class="ai-card danger">
+            <span class="ai-tag">즉시 대응</span>
+            <div class="ai-patient">김순자 · 201호</div>
+            <div class="ai-text">낙상 위험 증가. 오늘 보행 불안정 2회 관찰. 야간 이동 시 주의 요망.</div>
+          </div>
+          <div class="ai-card warning">
+            <span class="ai-tag">모니터링</span>
+            <div class="ai-patient">이철수 · 205호</div>
+            <div class="ai-text">혈압 145/92로 소폭 상승. 저염식 식이 제한 재확인 필요.</div>
+          </div>
+          <div class="ai-card info">
+            <span class="ai-tag">일반</span>
+            <div class="ai-patient">박복순 · 208호</div>
+            <div class="ai-text">식욕 저하 3일 지속. 보호자에게 경과 알림 발송 권장.</div>
+          </div>
+        </div>
+        <div style="padding: 0 16px 14px; display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm btn-pill" style="flex:1">
+            <iconify-icon icon="ph:arrows-clockwise-bold"></iconify-icon>인수인계 전달
+          </button>
+          <button class="btn btn-ghost btn-sm btn-pill" style="flex:1">전체 리포트</button>
+        </div>
+      </div>
+
+      <!-- 환자 목록 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="title-dot green"></span>담당 환자 현황</div>
+          <span class="card-more">전체 관리</span>
+        </div>
+        <div>
+          <div class="pt-card">
+            <div class="pt-avatar">김</div>
+            <div class="pt-info">
+              <div class="pt-name flex items-center gap-2">김순자 <span class="badge critical"><span class="badge-dot"></span>긴급</span></div>
+              <div class="pt-meta">201호 · 82세 · 요양 3등급</div>
+              <div class="pt-progress">
+                <div class="pt-bar"><div class="pt-fill" style="width:45%;background:var(--red-500)"></div></div>
+                <span class="pt-pct" style="color:var(--red-500)">45%</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-card">
+            <div class="pt-avatar">이</div>
+            <div class="pt-info">
+              <div class="pt-name flex items-center gap-2">이철수 <span class="badge caution"><span class="badge-dot"></span>주의</span></div>
+              <div class="pt-meta">205호 · 77세 · 요양 2등급</div>
+              <div class="pt-progress">
+                <div class="pt-bar"><div class="pt-fill" style="width:68%;background:var(--orange-500)"></div></div>
+                <span class="pt-pct" style="color:var(--orange-500)">68%</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-card">
+            <div class="pt-avatar">박</div>
+            <div class="pt-info">
+              <div class="pt-name flex items-center gap-2">박복순 <span class="badge caution"><span class="badge-dot"></span>주의</span></div>
+              <div class="pt-meta">208호 · 85세 · 요양 4등급</div>
+              <div class="pt-progress">
+                <div class="pt-bar"><div class="pt-fill" style="width:52%;background:var(--orange-500)"></div></div>
+                <span class="pt-pct" style="color:var(--orange-500)">52%</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-card">
+            <div class="pt-avatar">최</div>
+            <div class="pt-info">
+              <div class="pt-name flex items-center gap-2">최영자 <span class="badge normal"><span class="badge-dot"></span>정상</span></div>
+              <div class="pt-meta">203호 · 79세 · 요양 2등급</div>
+              <div class="pt-progress">
+                <div class="pt-bar"><div class="pt-fill" style="width:91%"></div></div>
+                <span class="pt-pct">91%</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-card">
+            <div class="pt-avatar">정</div>
+            <div class="pt-info">
+              <div class="pt-name flex items-center gap-2">정만수 <span class="badge normal"><span class="badge-dot"></span>정상</span></div>
+              <div class="pt-meta">204호 · 81세 · 요양 3등급</div>
+              <div class="pt-progress">
+                <div class="pt-bar"><div class="pt-fill" style="width:88%"></div></div>
+                <span class="pt-pct">88%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- RIGHT COMM PANEL -->
+<aside class="comm-panel">
+  <div class="cp-header">
+    <div class="cp-header-top">
+      <span class="cp-title">커뮤니케이션</span>
+      <button class="focus-btn">방해 금지</button>
+    </div>
+    <div class="cp-tabs">
+      <div class="cp-tab active">채팅</div>
+      <div class="cp-tab">알림</div>
+      <div class="cp-tab">AI</div>
+    </div>
+  </div>
+  <div class="cp-body">
+    <div class="ch-label">보호자 채팅</div>
+    <div class="chat-row">
+      <div class="chat-av guardian">이<span class="st-dot online"></span></div>
+      <div class="chat-info">
+        <div class="name-row"><span class="chat-name">이민준</span><span class="chat-time">방금</span></div>
+        <div class="chat-pt">김순자 보호자 · 202호</div>
+        <div class="chat-prev unread">어머니 오늘 상태가 어떠신가요?</div>
+        <span class="unread-pill">1</span>
+      </div>
+    </div>
+    <div class="chat-row">
+      <div class="chat-av guardian">김<span class="st-dot online"></span></div>
+      <div class="chat-info">
+        <div class="name-row"><span class="chat-name">김진우</span><span class="chat-time">15분 전</span></div>
+        <div class="chat-pt">이철수 보호자 · 205호</div>
+        <div class="chat-prev unread">아버지 혈압 약 바꿨다고 하셨는데...</div>
+        <span class="unread-pill">3</span>
+      </div>
+    </div>
+    <div class="chat-row">
+      <div class="chat-av guardian">박<span class="st-dot away"></span></div>
+      <div class="chat-info">
+        <div class="name-row"><span class="chat-name">박현정</span><span class="chat-time">1시간 전</span></div>
+        <div class="chat-pt">박복순 보호자 · 208호</div>
+        <div class="chat-prev">이번 주 면회 가도 될까요?</div>
+      </div>
+    </div>
+    <div class="chat-row">
+      <div class="chat-av guardian">최</div>
+      <div class="chat-info">
+        <div class="name-row"><span class="chat-name">최대현</span><span class="chat-time">3시간 전</span></div>
+        <div class="chat-pt">최영자 보호자 · 203호</div>
+        <div class="chat-prev">어머니가 좋아지셨다니 다행이에요!</div>
+      </div>
+    </div>
+    <div class="ch-label" style="margin-top:8px">AI 인수인계 요약</div>
+    <div style="padding:10px 14px">
+      <div style="padding:12px;border-radius:14px;background:rgba(5,150,105,.07);border:0.5px solid rgba(5,150,105,.15);margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span style="font-size:10px;font-weight:700;background:var(--nurse);color:#fff;padding:2px 7px;border-radius:999px">오늘 요약</span>
+        </div>
+        <div style="font-size:12px;color:var(--slate-700);line-height:1.6">총 12명 중 <strong>9명 정상</strong>, 2명 주의, 1명 긴급 상태. 오전 투약 완료율 75%, 식사 평균 섭취율 82%. 야간 인수인계 전 201호 낙상 위험 재확인 요망.</div>
+      </div>
+    </div>
+  </div>
+  <div class="cp-input-wrap">
+    <div class="cp-input-box">
+      <input class="cp-input" type="text" placeholder="보호자에게 메시지 보내기...">
+      <button class="send-btn">
+        <iconify-icon icon="ph:paper-plane-tilt-bold" style="color:#fff;font-size:13px"></iconify-icon>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  document.querySelectorAll('.nav-link').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.cp-tab').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.cp-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

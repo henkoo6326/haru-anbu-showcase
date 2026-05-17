@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>하루안부 — 환자</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+:root{--primary:#B45309;--primary-light:#FEF3C7;--accent:#059669;--bg:#FAF5F0;--card:#FFFFFF;--text:#0F172A;--text-s:#64748B;--text-t:#94A3B8;--border:#E7DDD3;--red:#DC2626;--green:#059669;--r:16px;--rs:12px;--rx:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:390px;min-height:844px;background:var(--bg);font-family:'Pretendard',-apple-system,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;font-size:18px}
+.sb{height:54px;padding:16px 20px 0;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:600}
+.hd{background:linear-gradient(180deg,#F5E6D3 0%,var(--bg) 100%);padding-bottom:8px}
+.hd-inner{padding:4px 20px 16px}
+.hd-title{font-size:30px;font-weight:800;letter-spacing:-0.5px;line-height:1.3}
+.hd-title span{color:var(--primary)}
+.hd-date{font-size:18px;color:var(--text-s);margin-top:6px}
+.sc{padding:0 16px 110px}
+.card{background:var(--card);border-radius:var(--r);margin-bottom:14px;overflow:hidden;border:1px solid var(--border)}
+.sh{padding:14px 16px 6px}
+.sh-label{font-size:18px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.sh-label svg{width:20px;height:20px;stroke:var(--primary);fill:none;stroke-width:2}
+
+/* Med alert */
+.med{background:var(--green);border-radius:var(--rs);padding:16px;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:14px;border:none}
+.med-icon{width:44px;height:44px;border-radius:var(--rx);background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.med-icon svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.med-body{flex:1}
+.med-title{font-size:20px;font-weight:700}
+.med-sub{font-size:15px;opacity:0.85;margin-top:2px}
+.med-btn{background:rgba(255,255,255,0.25);color:#fff;border:none;border-radius:var(--rx);padding:10px 20px;font-size:17px;font-weight:700;flex-shrink:0}
+
+/* Next */
+.next{padding:24px 16px;text-align:center}
+.next-label{font-size:16px;color:var(--text-s)}
+.next-time{font-size:52px;font-weight:800;letter-spacing:-2px;color:var(--primary);margin-top:4px}
+.next-what{font-size:22px;font-weight:600;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
+.next-what svg{width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:2}
+.next-count{font-size:16px;color:var(--text-s);margin-top:8px}
+
+/* Schedule */
+.sched{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);gap:14px}
+.sched:last-child{border:none}
+.sched-time{font-size:18px;font-weight:600;color:var(--text-t);width:60px;flex-shrink:0}
+.sched-pill{padding:8px 18px;border-radius:var(--rx);font-size:16px;font-weight:600;color:#fff;display:flex;align-items:center;gap:6px}
+.sched-pill svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.sched-check{margin-left:auto}
+.sched-check svg{width:20px;height:20px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sched.done{opacity:0.4}
+.sched.now .sched-time{color:var(--primary);font-weight:700}
+
+/* Mood */
+.mood{padding:24px 16px;text-align:center}
+.mood-q{font-size:20px;font-weight:700;margin-bottom:18px}
+.mood-opts{display:flex;justify-content:center;gap:14px}
+.mood-opt{text-align:center}
+.mood-face{width:60px;height:60px;border-radius:var(--r);background:var(--bg);display:flex;align-items:center;justify-content:center;border:2px solid transparent}
+.mood-face.sel{background:var(--primary-light);border-color:var(--primary)}
+.mood-face svg{width:32px;height:32px;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.mood-text{font-size:13px;color:var(--text-s);margin-top:6px}
+
+/* Family */
+.fam{padding:16px}
+.fam-from{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.fam-avatar{width:44px;height:44px;border-radius:50%;background:#0891B2;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fam-avatar svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2}
+.fam-name{font-size:18px;font-weight:600}
+.fam-time{font-size:14px;color:var(--text-t)}
+.fam-text{font-size:20px;line-height:1.6}
+.fam-photo{width:100%;height:150px;background:var(--bg);border-radius:var(--rs);margin-top:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.fam-photo svg{width:32px;height:32px;stroke:var(--text-t);fill:none;stroke-width:1.5}
+
+/* Help */
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 16px}
+.help-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);padding:24px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.help-btn svg{width:36px;height:36px;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.help-label{font-size:18px;font-weight:600}
+
+/* Tab */
+.tb{position:fixed;bottom:0;left:0;width:390px;height:90px;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 30px}
+.t{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--text-t);border:none;background:none}
+.t.active{color:var(--primary)}
+.t svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="sb"><span>9:41</span><span style="font-size:14px;color:var(--text-s)">LTE ■■■ 100%</span></div>
+  <div class="hd-inner">
+    <div class="hd-title">안녕하세요,<br><span>순자</span> 어르신</div>
+    <div class="hd-date">2026년 3월 23일 일요일</div>
+  </div>
+</div>
+
+<div class="sc">
+
+<!-- Med alert -->
+<div class="med">
+  <div class="med-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+  <div class="med-body"><div class="med-title">약 드실 시간이에요</div><div class="med-sub">오후 투약 · 14:00</div></div>
+  <button class="med-btn">확인</button>
+</div>
+
+<!-- Next -->
+<div class="card">
+  <div class="next">
+    <div class="next-label">다음 일정</div>
+    <div class="next-time">14:00</div>
+    <div class="next-what"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> 오후 투약</div>
+    <div class="next-count">30분 후</div>
+  </div>
+</div>
+
+<!-- Schedule -->
+<div class="card">
+  <div class="sh"><span class="sh-label"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 오늘 일과</span></div>
+  <div class="sched done"><div class="sched-time">07:00</div><div class="sched-pill" style="background:#F59E0B"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg> 조식</div><div class="sched-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+  <div class="sched done"><div class="sched-time">09:00</div><div class="sched-pill" style="background:#059669"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> 오전 투약</div><div class="sched-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+  <div class="sched done"><div class="sched-time">10:00</div><div class="sched-pill" style="background:#0891B2"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 재활 30분</div><div class="sched-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+  <div class="sched done"><div class="sched-time">12:00</div><div class="sched-pill" style="background:#F59E0B"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg> 점심</div><div class="sched-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+  <div class="sched now"><div class="sched-time">14:00</div><div class="sched-pill" style="background:#059669"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> 오후 투약</div></div>
+  <div class="sched"><div class="sched-time">15:00</div><div class="sched-pill" style="background:#94A3B8"><svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg> 위생</div></div>
+  <div class="sched"><div class="sched-time">17:00</div><div class="sched-pill" style="background:#F59E0B"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg> 석식</div></div>
+</div>
+
+<!-- Mood -->
+<div class="card">
+  <div class="mood">
+    <div class="mood-q">오늘 기분이 어떠세요?</div>
+    <div class="mood-opts">
+      <div class="mood-opt"><div class="mood-face"><svg viewBox="0 0 24 24" stroke="#DC2626"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="mood-text">안좋아요</div></div>
+      <div class="mood-opt"><div class="mood-face"><svg viewBox="0 0 24 24" stroke="#F59E0B"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="mood-text">보통</div></div>
+      <div class="mood-opt"><div class="mood-face sel"><svg viewBox="0 0 24 24" stroke="var(--primary)"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="mood-text">좋아요</div></div>
+      <div class="mood-opt"><div class="mood-face"><svg viewBox="0 0 24 24" stroke="#059669"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="mood-text">아주좋아요</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Family -->
+<div class="card">
+  <div class="sh"><span class="sh-label"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 가족 소식</span></div>
+  <div class="fam">
+    <div class="fam-from">
+      <div class="fam-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div><div class="fam-name">딸 미영이</div><div class="fam-time">오늘 08:30</div></div>
+    </div>
+    <div class="fam-text">엄마~ 오늘도 건강하게 보내세요!<br>손녀가 엄마 보고 싶대요</div>
+    <div class="fam-photo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+  </div>
+</div>
+
+<!-- Help -->
+<div class="card">
+  <div class="sh"><span class="sh-label"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg> 도움이 필요해요</span></div>
+  <div class="help-grid">
+    <div class="help-btn"><svg viewBox="0 0 24 24" stroke="#0891B2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg><div class="help-label">물 주세요</div></div>
+    <div class="help-btn"><svg viewBox="0 0 24 24" stroke="#7C3AED"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div class="help-label">추워요</div></div>
+    <div class="help-btn"><svg viewBox="0 0 24 24" stroke="var(--red)"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><div class="help-label">아파요</div></div>
+    <div class="help-btn"><svg viewBox="0 0 24 24" stroke="var(--primary)"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="help-label">도움 요청</div></div>
+  </div>
+</div>
+
+</div>
+
+<div class="tb">
+  <div class="t active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈</div>
+  <div class="t"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>가족</div>
+  <div class="t"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>도움</div>
+</div>
+</body></html>

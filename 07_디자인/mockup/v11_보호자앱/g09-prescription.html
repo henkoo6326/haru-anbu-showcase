@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 처방전</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --bg:transparent;--surface:rgba(255,255,255,.88);
+      --primary:#2C7AFC;--primary-light:rgba(44,122,252,.08);
+      --critical:#EF4444;--success:#34D399;--guardian:#0891B2;
+      --divider:rgba(0,0,0,.05);
+      --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:28px;
+      --radius-xs:4px;--radius-sm:10px;--radius-md:14px;--radius-lg:16px;--radius-xl:20px;--radius-full:999px;
+      --text-mini:10px;--text-caption:11px;--text-callout:13px;--text-body:15px;--text-headline:16px;--text-title:20px;--text-display:28px;
+      --weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+      --line-height-normal:1.4;--line-height-relaxed:1.6;
+      --text-primary:#111827;--text-secondary:rgba(0,0,0,.5);--text-tertiary:rgba(0,0,0,.35);
+      --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+      --font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+      --transition-normal:.2s ease;--row-height:52px;
+    }
+    html{height:100%}
+    body{font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased}
+    body { background:var(--bg); max-width:430px; margin:0 auto; min-height:100vh; padding-bottom:120px; }
+    .content { padding:0 var(--space-lg); }
+
+    .med-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-md);
+    }
+    .med-header {
+      display: flex; align-items: center; gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .med-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .med-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .med-type {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .med-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+    .med-detail-item {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+    }
+    .med-detail-label {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+    }
+    .med-detail-value {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      margin-top: 1px;
+    }
+
+    .change-log {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .change-item {
+      display: flex; align-items: flex-start; gap: var(--space-md);
+      padding: var(--space-md) 0;
+    }
+    .change-item + .change-item {
+      border-top: 1px solid var(--divider);
+    }
+    .change-dot {
+      width: 8px; height: 8px;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .change-text {
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+      line-height: var(--line-height-relaxed);
+    }
+    .change-date {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ═══ Liquid Glass 통일 ═══ */
+        html { background: #EEF3FB; }
+    /* 배경 애니메이션 블롭 */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.18)0%,transparent 65%);filter:blur(30px);animation:ga 8s ease-in-out infinite alternate}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.25)0%,transparent 65%);filter:blur(40px);animation:gb 10s ease-in-out infinite alternate}
+    .bg .g3{position:absolute;width:700px;height:500px;left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(44,122,252,.08)0%,transparent 70%);filter:blur(35px);animation:gc 12s ease-in-out infinite alternate}
+    @keyframes ga{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.08)translateY(12px)}}
+    @keyframes gb{0%{transform:translate(-50%,-50%)scale(1)}100%{transform:translate(-52%,-48%)scale(1.05)}}
+    @keyframes gc{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.06)translateY(-8px)}}
+    /* 헤더 — 표준 */
+    .header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--t1,#111827)}
+    .header-left,.header-right{width:36px;display:flex;align-items:center}
+    .header-right{justify-content:flex-end}
+    .nav-btn,.btn-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s;color:var(--t1,#111827)}
+    .nav-btn:active,.btn-icon:active{transform:scale(.93)}
+    .nav-btn iconify-icon,.btn-icon iconify-icon{font-size:18px;color:var(--blue,#2C7AFC)}
+    /* 글라스 카드 */
+    .med-card, .change-log {
+      background: rgba(255,255,255,0.26) !important; position: relative; overflow: hidden;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    .med-card::before, .change-log::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%); pointer-events: none; z-index: 0;
+    }
+    .med-detail-item { background: rgba(255,255,255,0.18) !important; }
+    .change-item + .change-item { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    /* Tabbar override */
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+
+  <!-- 배경 애니메이션 블롭 -->
+  <div class="bg"><svg class="bg-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
+  <div class="header" id="header">
+    <div class="header-left"><a href="g05-mypage.html" class="btn-icon" aria-label="뒤로 가기"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon></a></div>
+    <span class="header-title">처방전</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- 현재 처방 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">현재 처방약</h2></div>
+
+      <div class="med-card">
+        <div class="med-header">
+          <div class="med-icon"><iconify-icon icon="fluent:pill-24-filled" style="font-size:22px;color:var(--primary)"></iconify-icon></div>
+          <div>
+            <div class="med-name">아모디핀 5mg</div>
+            <div class="med-type">혈압약</div>
+          </div>
+        </div>
+        <div class="med-details">
+          <div class="med-detail-item">
+            <div class="med-detail-label">복용 시간</div>
+            <div class="med-detail-value">아침 식후</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">용량</div>
+            <div class="med-detail-value">1정</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">처방일</div>
+            <div class="med-detail-value">2026.03.15</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">담당의</div>
+            <div class="med-detail-value">이상훈 원장</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="med-card">
+        <div class="med-header">
+          <div class="med-icon"><iconify-icon icon="fluent:pill-24-filled" style="font-size:22px;color:var(--primary)"></iconify-icon></div>
+          <div>
+            <div class="med-name">메트포르민 500mg</div>
+            <div class="med-type">당뇨약</div>
+          </div>
+        </div>
+        <div class="med-details">
+          <div class="med-detail-item">
+            <div class="med-detail-label">복용 시간</div>
+            <div class="med-detail-value">아침·저녁 식후</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">용량</div>
+            <div class="med-detail-value">1정씩</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">처방일</div>
+            <div class="med-detail-value">2026.03.15</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">담당의</div>
+            <div class="med-detail-value">이상훈 원장</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="med-card">
+        <div class="med-header">
+          <div class="med-icon"><iconify-icon icon="fluent:pill-24-filled" style="font-size:22px;color:var(--primary)"></iconify-icon></div>
+          <div>
+            <div class="med-name">판크레아틴</div>
+            <div class="med-type">소화제</div>
+          </div>
+        </div>
+        <div class="med-details">
+          <div class="med-detail-item">
+            <div class="med-detail-label">복용 시간</div>
+            <div class="med-detail-value">점심 식후</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">용량</div>
+            <div class="med-detail-value">1정</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">처방일</div>
+            <div class="med-detail-value">2026.02.20</div>
+          </div>
+          <div class="med-detail-item">
+            <div class="med-detail-label">담당의</div>
+            <div class="med-detail-value">이상훈 원장</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 변경 이력 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">변경 이력</h2></div>
+      <div class="change-log">
+        <div class="change-item">
+          <div class="change-dot"></div>
+          <div>
+            <div class="change-text">아모디핀 용량 변경: 2.5mg → <strong>5mg</strong></div>
+            <div class="change-date">2026.03.15 · 이상훈 원장</div>
+          </div>
+        </div>
+        <div class="change-item">
+          <div class="change-dot" style="background:var(--success);"></div>
+          <div>
+            <div class="change-text">관절 영양제 (글루코사민) <strong>추가</strong></div>
+            <div class="change-date">2026.02.20 · 이상훈 원장</div>
+          </div>
+        </div>
+        <div class="change-item">
+          <div class="change-dot" style="background:var(--text-tertiary);"></div>
+          <div>
+            <div class="change-text">최초 처방 등록</div>
+            <div class="change-date">2025.09.15 · 입소 시</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab active"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <script>
+</script>
+</body>
+</html>

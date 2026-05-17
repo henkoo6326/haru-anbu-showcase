@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 케어 어시스턴트</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body {
+      background: transparent;
+      max-width: 430px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── 메시지 영역 ─── */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      -webkit-overflow-scrolling: touch;
+    }
+    .chat-messages::-webkit-scrollbar { display: none; }
+
+    /* ─── AI 인트로 카드 ─── */
+    .ai-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: var(--space-xl) var(--space-lg) var(--space-md);
+      gap: var(--space-md);
+    }
+    .ai-avatar {
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #22D3EE, #0891B2);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .ai-avatar::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .ai-intro-title {
+      font-size: var(--text-title);
+      font-weight: 700;
+      color: #1C1C1E;
+      letter-spacing: -0.02em;
+    }
+    .ai-intro-desc {
+      font-size: var(--text-callout);
+      color: rgba(28,28,30,0.55);
+      line-height: 1.5;
+    }
+
+    /* ─── 빠른 질문 칩 ─── */
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 var(--space-lg) var(--space-md);
+    }
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #0891B2;
+      background: rgba(8,145,178,0.08);
+      border: 0.5px solid rgba(8,145,178,0.22);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.12s;
+      white-space: nowrap;
+    }
+    .chip:active { background: rgba(8,145,178,0.16); transform: scale(0.96); }
+
+    /* ─── 말풍선 ─── */
+    .msg { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
+    .msg.in { align-self: flex-start; }
+    .msg.out { align-self: flex-end; align-items: flex-end; }
+    .msg-sender {
+      font-size: var(--text-mini);
+      color: rgba(28,28,30,0.45);
+      padding-left: 2px;
+    }
+    .msg-bubble {
+      padding: 11px 14px;
+      font-size: var(--text-callout);
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative; overflow: hidden;
+    }
+    .msg.in .msg-bubble {
+      border-radius: 18px 18px 18px 5px;
+      background: rgba(255,255,255,0.26);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.70);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+      color: #1C1C1E;
+    }
+    .msg.in .msg-bubble::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .msg.out .msg-bubble {
+      border-radius: 18px 18px 5px 18px;
+      background: rgba(8,145,178,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 0.5px solid rgba(8,145,178,0.6);
+      color: white;
+    }
+    .msg-time {
+      font-size: var(--text-mini);
+      color: rgba(28,28,30,0.35);
+      padding: 0 2px;
+    }
+
+    /* AI 응답 내 하이라이트 */
+    .ai-highlight {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(8,145,178,0.10);
+      border: 0.5px solid rgba(8,145,178,0.20);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-weight: 600;
+      color: #0891B2;
+      font-size: 0.82rem;
+    }
+    .ai-check { color: #22C55E; }
+    .ai-warn { color: #F59E0B; }
+
+    /* ─── 플로팅 필 입력바 ─── */
+    .chat-input-bar {
+      display: flex; align-items: center; gap: 8px;
+      border-radius: 999px;
+      padding: 8px 8px 8px 12px;
+      position: fixed;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 12px);
+      left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 398px;
+      z-index: 41;
+      background: rgba(255,255,255,0.38);
+      backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.2) inset, 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .chat-input-wrap {
+      flex: 1; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      border: 0.5px solid rgba(255,255,255,0.5);
+      padding: 0 12px;
+      display: flex; align-items: center;
+      transition: background .2s, border-color .2s;
+    }
+    .chat-input-wrap:focus-within {
+      background: rgba(255,255,255,0.28);
+      border-color: rgba(8,145,178,0.4);
+    }
+    .chat-input {
+      flex: 1; height: 100%; border: none; background: transparent;
+      font-family: var(--font-family); font-size: var(--text-callout);
+      outline: none; color: #1C1C1E;
+    }
+    .chat-input::placeholder { color: rgba(28,28,30,0.35); }
+    .chat-send {
+      width: 36px; height: 36px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, #22D3EE, #0891B2);
+      color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; padding: 0;
+      transition: transform .1s;
+      box-shadow: 0 2px 8px rgba(8,145,178,0.35);
+    }
+    .chat-send:active { transform: scale(.92); }
+
+    /* ─── Liquid Glass 통일 ─── */
+    html { background: #EEF5FF; }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%, rgba(100,178,255,0.55) 0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%, rgba(56,189,248,0.48)  0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%, rgba(99,102,241,0.42)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%, rgba(44,122,252,0.38)  0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%, rgba(255,255,255,0.58) 0%, transparent 65%), #E4EEFC;
+      pointer-events: none;
+    }
+    /* 자연스러운 글라스 헤더 */
+    .header {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border-bottom: 0.5px solid rgba(255,255,255,0.18);
+      padding-top: max(env(safe-area-inset-top, 0px), 44px);
+      padding-left: 16px; padding-right: 16px; padding-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 2;
+    }
+    .btn-icon {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.38);
+      backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.18s ease;
+      color: rgba(28,28,30,0.7); text-decoration: none; font-size: 22px; font-weight: 300;
+    }
+    .btn-icon:active { transform: scale(0.94); }
+    /* 플로팅 필 탭바 */
+    /* 메시지 영역 하단 여백 */
+    .chat-messages {
+      padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 24px + 68px + 12px + 52px + 16px) !important;
+    }
+    /* Tabbar override */
+    .tabbar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:rgba(180,210,250,.15);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.35);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <a href="g02-ai-report.html" class="btn-icon" aria-label="뒤로 가기"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon></a>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div style="width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#22D3EE,#0891B2);display:flex;align-items:center;justify-content:center;">
+        <iconify-icon icon="fluent:sparkle-24-filled" style="font-size:13px;color:white;"></iconify-icon>
+      </div>
+      <span class="header-title">AI 케어 어시스턴트</span>
+    </div>
+    <div class="header-right"></div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages">
+
+    <!-- AI 인트로 -->
+    <div class="ai-intro">
+      <div class="ai-avatar">
+        <iconify-icon icon="fluent:sparkle-24-filled" style="font-size:26px;color:white;"></iconify-icon>
+      </div>
+      <div class="ai-intro-title">AI 케어 어시스턴트</div>
+      <div class="ai-intro-desc">손정희님의 케어 데이터를 바탕으로<br>무엇이든 물어보세요.</div>
+    </div>
+
+    <!-- 빠른 질문 칩 -->
+    <div class="quick-chips">
+      <div class="chip" onclick="sendChip(this)">오늘 투약 상태는?</div>
+      <div class="chip" onclick="sendChip(this)">식사량 분석해줘</div>
+      <div class="chip" onclick="sendChip(this)">특이사항 요약</div>
+      <div class="chip" onclick="sendChip(this)">운동 추천해줘</div>
+      <div class="chip" onclick="sendChip(this)">이번 달 청구 요약</div>
+    </div>
+
+    <!-- 샘플 대화 -->
+    <div class="msg out">
+      <div class="msg-bubble">오늘 어머니 식사량이 적은 거 괜찮은 건가요?</div>
+      <span class="msg-time">오후 5:02</span>
+    </div>
+
+    <div class="msg in">
+      <span class="msg-sender">AI 어시스턴트</span>
+      <div class="msg-bubble">
+        오늘 점심 식사량이 평소 대비 약 <span class="ai-highlight">15% 감소</span>했어요.<br><br>
+        <span class="ai-check">✓</span> 아침은 정상적으로 드셨고<br>
+        <span class="ai-check">✓</span> 컨디션 이상 신호는 없어요<br>
+        <span class="ai-warn">△</span> 저녁 식사량을 확인하는 게 좋을 것 같아요.<br><br>
+        1~2일 연속으로 감소 추세라면 담당 간호사에게 알리는 걸 권장드려요.
+      </div>
+      <span class="msg-time">오후 5:02</span>
+    </div>
+
+    <div class="msg out">
+      <div class="msg-bubble">투약은 다 됐어요?</div>
+      <span class="msg-time">오후 5:03</span>
+    </div>
+
+    <div class="msg in">
+      <span class="msg-sender">AI 어시스턴트</span>
+      <div class="msg-bubble">
+        오늘 투약은 <span class="ai-highlight">3/3 완료</span>됐어요. 👍<br><br>
+        • 아침 08:00 — 혈압약, 당뇨약 ✓<br>
+        • 점심 12:30 — 소화제 ✓<br>
+        • 오후 14:00 — 관절 영양제 ✓<br><br>
+        모두 정시에 복용하셨어요.
+      </div>
+      <span class="msg-time">오후 5:03</span>
+    </div>
+
+  </div>
+
+  <!-- 입력바 -->
+  <div class="chat-input-bar">
+    <div class="chat-input-wrap">
+      <input class="chat-input" type="text" placeholder="케어에 대해 무엇이든 물어보세요" aria-label="질문 입력">
+    </div>
+    <button class="chat-send" aria-label="전송">
+      <iconify-icon icon="fluent:send-24-filled" style="font-size:16px;"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab active">
+      <span class="tab-icon"><svg viewBox="0 0 2526 2526"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="10" y="6" width="4" height="14" rx="2"/><rect x="16" y="9" width="4" height="11" rx="2"/></svg></span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="16" rx="3"/><rect x="2" y="10" width="20" height="3" fill="rgba(255,255,255,0.35)"/><rect x="5" y="15" width="4" height="2" rx="1" fill="rgba(255,255,255,0.6)"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <script>
+
+    function sendChip(el) {
+      const text = el.textContent;
+      const msgs = document.querySelector('.chat-messages');
+      const out = document.createElement('div');
+      out.className = 'msg out';
+      out.innerHTML = `<div class="msg-bubble">${text}</div><span class="msg-time">방금</span>`;
+      msgs.appendChild(out);
+      el.remove();
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  </script>
+</body>
+</html>

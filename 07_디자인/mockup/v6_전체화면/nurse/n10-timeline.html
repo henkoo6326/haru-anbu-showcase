@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 의료 타임라인</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:108px; }
+    .content { padding:0 var(--space-lg); }
+    .page-head { padding:var(--space-xl) 0 var(--space-md); }
+    .page-head h1 { font-size:var(--text-display); font-weight:var(--weight-bold); }
+    .page-head p { font-size:var(--text-callout); color:var(--text-secondary); margin-top:4px; }
+
+    .patient-select { display:flex; gap:var(--space-sm); overflow-x:auto; padding-bottom:var(--space-md); scrollbar-width:none; }
+    .patient-select::-webkit-scrollbar { display:none; }
+    .p-chip { padding:8px 14px; border-radius:var(--radius-full); background:var(--surface); border:1.5px solid var(--divider); font-size:var(--text-caption); font-weight:var(--weight-semibold); white-space:nowrap; cursor:pointer; }
+    .p-chip.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+    /* 기록 추가 버튼 */
+    .add-btn {
+      display:flex; align-items:center; justify-content:center; gap:var(--space-sm);
+      width:100%; height:48px; background:var(--primary); color:white;
+      border:none; border-radius:var(--radius-md); font-size:var(--text-body);
+      font-weight:var(--weight-semibold); font-family:var(--font-family);
+      cursor:pointer; margin-bottom:var(--space-xl);
+    }
+
+    .tl { position:relative; padding-left:24px; }
+    .tl::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--divider); }
+    .tl-month { font-size:var(--text-caption); font-weight:var(--weight-bold); color:var(--text-secondary); margin:var(--space-lg) 0 var(--space-md); }
+    .tl-item { position:relative; margin-bottom:var(--space-lg); }
+    .tl-dot { position:absolute; left:-20px; top:12px; width:12px; height:12px; border-radius:50%; z-index:1; }
+    .tl-dot--rx { background:#C62828; } .tl-dot--exam { background:#1565C0; }
+    .tl-dot--diag { background:#4E78EB; } .tl-dot--sos { background:var(--critical); }
+    .tl-dot--note { background:var(--success); }
+    .tl-card { background:var(--surface); border-radius:var(--radius-md); padding:var(--space-lg); box-shadow:var(--shadow-sm); }
+    .tl-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .tl-tag { font-size:var(--text-mini); font-weight:var(--weight-semibold); padding:2px 8px; border-radius:var(--radius-full); }
+    .tl-tag--rx { background:#FCE4EC; color:#C62828; }
+    .tl-tag--exam { background:#E3F2FD; color:#1565C0; }
+    .tl-tag--diag { background:#EEF2FD; color:#4E78EB; }
+    .tl-tag--sos { background:#FFEBEE; color:var(--critical); }
+    .tl-tag--note { background:#E8F8ED; color:var(--success); }
+    .tl-date { font-size:var(--text-mini); color:var(--text-tertiary); }
+    .tl-title { font-size:var(--text-headline); font-weight:var(--weight-semibold); margin-bottom:4px; }
+    .tl-desc { font-size:var(--text-caption); color:var(--text-secondary); line-height:1.5; }
+    .tl-author { font-size:var(--text-mini); color:var(--text-tertiary); margin-top:6px; }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="page-head"><h1>의료 타임라인</h1><p>환자별 전체 의료 이력 관리</p></div>
+
+    <div class="patient-select">
+      <div class="p-chip active">손정희 (302호)</div>
+      <div class="p-chip" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active');">박영수 (305호)</div>
+      <div class="p-chip" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active');">이순자 (310호)</div>
+    </div>
+
+    <button class="add-btn" onclick="this.textContent='✓ 기록이 추가되었습니다'; this.style.background='var(--success)'; setTimeout(()=>{this.innerHTML='<i data-lucide=\'plus\' style=\'width:18px;height:18px;\'></i> 새 기록 추가'; this.style.background='';}, 2000);"><i data-lucide="plus" style="width:18px;height:18px;"></i> 새 기록 추가</button>
+
+    <div class="tl">
+      <div class="tl-month">2026년 4월</div>
+      <div class="tl-item"><div class="tl-dot tl-dot--rx"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--rx">처방 변경</span><span class="tl-date">4월 1일</span></div><div class="tl-title">도네페질 용량 조정</div><div class="tl-desc">5mg → 10mg 증량. 인지기능 평가 결과 반영.</div><div class="tl-author">김미영 간호사 · 이상훈 의사 처방</div></div></div>
+
+      <div class="tl-month">2026년 3월</div>
+      <div class="tl-item"><div class="tl-dot tl-dot--sos"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--sos">SOS</span><span class="tl-date">3월 28일</span></div><div class="tl-title">낙상 사고</div><div class="tl-desc">화장실 이동 중 미끄러짐. X-ray 결과 골절 없음. 보행보조기 사용 권장.</div><div class="tl-author">김미영 간호사 접수</div></div></div>
+      <div class="tl-item"><div class="tl-dot tl-dot--exam"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--exam">검사</span><span class="tl-date">3월 20일</span></div><div class="tl-title">정기 혈액검사</div><div class="tl-desc">CBC, 간기능, 신기능 정상. HbA1c 6.1%. 콜레스테롤 경계수치.</div><div class="tl-author">외부 검사실 · 이상훈 의사 확인</div></div></div>
+      <div class="tl-item"><div class="tl-dot tl-dot--diag"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--diag">진료</span><span class="tl-date">3월 14일</span></div><div class="tl-title">정기 진료</div><div class="tl-desc">MMSE 22점 (경도 인지장애). 재활운동 주 3회 유지. 전반적 상태 양호.</div><div class="tl-author">이상훈 의사</div></div></div>
+      <div class="tl-item"><div class="tl-dot tl-dot--rx"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--rx">처방 변경</span><span class="tl-date">3월 12일</span></div><div class="tl-title">혈압약 용량 조정</div><div class="tl-desc">암로디핀 2.5mg → 5mg. 혈압 상승 추세 반영.</div><div class="tl-author">이상훈 의사 처방</div></div></div>
+      <div class="tl-item"><div class="tl-dot tl-dot--note"></div><div class="tl-card"><div class="tl-head"><span class="tl-tag tl-tag--note">마일스톤</span><span class="tl-date">3월 1일</span></div><div class="tl-title">입소 6개월</div><div class="tl-desc">시설 적응 완료. 일상생활 자립도 개선.</div><div class="tl-author">시스템 자동 기록</div></div></div>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;height:calc(50px + 44px + 8px);padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab"><span class="tab-icon"><i data-lucide="home"></i></span><span class="tab-label">홈</span></a>
+    <a href="n02-patients.html" class="tab"><span class="tab-icon"><i data-lucide="users"></i></span><span class="tab-label">환자</span></a>
+    <a href="n07-chat.html" class="tab"><span class="tab-icon"><i data-lucide="message-circle"></i></span><span class="tab-label">채팅</span></a>
+    <a href="n03-checklist.html" class="tab"><span class="tab-icon"><i data-lucide="list-checks"></i></span><span class="tab-label">체크리스트</span></a>
+    <a href="n04-mypage.html" class="tab"><span class="tab-icon"><i data-lucide="user"></i></span><span class="tab-label">내 정보</span></a>
+  </nav>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

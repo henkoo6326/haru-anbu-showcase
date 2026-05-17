@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 소통</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --coral:#F97066;--coral-l:#FCA5A1;
+      --teal:#0D9488;--teal-l:#5EEAD4;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%;background:#d4e4ff}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.14)0%,transparent 65%);filter:blur(30px)}
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 112px)}
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 12px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-row{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+    .content{position:relative;z-index:1;padding:0 16px}
+    .summary-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.55);border-radius:14px;margin-bottom:16px;cursor:pointer;transition:transform .12s}
+    .summary-bar:active{transform:scale(.98)}
+    .summary-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;animation:pulse-dot 2s ease-in-out infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+    .summary-text{font-size:13px;font-weight:600;color:var(--t1);flex:1;line-height:1.35}
+    .summary-text b{font-weight:800;color:var(--blue)}
+    .summary-chevron{color:var(--t3);flex-shrink:0}
+    .filter-row{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .filter-row::-webkit-scrollbar{display:none}
+    .chip{flex-shrink:0;padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--t2);background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.55);cursor:pointer;font-family:var(--font);transition:all .15s}
+    .chip.active{color:#fff;background:var(--blue);border-color:transparent}
+    .chip .chip-count{font-weight:800;margin-left:2px}
+    .sec-label{display:flex;align-items:center;gap:8px;padding:10px 2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s}
+    .sec-label:first-child{padding-top:0}
+    .sec-label-text{font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.2px}
+    .sec-label-count{font-size:11px;font-weight:800;color:var(--blue);background:rgba(44,122,252,.08);padding:2px 9px;border-radius:999px}
+    .sec-label-chevron{margin-left:auto;font-size:14px;color:var(--t3);transition:transform .25s ease}
+    .sec-label.collapsed{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.55);border-radius:12px;padding:14px 16px;margin-top:6px;margin-bottom:2px}
+    .sec-label.collapsed:active{transform:scale(.98)}
+    .sec-label.collapsed .sec-label-chevron{transform:rotate(-90deg)}
+    .sec-label.collapsed .sec-label-text{font-size:13px;font-weight:700;color:var(--t1)}
+    .msg-list{display:flex;flex-direction:column;gap:6px;overflow:hidden;transition:max-height .3s ease,opacity .2s ease}
+    .msg-list.collapsed{max-height:0!important;opacity:0;margin:0;padding:0}
+    .msg-list{display:flex;flex-direction:column;gap:6px}
+    .msg-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:16px;text-decoration:none;color:inherit;transition:transform .12s}
+    .msg-item:active{transform:scale(.97)}
+    .msg-item.unread{background:rgba(255,255,255,.95);border-color:rgba(44,122,252,.12)}
+    .av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:17px;color:#fff;position:relative}
+    .av-nurse{background:linear-gradient(135deg,#2C7AFC,#5B9BFF)}
+    .av-doctor{background:linear-gradient(135deg,var(--teal),var(--teal-l))}
+    .av-family{background:linear-gradient(135deg,var(--coral),var(--coral-l))}
+    .av-system{background:linear-gradient(135deg,#94A3B8,#CBD5E1)}
+    .av-online::after{content:'';position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
+    .msg-body{flex:1;min-width:0}
+    .msg-name-row{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+    .msg-name{font-size:14px;font-weight:700;white-space:nowrap}
+    .msg-tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:999px;flex-shrink:0}
+    .tag-care{color:var(--green-d);background:rgba(52,211,153,.12)}
+    .tag-schedule{color:var(--amber);background:rgba(44,122,252,.1)}
+    .tag-billing{color:var(--blue);background:rgba(44,122,252,.08)}
+    .tag-duty{color:var(--green-d);background:rgba(52,211,153,.12)}
+    .msg-preview{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+    .msg-item.unread .msg-preview{color:rgba(0,0,0,.55);font-weight:500}
+    .msg-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+    .msg-time{font-size:10.5px;color:var(--t3);font-weight:500}
+    .msg-item.unread .msg-time{color:var(--t3);font-weight:500}
+    .msg-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:1px 7px;min-width:20px;text-align:center;line-height:18px}
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+  <div class="bg"><div class="g1"></div></div>
+  <div class="app">
+    <div class="header" id="header">
+      <div class="header-row">
+        <span class="header-title">소통</span>
+        <div class="nav-btn">
+          <iconify-icon icon="fluent:compose-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="summary-bar">
+        <div class="summary-dot"></div>
+        <div class="summary-text">읽지 않은 메시지 <b>5건</b> · 내일 오전 검진 예정</div>
+        <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:14px" class="summary-chevron"></iconify-icon>
+      </div>
+      <div class="filter-row">
+        <button class="chip active" onclick="filterMsg('all',this)">전체<span class="chip-count">5</span></button>
+        <button class="chip" onclick="filterMsg('care',this)">케어</button>
+        <button class="chip" onclick="filterMsg('schedule',this)">일정</button>
+        <button class="chip" onclick="filterMsg('billing',this)">결제</button>
+        <button class="chip" onclick="filterMsg('chat',this)">대화</button>
+      </div>
+
+      <div class="sec-label" onclick="toggleSection(this)">
+        <span class="sec-label-text">읽지 않음</span>
+        <span class="sec-label-count">4</span>
+        <iconify-icon icon="fluent:chevron-down-24-filled" class="sec-label-chevron"></iconify-icon>
+      </div>
+      <div class="msg-list" style="margin-bottom:4px">
+        <a href="g03-chat-nurse.html" class="msg-item unread" data-type="chat">
+          <div class="av av-nurse av-online">김</div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">김미영 간호사</span>
+              <span class="msg-tag tag-duty">근무 중</span>
+            </div>
+            <div class="msg-preview">저녁 투약도 완료했습니다. 오늘 하루 컨디션...</div>
+          </div>
+          <div class="msg-meta">
+            <span class="msg-time">오후 6:05</span>
+            <span class="msg-badge">4</span>
+          </div>
+        </a>
+        <div class="msg-item unread" data-type="care" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:heart-pulse-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">혈당 검사 처치 안내</span>
+              <span class="msg-tag tag-care">케어</span>
+            </div>
+            <div class="msg-preview">손가락 끝에서 소량의 혈액을 채취하는 간단한 검사입니다</div>
+          </div>
+          <div class="msg-meta">
+            <span class="msg-time">30분 전</span>
+            <span class="msg-badge" style="background:var(--green-d)">1</span>
+          </div>
+        </div>
+        <div class="msg-item unread" data-type="care" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:pill-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">투약 시간 변경</span>
+              <span class="msg-tag tag-care">케어</span>
+            </div>
+            <div class="msg-preview">저녁 투약 18:00 → 18:30 변경 (식후 복용)</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">1시간 전</span></div>
+        </div>
+        <a href="g03-chat-patient.html" class="msg-item unread" data-type="chat">
+          <div class="av av-family"><iconify-icon icon="fluent:heart-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row"><span class="msg-name">정희님 (어머니)</span></div>
+            <div class="msg-preview">오늘 날씨 좋다~</div>
+          </div>
+          <div class="msg-meta">
+            <span class="msg-time">오후 3:20</span>
+            <span class="msg-badge">1</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="sec-label collapsed" onclick="toggleSection(this)">
+        <span class="sec-label-text">오늘</span>
+        <span class="sec-label-count">2</span>
+        <iconify-icon icon="fluent:chevron-down-24-filled" class="sec-label-chevron"></iconify-icon>
+      </div>
+      <div class="msg-list collapsed" style="margin-bottom:4px">
+        <div class="msg-item" data-type="care" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:food-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">점심 식사 완료</span>
+              <span class="msg-tag tag-care">케어</span>
+            </div>
+            <div class="msg-preview">밥 + 된장국 + 반찬 3종, 섭취율 80%</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">12:05</span></div>
+        </div>
+        <div class="msg-item" data-type="schedule" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:calendar-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">내일 오전 검진 예정</span>
+              <span class="msg-tag tag-schedule">일정</span>
+            </div>
+            <div class="msg-preview">4/17(목) 오전 10시 · 공복 검사</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">오전 9:00</span></div>
+        </div>
+      </div>
+
+      <div class="sec-label collapsed" onclick="toggleSection(this)">
+        <span class="sec-label-text">이전</span>
+        <span class="sec-label-count">6</span>
+        <iconify-icon icon="fluent:chevron-down-24-filled" class="sec-label-chevron"></iconify-icon>
+      </div>
+      <div class="msg-list collapsed">
+        <a href="#" class="msg-item" data-type="chat">
+          <div class="av av-nurse">이</div>
+          <div class="msg-body">
+            <div class="msg-name-row"><span class="msg-name">이수진 간호사</span></div>
+            <div class="msg-preview">내일 오전 검진 일정 안내드려요</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">어제</span></div>
+        </a>
+        <div class="msg-item" data-type="billing" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:receipt-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">4월 요양비 청구서</span>
+              <span class="msg-tag tag-billing">결제</span>
+            </div>
+            <div class="msg-preview">1,245,000원 · 납부기한 4/25 (D-9)</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">어제</span></div>
+        </div>
+        <a href="#" class="msg-item" data-type="chat">
+          <div class="av av-doctor">정</div>
+          <div class="msg-body">
+            <div class="msg-name-row"><span class="msg-name">정현우 전문의</span></div>
+            <div class="msg-preview">다음 주 검진 결과 나오면 말씀드릴게요</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">4/14</span></div>
+        </a>
+        <a href="g03-chat-family.html" class="msg-item" data-type="chat">
+          <div class="av av-family"><iconify-icon icon="fluent:people-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row"><span class="msg-name">가족 그룹</span></div>
+            <div class="msg-preview">주말에 면회 갈 수 있을까?</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">4/14</span></div>
+        </a>
+        <a href="#" class="msg-item" data-type="chat">
+          <div class="av av-nurse">박</div>
+          <div class="msg-body">
+            <div class="msg-name-row"><span class="msg-name">박지현 간호사</span></div>
+            <div class="msg-preview">야간 순찰 완료, 어머님 편히 주무셨어요</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">4/12</span></div>
+        </a>
+        <div class="msg-item" data-type="care" style="cursor:pointer">
+          <div class="av av-system"><iconify-icon icon="fluent:walk-24-filled" style="font-size:20px"></iconify-icon></div>
+          <div class="msg-body">
+            <div class="msg-name-row">
+              <span class="msg-name">오전 산책 완료</span>
+              <span class="msg-tag tag-care">케어</span>
+            </div>
+            <div class="msg-preview">정원 2바퀴 · 보조보행기 사용</div>
+          </div>
+          <div class="msg-meta"><span class="msg-time">4/12</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab active"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="var(--blue)"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+
+  <script>
+    window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+    function toggleSection(label){
+      var list=label.nextElementSibling;
+      if(!list)return;
+      var isCollapsed=label.classList.contains('collapsed');
+      if(isCollapsed){
+        label.classList.remove('collapsed');
+        list.classList.remove('collapsed');
+        list.style.maxHeight=list.scrollHeight+'px';
+        setTimeout(function(){list.style.maxHeight='none';},300);
+      }else{
+        list.style.maxHeight=list.scrollHeight+'px';
+        list.offsetHeight;
+        label.classList.add('collapsed');
+        list.classList.add('collapsed');
+        list.style.maxHeight='0';
+      }
+    }
+    function filterMsg(type,btn){
+      document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+      btn.classList.add('active');
+      document.querySelectorAll('.msg-item').forEach(function(item){
+        if(type==='all'){item.style.display='';return;}
+        item.style.display=item.getAttribute('data-type')===type?'':'none';
+      });
+      document.querySelectorAll('.sec-label').forEach(function(label){
+        var next=label.nextElementSibling;
+        if(!next)return;
+        var visible=next.querySelectorAll('.msg-item:not([style*="display: none"])');
+        label.style.display=visible.length?'':'none';
+      });
+    }
+  </script>
+</body>
+</html>

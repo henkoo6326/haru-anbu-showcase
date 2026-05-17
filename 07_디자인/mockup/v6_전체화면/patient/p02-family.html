@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="patient">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 가족 소식</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:108px; }
+    .content { padding:0 var(--space-lg); }
+
+    .page-head { padding:var(--space-md) 0 var(--space-sm); }
+    .page-head h1 { font-size:24px; font-weight:var(--weight-bold); line-height:var(--line-height-tight); }
+    .page-head p { font-size:var(--text-callout); color:var(--text-secondary); margin-top:4px; }
+
+    /* 가족 구성원 — 카드형 */
+    .family-row {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:var(--space-md); margin-bottom:var(--space-md);
+    }
+    .family-card {
+      background:var(--surface); border-radius:var(--radius-xl);
+      padding:var(--space-lg) var(--space-md);
+      box-shadow:var(--shadow-sm);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      cursor:pointer; transition:transform 0.15s;
+    }
+    .family-card:active { transform:scale(0.96); }
+    .family-avatar {
+      width:64px; height:64px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:32px; position:relative;
+    }
+    .family-avatar--son { background:#D9F0F7; }
+    .family-avatar--daughter { background:#FCE4EC; }
+    .family-online {
+      position:absolute; bottom:2px; right:2px;
+      width:14px; height:14px; border-radius:50%;
+      background:var(--success); border:2.5px solid var(--surface);
+    }
+    .family-name { font-size:var(--text-body-large); font-weight:var(--weight-bold); }
+    .family-rel { font-size:var(--text-callout); color:var(--text-tertiary); }
+    .family-status {
+      font-size:var(--text-caption); font-weight:var(--weight-semibold);
+      padding:3px 10px; border-radius:var(--radius-full);
+    }
+    .family-status--on { background:#E8F8ED; color:var(--success); }
+    .family-status--off { background:var(--bg); color:var(--text-tertiary); }
+
+    /* 메시지 카드 */
+    .msg-section-title {
+      font-size:var(--text-title); font-weight:var(--weight-bold);
+      margin-bottom:var(--space-md);
+    }
+    .msg-card {
+      background:var(--surface); border-radius:var(--radius-xl);
+      padding:var(--space-xl); box-shadow:var(--shadow-sm);
+      margin-bottom:var(--space-md);
+    }
+    .msg-head { display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); }
+    .msg-av {
+      width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    .msg-av--son { background:#D9F0F7; }
+    .msg-av--daughter { background:#FCE4EC; }
+    .msg-sender { font-size:var(--text-body-large); font-weight:var(--weight-semibold); }
+    .msg-time { font-size:var(--text-caption); color:var(--text-tertiary); margin-top:1px; }
+    .msg-text {
+      font-size:var(--text-body-large); line-height:var(--line-height-relaxed);
+      color:var(--text-primary);
+    }
+    .msg-reply {
+      display:flex; align-items:center; justify-content:center; gap:var(--space-sm);
+      width:100%; height:48px; margin-top:var(--space-lg);
+      background:var(--primary); color:white;
+      border:none; border-radius:var(--radius-md);
+      font-family:var(--font-family); font-size:var(--text-body);
+      font-weight:var(--weight-semibold); cursor:pointer;
+    }
+    .msg-reply:active { opacity:0.85; }
+
+    /* 복용약 섹션 */
+    .med-card {
+      background:var(--surface); border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-sm); overflow:hidden;
+      margin-bottom:var(--space-md);
+    }
+    .med-row {
+      display:flex; align-items:center; gap:var(--space-md);
+      padding:var(--space-lg) var(--space-xl);
+    }
+    .med-row + .med-row { border-top:0.5px solid var(--divider); }
+    .med-icon {
+      width:40px; height:40px; border-radius:10px;
+      background:#FCE4EC; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .med-body { flex:1; }
+    .med-name { font-size:var(--text-body-large); font-weight:var(--weight-semibold); }
+    .med-detail { font-size:var(--text-callout); color:var(--text-secondary); margin-top:2px; }
+    .med-time {
+      font-size:var(--text-caption); font-weight:var(--weight-semibold);
+      color:var(--primary); white-space:nowrap;
+    }
+
+    /* 가족 연락처 */
+    .contact-card {
+      background:var(--surface); border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-sm); overflow:hidden;
+    }
+    .contact-row {
+      display:flex; align-items:center; gap:var(--space-md);
+      padding:var(--space-lg) var(--space-xl);
+      text-decoration:none; color:inherit;
+    }
+    .contact-row + .contact-row { border-top:0.5px solid var(--divider); }
+    .contact-row:active { background:rgba(0,0,0,0.03); }
+    .contact-av {
+      width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    .contact-body { flex:1; }
+    .contact-name { font-size:var(--text-body-large); font-weight:var(--weight-semibold); }
+    .contact-rel { font-size:var(--text-callout); color:var(--text-secondary); }
+    .contact-call {
+      width:40px; height:40px; border-radius:50%;
+      background:#E8F8ED; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+
+    .tabbar--patient .tab-label { font-size:14px; }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="page-head">
+      <h1>가족 소식</h1>
+      <p>가족들이 보낸 메시지와 소식이에요</p>
+    </div>
+
+    <!-- 가족 구성원 카드 -->
+    <div class="family-row">
+      <div class="family-card">
+        <div class="family-avatar family-avatar--son"><i data-lucide="user" style="width:28px;height:28px;color:#4E78EB;"></i><div class="family-online"></div></div>
+        <div class="family-name">예찬</div>
+        <div class="family-rel">아들</div>
+        <span class="family-status family-status--on">접속 중</span>
+      </div>
+      <div class="family-card">
+        <div class="family-avatar family-avatar--daughter"><i data-lucide="user" style="width:28px;height:28px;color:#C62828;"></i></div>
+        <div class="family-name">예진</div>
+        <div class="family-rel">딸</div>
+        <span class="family-status family-status--off">어제 접속</span>
+      </div>
+    </div>
+
+    <!-- 받은 메시지 -->
+    <h2 class="msg-section-title">받은 메시지</h2>
+
+    <div class="msg-card">
+      <div class="msg-head">
+        <div class="msg-av msg-av--son"><i data-lucide="user" style="width:22px;height:22px;color:#4E78EB;"></i></div>
+        <div>
+          <div class="msg-sender">예찬</div>
+          <div class="msg-time">오늘 오후 12:20</div>
+        </div>
+      </div>
+      <div class="msg-text">어머니, 점심 맛있게 드셨나요?<br>오늘 날씨가 좋으니 산책도 즐기세요!</div>
+      <button class="msg-reply" onclick="showToast('답장 화면으로 이동합니다')">
+        <i data-lucide="message-circle" style="width:18px;height:18px;"></i> 답장하기
+      </button>
+    </div>
+
+    <div class="msg-card">
+      <div class="msg-head">
+        <div class="msg-av msg-av--daughter"><i data-lucide="user" style="width:22px;height:22px;color:#C62828;"></i></div>
+        <div>
+          <div class="msg-sender">예진</div>
+          <div class="msg-time">어제 오후 7:30</div>
+        </div>
+      </div>
+      <div class="msg-text">엄마~ 주말에 면회 갈게요!<br>좋아하시는 떡 사갈게요 :)</div>
+      <button class="msg-reply" onclick="showToast('답장 화면으로 이동합니다')">
+        <i data-lucide="message-circle" style="width:18px;height:18px;"></i> 답장하기
+      </button>
+    </div>
+
+    <!-- 복용약 -->
+    <h2 class="msg-section-title" style="margin-top:var(--space-xl);">내 복용약</h2>
+
+    <div class="med-card">
+      <div class="med-row">
+        <div class="med-icon"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="med-body">
+          <div class="med-name">혈압약</div>
+          <div class="med-detail">암로디핀 5mg</div>
+        </div>
+        <div class="med-time">아침</div>
+      </div>
+      <div class="med-row">
+        <div class="med-icon"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="med-body">
+          <div class="med-name">혈전 예방약</div>
+          <div class="med-detail">아스피린 100mg</div>
+        </div>
+        <div class="med-time">아침</div>
+      </div>
+      <div class="med-row">
+        <div class="med-icon"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="med-body">
+          <div class="med-name">기억력 약</div>
+          <div class="med-detail">도네페질 10mg</div>
+        </div>
+        <div class="med-time">저녁</div>
+      </div>
+    </div>
+
+    <!-- 가족 연락처 -->
+    <h2 class="msg-section-title" style="margin-top:var(--space-xl);">가족 연락처</h2>
+
+    <div class="contact-card">
+      <a href="#" class="contact-row" onclick="event.preventDefault(); showToast('예찬에게 전화합니다')">
+        <div class="contact-av family-avatar--son"><i data-lucide="user" style="width:22px;height:22px;color:#4E78EB;"></i></div>
+        <div class="contact-body">
+          <div class="contact-name">예찬</div>
+          <div class="contact-rel">아들</div>
+        </div>
+        <div class="contact-call"><i data-lucide="phone" style="width:18px;height:18px;color:var(--success);"></i></div>
+      </a>
+      <a href="#" class="contact-row" onclick="event.preventDefault(); showToast('예진에게 전화합니다')">
+        <div class="contact-av family-avatar--daughter"><i data-lucide="user" style="width:22px;height:22px;color:#C62828;"></i></div>
+        <div class="contact-body">
+          <div class="contact-name">예진</div>
+          <div class="contact-rel">딸</div>
+        </div>
+        <div class="contact-call"><i data-lucide="phone" style="width:18px;height:18px;color:var(--success);"></i></div>
+      </a>
+    </div>
+  </div>
+
+  <nav class="tabbar tabbar--patient" role="navigation" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;height:calc(60px + 44px);padding-bottom:44px;display:flex;justify-content:space-around;align-items:center;">
+    <a href="p01-home.html" class="tab" style="flex:1;"><span class="tab-icon"><i data-lucide="home"></i></span><span class="tab-label">홈</span></a>
+    <a href="p02-family.html" class="tab active" style="flex:1;" aria-current="page"><span class="tab-icon"><i data-lucide="heart"></i></span><span class="tab-label">가족</span></a>
+    <a href="p03-help.html" class="tab" style="flex:1;color:var(--critical);"><span class="tab-icon"><i data-lucide="bell-ring"></i></span><span class="tab-label">도움</span></a>
+  </nav>
+
+  <div id="toast" style="position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);padding:12px 24px;background:#1C1C1E;color:white;border-radius:999px;font-size:16px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:300;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;text-align:center;max-width:380px;font-family:var(--font-family);"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(function() { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-20px)'; }, 3000);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 보호자 홈</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0A0F1A;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
+      overflow-x: hidden;
+      color: white;
+    }
+
+    /* ── 상단 헤더 ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 56px 20px 16px;
+    }
+    .top-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .top-logo svg { width: 28px; height: 28px; }
+    .top-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.3px;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .notif-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .notif-dot {
+      position: absolute;
+      top: 7px; right: 7px;
+      width: 7px; height: 7px;
+      background: #F59E0B;
+      border-radius: 50%;
+      border: 1.5px solid #0A0F1A;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0891B2, #0EA5E9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* ── 환자 이름 + 상태 ── */
+    .patient-pill {
+      margin: 0 20px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 6px 12px 6px 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+    .patient-pill .status-dot {
+      width: 8px; height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── AI 오브 영역 ── */
+    .orb-section {
+      position: relative;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+    }
+
+    /* 배경 글로우 */
+    .orb-glow-bg {
+      position: absolute;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%,
+        rgba(8, 145, 178, 0.25) 0%,
+        rgba(14, 165, 233, 0.12) 40%,
+        transparent 70%
+      );
+      filter: blur(24px);
+      animation: glow-breathe 3s ease-in-out infinite;
+    }
+    @keyframes glow-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.12); opacity: 1; }
+    }
+
+    /* canvas 오브 */
+    #orbCanvas {
+      position: relative;
+      z-index: 2;
+      border-radius: 50%;
+    }
+
+    /* 재생 버튼 오버레이 */
+    .orb-play-overlay {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .orb-play-overlay.hidden { display: none; }
+    .play-btn {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      pointer-events: all;
+      transition: all 0.2s;
+    }
+    .play-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+    .play-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 500;
+    }
+
+    /* ── AI 텍스트 출력 ── */
+    .ai-speech-area {
+      margin: 0 20px 20px;
+      min-height: 80px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px 18px;
+      position: relative;
+    }
+    .ai-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .ai-label-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #0891B2;
+    }
+    .ai-label-dot.speaking {
+      animation: speaking-dot 0.6s infinite alternate;
+    }
+    @keyframes speaking-dot {
+      from { background: #0891B2; box-shadow: none; }
+      to { background: #38BDF8; box-shadow: 0 0 8px #38BDF8; }
+    }
+    .ai-label-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: #0891B2;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .ai-speech-text {
+      font-size: 15px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.88);
+      font-weight: 400;
+      min-height: 48px;
+    }
+    .ai-cursor {
+      display: inline-block;
+      width: 2px; height: 16px;
+      background: #0891B2;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
+    }
+    .ai-cursor.hidden { display: none; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* 음파 시각화 (speaking 때) */
+    .wave-bars {
+      display: none;
+      align-items: center;
+      gap: 3px;
+      margin-left: auto;
+    }
+    .wave-bars.active { display: flex; }
+    .wave-bar {
+      width: 3px;
+      background: #0891B2;
+      border-radius: 2px;
+      animation: wave-anim 0.6s ease-in-out infinite alternate;
+    }
+    .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { height: 22px; animation-delay: 0.05s; }
+    .wave-bar:nth-child(4) { height: 14px; animation-delay: 0.15s; }
+    .wave-bar:nth-child(5) { height: 20px; animation-delay: 0.08s; }
+    .wave-bar:nth-child(6) { height: 10px; animation-delay: 0.12s; }
+    @keyframes wave-anim {
+      from { transform: scaleY(0.5); opacity: 0.6; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* ── 케어 스코어 카드 ── */
+    .section-scroll {
+      padding: 0 20px;
+      margin-bottom: 16px;
+    }
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .see-more {
+      font-size: 13px;
+      color: #0891B2;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .score-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .score-card-wide {
+      grid-column: 1 / -1;
+    }
+    .sc-icon {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px;
+    }
+    .sc-value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .sc-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+    .sc-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 2px;
+    }
+
+    /* 케어 완료율 넓은 카드 */
+    .wide-card-inner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .wide-card-left { flex: 1; }
+    .wide-progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .progress-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      width: 28px;
+      flex-shrink: 0;
+    }
+    .mini-bar {
+      flex: 1;
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .mini-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 특이사항 카드 */
+    .alert-card {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .alert-card:hover { background: rgba(245, 158, 11, 0.12); }
+    .alert-icon-wrap {
+      width: 36px; height: 36px;
+      background: rgba(245, 158, 11, 0.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .alert-card-body { flex: 1; }
+    .alert-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F59E0B;
+    }
+    .alert-card-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 2px;
+    }
+    .alert-arrow {
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* ── 빠른 액션 ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 0 20px;
+      margin-bottom: 24px;
+    }
+    .qa-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 12px 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .qa-btn:hover { background: rgba(255,255,255,0.09); }
+    .qa-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qa-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ── 하단 탭바 ── */
+    .tabbar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      background: rgba(10, 15, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      padding: 8px 0 24px;
+      z-index: 100;
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      padding: 6px 0;
+    }
+    .tab-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tab-icon svg { width: 22px; height: 22px; stroke: rgba(255,255,255,0.3); }
+    .tab.active .tab-icon svg { stroke: #0891B2; }
+    .tab-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      font-weight: 500;
+    }
+    .tab.active .tab-label { color: #0891B2; }
+
+    .pb-nav { height: 88px; }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 바 -->
+  <div class="top-bar">
+    <div class="top-logo">
+      <svg viewBox="0 0 2526 2526" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#0891B2"/>
+        <path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#0891B2"/>
+      </svg>
+      <span class="top-logo-text">하루안부</span>
+    </div>
+    <div class="top-right">
+      <button class="notif-btn" aria-label="알림">
+        <div class="notif-dot"></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+      <div class="avatar">김</div>
+    </div>
+  </div>
+
+  <!-- 환자 상태 뱃지 -->
+  <div style="padding: 0 20px 4px;">
+    <div class="patient-pill" style="display:inline-flex;">
+      <span class="status-dot"></span>
+      이순자 어르신 · 실버케어 요양원 302호
+    </div>
+  </div>
+
+  <!-- AI 오브 -->
+  <div class="orb-section">
+    <div class="orb-glow-bg"></div>
+    <canvas id="orbCanvas" width="200" height="200"></canvas>
+    <div class="orb-play-overlay" id="playOverlay">
+      <button class="play-btn" id="playBtn" aria-label="리포트 듣기">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      </button>
+      <span class="play-label">오늘의 리포트 듣기</span>
+    </div>
+  </div>
+
+  <!-- AI 음성 텍스트 -->
+  <div class="ai-speech-area">
+    <div class="ai-label">
+      <span class="ai-label-dot" id="aiDot"></span>
+      <span class="ai-label-text">하루 AI</span>
+      <div class="wave-bars" id="waveBars">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+    </div>
+    <div class="ai-speech-text" id="speechText">
+      오늘의 케어 리포트를 들으려면 위 버튼을 눌러주세요.
+      <span class="ai-cursor hidden" id="cursor"></span>
+    </div>
+  </div>
+
+  <!-- 케어 현황 -->
+  <div class="section-scroll">
+    <div class="section-title-row">
+      <span class="section-label">오늘의 케어 현황</span>
+      <a href="g02-ai-report.html" class="see-more">전체 보기</a>
+    </div>
+
+    <!-- 케어 완료율 넓은 카드 -->
+    <div class="score-card score-card-wide" style="margin-bottom:10px;">
+      <div class="sc-label" style="margin-bottom:12px;">케어 완료율</div>
+      <div class="wide-card-inner">
+        <div class="wide-card-left">
+          <div class="sc-value" style="color:#0891B2;" id="bigScore">73%</div>
+          <div class="sc-sub">식사·투약·위생·활동</div>
+        </div>
+        <div class="wide-progress-wrap">
+          <div class="progress-row">
+            <span class="progress-label">식사</span>
+            <div class="mini-bar"><div class="mini-fill" data-w="66" style="width:0%;background:#F59E0B;"></div></div>
+          </div>
+          <div class="progress-row">
+            <span class="progress-label">투약</span>
+            <div class="mini-bar"><div class="mini-fill" data-w="100" style="width:0%;background:#059669;"></div></div>
+          </div>
+          <div class="progress-row">
+            <span class="progress-label">위생</span>
+            <div class="mini-bar"><div class="mini-fill" data-w="50" style="width:0%;background:#F59E0B;"></div></div>
+          </div>
+          <div class="progress-row">
+            <span class="progress-label">활동</span>
+            <div class="mini-bar"><div class="mini-fill" data-w="75" style="width:0%;background:#0891B2;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="sc-icon" style="background:rgba(5,150,105,0.15);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="sc-value" style="color:#059669;">3/3</div>
+        <div class="sc-label">투약 완료</div>
+        <div class="sc-sub">아침·점심·오후</div>
+      </div>
+      <div class="score-card">
+        <div class="sc-icon" style="background:rgba(8,145,178,0.15);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </div>
+        <div class="sc-value" style="color:#0891B2;">2/3</div>
+        <div class="sc-label">식사</div>
+        <div class="sc-sub">저녁 예정</div>
+      </div>
+    </div>
+
+    <!-- 특이사항 알림 -->
+    <a href="g02-ai-report.html" class="alert-card">
+      <div class="alert-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="alert-card-body">
+        <div class="alert-card-title">특이사항 1건</div>
+        <div class="alert-card-sub">점심 식사량 평소 대비 감소 · 경과 관찰 중</div>
+      </div>
+      <svg class="alert-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+
+  <!-- 빠른 액션 -->
+  <div class="section-scroll">
+    <div class="section-title-row">
+      <span class="section-label">빠른 메뉴</span>
+    </div>
+  </div>
+  <div class="quick-actions">
+    <a href="g03-chat.html" class="qa-btn">
+      <div class="qa-icon" style="background:rgba(8,145,178,0.12);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <span class="qa-label">담당자 채팅</span>
+    </a>
+    <a href="g04-ai-guide.html" class="qa-btn">
+      <div class="qa-icon" style="background:rgba(139,92,246,0.12);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2.2" stroke-linecap="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
+      <span class="qa-label">AI 질문</span>
+    </a>
+    <a href="g09-prescription.html" class="qa-btn">
+      <div class="qa-icon" style="background:rgba(5,150,105,0.12);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <span class="qa-label">처방 내역</span>
+    </a>
+    <a href="g10-timeline.html" class="qa-btn">
+      <div class="qa-icon" style="background:rgba(245,158,11,0.12);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span class="qa-label">케어 일지</span>
+    </a>
+  </div>
+
+  <div class="pb-nav"></div>
+
+  <!-- 하단 탭바 -->
+  <nav class="tabbar">
+    <a href="g00-ai-home.html" class="tab active">
+      <span class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </span>
+      <span class="tab-label">채팅</span>
+    </a>
+    <a href="g04-ai-guide.html" class="tab">
+      <span class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </span>
+      <span class="tab-label">AI 가이드</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </span>
+      <span class="tab-label">리포트</span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </span>
+      <span class="tab-label">마이페이지</span>
+    </a>
+  </nav>
+
+  <script>
+    // ── 오브 캔버스 렌더링 ──────────────────────────────
+    const canvas = document.getElementById('orbCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    let isSpeaking = false;
+    let animFrame;
+    let t = 0;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function drawOrb(speaking) {
+      ctx.clearRect(0, 0, W, H);
+      const cx = W / 2, cy = H / 2;
+      const baseR = 72;
+      const numPoints = 8;
+      const points = [];
+      const speakAmp = speaking ? 18 + Math.sin(t * 6) * 12 : 8;
+      const speed = speaking ? 1.8 : 0.6;
+
+      for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * Math.PI * 2;
+        const noise =
+          Math.sin(t * speed + i * 1.3) * speakAmp * 0.6 +
+          Math.sin(t * speed * 0.7 + i * 2.1) * speakAmp * 0.4;
+        const r = baseR + noise;
+        points.push({
+          x: cx + Math.cos(angle) * r,
+          y: cy + Math.sin(angle) * r,
+        });
+      }
+
+      // 외부 링 (글로우)
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < numPoints; i++) {
+        const p = points[i];
+        const n = points[(i + 1) % numPoints];
+        if (i === 0) ctx.moveTo((p.x + n.x) / 2, (p.y + n.y) / 2);
+        else ctx.quadraticCurveTo(p.x, p.y, (p.x + n.x) / 2, (p.y + n.y) / 2);
+      }
+      ctx.closePath();
+      ctx.shadowColor = speaking ? 'rgba(56,189,248,0.8)' : 'rgba(8,145,178,0.5)';
+      ctx.shadowBlur = speaking ? 32 : 20;
+      const grad = ctx.createRadialGradient(cx - 20, cy - 20, 0, cx, cy, baseR + speakAmp);
+      if (speaking) {
+        grad.addColorStop(0, 'rgba(56,189,248,0.95)');
+        grad.addColorStop(0.4, 'rgba(8,145,178,0.85)');
+        grad.addColorStop(0.75, 'rgba(6,100,160,0.7)');
+        grad.addColorStop(1, 'rgba(10,15,40,0.3)');
+      } else {
+        grad.addColorStop(0, 'rgba(96,165,250,0.85)');
+        grad.addColorStop(0.4, 'rgba(8,145,178,0.72)');
+        grad.addColorStop(0.75, 'rgba(6,80,140,0.55)');
+        grad.addColorStop(1, 'rgba(10,15,40,0.2)');
+      }
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+
+      // 내부 하이라이트
+      ctx.save();
+      const hlGrad = ctx.createRadialGradient(cx - 22, cy - 22, 2, cx - 10, cy - 10, 45);
+      hlGrad.addColorStop(0, 'rgba(255,255,255,0.35)');
+      hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      for (let i = 0; i < numPoints; i++) {
+        const p = points[i];
+        const n = points[(i + 1) % numPoints];
+        if (i === 0) ctx.moveTo((p.x + n.x) / 2, (p.y + n.y) / 2);
+        else ctx.quadraticCurveTo(p.x, p.y, (p.x + n.x) / 2, (p.y + n.y) / 2);
+      }
+      ctx.closePath();
+      ctx.fillStyle = hlGrad;
+      ctx.fill();
+      ctx.restore();
+
+      t += 0.015;
+    }
+
+    function animate() {
+      drawOrb(isSpeaking);
+      animFrame = requestAnimationFrame(animate);
+    }
+    animate();
+
+    // ── 프로그레스 바 애니메이션 ──────────────────────────
+    setTimeout(() => {
+      document.querySelectorAll('.mini-fill').forEach(el => {
+        el.style.width = el.getAttribute('data-w') + '%';
+      });
+    }, 300);
+
+    // ── AI 리포트 텍스트 타이핑 ──────────────────────────
+    const reportScript = [
+      "안녕하세요, 김지욱 보호자님. 오늘 이순자 어르신의 케어 리포트를 전해드릴게요.",
+      "오늘 케어 완료율은 73%예요. 투약은 아침, 점심, 오후 3회 모두 완료됐고요.",
+      "식사는 아침을 잘 드셨고, 점심은 평소보다 조금 적게 드셨어요. 저녁은 오후 6시에 예정되어 있어요.",
+      "특이사항으로, 점심 식사량이 소폭 감소했어요. 컨디션에는 이상이 없으니 너무 걱정 마시고, 저녁 경과를 함께 지켜볼게요.",
+      "오전엔 스트레칭에 참여하셨고 오후에 산책 프로그램도 진행 중이에요. 오늘도 활발하게 하루를 보내고 계세요."
+    ];
+
+    let currentLine = 0;
+    let charIdx = 0;
+    let typingTimer = null;
+    let isRunning = false;
+
+    const speechText = document.getElementById('speechText');
+    const cursor = document.getElementById('cursor');
+    const aiDot = document.getElementById('aiDot');
+    const waveBars = document.getElementById('waveBars');
+    const playOverlay = document.getElementById('playOverlay');
+    const playBtn = document.getElementById('playBtn');
+
+    function setSpeaking(v) {
+      isSpeaking = v;
+      if (v) {
+        aiDot.classList.add('speaking');
+        waveBars.classList.add('active');
+        cursor.classList.remove('hidden');
+      } else {
+        aiDot.classList.remove('speaking');
+        waveBars.classList.remove('active');
+      }
+    }
+
+    function typeNextChar() {
+      if (currentLine >= reportScript.length) {
+        cursor.classList.add('hidden');
+        setSpeaking(false);
+        isRunning = false;
+        return;
+      }
+      const line = reportScript[currentLine];
+      if (charIdx < line.length) {
+        speechText.textContent = line.substring(0, charIdx + 1);
+        speechText.appendChild(cursor);
+        charIdx++;
+        const delay = line[charIdx - 1] === '.' || line[charIdx - 1] === ',' ? 280 : 28;
+        typingTimer = setTimeout(typeNextChar, delay);
+      } else {
+        charIdx = 0;
+        currentLine++;
+        typingTimer = setTimeout(() => {
+          speechText.textContent = '';
+          speechText.appendChild(cursor);
+          typeNextChar();
+        }, 900);
+      }
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (isRunning) return;
+      isRunning = true;
+      playOverlay.classList.add('hidden');
+      currentLine = 0;
+      charIdx = 0;
+      setSpeaking(true);
+      speechText.textContent = '';
+      speechText.appendChild(cursor);
+      typeNextChar();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — 환자 관리</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    html,body { height: 100%; }
+    .filter-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .filter-chip {
+      padding: 6px 14px; border-radius:999px; font-size:12px; font-weight:600;
+      border: 0.5px solid rgba(0,0,0,.10); background:rgba(255,255,255,.60);
+      color:var(--slate-600); cursor:pointer; transition:all .14s; backdrop-filter:blur(8px);
+    }
+    .filter-chip.active { background:var(--nurse); color:#fff; border-color:var(--nurse); }
+    .filter-chip:hover:not(.active) { background:rgba(255,255,255,.85); }
+    .patient-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .pt-detail-card {
+      background:var(--glass);
+      backdrop-filter:blur(20px) saturate(160%);
+      border:0.5px solid var(--glass-border);
+      box-shadow:var(--glass-shadow);
+      border-radius:20px; overflow:hidden; position:relative;
+      cursor:pointer; transition:transform .15s, box-shadow .15s;
+    }
+    .pt-detail-card::before {
+      content:''; position:absolute; inset:0; border-radius:inherit;
+      background:linear-gradient(148deg, rgba(255,255,255,.42) 0%, transparent 55%);
+      pointer-events:none; z-index:0;
+    }
+    .pt-detail-card > * { position:relative; z-index:1; }
+    .pt-detail-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.10); }
+    .ptc-header {
+      padding:16px 16px 12px;
+      border-bottom:0.5px solid rgba(0,0,0,.06);
+      display:flex; align-items:center; gap:12px;
+    }
+    .ptc-avatar {
+      width:48px; height:48px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; font-weight:800; flex-shrink:0;
+      background:linear-gradient(135deg, var(--nurse-light), var(--nurse-50));
+      color:var(--nurse-dark);
+    }
+    .ptc-name { font-size:15px; font-weight:800; color:var(--slate-900); }
+    .ptc-meta { font-size:11px; color:var(--slate-400); margin-top:2px; }
+    .ptc-body { padding:12px 16px; }
+    .ptc-stat-row { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:10px; }
+    .ptc-stat { text-align:center; padding:8px; background:rgba(0,0,0,.03); border-radius:10px; }
+    .ptc-stat-val { font-size:16px; font-weight:800; color:var(--slate-800); }
+    .ptc-stat-label { font-size:10px; color:var(--slate-400); font-weight:600; margin-top:2px; }
+    .ptc-progress-row { margin-bottom:10px; }
+    .ptc-progress-label { display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px; }
+    .ptc-actions { display:flex; gap:6px; }
+    .ptc-action-btn {
+      flex:1; padding:7px; border-radius:10px; border:0.5px solid rgba(0,0,0,.10);
+      background:rgba(255,255,255,.60); font-size:11px; font-weight:600;
+      color:var(--slate-600); cursor:pointer; text-align:center;
+      transition:all .14s; font-family:var(--font);
+      display:flex; align-items:center; justify-content:center; gap:4px;
+    }
+    .ptc-action-btn:hover { background:rgba(255,255,255,.90); }
+    .ptc-action-btn.primary { background:var(--nurse); color:#fff; border-color:var(--nurse); }
+    .ptc-action-btn.primary:hover { background:var(--nurse-dark); }
+    .detail-panel {
+      position:fixed; right:0; top:0; bottom:0; width:380px;
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(28px) saturate(160%);
+      border-left:0.5px solid rgba(255,255,255,.55);
+      box-shadow:-2px 0 20px rgba(0,0,0,.04);
+      z-index:100; display:flex; flex-direction:column; overflow:hidden;
+    }
+    .dp-header {
+      padding:18px 20px 14px;
+      border-bottom:0.5px solid rgba(0,0,0,.07);
+      background:linear-gradient(180deg, var(--nurse-light) 0%, rgba(255,255,255,.0) 100%);
+    }
+    .dp-patient-info { display:flex; align-items:center; gap:14px; }
+    .dp-avatar {
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg, var(--nurse), var(--nurse-dark));
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; font-weight:800; color:#fff; flex-shrink:0;
+    }
+    .dp-name { font-size:18px; font-weight:800; color:var(--slate-900); }
+    .dp-sub  { font-size:12px; color:var(--slate-500); margin-top:3px; }
+    .dp-body { flex:1; overflow-y:auto; padding:16px 20px; }
+    .dp-section-title {
+      font-size:11px; font-weight:700; color:var(--slate-400);
+      text-transform:uppercase; letter-spacing:.6px;
+      margin:14px 0 8px;
+    }
+    .dp-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .dp-stat-box {
+      padding:10px; background:rgba(0,0,0,.03); border-radius:12px; text-align:center;
+    }
+    .dp-stat-box-val { font-size:18px; font-weight:800; color:var(--slate-800); }
+    .dp-stat-box-label { font-size:10px; color:var(--slate-400); margin-top:2px; }
+    .dp-care-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 12px; border-radius:10px; margin-bottom:4px;
+      background:rgba(255,255,255,.60);
+    }
+    .dp-care-label { font-size:12px; font-weight:600; color:var(--slate-700); }
+    .dp-footer { padding:14px 20px; border-top:0.5px solid rgba(0,0,0,.07); display:flex; gap:8px; }
+  </style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="bg-g1"></div><div class="bg-g2"></div><div class="bg-g3"></div></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon"><iconify-icon icon="ph:heartbeat-bold" width="22" style="color:#fff"></iconify-icon></div>
+      <div><div class="logo-name">하루안부</div><div class="logo-sub">오늘 하루도, 안녕하셨습니다</div></div>
+    </div>
+  </div>
+  <div class="sidebar-facility"><div class="facility-dot"></div><span class="facility-name">햇살요양원 · 2병동</span></div>
+  <div class="nav-section-label">메인 메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:house-bold"></iconify-icon>대시보드</a></li>
+    <li class="nav-item"><a class="nav-link active"><iconify-icon class="nav-icon" icon="ph:users-bold"></iconify-icon>환자 관리<span class="nav-badge yellow">3</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:clipboard-text-bold"></iconify-icon>케어 체크리스트<span class="nav-badge">2</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:arrows-clockwise-bold"></iconify-icon>AI 인수인계</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:siren-bold"></iconify-icon>SOS 센터<span class="nav-badge">1</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:chats-bold"></iconify-icon>보호자 채팅<span class="nav-badge green">5</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:calendar-bold"></iconify-icon>시간표 관리</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:pill-bold"></iconify-icon>처방전 관리</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:clock-countdown-bold"></iconify-icon>의료 타임라인</a></li>
+  </ul>
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div><div class="user-name">박지현</div><div class="user-role">수간호사 · 2병동</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrapper" style="margin-right:380px">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">환자 관리</span>
+      <span class="page-date">총 12명</span>
+    </div>
+    <div class="search-wrap">
+      <iconify-icon class="search-icon" icon="ph:magnifying-glass-bold"></iconify-icon>
+      <input class="search-input" type="text" placeholder="환자명, 방번호 검색...">
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn"><iconify-icon icon="ph:bell-bold"></iconify-icon><span class="notif-dot"></span></button>
+      <button class="sos-btn"><iconify-icon icon="ph:siren-bold"></iconify-icon>SOS</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="greeting">
+      <h1>환자 관리</h1>
+      <p>2병동 전체 <strong>12명</strong> · 긴급 1 · 주의 2 · 정상 9</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <span class="filter-chip active">전체 12</span>
+      <span class="filter-chip">🔴 긴급 1</span>
+      <span class="filter-chip">🟡 주의 2</span>
+      <span class="filter-chip">🟢 정상 9</span>
+      <span class="filter-chip">투약 미완</span>
+      <span class="filter-chip">식사 이상</span>
+      <div style="margin-left:auto; display:flex; gap:6px;">
+        <button class="btn btn-ghost btn-sm btn-pill"><iconify-icon icon="ph:funnel-bold"></iconify-icon>필터</button>
+        <button class="btn btn-primary btn-sm btn-pill"><iconify-icon icon="ph:plus-bold"></iconify-icon>환자 추가</button>
+      </div>
+    </div>
+
+    <!-- Patient Grid -->
+    <div class="patient-grid">
+
+      <!-- 긴급 환자 -->
+      <div class="pt-detail-card" style="border:1px solid rgba(239,68,68,.25)">
+        <div class="ptc-header">
+          <div class="ptc-avatar" style="background:linear-gradient(135deg,#FEE2E2,#FECACA);color:var(--red-600)">김</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">김순자 <span class="badge critical"><span class="badge-dot"></span>긴급</span></div>
+            <div class="ptc-meta">201호 · 82세 여 · 요양 3등급 · 입소 2024.03.10</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--red-500)">45%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--orange-500)">145/92</div><div class="ptc-stat-label">혈압 (mmHg)</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--red-500)">45%</span></div>
+            <div class="progress-bar"><div class="progress-fill danger" style="width:45%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--red-600);font-weight:600;padding:6px 10px;background:rgba(239,68,68,.07);border-radius:8px;margin-bottom:10px">
+            ⚠️ 낙상 위험 감지 · 즉시 확인 필요
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 주의 환자 1 -->
+      <div class="pt-detail-card" style="border:1px solid rgba(249,115,22,.20)">
+        <div class="ptc-header">
+          <div class="ptc-avatar" style="background:linear-gradient(135deg,#FEF3C7,#FED7AA);color:var(--orange-500)">이</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">이철수 <span class="badge caution"><span class="badge-dot"></span>주의</span></div>
+            <div class="ptc-meta">205호 · 77세 남 · 요양 2등급 · 입소 2025.01.15</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--orange-500)">68%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val">138/88</div><div class="ptc-stat-label">혈압 (mmHg)</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--orange-500)">68%</span></div>
+            <div class="progress-bar"><div class="progress-fill warning" style="width:68%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--orange-500);font-weight:600;padding:6px 10px;background:rgba(249,115,22,.07);border-radius:8px;margin-bottom:10px">
+            💊 오전 투약 미완료 · 고혈압약 확인 필요
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 주의 환자 2 -->
+      <div class="pt-detail-card" style="border:1px solid rgba(249,115,22,.20)">
+        <div class="ptc-header">
+          <div class="ptc-avatar" style="background:linear-gradient(135deg,#FEF3C7,#FED7AA);color:var(--orange-500)">박</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">박복순 <span class="badge caution"><span class="badge-dot"></span>주의</span></div>
+            <div class="ptc-meta">208호 · 85세 여 · 요양 4등급 · 입소 2023.11.20</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--orange-500)">52%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--orange-500)">30%</div><div class="ptc-stat-label">점심 섭취율</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--orange-500)">52%</span></div>
+            <div class="progress-bar"><div class="progress-fill warning" style="width:52%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--orange-500);font-weight:600;padding:6px 10px;background:rgba(249,115,22,.07);border-radius:8px;margin-bottom:10px">
+            🍚 식욕 저하 3일 지속 · 보호자 알림 권장
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 정상 환자들 -->
+      <div class="pt-detail-card">
+        <div class="ptc-header">
+          <div class="ptc-avatar">최</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">최영자 <span class="badge normal"><span class="badge-dot"></span>정상</span></div>
+            <div class="ptc-meta">203호 · 79세 여 · 요양 2등급</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--nurse)">91%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val">95%</div><div class="ptc-stat-label">식사 섭취율</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--nurse)">91%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--nurse-dark);font-weight:600;padding:6px 10px;background:rgba(5,150,105,.07);border-radius:8px;margin-bottom:10px">
+            ✅ 오늘 상태 양호 · 재활 참여 우수
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-detail-card">
+        <div class="ptc-header">
+          <div class="ptc-avatar">정</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">정만수 <span class="badge normal"><span class="badge-dot"></span>정상</span></div>
+            <div class="ptc-meta">204호 · 81세 남 · 요양 3등급</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--nurse)">88%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val">88%</div><div class="ptc-stat-label">식사 섭취율</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--nurse)">88%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--nurse-dark);font-weight:600;padding:6px 10px;background:rgba(5,150,105,.07);border-radius:8px;margin-bottom:10px">
+            ✅ 오늘 상태 양호
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-detail-card">
+        <div class="ptc-header">
+          <div class="ptc-avatar">강</div>
+          <div style="flex:1">
+            <div class="ptc-name flex items-center gap-2">강말순 <span class="badge normal"><span class="badge-dot"></span>정상</span></div>
+            <div class="ptc-meta">206호 · 76세 여 · 요양 1등급</div>
+          </div>
+        </div>
+        <div class="ptc-body">
+          <div class="ptc-stat-row">
+            <div class="ptc-stat"><div class="ptc-stat-val" style="color:var(--nurse)">96%</div><div class="ptc-stat-label">케어 완료율</div></div>
+            <div class="ptc-stat"><div class="ptc-stat-val">100%</div><div class="ptc-stat-label">식사 섭취율</div></div>
+          </div>
+          <div class="ptc-progress-row">
+            <div class="ptc-progress-label"><span style="font-size:11px;color:var(--slate-500)">오늘 케어 진행률</span><span style="font-size:11px;font-weight:700;color:var(--nurse)">96%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:96%"></div></div>
+          </div>
+          <div style="font-size:11px;color:var(--nurse-dark);font-weight:600;padding:6px 10px;background:rgba(5,150,105,.07);border-radius:8px;margin-bottom:10px">
+            ✅ 오늘 상태 매우 양호 · 모범 사례
+          </div>
+          <div class="ptc-actions">
+            <button class="ptc-action-btn primary"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+            <button class="ptc-action-btn"><iconify-icon icon="ph:clock-countdown-bold"></iconify-icon>이력</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- PATIENT DETAIL PANEL (김순자 선택 상태) -->
+<aside class="detail-panel">
+  <div class="dp-header">
+    <div class="dp-patient-info">
+      <div class="dp-avatar">김</div>
+      <div>
+        <div class="dp-name">김순자</div>
+        <div class="dp-sub">201호 · 82세 여 · 요양 3등급 · 입소 2024.03.10</div>
+        <div style="margin-top:6px"><span class="badge critical"><span class="badge-dot"></span>긴급 상태</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dp-body">
+    <div class="dp-section-title">오늘 바이탈</div>
+    <div class="dp-stat-grid">
+      <div class="dp-stat-box"><div class="dp-stat-box-val" style="color:var(--red-500)">145/92</div><div class="dp-stat-box-label">혈압</div></div>
+      <div class="dp-stat-box"><div class="dp-stat-box-val">36.8°</div><div class="dp-stat-box-label">체온</div></div>
+      <div class="dp-stat-box"><div class="dp-stat-box-val">98%</div><div class="dp-stat-box-label">산소포화도</div></div>
+    </div>
+
+    <div class="dp-section-title">오늘 케어 현황</div>
+    <div class="dp-care-row"><span class="dp-care-label">🍚 식사</span><span class="badge caution">75%</span></div>
+    <div class="dp-care-row"><span class="dp-care-label">💊 투약</span><span class="badge critical">미완료</span></div>
+    <div class="dp-care-row"><span class="dp-care-label">🚿 위생</span><span class="badge normal">완료</span></div>
+    <div class="dp-care-row"><span class="dp-care-label">🏃 활동</span><span class="badge caution">부분 참여</span></div>
+
+    <div class="dp-section-title">현재 처방약</div>
+    <div style="padding:10px 12px;background:rgba(255,255,255,.60);border-radius:12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:var(--slate-800)">암로디핀 5mg</div>
+      <div style="font-size:11px;color:var(--slate-400);margin-top:2px">고혈압 · 1일 1회 아침식후</div>
+    </div>
+    <div style="padding:10px 12px;background:rgba(255,255,255,.60);border-radius:12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:var(--slate-800)">도네페질 10mg</div>
+      <div style="font-size:11px;color:var(--slate-400);margin-top:2px">치매 · 1일 1회 저녁식후</div>
+    </div>
+
+    <div class="dp-section-title">AI 분석</div>
+    <div style="padding:12px;background:rgba(5,150,105,.07);border:0.5px solid rgba(5,150,105,.15);border-radius:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--nurse-dark);margin-bottom:6px">🤖 Claude AI 분석</div>
+      <div style="font-size:12px;color:var(--slate-700);line-height:1.6">오늘 보행 패턴 이상 2회 감지. 낙상 위험 지수 상승 (전일 대비 +32%). 야간 간호 라운드 강화 권장. 보호자에게 상태 알림 발송 권장.</div>
+    </div>
+
+    <div class="dp-section-title">보호자 정보</div>
+    <div style="padding:10px 12px;background:rgba(255,255,255,.60);border-radius:12px;display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(59,130,246,.12);color:var(--blue-600);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">이</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--slate-800)">이민준 (아들)</div>
+        <div style="font-size:11px;color:var(--slate-400)">마지막 채팅: 방금 전 · 미읽음 1</div>
+      </div>
+      <button class="btn btn-primary btn-sm btn-pill" style="margin-left:auto"><iconify-icon icon="ph:chat-bold"></iconify-icon>채팅</button>
+    </div>
+  </div>
+  <div class="dp-footer">
+    <button class="btn btn-danger btn-pill" style="flex:1"><iconify-icon icon="ph:siren-bold"></iconify-icon>SOS 발송</button>
+    <button class="btn btn-primary btn-pill" style="flex:1"><iconify-icon icon="ph:clipboard-text-bold"></iconify-icon>체크리스트</button>
+  </div>
+</aside>
+
+<script>
+document.querySelectorAll('.filter-chip').forEach(el => {
+  el.addEventListener('click', function() {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>처방전 관리 — 하루안부 의료진</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ── 2-column layout ── */
+    .rx-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* ── Left: patient list ── */
+    .rx-patient-list {
+      position: sticky;
+      top: 80px;
+    }
+    .rx-list-header {
+      padding: 14px 16px 12px;
+      border-bottom: 0.5px solid rgba(0,0,0,.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rx-list-title {
+      font-size: 13px; font-weight: 800; color: var(--slate-800);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .rx-patient-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 0.5px solid rgba(0,0,0,.05);
+      transition: background .12s;
+      position: relative;
+    }
+    .rx-patient-item:last-child { border-bottom: none; }
+    .rx-patient-item:hover { background: rgba(255,255,255,.45); }
+    .rx-patient-item.active {
+      background: rgba(5,150,105,.07);
+      border-right: 2.5px solid var(--nurse);
+    }
+    .rx-pt-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--nurse-light), var(--nurse-50));
+      color: var(--nurse-dark);
+    }
+    .rx-pt-avatar.alt { background: linear-gradient(135deg, #DBEAFE, #EFF6FF); color: var(--blue-600); }
+    .rx-pt-avatar.alt2 { background: linear-gradient(135deg, #FEF3C7, #FFFBEB); color: #92400E; }
+    .rx-pt-info { flex: 1; min-width: 0; }
+    .rx-pt-name { font-size: 13px; font-weight: 700; color: var(--slate-800); }
+    .rx-pt-meta { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+    .rx-pt-count {
+      font-size: 11px; font-weight: 700; padding: 2px 9px;
+      border-radius: 999px; background: rgba(5,150,105,.10); color: var(--nurse-dark);
+    }
+
+    /* ── Right: prescription detail ── */
+    .rx-right { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Add form (collapsed) */
+    .rx-add-form {
+      padding: 20px;
+      border: 1.5px dashed rgba(5,150,105,.30);
+      border-radius: 18px;
+      background: rgba(5,150,105,.03);
+      display: none;
+    }
+    .rx-add-form.open { display: block; }
+    .rx-add-form-title {
+      font-size: 14px; font-weight: 800; color: var(--slate-800);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    /* Dose time chips */
+    .dose-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .dose-chip {
+      padding: 5px 14px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.70);
+      color: var(--slate-600);
+      cursor: pointer; transition: all .14s;
+    }
+    .dose-chip.selected {
+      background: var(--nurse); color: #fff; border-color: var(--nurse);
+    }
+    .dose-chip:hover:not(.selected) { border-color: var(--nurse); color: var(--nurse); }
+
+    /* ── Prescription header card ── */
+    .rx-header-card {
+      padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .rx-patient-big { display: flex; align-items: center; gap: 14px; }
+    .rx-pt-big-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--nurse-light), var(--nurse-50));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: var(--nurse-dark); flex-shrink: 0;
+    }
+    .rx-pt-big-name { font-size: 18px; font-weight: 800; color: var(--slate-900); letter-spacing: -.4px; }
+    .rx-pt-big-meta { font-size: 12px; color: var(--slate-500); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+    .rx-pt-big-meta-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--slate-300); }
+
+    /* ── Med card ── */
+    .med-card {
+      padding: 16px 18px;
+      display: flex; align-items: flex-start; gap: 14px;
+      border-bottom: 0.5px solid rgba(0,0,0,.06);
+      transition: background .12s;
+    }
+    .med-card:last-child { border-bottom: none; }
+    .med-card:hover { background: rgba(255,255,255,.35); }
+    .med-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .med-icon.green  { background: rgba(5,150,105,.12);   color: var(--nurse); }
+    .med-icon.blue   { background: rgba(59,130,246,.12);  color: var(--blue-500); }
+    .med-icon.orange { background: rgba(249,115,22,.12);  color: var(--orange-500); }
+    .med-icon.yellow { background: rgba(250,204,21,.14);  color: #92400E; }
+    .med-body { flex: 1; min-width: 0; }
+    .med-name {
+      font-size: 15px; font-weight: 800; color: var(--slate-900);
+      letter-spacing: -.3px; margin-bottom: 3px;
+    }
+    .med-indication { font-size: 12px; color: var(--nurse-dark); font-weight: 600; margin-bottom: 5px; }
+    .med-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .med-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      background: var(--slate-100); color: var(--slate-600);
+    }
+    .med-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+    .med-edit-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      border: 0.5px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.70);
+      color: var(--slate-600); cursor: pointer; font-family: var(--font);
+      display: flex; align-items: center; gap: 5px;
+      transition: all .14s;
+    }
+    .med-edit-btn:hover { border-color: var(--nurse); color: var(--nurse); background: rgba(5,150,105,.05); }
+    .med-del-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      border: 0.5px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.70);
+      color: var(--slate-400); cursor: pointer; font-family: var(--font);
+      display: flex; align-items: center; gap: 5px;
+      transition: all .14s;
+    }
+    .med-del-btn:hover { border-color: var(--red-500); color: var(--red-500); background: rgba(239,68,68,.05); }
+
+    /* ── History timeline ── */
+    .hist-wrap { padding: 16px 20px; }
+    .hist-title {
+      font-size: 13px; font-weight: 800; color: var(--slate-700);
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 16px;
+    }
+    .hist-item {
+      display: flex; gap: 14px;
+      padding-bottom: 18px;
+      position: relative;
+    }
+    .hist-item:not(:last-child)::before {
+      content: '';
+      position: absolute; left: 15px; top: 20px; bottom: 0;
+      width: 1.5px; background: rgba(0,0,0,.07);
+    }
+    .hist-dot-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; margin-top: 3px; }
+    .hist-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; border: 2px solid var(--nurse);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1;
+    }
+    .hist-dot-inner { width: 6px; height: 6px; border-radius: 50%; background: var(--nurse); }
+    .hist-body { flex: 1; min-width: 0; }
+    .hist-date { font-size: 11px; font-weight: 700; color: var(--slate-400); margin-bottom: 3px; }
+    .hist-event { font-size: 13px; font-weight: 700; color: var(--slate-800); margin-bottom: 3px; }
+    .hist-detail { font-size: 12px; color: var(--slate-500); line-height: 1.5; }
+    .hist-doctor { font-size: 11px; color: var(--nurse); font-weight: 600; margin-top: 4px; }
+  </style>
+</head>
+<body>
+<!-- Background -->
+<div class="bg"><div class="bg-g1"></div><div class="bg-g2"></div><div class="bg-g3"></div></div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heart-pulse-bold" style="color:#fff; font-size:20px;"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">의료진 케어 시스템</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <div class="facility-name">햇살요양원 · 2병동</div>
+  </div>
+
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:house-bold" class="nav-icon"></iconify-icon>
+        대시보드
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:users-bold" class="nav-icon"></iconify-icon>
+        환자 관리
+        <span class="nav-badge yellow">3</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clipboard-text-bold" class="nav-icon"></iconify-icon>
+        케어 체크리스트
+        <span class="nav-badge">2</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:arrows-clockwise-bold" class="nav-icon"></iconify-icon>
+        AI 인수인계
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:siren-bold" class="nav-icon"></iconify-icon>
+        SOS 센터
+        <span class="nav-badge">1</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:chats-bold" class="nav-icon"></iconify-icon>
+        보호자 채팅
+        <span class="nav-badge green">5</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:calendar-bold" class="nav-icon"></iconify-icon>
+        시간표 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#">
+        <iconify-icon icon="ph:pill-bold" class="nav-icon"></iconify-icon>
+        처방전 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clock-countdown-bold" class="nav-icon"></iconify-icon>
+        의료 타임라인
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="page-title">처방전 관리</div>
+      <div class="page-date">2026년 4월 16일 목요일</div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" title="알림">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <div class="notif-dot"></div>
+      </button>
+      <button class="icon-btn" title="설정">
+        <iconify-icon icon="ph:gear-bold"></iconify-icon>
+      </button>
+      <button class="sos-btn">
+        <iconify-icon icon="ph:siren-bold"></iconify-icon>
+        SOS
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="rx-layout">
+
+      <!-- LEFT: Patient list -->
+      <div class="rx-patient-list">
+        <div class="glass-card">
+          <div class="rx-list-header">
+            <div class="rx-list-title">
+              <iconify-icon icon="ph:users-bold" style="color:var(--nurse); font-size:15px;"></iconify-icon>
+              환자 선택
+            </div>
+            <span style="font-size:11px; color:var(--slate-400);">6명</span>
+          </div>
+
+          <div class="rx-patient-item active">
+            <div class="rx-pt-avatar">김</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">김순자</div>
+              <div class="rx-pt-meta">201호 · 처방 4종</div>
+            </div>
+            <span class="rx-pt-count">4종</span>
+          </div>
+
+          <div class="rx-patient-item">
+            <div class="rx-pt-avatar alt">이</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">이정호</div>
+              <div class="rx-pt-meta">203호 · 처방 3종</div>
+            </div>
+            <span class="rx-pt-count" style="background:rgba(59,130,246,.10); color:var(--blue-600);">3종</span>
+          </div>
+
+          <div class="rx-patient-item">
+            <div class="rx-pt-avatar alt2">박</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">박명자</div>
+              <div class="rx-pt-meta">205호 · 처방 5종</div>
+            </div>
+            <span class="rx-pt-count" style="background:rgba(249,115,22,.10); color:#C2410C;">5종</span>
+          </div>
+
+          <div class="rx-patient-item">
+            <div class="rx-pt-avatar" style="background:linear-gradient(135deg,#FCE7F3,#FDF2F8); color:#9D174D;">최</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">최순분</div>
+              <div class="rx-pt-meta">207호 · 처방 2종</div>
+            </div>
+            <span class="rx-pt-count">2종</span>
+          </div>
+
+          <div class="rx-patient-item">
+            <div class="rx-pt-avatar" style="background:linear-gradient(135deg,#E0E7FF,#EEF2FF); color:#3730A3;">정</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">정갑수</div>
+              <div class="rx-pt-meta">209호 · 처방 6종</div>
+            </div>
+            <span class="rx-pt-count" style="background:rgba(239,68,68,.10); color:var(--red-600);">6종</span>
+          </div>
+
+          <div class="rx-patient-item">
+            <div class="rx-pt-avatar" style="background:linear-gradient(135deg,#F0FDF4,#ECFDF5); color:var(--nurse-deeper);">강</div>
+            <div class="rx-pt-info">
+              <div class="rx-pt-name">강복동</div>
+              <div class="rx-pt-meta">211호 · 처방 3종</div>
+            </div>
+            <span class="rx-pt-count">3종</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Prescription detail -->
+      <div class="rx-right">
+
+        <!-- New prescription form (toggleable) -->
+        <div class="rx-add-form glass-card" id="rx-add-form">
+          <div class="rx-add-form-title">
+            <iconify-icon icon="ph:plus-circle-bold" style="color:var(--nurse); font-size:18px;"></iconify-icon>
+            새 처방 추가 — 김순자
+            <button onclick="toggleForm()" style="margin-left:auto; background:rgba(0,0,0,.06); border:none; border-radius:8px; padding:5px 12px; font-size:12px; color:var(--slate-500); cursor:pointer; font-family:var(--font);">닫기</button>
+          </div>
+          <div class="form-row" style="margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">약명 *</label>
+              <input class="form-input" type="text" placeholder="예) 메트포르민 500mg">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">용량 *</label>
+              <input class="form-input" type="text" placeholder="예) 500mg">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">투약 시간</label>
+            <div class="dose-chips">
+              <div class="dose-chip selected" onclick="this.classList.toggle('selected')">아침</div>
+              <div class="dose-chip" onclick="this.classList.toggle('selected')">점심</div>
+              <div class="dose-chip selected" onclick="this.classList.toggle('selected')">저녁</div>
+              <div class="dose-chip" onclick="this.classList.toggle('selected')">취침 전</div>
+            </div>
+          </div>
+          <div class="form-row-3" style="margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">투약 주기</label>
+              <select class="form-select">
+                <option>1일 1회</option>
+                <option>1일 2회</option>
+                <option>1일 3회</option>
+                <option>격일</option>
+                <option>주 1회</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">처방일</label>
+              <input class="form-input" type="date" value="2026-04-16">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">적응증</label>
+              <input class="form-input" type="text" placeholder="예) 당뇨">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">변경 사유</label>
+            <textarea class="form-textarea" placeholder="처방 추가 또는 변경 사유를 입력하세요..." style="min-height:64px;"></textarea>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button onclick="toggleForm()" class="btn btn-ghost btn-sm">취소</button>
+            <button class="btn btn-primary btn-sm">
+              <iconify-icon icon="ph:floppy-disk-bold"></iconify-icon>
+              처방 저장
+            </button>
+          </div>
+        </div>
+
+        <!-- Patient header -->
+        <div class="glass-card">
+          <div class="rx-header-card">
+            <div class="rx-patient-big">
+              <div class="rx-pt-big-avatar">김</div>
+              <div>
+                <div class="rx-pt-big-name">김순자</div>
+                <div class="rx-pt-big-meta">
+                  <span>201호</span>
+                  <div class="rx-pt-big-meta-sep"></div>
+                  <span>만 82세</span>
+                  <div class="rx-pt-big-meta-sep"></div>
+                  <span>처방일 2026.04.10</span>
+                  <div class="rx-pt-big-meta-sep"></div>
+                  <span style="color:var(--nurse); font-weight:700;">처방의 오재원</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm btn-pill" onclick="toggleForm()">
+              <iconify-icon icon="ph:plus-bold"></iconify-icon>
+              새 처방 추가
+            </button>
+          </div>
+
+          <!-- Summary stat row -->
+          <div style="display:flex; gap:0; border-top:0.5px solid rgba(0,0,0,.06);">
+            <div style="flex:1; padding:12px 16px; text-align:center; border-right:0.5px solid rgba(0,0,0,.06);">
+              <div style="font-size:22px; font-weight:800; color:var(--nurse);">4</div>
+              <div style="font-size:11px; color:var(--slate-400); margin-top:2px;">현재 처방</div>
+            </div>
+            <div style="flex:1; padding:12px 16px; text-align:center; border-right:0.5px solid rgba(0,0,0,.06);">
+              <div style="font-size:22px; font-weight:800; color:var(--blue-500);">3</div>
+              <div style="font-size:11px; color:var(--slate-400); margin-top:2px;">변경 이력</div>
+            </div>
+            <div style="flex:1; padding:12px 16px; text-align:center; border-right:0.5px solid rgba(0,0,0,.06);">
+              <div style="font-size:22px; font-weight:800; color:var(--slate-700);">오재원</div>
+              <div style="font-size:11px; color:var(--slate-400); margin-top:2px;">처방의</div>
+            </div>
+            <div style="flex:1; padding:12px 16px; text-align:center;">
+              <div style="font-size:14px; font-weight:800; color:var(--orange-500);">2026.04.10</div>
+              <div style="font-size:11px; color:var(--slate-400); margin-top:2px;">최근 처방일</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current prescriptions -->
+        <div class="glass-card">
+          <div class="card-head">
+            <div class="card-title">
+              <iconify-icon icon="ph:pill-bold" style="color:var(--nurse); font-size:16px;"></iconify-icon>
+              현재 처방 목록
+            </div>
+            <span style="font-size:12px; color:var(--slate-400);">총 4종</span>
+          </div>
+
+          <!-- Med 1 -->
+          <div class="med-card">
+            <div class="med-icon green">
+              <iconify-icon icon="ph:pill-bold" style="font-size:18px;"></iconify-icon>
+            </div>
+            <div class="med-body">
+              <div class="med-name">암로디핀 5mg</div>
+              <div class="med-indication">고혈압</div>
+              <div class="med-meta">
+                <span class="med-tag"><iconify-icon icon="ph:clock-bold" style="font-size:11px;"></iconify-icon>1일 1회 아침식후</span>
+                <span class="med-tag"><iconify-icon icon="ph:calendar-blank-bold" style="font-size:11px;"></iconify-icon>2026.04.10 처방</span>
+                <span style="font-size:11px; color:var(--nurse); font-weight:700; padding:3px 10px; background:rgba(5,150,105,.10); border-radius:999px;">복용중</span>
+              </div>
+            </div>
+            <div class="med-actions">
+              <button class="med-edit-btn"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:12px;"></iconify-icon>편집</button>
+              <button class="med-del-btn"><iconify-icon icon="ph:trash-bold" style="font-size:12px;"></iconify-icon>삭제</button>
+            </div>
+          </div>
+
+          <!-- Med 2 -->
+          <div class="med-card">
+            <div class="med-icon blue">
+              <iconify-icon icon="ph:brain-bold" style="font-size:18px;"></iconify-icon>
+            </div>
+            <div class="med-body">
+              <div class="med-name">도네페질 10mg</div>
+              <div class="med-indication">알츠하이머</div>
+              <div class="med-meta">
+                <span class="med-tag"><iconify-icon icon="ph:clock-bold" style="font-size:11px;"></iconify-icon>1일 1회 저녁식후</span>
+                <span class="med-tag"><iconify-icon icon="ph:calendar-blank-bold" style="font-size:11px;"></iconify-icon>2026.03.15 처방</span>
+                <span style="font-size:11px; color:var(--nurse); font-weight:700; padding:3px 10px; background:rgba(5,150,105,.10); border-radius:999px;">복용중</span>
+              </div>
+            </div>
+            <div class="med-actions">
+              <button class="med-edit-btn"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:12px;"></iconify-icon>편집</button>
+              <button class="med-del-btn"><iconify-icon icon="ph:trash-bold" style="font-size:12px;"></iconify-icon>삭제</button>
+            </div>
+          </div>
+
+          <!-- Med 3 -->
+          <div class="med-card">
+            <div class="med-icon orange">
+              <iconify-icon icon="ph:drop-bold" style="font-size:18px;"></iconify-icon>
+            </div>
+            <div class="med-body">
+              <div class="med-name">아토르바스타틴 10mg</div>
+              <div class="med-indication">고지혈증</div>
+              <div class="med-meta">
+                <span class="med-tag"><iconify-icon icon="ph:clock-bold" style="font-size:11px;"></iconify-icon>1일 1회 저녁식후</span>
+                <span class="med-tag"><iconify-icon icon="ph:calendar-blank-bold" style="font-size:11px;"></iconify-icon>2026.04.10 처방</span>
+                <span style="font-size:11px; color:var(--nurse); font-weight:700; padding:3px 10px; background:rgba(5,150,105,.10); border-radius:999px;">복용중</span>
+              </div>
+            </div>
+            <div class="med-actions">
+              <button class="med-edit-btn"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:12px;"></iconify-icon>편집</button>
+              <button class="med-del-btn"><iconify-icon icon="ph:trash-bold" style="font-size:12px;"></iconify-icon>삭제</button>
+            </div>
+          </div>
+
+          <!-- Med 4 -->
+          <div class="med-card">
+            <div class="med-icon yellow">
+              <iconify-icon icon="ph:bone-bold" style="font-size:18px;"></iconify-icon>
+            </div>
+            <div class="med-body">
+              <div class="med-name">칼슘 500mg</div>
+              <div class="med-indication">골다공증 예방</div>
+              <div class="med-meta">
+                <span class="med-tag"><iconify-icon icon="ph:clock-bold" style="font-size:11px;"></iconify-icon>1일 2회 식후</span>
+                <span class="med-tag"><iconify-icon icon="ph:calendar-blank-bold" style="font-size:11px;"></iconify-icon>2026.02.01 처방</span>
+                <span style="font-size:11px; color:var(--nurse); font-weight:700; padding:3px 10px; background:rgba(5,150,105,.10); border-radius:999px;">복용중</span>
+              </div>
+            </div>
+            <div class="med-actions">
+              <button class="med-edit-btn"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:12px;"></iconify-icon>편집</button>
+              <button class="med-del-btn"><iconify-icon icon="ph:trash-bold" style="font-size:12px;"></iconify-icon>삭제</button>
+            </div>
+          </div>
+
+        </div><!-- /med list card -->
+
+        <!-- Change history -->
+        <div class="glass-card">
+          <div class="card-head">
+            <div class="card-title">
+              <iconify-icon icon="ph:clock-counter-clockwise-bold" style="color:var(--blue-500); font-size:16px;"></iconify-icon>
+              처방 변경 이력
+            </div>
+            <span style="font-size:12px; font-weight:600; color:var(--slate-400);">최근 3건</span>
+          </div>
+          <div class="hist-wrap">
+
+            <div class="hist-item">
+              <div class="hist-dot-col">
+                <div class="hist-dot"><div class="hist-dot-inner"></div></div>
+              </div>
+              <div class="hist-body">
+                <div class="hist-date">2026.04.10</div>
+                <div class="hist-event">암로디핀 5mg → 10mg으로 증량</div>
+                <div class="hist-detail">혈압 조절 불충분으로 인한 용량 조정. 2주 후 혈압 재측정 예정.</div>
+                <div class="hist-doctor">
+                  <iconify-icon icon="ph:user-circle-bold" style="font-size:11px; vertical-align:middle;"></iconify-icon>
+                  처방의 오재원 · 사유: 혈압 조절 불충분
+                </div>
+              </div>
+            </div>
+
+            <div class="hist-item">
+              <div class="hist-dot-col">
+                <div class="hist-dot" style="border-color:var(--blue-500);"><div class="hist-dot-inner" style="background:var(--blue-500);"></div></div>
+              </div>
+              <div class="hist-body">
+                <div class="hist-date">2026.03.15</div>
+                <div class="hist-event">도네페질 10mg 추가 처방</div>
+                <div class="hist-detail">인지기능 검사(MMSE 18점) 결과 치매 진행 확인. 신규 처방 시작.</div>
+                <div class="hist-doctor" style="color:var(--blue-500);">
+                  <iconify-icon icon="ph:user-circle-bold" style="font-size:11px; vertical-align:middle;"></iconify-icon>
+                  처방의 오재원 · 사유: 치매 진행 확인
+                </div>
+              </div>
+            </div>
+
+            <div class="hist-item">
+              <div class="hist-dot-col">
+                <div class="hist-dot" style="border-color:var(--orange-500);"><div class="hist-dot-inner" style="background:var(--orange-500);"></div></div>
+              </div>
+              <div class="hist-body">
+                <div class="hist-date">2026.02.01</div>
+                <div class="hist-event">칼슘 500mg 추가 처방</div>
+                <div class="hist-detail">골밀도 검사 T-score -2.8로 골다공증 진단 후 처방. 비타민D 병행 권고.</div>
+                <div class="hist-doctor" style="color:var(--orange-500);">
+                  <iconify-icon icon="ph:user-circle-bold" style="font-size:11px; vertical-align:middle;"></iconify-icon>
+                  처방의 오재원 · 사유: 골밀도 검사 후 골다공증 진단
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /history -->
+
+      </div><!-- /rx-right -->
+    </div><!-- /rx-layout -->
+  </div><!-- /content -->
+
+</div><!-- /main-wrapper -->
+
+<script>
+  function toggleForm() {
+    const form = document.getElementById('rx-add-form');
+    form.classList.toggle('open');
+    if (form.classList.contains('open')) {
+      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+  // Toggle dose chips
+  document.querySelectorAll('.dose-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+</script>
+</body>
+</html>

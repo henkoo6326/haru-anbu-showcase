@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="caregiver" data-platform="mobile">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#DCFCE7">
+  <title>하루안부 · 요양보호사 · 소통</title>
+  <link rel="stylesheet" href="../07_디자인/tokens/tokens.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ============================================================
+       c03 · 소통
+       v3.0 · 2026-04-19 · v9.5 시각 위계 패턴 적용
+       tokens.css · data-role="caregiver"
+       ============================================================ */
+    :root {
+      --text-body: 16px;
+      --accent:        var(--color-accent);
+      --accent-soft:   var(--color-accent-soft);
+      --accent-strong: var(--color-accent-strong);
+      --warn:          var(--color-warning);
+      --danger:        var(--color-danger);
+      --t1:            var(--color-text-primary);
+      --t2:            var(--color-text-secondary);
+      --t3:            var(--color-text-tertiary);
+
+      --safe-t: max(env(safe-area-inset-top, 0px), 52px);
+      --safe-b: max(env(safe-area-inset-bottom, 0px), 20px);
+      --tab-h:  64px;
+      --tab-bot: 12px;
+      --page-pad: 16px;
+    }
+
+    html { height: 100%; background: var(--brand-green-100); }
+    body { min-height: 100%; color: var(--t1); overflow-x: hidden; font-size: var(--text-body); }
+
+    .bg {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+      background:
+        radial-gradient(520px 420px at 50% -6%, rgba(34,197,94,.12), transparent 65%),
+        linear-gradient(180deg, #D9F4E1 0%, #E8F6EE 28%, #F0F8F3 62%, #F4FAF6 100%);
+    }
+
+    .app {
+      max-width: 430px; margin: 0 auto; min-height: 100%;
+      position: relative;
+      padding-bottom: calc(var(--safe-b) + var(--tab-h) + var(--tab-bot) + 28px);
+    }
+
+    /* ============ 헤더 ============ */
+    .header {
+      position: sticky; top: 0; z-index: 10;
+      padding: calc(var(--safe-t) + 4px) var(--page-pad) 14px;
+      background: linear-gradient(180deg, rgba(232,246,238,.96) 0%, rgba(232,246,238,.82) 70%, rgba(232,246,238,0) 100%);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+    }
+    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .header-ttl { font-size: 24px; font-weight: 800; color: var(--t1); letter-spacing: -.5px; line-height: 1.2; }
+
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.7);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; text-decoration: none;
+      transition: transform .1s; font-family: inherit;
+    }
+    .icon-btn:active { transform: scale(.93); }
+    .icon-btn iconify-icon { font-size: 18px; color: var(--accent-strong); }
+
+    /* ============ 인수인계 체크 카드 ============ */
+    .hand-card {
+      margin: 0 var(--page-pad);
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      position: relative; z-index: 1;
+    }
+    .hand-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .hand-k {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 800; color: var(--t2);
+      letter-spacing: -.2px;
+    }
+    .hand-k iconify-icon { font-size: 15px; color: var(--accent-strong); }
+    .hand-pct {
+      font-size: 11px; font-weight: 700; color: var(--t3);
+    }
+    .hand-pct b { color: var(--t1); font-weight: 800; }
+    .hand-checks {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      margin-bottom: 10px;
+    }
+    .hc {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 10px 5px 6px;
+      border: 0; border-radius: 999px;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      background: rgba(0,0,0,.04); color: var(--t2);
+      cursor: pointer; transition: transform .1s;
+    }
+    .hc:active { transform: scale(.97); }
+    .hc .hc-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.1); color: #fff;
+    }
+    .hc .hc-dot iconify-icon { font-size: 11px; }
+    .hc.done { background: rgba(34,197,94,.1); color: var(--accent-strong); }
+    .hc.done .hc-dot { background: var(--accent); }
+    .hc.todo { background: rgba(245,158,11,.12); color: var(--palette-amber-700); }
+    .hc.todo .hc-dot { background: var(--palette-amber-600); }
+    .hand-cta {
+      width: 100%; height: 38px; border: 0; border-radius: 11px;
+      font-family: inherit; font-size: 12px; font-weight: 800;
+      background: rgba(245,158,11,.12); color: var(--palette-amber-700);
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      cursor: pointer; transition: transform .1s;
+    }
+    .hand-cta:active { transform: scale(.98); }
+    .hand-cta iconify-icon { font-size: 14px; }
+
+    /* ============ 보호자 공유 카드 ============ */
+    .share-card {
+      margin: 16px var(--page-pad) 0;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
+      position: relative; z-index: 1;
+    }
+    .share-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .share-k {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 800; color: var(--t1);
+      letter-spacing: -.2px;
+    }
+    .share-k iconify-icon { font-size: 16px; color: var(--accent-strong); }
+    .share-meta { font-size: 11px; font-weight: 700; color: var(--t3); }
+    .share-checks {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 6px; margin-bottom: 10px;
+    }
+    .sc {
+      padding: 12px 4px 10px;
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 12px;
+      background: rgba(0,0,0,.02);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-family: inherit; font-size: 11px; font-weight: 700; color: var(--t3);
+      cursor: pointer; transition: transform .1s, background .1s;
+    }
+    .sc:active { transform: scale(.96); }
+    .sc iconify-icon { font-size: 18px; color: var(--t3); }
+    .sc.on {
+      background: var(--accent-soft);
+      border-color: rgba(34,197,94,.28);
+      color: var(--accent-strong);
+    }
+    .sc.on iconify-icon { color: var(--accent-strong); }
+    .share-cta {
+      width: 100%; height: 44px; border: 0; border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand-green-400), var(--accent));
+      color: #fff;
+      font-family: inherit; font-size: 14px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      cursor: pointer; transition: transform .1s;
+      box-shadow: 0 3px 10px rgba(34,197,94,.22);
+    }
+    .share-cta:active { transform: scale(.98); }
+    .share-cta iconify-icon { font-size: 16px; }
+
+    /* ============ 필터 칩 ============ */
+    .filter-row {
+      margin: 14px 0 4px; padding: 0 var(--page-pad);
+      display: flex; gap: 6px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      position: relative; z-index: 1;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
+      font-size: 12.5px; font-weight: 700; color: var(--t2);
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.6);
+      cursor: pointer; font-family: inherit;
+      transition: all .15s;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .chip .n { font-weight: 800; color: var(--t3); }
+    .chip.active {
+      color: #fff; background: var(--accent); border-color: transparent;
+    }
+    .chip.active .n { color: rgba(255,255,255,.85); }
+
+    /* ============ 섹션 라벨 ============ */
+    /* expanded — 평문 text */
+    .sec-l {
+      margin: 14px var(--page-pad) 6px;
+      display: flex; align-items: center; gap: 8px;
+      position: relative; z-index: 1;
+      cursor: pointer; user-select: none;
+    }
+    .sec-l .t {
+      font-size: 13px; font-weight: 700; color: var(--t2);
+      letter-spacing: -.1px;
+    }
+    .sec-l .n {
+      font-size: 11px; font-weight: 800;
+      padding: 2px 9px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent-strong);
+    }
+    .sec-l .chev {
+      margin-left: auto; font-size: 16px; color: var(--t3);
+      transition: transform .25s ease;
+    }
+
+    /* collapsed — 흰 pill 카드 */
+    .sec-l.collapsed {
+      padding: 14px 16px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 14px;
+      margin-top: 10px;
+    }
+    .sec-l.collapsed .t { font-size: 14px; font-weight: 700; color: var(--t1); }
+    .sec-l.collapsed .n {
+      background: rgba(0,0,0,.06); color: var(--t2);
+    }
+    .sec-l.collapsed .chev { transform: rotate(-90deg); }
+
+    /* ============ 메시지 리스트 ============ */
+    .msg-list {
+      padding: 0 var(--page-pad);
+      display: flex; flex-direction: column; gap: 6px;
+      position: relative; z-index: 1;
+    }
+    .msg-list.hidden { display: none; }
+
+    .msg {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.80);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 16px;
+      color: inherit; text-decoration: none;
+      cursor: pointer;
+      transition: transform .12s;
+    }
+    .msg:active { transform: scale(.99); }
+    .msg.unread {
+      background: rgba(255,255,255,.95);
+      border-color: rgba(34,197,94,.12);
+    }
+
+    /* 아바타 — solid gradient */
+    .av {
+      width: 46px; height: 46px; border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 17px; color: #fff;
+      position: relative;
+    }
+    .av iconify-icon { font-size: 22px; color: #fff; }
+    .av.nurse { background: linear-gradient(135deg, #4ADE80, #22C55E); }
+    .av.guard { background: linear-gradient(135deg, #60A5FA, #2C7AFC); }
+    .av.mgr   { background: linear-gradient(135deg, #C084FC, #7C3AED); }
+    .av.ai    { background: linear-gradient(135deg, #4ADE80, #16A34A); }
+    .av.crit  { background: linear-gradient(135deg, #FCA5A5, #EF4444); }
+    .av.warn  { background: linear-gradient(135deg, #FCD34D, #F59E0B); }
+    .av.info  { background: linear-gradient(135deg, #CBD5E1, #94A3B8); }
+    .av.grey  { background: linear-gradient(135deg, #E2E8F0, #94A3B8); }
+    .av.online::after {
+      content: ''; position: absolute; bottom: 1px; right: 1px;
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--brand-green-400); border: 2.5px solid #fff;
+    }
+
+    /* 메시지 본문 */
+    .msg-body { flex: 1; min-width: 0; }
+    .msg-top {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 3px; flex-wrap: wrap;
+    }
+    .msg-name { font-size: 14px; font-weight: 800; color: var(--t1); letter-spacing: -.2px; }
+    .msg-tag {
+      font-size: 9.5px; font-weight: 800;
+      padding: 2px 7px; border-radius: 999px;
+      flex-shrink: 0; letter-spacing: .1px;
+    }
+    .tg-nurse { color: var(--accent-strong); background: var(--accent-soft); }
+    .tg-guard { color: #1D4ED8; background: rgba(44,122,252,.12); }
+    .tg-mgr   { color: #6D28D9; background: rgba(124,58,237,.12); }
+    .tg-ai    { color: var(--accent-strong); background: var(--accent-soft); }
+    .tg-crit  { color: var(--palette-red-700); background: rgba(239,68,68,.12); }
+    .tg-warn  { color: var(--palette-amber-700); background: rgba(245,158,11,.14); }
+    .tg-care  { color: var(--accent-strong); background: var(--accent-soft); }
+
+    .msg-preview {
+      font-size: 13px; color: var(--t2); font-weight: 400;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+    .msg.unread .msg-preview { color: rgba(0,0,0,.55); font-weight: 500; }
+
+    .msg-meta {
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: 6px; flex-shrink: 0;
+    }
+    .msg-time { font-size: 11px; color: var(--t3); font-weight: 700; }
+    .msg-badge {
+      min-width: 22px; padding: 1px 7px; line-height: 18px;
+      background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 800;
+      border-radius: 999px; text-align: center;
+    }
+    .msg-badge.red   { background: var(--danger); }
+    .msg-badge.amber { background: var(--warn); }
+
+    /* ============ 탭바 + SOS ============ */
+    .bottom-bar {
+      position: fixed; bottom: calc(var(--safe-b) + var(--tab-bot));
+      left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      width: calc(100% - 32px); max-width: 398px; z-index: 40;
+    }
+    .tabbar {
+      flex: 1; min-width: 0; height: var(--tab-h);
+      background: rgba(255,255,255,.8);
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 999px;
+      box-shadow: 0 6px 22px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.5);
+      display: flex; align-items: stretch; justify-content: space-around; padding: 0 6px;
+    }
+    .tab {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      color: var(--t3); text-decoration: none;
+      border-radius: 999px; transition: color .15s;
+    }
+    .tab.active { color: var(--accent-strong); }
+    .tab.active iconify-icon { filter: drop-shadow(0 2px 6px rgba(34,197,94,.28)); }
+    .tab iconify-icon { font-size: 22px; }
+    .sos-fab {
+      width: var(--tab-h); height: var(--tab-h); flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F87171, #DC2626);
+      border: none;
+      box-shadow: 0 8px 22px rgba(220,38,38,.38), inset 0 1px 0 rgba(255,255,255,.32);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+    }
+    .sos-fab:active { transform: scale(.92); }
+    .sos-fab iconify-icon { font-size: 26px; color: #fff; }
+
+    /* ============ 바텀시트 ============ */
+    .overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.28);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+    .sheet {
+      background: rgba(248,253,250,.96);
+      backdrop-filter: blur(60px) saturate(140%);
+      -webkit-backdrop-filter: blur(60px) saturate(140%);
+      border-top: .5px solid rgba(255,255,255,.8);
+      border-radius: 26px 26px 0 0;
+      padding: 16px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+      width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto;
+      animation: slideUp .32s cubic-bezier(0.2, 0, 0, 1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(18px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-handle {
+      width: 36px; height: 4px; background: rgba(0,0,0,.1);
+      border-radius: 2px; margin: 0 auto 16px;
+    }
+    .sheet-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .sh-ic {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sh-ic iconify-icon { font-size: 20px; }
+    .sh-ttl { font-size: 17px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; }
+    .sh-sub { font-size: 12.5px; color: var(--t2); margin-top: 2px; font-weight: 600; }
+
+    .sh-sec {
+      font-size: 11px; font-weight: 800; color: var(--t2);
+      letter-spacing: .4px; text-transform: uppercase;
+      margin: 14px 0 8px;
+    }
+    .pick-row {
+      display: flex; gap: 6px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .pick-row::-webkit-scrollbar { display: none; }
+    .pick {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 11px;
+      background: rgba(0,0,0,.03);
+      border: 1.5px solid transparent;
+      border-radius: 999px;
+      cursor: pointer; transition: all .15s;
+    }
+    .pick.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .pick .mini-av {
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 10px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.06); color: var(--t1);
+    }
+    .pick .nm { font-size: 12.5px; font-weight: 700; color: var(--t1); }
+    .pick.active .nm { color: var(--accent-strong); }
+
+    .tx {
+      width: 100%; min-height: 88px; padding: 13px;
+      background: #fff;
+      border: 1.5px solid rgba(0,0,0,.06);
+      border-radius: 14px;
+      font-family: inherit; font-size: 15px; color: var(--t1);
+      resize: none; outline: none; margin-top: 6px;
+      line-height: 1.55;
+    }
+    .tx:focus { border-color: var(--accent); }
+
+    .cta-row { display: flex; gap: 8px; margin-top: 14px; }
+    .cta-btn {
+      flex: 1; height: 50px; border-radius: 14px;
+      border: none; font-family: inherit;
+      font-size: 15.5px; font-weight: 800; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .cta-primary {
+      background: linear-gradient(135deg, var(--brand-green-400), var(--accent));
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(34,197,94,.3);
+    }
+    .cta-soft { background: rgba(0,0,0,.05); color: var(--t1); }
+
+    /* ============ 토스트 ============ */
+    .toast {
+      position: fixed; top: 80px; left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(28,28,30,.9); color: #fff;
+      padding: 11px 22px; border-radius: 999px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      z-index: 300; opacity: 0; pointer-events: none;
+      transition: opacity .22s, transform .22s;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div class="app">
+
+    <!-- ============ 헤더 ============ -->
+    <header class="header">
+      <div class="header-row">
+        <span class="header-ttl">소통</span>
+        <button class="icon-btn" onclick="openReport()" aria-label="빠른 보고">
+          <iconify-icon icon="fluent:compose-24-filled"></iconify-icon>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ 인수인계 체크 (필수 항목 누락 방지) ============ -->
+    <section class="hand-card" aria-label="야간→주간 인수인계">
+      <div class="hand-top">
+        <span class="hand-k"><iconify-icon icon="fluent:handshake-24-filled"></iconify-icon>야간 → 주간 인수인계</span>
+        <span class="hand-pct"><b>4</b>/5 확인</span>
+      </div>
+      <div class="hand-checks">
+        <button class="hc done" onclick="toast('낙상 위험 · 이정숙 확인 완료')">
+          <span class="hc-dot"><iconify-icon icon="fluent:checkmark-16-filled"></iconify-icon></span>
+          낙상 위험
+        </button>
+        <button class="hc done" onclick="toast('복약 상태 · 전원 아침약 복용 완료')">
+          <span class="hc-dot"><iconify-icon icon="fluent:checkmark-16-filled"></iconify-icon></span>
+          복약
+        </button>
+        <button class="hc done" onclick="toast('통증 호소 없음')">
+          <span class="hc-dot"><iconify-icon icon="fluent:checkmark-16-filled"></iconify-icon></span>
+          통증
+        </button>
+        <button class="hc done" onclick="toast('배회 · 폭력 경향 없음')">
+          <span class="hc-dot"><iconify-icon icon="fluent:checkmark-16-filled"></iconify-icon></span>
+          배회·폭력
+        </button>
+        <button class="hc todo" onclick="toast('이정숙 미열 → 가족 통보 필요')">
+          <span class="hc-dot"><iconify-icon icon="fluent:alert-16-filled"></iconify-icon></span>
+          가족 통보
+        </button>
+      </div>
+      <button class="hand-cta" onclick="toast('이정숙 어르신 가족 통보 작성')">
+        미확인 항목 확인 하기
+        <iconify-icon icon="fluent:arrow-right-24-filled"></iconify-icon>
+      </button>
+    </section>
+
+    <!-- ============ 필터 (3분류) ============ -->
+    <div class="filter-row">
+      <button class="chip active" onclick="filterMsg('all',this)">전체 <span class="n">9</span></button>
+      <button class="chip" onclick="filterMsg('msg',this)">메시지 <span class="n">5</span></button>
+      <button class="chip" onclick="filterMsg('alert',this)">알림·리마인더 <span class="n">4</span></button>
+    </div>
+
+    <!-- ============ 읽지 않음 (expanded) ============ -->
+    <div class="sec-l" id="sec-unread" onclick="toggleSection('unread')">
+      <span class="t">읽지 않음</span>
+      <span class="n">4</span>
+      <iconify-icon icon="fluent:chevron-down-24-filled" class="chev"></iconify-icon>
+    </div>
+    <div class="msg-list" id="list-unread">
+
+      <a class="msg unread" data-type="alert" onclick="toast('이정숙 · 미열')">
+        <div class="av crit"><iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon></div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">이정숙 어르신 · 미열</span>
+            <span class="msg-tag tg-crit">이상감지</span>
+          </div>
+          <div class="msg-preview">체온 37.4°C — 평소보다 0.8도 높아요. 기침 동반</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">10:05</span>
+          <span class="msg-badge red">!</span>
+        </div>
+      </a>
+
+      <a class="msg unread" data-type="nurse" onclick="toast('김서연 간호사 대화')">
+        <div class="av nurse online">김</div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">김서연 간호사</span>
+            <span class="msg-tag tg-nurse">근무 중</span>
+          </div>
+          <div class="msg-preview">이정숙 어르신 확인하러 가요. 5분 후 도착할게요</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">10:08</span>
+          <span class="msg-badge">2</span>
+        </div>
+      </a>
+
+      <a class="msg unread" data-type="guard" onclick="toast('박영자 보호자 대화')">
+        <div class="av guard">박</div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">박영자 어르신 보호자</span>
+            <span class="msg-tag tg-guard">가족</span>
+          </div>
+          <div class="msg-preview">어머니 오늘 혈압은 괜찮으신가요? 걱정되어서요</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">09:42</span>
+          <span class="msg-badge">1</span>
+        </div>
+      </a>
+
+      <a class="msg unread" data-type="ai" onclick="toast('AI 인수인계 전체')">
+        <div class="av ai">
+          <svg width="26" height="26" viewBox="0 0 512 512" fill="none" aria-label="하루안부">
+            <g transform="translate(50,50) scale(0.163)">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#FFFFFF"/>
+              <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#FFFFFF"/>
+            </g>
+          </svg>
+        </div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">AI 인수인계 · 야간 → 주간</span>
+            <span class="msg-tag tg-ai">AI</span>
+          </div>
+          <div class="msg-preview">새벽 중 특이사항 1건 · 박영자 어르신 수면 불안</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">06:45</span>
+          <span class="msg-badge">1</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- ============ 오늘 (collapsed) ============ -->
+    <div class="sec-l collapsed" id="sec-today" onclick="toggleSection('today')">
+      <span class="t">오늘</span>
+      <span class="n">2</span>
+      <iconify-icon icon="fluent:chevron-down-24-filled" class="chev"></iconify-icon>
+    </div>
+    <div class="msg-list hidden" id="list-today">
+      <a class="msg" data-type="center" onclick="toast('센터 공지')">
+        <div class="av mgr">윤</div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">김윤아 센터장</span>
+            <span class="msg-tag tg-mgr">관리</span>
+          </div>
+          <div class="msg-preview">이번 주 서비스 제공기록지 제출 확인 부탁드려요</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">09:15</span>
+        </div>
+      </a>
+
+      <a class="msg" data-type="alert" onclick="toast('체위 변경 리마인더')">
+        <div class="av warn"><iconify-icon icon="fluent:clock-alarm-24-filled"></iconify-icon></div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">최명자 어르신 체위 변경</span>
+            <span class="msg-tag tg-warn">리마인더</span>
+          </div>
+          <div class="msg-preview">오른쪽 → 왼쪽 체위 변경 30분 후 예정</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">09:00</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- ============ 이전 (collapsed) ============ -->
+    <div class="sec-l collapsed" id="sec-prev" onclick="toggleSection('prev')">
+      <span class="t">이전</span>
+      <span class="n">3</span>
+      <iconify-icon icon="fluent:chevron-down-24-filled" class="chev"></iconify-icon>
+    </div>
+    <div class="msg-list hidden" id="list-prev">
+      <a class="msg" data-type="nurse" onclick="toast('이해진 간호사')">
+        <div class="av nurse">이</div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">이해진 간호사</span>
+            <span class="msg-tag tg-nurse">야간</span>
+          </div>
+          <div class="msg-preview">야간 인수인계 전달드립니다 · 박영자 어르신 안정</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">06:45</span>
+        </div>
+      </a>
+
+      <a class="msg" data-type="guard" onclick="toast('최명자 보호자')">
+        <div class="av guard">최</div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">최명자 어르신 보호자</span>
+            <span class="msg-tag tg-guard">가족</span>
+          </div>
+          <div class="msg-preview">산책 사진 너무 감사해요. 어머니 기분 좋아 보이네요</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">어제</span>
+        </div>
+      </a>
+
+      <a class="msg" data-type="ai" onclick="toast('AI 가이드')">
+        <div class="av grey"><iconify-icon icon="fluent:chat-bubbles-question-24-filled"></iconify-icon></div>
+        <div class="msg-body">
+          <div class="msg-top">
+            <span class="msg-name">AI 업무 가이드</span>
+          </div>
+          <div class="msg-preview">모르는 케어 상황 · 매뉴얼 질문은 언제든지</div>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">어제</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- ============ 보호자 공유 (1탭 전송) ============ -->
+    <section class="share-card" aria-label="오늘 보호자에게 공유">
+      <div class="share-top">
+        <span class="share-k"><iconify-icon icon="fluent:people-team-24-filled"></iconify-icon>오늘 보호자에게 공유</span>
+        <span class="share-meta">담당 4명 · 카톡 연동</span>
+      </div>
+      <div class="share-checks">
+        <button class="sc on" onclick="this.classList.toggle('on')">
+          <iconify-icon icon="fluent:food-24-filled"></iconify-icon>식사
+        </button>
+        <button class="sc on" onclick="this.classList.toggle('on')">
+          <iconify-icon icon="fluent:toilet-24-filled"></iconify-icon>배설
+        </button>
+        <button class="sc on" onclick="this.classList.toggle('on')">
+          <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>이상 증상
+        </button>
+        <button class="sc on" onclick="this.classList.toggle('on')">
+          <iconify-icon icon="fluent:emoji-24-filled"></iconify-icon>기분·수면
+        </button>
+      </div>
+      <button class="share-cta" onclick="toast('보호자 4명에게 오늘의 안부 전송 완료')">
+        <iconify-icon icon="fluent:send-24-filled"></iconify-icon>오늘의 안부 보내기 (4명)
+      </button>
+    </section>
+
+  </div>
+
+  <!-- ============ 탭바 ============ -->
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="c01-today.html" class="tab" aria-label="홈"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></a>
+      <a href="c02-checklist.html" class="tab" aria-label="체크리스트"><iconify-icon icon="fluent:clipboard-task-list-ltr-24-filled"></iconify-icon></a>
+      <a href="c03-sotong.html" class="tab active" aria-label="소통"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></a>
+      <a href="c04-mypage.html" class="tab" aria-label="마이"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></a>
+    </nav>
+    <button class="sos-fab" onclick="toast('SOS 호출 · 유형을 선택하세요')" aria-label="긴급 SOS">
+      <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- ============ 빠른 보고 시트 ============ -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div class="sh-ic"><iconify-icon icon="fluent:send-24-filled"></iconify-icon></div>
+        <div>
+          <div class="sh-ttl">간호사에게 빠른 보고</div>
+          <div class="sh-sub">환자 → 템플릿 → 한줄 메모</div>
+        </div>
+      </div>
+
+      <div class="sh-sec">1. 환자 선택</div>
+      <div class="pick-row" id="pickPt">
+        <div class="pick" data-k="park" onclick="togPick(this,'pickPt')">
+          <span class="mini-av">박</span><span class="nm">박영자</span>
+        </div>
+        <div class="pick" data-k="choi" onclick="togPick(this,'pickPt')">
+          <span class="mini-av">최</span><span class="nm">최명자</span>
+        </div>
+        <div class="pick active" data-k="lee" onclick="togPick(this,'pickPt')">
+          <span class="mini-av">이</span><span class="nm">이정숙</span>
+        </div>
+      </div>
+
+      <div class="sh-sec">2. 상황 템플릿</div>
+      <div class="pick-row" id="pickTpl">
+        <div class="pick" data-k="fall" onclick="togPick(this,'pickTpl')"><span class="nm">낙상</span></div>
+        <div class="pick active" data-k="fever" onclick="togPick(this,'pickTpl')"><span class="nm">발열·미열</span></div>
+        <div class="pick" data-k="meal" onclick="togPick(this,'pickTpl')"><span class="nm">식사 저하</span></div>
+        <div class="pick" data-k="skin" onclick="togPick(this,'pickTpl')"><span class="nm">피부 이상</span></div>
+        <div class="pick" data-k="mood" onclick="togPick(this,'pickTpl')"><span class="nm">행동 변화</span></div>
+      </div>
+
+      <div class="sh-sec">3. 한줄 메모 (음성 가능)</div>
+      <textarea class="tx" id="tx" placeholder="간단히 적어주세요. 음성 입력도 가능합니다.">체온 37.4°C · 아침부터 마른기침 3회 · 식사량 60%로 저조</textarea>
+
+      <div class="cta-row">
+        <button class="cta-btn cta-soft" onclick="closeSheet()">취소</button>
+        <button class="cta-btn cta-primary" onclick="sendReport()">
+          <iconify-icon icon="fluent:send-24-filled" style="font-size:18px"></iconify-icon>간호사에게 전송
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastEl"></div>
+
+  <script>
+    function toggleSection(key) {
+      var sec = document.getElementById('sec-' + key);
+      var list = document.getElementById('list-' + key);
+      if (!sec || !list) return;
+      var isCollapsed = sec.classList.contains('collapsed');
+      if (isCollapsed) {
+        sec.classList.remove('collapsed');
+        list.classList.remove('hidden');
+      } else {
+        sec.classList.add('collapsed');
+        list.classList.add('hidden');
+      }
+    }
+
+    function filterMsg(type, btn) {
+      document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      // 3분류 매핑: msg = nurse/guard/center/ai, alert = alert/리마인더
+      const msgTypes = ['nurse','guard','center','ai'];
+      const alertTypes = ['alert'];
+      document.querySelectorAll('.msg').forEach(function(item) {
+        const t = item.getAttribute('data-type');
+        if (type === 'all') { item.style.display = ''; return; }
+        if (type === 'msg')   { item.style.display = msgTypes.includes(t) ? '' : 'none'; return; }
+        if (type === 'alert') { item.style.display = alertTypes.includes(t) ? '' : 'none'; return; }
+        item.style.display = t === type ? '' : 'none';
+      });
+    }
+
+    function togPick(el, groupId) {
+      document.getElementById(groupId).querySelectorAll('.pick').forEach(function(x) {
+        x.classList.remove('active');
+      });
+      el.classList.add('active');
+    }
+
+    function openReport() { document.getElementById('overlay').classList.add('show'); }
+    function closeSheet() { document.getElementById('overlay').classList.remove('show'); }
+    function sendReport() { closeSheet(); toast('간호사에게 보고 전송됨'); }
+
+    function toast(m) {
+      var t = document.getElementById('toastEl');
+      t.textContent = m;
+      t.classList.add('show');
+      clearTimeout(t._x);
+      t._x = setTimeout(function() { t.classList.remove('show'); }, 2400);
+    }
+  </script>
+</body>
+</html>

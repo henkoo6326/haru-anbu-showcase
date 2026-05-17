@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 보호자 앱</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 390px; min-height: 844px; background: #FAFAF7; font-family: 'Pretendard', -apple-system, sans-serif; color: #1E2A3A; position: relative; overflow-x: hidden; }
+
+/* Status bar */
+.status-bar { height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; }
+
+/* Header */
+.header { padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 56px; }
+.header-title { font-size: 24px; font-weight: 800; }
+.header-title span { color: #4A7FBF; }
+.header-icons { display: flex; gap: 16px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; background: #F0F4F8; display: flex; align-items: center; justify-content: center; font-size: 18px; border: none; cursor: pointer; }
+.badge { position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; background: #E53935; border-radius: 50%; font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+/* Content */
+.content { padding: 0 24px 100px; }
+
+/* Patient card */
+.patient-card { background: linear-gradient(135deg, #4A7FBF, #5BAE8C); border-radius: 20px; padding: 24px; color: #fff; margin-bottom: 20px; }
+.patient-info { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.patient-avatar { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.patient-name { font-size: 20px; font-weight: 700; }
+.patient-detail { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+.patient-status { display: flex; gap: 12px; }
+.status-pill { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 8px 14px; font-size: 12px; backdrop-filter: blur(10px); }
+.status-pill strong { font-size: 16px; display: block; margin-top: 2px; }
+
+/* Section */
+.section-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+.section-title .more { font-size: 13px; color: #8C939A; font-weight: 400; }
+
+/* Care status cards */
+.care-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.care-card { background: #fff; border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.care-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.care-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.care-label { font-size: 13px; color: #8C939A; }
+.care-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+.care-bar { height: 6px; background: #F0F0F0; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.care-bar-fill { height: 100%; border-radius: 3px; }
+
+/* AI Report card */
+.report-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 24px; }
+.report-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.report-badge { background: #F0F7FF; color: #4A7FBF; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
+.report-time { font-size: 12px; color: #8C939A; }
+.report-text { font-size: 14px; line-height: 1.7; color: #1E2A3A; }
+.report-text strong { color: #4A7FBF; }
+
+/* Quick actions */
+.quick-actions { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; }
+.quick-btn { flex-shrink: 0; background: #fff; border: 1.5px solid #F0F0F0; border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1E2A3A; cursor: pointer; }
+.quick-btn .q-icon { font-size: 20px; }
+
+/* Timeline */
+.timeline { margin-bottom: 24px; }
+.timeline-item { display: flex; gap: 14px; margin-bottom: 16px; position: relative; }
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.timeline-line { position: absolute; left: 4px; top: 20px; width: 2px; height: calc(100% + 6px); background: #F0F0F0; }
+.timeline-content { flex: 1; }
+.timeline-time { font-size: 12px; color: #8C939A; }
+.timeline-desc { font-size: 14px; margin-top: 2px; }
+
+/* Tab bar */
+.tab-bar { position: fixed; bottom: 0; left: 0; width: 390px; height: 84px; background: #fff; border-top: 1px solid #F0F0F0; display: flex; padding: 8px 0 24px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #C0C0C0; cursor: pointer; border: none; background: none; }
+.tab.active { color: #4A7FBF; }
+.tab-icon { font-size: 22px; }
+</style>
+</head>
+<body>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="display:flex;gap:6px;font-size:12px">📶 📡 🔋</span>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">하루<span>안부</span></div>
+  <div class="header-icons">
+    <div class="icon-btn" style="position:relative">🔔<div class="badge">2</div></div>
+    <div class="icon-btn">⚙️</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Patient card -->
+  <div class="patient-card">
+    <div class="patient-info">
+      <div class="patient-avatar">👵</div>
+      <div>
+        <div class="patient-name">김순자 어르신</div>
+        <div class="patient-detail">요양원 101호 · 3등급 · 입소 6개월</div>
+      </div>
+    </div>
+    <div class="patient-status">
+      <div class="status-pill">오늘 컨디션<strong>😊 양호</strong></div>
+      <div class="status-pill">케어 완료율<strong>85%</strong></div>
+      <div class="status-pill">담당<strong>박지현 간호사</strong></div>
+    </div>
+  </div>
+
+  <!-- Care status -->
+  <div class="section-title">오늘 케어 현황 <span class="more">전체보기 →</span></div>
+  <div class="care-grid">
+    <div class="care-card">
+      <div class="care-card-header">
+        <div class="care-icon" style="background:#E8F5E9">🍚</div>
+        <span style="font-size:12px;color:#4CAF50;font-weight:700">완료</span>
+      </div>
+      <div class="care-label">식사</div>
+      <div class="care-value">80%</div>
+      <div class="care-bar"><div class="care-bar-fill" style="width:80%;background:#4CAF50"></div></div>
+    </div>
+    <div class="care-card">
+      <div class="care-card-header">
+        <div class="care-icon" style="background:#E3F2FD">💊</div>
+        <span style="font-size:12px;color:#4A7FBF;font-weight:700">3/3</span>
+      </div>
+      <div class="care-label">투약</div>
+      <div class="care-value">완료</div>
+      <div class="care-bar"><div class="care-bar-fill" style="width:100%;background:#4A7FBF"></div></div>
+    </div>
+    <div class="care-card">
+      <div class="care-card-header">
+        <div class="care-icon" style="background:#FFF3E0">🛁</div>
+        <span style="font-size:12px;color:#FFB74D;font-weight:700">진행 중</span>
+      </div>
+      <div class="care-label">위생</div>
+      <div class="care-value">50%</div>
+      <div class="care-bar"><div class="care-bar-fill" style="width:50%;background:#FFB74D"></div></div>
+    </div>
+    <div class="care-card">
+      <div class="care-card-header">
+        <div class="care-icon" style="background:#F3E5F5">🚶</div>
+        <span style="font-size:12px;color:#4A7FBF;font-weight:700">완료</span>
+      </div>
+      <div class="care-label">활동</div>
+      <div class="care-value">30분</div>
+      <div class="care-bar"><div class="care-bar-fill" style="width:100%;background:#4A7FBF"></div></div>
+    </div>
+  </div>
+
+  <!-- AI Report -->
+  <div class="section-title">AI 일일 리포트 <span class="more">이전 리포트 →</span></div>
+  <div class="report-card">
+    <div class="report-header">
+      <span class="report-badge">🤖 AI 자동 생성</span>
+      <span class="report-time">오늘 19:00</span>
+    </div>
+    <div class="report-text">
+      오늘 어머님은 전반적으로 <strong>양호한 컨디션</strong>을 보이셨습니다.<br><br>
+      🍚 아침 80%, 점심 85% 섭취하셨고<br>
+      💊 투약 3회 모두 완료되었습니다.<br>
+      🚶 오전 재활운동 30분, 오후 산책 20분 다녀오셨어요.<br><br>
+      <span style="font-size:13px;color:#8C939A">오늘 하루도, 안녕하셨습니다 ☺️</span>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="section-title">바로가기</div>
+  <div class="quick-actions">
+    <div class="quick-btn"><span class="q-icon">🤖</span>AI 가이드</div>
+    <div class="quick-btn"><span class="q-icon">💬</span>간호사 채팅</div>
+    <div class="quick-btn"><span class="q-icon">💊</span>처방전</div>
+    <div class="quick-btn"><span class="q-icon">📅</span>일과표</div>
+    <div class="quick-btn"><span class="q-icon">🧮</span>비용 계산</div>
+  </div>
+
+  <!-- Today's timeline -->
+  <div class="section-title">오늘 타임라인</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#4CAF50"></div>
+      <div class="timeline-line"></div>
+      <div class="timeline-content">
+        <div class="timeline-time">09:00</div>
+        <div class="timeline-desc">✅ 오전 투약 완료</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#4A7FBF"></div>
+      <div class="timeline-line"></div>
+      <div class="timeline-content">
+        <div class="timeline-time">10:00</div>
+        <div class="timeline-desc">🚶 재활운동 30분 완료</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#4CAF50"></div>
+      <div class="timeline-line"></div>
+      <div class="timeline-content">
+        <div class="timeline-time">12:00</div>
+        <div class="timeline-desc">🍚 점심 식사 85% 섭취</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot" style="background:#FFB74D"></div>
+      <div class="timeline-content">
+        <div class="timeline-time">14:00</div>
+        <div class="timeline-desc">🛁 오후 위생 케어 진행 중</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <div class="tab active"><span class="tab-icon">🏠</span>홈</div>
+  <div class="tab"><span class="tab-icon">💬</span>채팅</div>
+  <div class="tab"><span class="tab-icon">🤖</span>AI</div>
+  <div class="tab"><span class="tab-icon">📋</span>리포트</div>
+  <div class="tab"><span class="tab-icon">☰</span>더보기</div>
+</div>
+
+</body>
+</html>

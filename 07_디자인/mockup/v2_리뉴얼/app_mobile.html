@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 보호자 앱 v2</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 390px; min-height: 844px; background: #F2F2F7; font-family: 'Pretendard', -apple-system, sans-serif; color: #1C1C1E; -webkit-font-smoothing: antialiased; }
+
+.status-bar { height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; }
+
+/* Large title like Apple */
+.large-title { padding: 8px 20px 4px; }
+.large-title h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
+.large-title h1 span { color: #4A7FBF; }
+.large-title .sub { font-size: 15px; color: #8E8E93; margin-top: 2px; }
+
+.content { padding: 0 20px 100px; }
+
+/* Apple-style grouped card */
+.grouped-card { background: #fff; border-radius: 16px; margin-bottom: 16px; overflow: hidden; }
+.grouped-card-header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+.grouped-card-title { font-size: 13px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.5px; }
+.grouped-card-action { font-size: 15px; color: #4A7FBF; font-weight: 600; }
+
+/* Patient summary - Apple highlight style */
+.highlight-card { background: linear-gradient(145deg, #4A7FBF 0%, #5B9BD5 100%); border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px; }
+.highlight-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.highlight-name { font-size: 22px; font-weight: 700; }
+.highlight-detail { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+.highlight-avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.highlight-metrics { display: flex; gap: 10px; }
+.highlight-metric { flex: 1; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px; text-align: center; backdrop-filter: blur(10px); }
+.highlight-metric-value { font-size: 20px; font-weight: 800; }
+.highlight-metric-label { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+
+/* Apple-style list row */
+.list-row { display: flex; align-items: center; padding: 14px 20px; border-bottom: 0.5px solid rgba(60,60,67,0.1); gap: 14px; }
+.list-row:last-child { border: none; }
+.list-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.list-content { flex: 1; }
+.list-title { font-size: 16px; font-weight: 500; }
+.list-sub { font-size: 13px; color: #8E8E93; margin-top: 1px; }
+.list-right { text-align: right; }
+.list-value { font-size: 17px; font-weight: 600; }
+.list-chevron { font-size: 14px; color: #C7C7CC; }
+
+/* Progress ring (Apple Health style) */
+.progress-ring { position: relative; width: 52px; height: 52px; }
+.progress-ring svg { transform: rotate(-90deg); }
+.progress-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 13px; font-weight: 700; }
+
+/* AI Report card (Article style) */
+.report-card { padding: 20px; }
+.report-badge { display: inline-flex; align-items: center; gap: 4px; background: #F0F7FF; color: #4A7FBF; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; }
+.report-time { font-size: 12px; color: #8E8E93; margin-left: auto; }
+.report-text { font-size: 15px; line-height: 1.65; color: #1C1C1E; }
+.report-text strong { color: #4A7FBF; }
+
+/* Emotion chips (Apple Health mood style) */
+.emotion-section { padding: 16px 20px; }
+.emotion-label { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.emotion-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.emotion-chip { padding: 8px 16px; border-radius: 20px; border: 1.5px solid #E5E5EA; font-size: 14px; color: #1C1C1E; background: #fff; }
+.emotion-chip.selected { background: #FFF8F0; border-color: #D4A574; color: #D4A574; font-weight: 600; }
+
+/* Quick actions - Apple style rounded buttons */
+.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.quick-item { background: #fff; border-radius: 16px; padding: 16px 8px; text-align: center; }
+.quick-icon { font-size: 26px; margin-bottom: 6px; }
+.quick-label { font-size: 11px; font-weight: 500; color: #8E8E93; }
+
+/* Weekly chart (Apple Health highlight style) */
+.chart-card { padding: 20px; }
+.chart-title { font-size: 13px; color: #8E8E93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.chart-value { font-size: 28px; font-weight: 800; color: #4A7FBF; margin-top: 4px; }
+.chart-sub { font-size: 13px; color: #8E8E93; }
+.chart-bars { display: flex; gap: 6px; align-items: flex-end; height: 80px; margin-top: 16px; }
+.chart-bar-wrap { flex: 1; text-align: center; }
+.chart-bar { width: 100%; border-radius: 4px; background: #E5E5EA; min-height: 8px; }
+.chart-bar-fill { border-radius: 4px; }
+.chart-day { font-size: 11px; color: #8E8E93; margin-top: 6px; }
+
+/* Tab bar - Apple style */
+.tab-bar { position: fixed; bottom: 0; left: 0; width: 390px; height: 83px; background: rgba(249,249,249,0.94); backdrop-filter: blur(20px); border-top: 0.5px solid rgba(60,60,67,0.15); display: flex; padding: 6px 0 28px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 500; color: #8E8E93; border: none; background: none; }
+.tab.active { color: #4A7FBF; }
+.tab-icon { font-size: 24px; }
+</style>
+</head>
+<body>
+<div class="status-bar"><span>9:41</span><span style="display:flex;gap:6px;font-size:12px">📶 📡 🔋</span></div>
+
+<div class="large-title">
+  <h1>하루<span>안부</span></h1>
+  <div class="sub">김순자 어르신 · 101호</div>
+</div>
+
+<div class="content">
+
+  <!-- Patient highlight -->
+  <div class="highlight-card">
+    <div class="highlight-top">
+      <div>
+        <div class="highlight-name">김순자 어르신</div>
+        <div class="highlight-detail">3등급 · 입소 6개월 · 박지현 간호사</div>
+      </div>
+      <div class="highlight-avatar">👵</div>
+    </div>
+    <div class="highlight-metrics">
+      <div class="highlight-metric"><div class="highlight-metric-value">😊</div><div class="highlight-metric-label">컨디션 양호</div></div>
+      <div class="highlight-metric"><div class="highlight-metric-value">85%</div><div class="highlight-metric-label">케어 완료</div></div>
+      <div class="highlight-metric"><div class="highlight-metric-value">3/3</div><div class="highlight-metric-label">투약 완료</div></div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-grid">
+    <div class="quick-item"><div class="quick-icon">🤖</div><div class="quick-label">AI 가이드</div></div>
+    <div class="quick-item"><div class="quick-icon">💬</div><div class="quick-label">채팅</div></div>
+    <div class="quick-item"><div class="quick-icon">💊</div><div class="quick-label">처방전</div></div>
+    <div class="quick-item"><div class="quick-icon">📅</div><div class="quick-label">일과표</div></div>
+  </div>
+
+  <!-- Today's care - Apple grouped style -->
+  <div class="grouped-card">
+    <div class="grouped-card-header">
+      <span class="grouped-card-title">오늘 케어 현황</span>
+      <span class="grouped-card-action">전체보기</span>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#E8F5E9">🍚</div>
+      <div class="list-content"><div class="list-title">식사</div><div class="list-sub">아침 80% · 점심 85%</div></div>
+      <div class="list-right"><div class="list-value" style="color:#4CAF50">80%</div></div>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#E3F2FD">💊</div>
+      <div class="list-content"><div class="list-title">투약</div><div class="list-sub">오전·오후·취침 전</div></div>
+      <div class="list-right"><div class="list-value" style="color:#4A7FBF">3/3</div></div>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#FFF3E0">🛁</div>
+      <div class="list-content"><div class="list-title">위생</div><div class="list-sub">오후 진행 예정</div></div>
+      <div class="list-right"><div class="list-value" style="color:#FF9800">50%</div></div>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#F3E5F5">🚶</div>
+      <div class="list-content"><div class="list-title">활동</div><div class="list-sub">재활 30분 + 산책 20분</div></div>
+      <div class="list-right"><div class="list-value" style="color:#4A7FBF">완료</div></div>
+    </div>
+  </div>
+
+  <!-- Weekly trend (Apple Health highlight style) -->
+  <div class="grouped-card">
+    <div class="chart-card">
+      <div class="chart-title">주간 케어 완료율</div>
+      <div style="display:flex;align-items:baseline;gap:6px"><div class="chart-value">82%</div><div class="chart-sub">이번 주 평균</div></div>
+      <div class="chart-bars">
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:70px;background:#4A7FBF"></div></div><div class="chart-day">월</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:60px;background:#4A7FBF"></div></div><div class="chart-day">화</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:75px;background:#4A7FBF"></div></div><div class="chart-day">수</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:65px;background:#4A7FBF"></div></div><div class="chart-day">목</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:80px;background:#4A7FBF"></div></div><div class="chart-day">금</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:50px;background:#C7C7CC"></div></div><div class="chart-day">토</div></div>
+        <div class="chart-bar-wrap"><div class="chart-bar"><div class="chart-bar-fill" style="height:35px;background:#C7C7CC"></div></div><div class="chart-day">일</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Report (Article card style) -->
+  <div class="grouped-card">
+    <div class="report-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span class="report-badge">🤖 AI 리포트</span>
+        <span class="report-time">오늘 19:00</span>
+      </div>
+      <div class="report-text">
+        오늘 어머님은 전반적으로 <strong>양호한 컨디션</strong>을 보이셨습니다.<br><br>
+        🍚 아침 80%, 점심 85% 섭취<br>
+        💊 투약 3회 모두 완료<br>
+        🚶 재활 30분 + 산책 20분<br><br>
+        <span style="color:#8E8E93;font-size:13px">오늘 하루도, 안녕하셨습니다 ☺️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="grouped-card">
+    <div class="grouped-card-header">
+      <span class="grouped-card-title">오늘 타임라인</span>
+    </div>
+    <div class="list-row">
+      <div style="font-size:13px;color:#8E8E93;width:44px">09:00</div>
+      <div class="list-content"><div class="list-title">✅ 오전 투약 완료</div></div>
+    </div>
+    <div class="list-row">
+      <div style="font-size:13px;color:#8E8E93;width:44px">10:00</div>
+      <div class="list-content"><div class="list-title">🚶 재활운동 30분</div></div>
+    </div>
+    <div class="list-row">
+      <div style="font-size:13px;color:#8E8E93;width:44px">12:30</div>
+      <div class="list-content"><div class="list-title">🍚 점심 식사 85%</div></div>
+    </div>
+    <div class="list-row">
+      <div style="font-size:13px;color:#8E8E93;width:44px">14:00</div>
+      <div class="list-content"><div class="list-title" style="color:#FF9800">⏳ 오후 투약 예정</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <div class="tab active"><span class="tab-icon">❤️</span>홈</div>
+  <div class="tab"><span class="tab-icon">💬</span>채팅</div>
+  <div class="tab"><span class="tab-icon">🤖</span>AI</div>
+  <div class="tab"><span class="tab-icon">📋</span>리포트</div>
+  <div class="tab"><span class="tab-icon">🔍</span>더보기</div>
+</div>
+</body></html>

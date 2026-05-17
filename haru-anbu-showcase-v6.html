@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — Service Showcase v6</title>
+  <link rel="preload" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    :root {
+      --blue:#2C7AFC; --green:#22C55E; --orange:#FB923C; --red:#EF4444;
+      --ink:#111111; --ink-2:#333333; --mute:#888888; --mute-2:#B5B5B5;
+      --line:#E8E8E8; --line-soft:#F1F1F1; --paper:#FAFAFA; --bg:#FFFFFF; --dark:#0A0A0A;
+      --sys:#F2F2F7;
+      --font:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+      --container:1200px; --gutter:clamp(24px,5vw,64px); --pad-section:clamp(96px,14vw,180px);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);font-size:16px;line-height:1.75;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body.flow-active{overflow:hidden}
+    a{color:inherit;text-decoration:none}
+    img,svg{display:block;max-width:100%}
+    button{font-family:inherit;cursor:pointer;border:none;outline:none}
+
+    /* ═══════════════════════ FLOW OVERLAY ═══════════════════════ */
+    #flow-overlay{
+      position:fixed;inset:0;z-index:1000;
+      background:var(--sys);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      overflow:hidden;
+      transition:opacity .7s ease,transform .7s ease;
+    }
+    #flow-overlay.exit{opacity:0;transform:scale(1.02);pointer-events:none}
+
+    /* ── INTRO SCREEN ── */
+    #intro-screen{
+      display:flex;flex-direction:column;align-items:center;
+      width:100%;padding:0 var(--gutter);
+    }
+
+    .notif-app-header{
+      display:flex;align-items:center;gap:8px;
+      padding:12px 24px 0;
+    }
+    .notif-app-icon{
+      width:22px;height:22px;border-radius:6px;
+      background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .notif-app-name{font-size:12px;font-weight:600;color:rgba(0,0,0,.45);letter-spacing:.01em}
+
+    @keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    /* SOS Card — bottom sheet style */
+    .intro-sos-card{
+      background:#ffffff;
+      border-radius:28px;
+      width:100%;max-width:450px;
+      overflow:hidden;
+      box-shadow:0 8px 24px rgba(0,0,0,.07),0 32px 80px rgba(0,0,0,.14);
+      opacity:0;
+      animation:notif-in .65s cubic-bezier(.34,1.56,.64,1) .4s both;
+    }
+    @keyframes notif-in{
+      from{transform:translateY(32px) scale(.97);opacity:0}
+      to{transform:none;opacity:1}
+    }
+    .sos-drag-handle{
+      width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,.1);
+      margin:24px auto 0;
+    }
+    .sos-content{padding:22px 24px 0}
+    .sos-title{
+      font-size:22px;font-weight:800;color:var(--ink);
+      letter-spacing:-.03em;line-height:1.28;margin-bottom:12px;
+    }
+    .sos-desc{
+      font-size:15px;line-height:1.65;color:rgba(0,0,0,.48);
+      letter-spacing:-.01em;margin-bottom:0;
+    }
+    .sos-illust{
+      display:flex;align-items:center;justify-content:center;
+      padding:36px 0 28px;position:relative;
+    }
+    .sos-illust-circle{
+      width:120px;height:120px;border-radius:50%;
+      background:radial-gradient(circle at 38% 36%,rgba(239,68,68,.18) 0%,rgba(239,68,68,.06) 60%,transparent 100%);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    .sos-ring{
+      position:absolute;inset:0;border-radius:50%;
+      border:2px solid rgba(239,68,68,.22);
+      animation:sos-ring 2.2s ease-out infinite;pointer-events:none;
+    }
+    .sos-ring:nth-child(2){animation-delay:1.1s}
+    @keyframes sos-ring{
+      0%{opacity:.9;transform:scale(.8)}
+      100%{opacity:0;transform:scale(1.55)}
+    }
+    .sos-badge-wrap{
+      width:80px;height:80px;border-radius:50%;
+      background:var(--red);
+      box-shadow:0 12px 32px rgba(239,68,68,.38);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;z-index:1;
+    }
+    .sos-excl{font-size:38px;font-weight:900;color:white;line-height:1;letter-spacing:-.02em;margin-top:-2px}
+    .sos-who-tag{
+      position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+      background:white;border:1.5px solid rgba(239,68,68,.2);
+      color:var(--red);font-size:11px;font-weight:700;letter-spacing:.04em;
+      padding:4px 12px;border-radius:100px;white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+    .sos-actions{
+      display:grid;grid-template-columns:1fr 1.6fr;gap:10px;
+      padding:14px 24px 28px;
+    }
+    .sos-action-btn{
+      padding:17px 0;text-align:center;
+      font-size:16px;font-weight:700;
+      border-radius:16px;cursor:pointer;
+      letter-spacing:-.01em;
+    }
+    .sos-action-btn.sos-dismiss{
+      background:rgba(0,0,0,.06);color:rgba(0,0,0,.45);
+    }
+    .sos-action-btn.sos-accept{
+      background:var(--red);color:white;
+      box-shadow:0 6px 20px rgba(239,68,68,.32);
+    }
+
+
+    /* ── FLOW SCREEN ── */
+    #flow-screen{display:flex;flex-direction:column;width:100%;height:100%}
+    #flow-screen.hidden{display:none}
+
+    #flow-header{
+      height:68px;display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;padding:0 80px;position:relative;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(0,0,0,.07);
+    }
+    .flow-steps{display:flex;align-items:center;gap:0}
+    .flow-step{display:flex;flex-direction:column;align-items:center;gap:7px}
+    .fs-dot{
+      width:10px;height:10px;border-radius:50%;
+      border:2px solid rgba(0,0,0,.12);background:transparent;transition:all .4s;
+    }
+    .flow-step.done   .fs-dot{background:rgba(0,0,0,.28);border-color:rgba(0,0,0,.28)}
+    .flow-step.active .fs-dot{background:var(--ink);border-color:var(--ink);box-shadow:0 0 0 3px rgba(17,17,17,.12)}
+    .fs-label{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,0,0,.2);white-space:nowrap;transition:color .4s}
+    .flow-step.done   .fs-label{color:rgba(0,0,0,.32)}
+    .flow-step.active .fs-label{color:var(--ink)}
+    .fs-line{width:44px;height:1px;background:rgba(0,0,0,.08);margin-bottom:18px;transition:background .4s}
+    .fs-line.done{background:rgba(0,0,0,.28)}
+    #flow-counter{
+      position:absolute;right:24px;top:50%;transform:translateY(-50%);
+      font-size:11px;font-weight:600;color:rgba(0,0,0,.18);letter-spacing:.1em;font-feature-settings:"tnum" 1;
+    }
+
+    #flow-stage{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:28px 40px;gap:32px;position:relative;
+      background:var(--sys);
+    }
+    #flow-footer{
+      flex-shrink:0;padding:18px 40px 24px;min-height:90px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-top:1px solid rgba(0,0,0,.07);
+      text-align:center;
+    }
+    #flow-title{font-size:17px;font-weight:600;color:var(--ink);letter-spacing:-.02em;margin-bottom:6px}
+    #flow-sub  {font-size:13px;color:var(--mute);letter-spacing:-.005em}
+
+    /* ── DEVICE MOCKUPS ── */
+    .flow-device{flex-shrink:0;position:relative}
+
+    /* iPhone */
+    .flow-device.phone{
+      width:286px;
+      background:linear-gradient(160deg,#323235 0%,#1c1c1e 100%);
+      border-radius:52px;
+      padding:14px 12px 30px;
+      box-shadow:
+        inset 0 0 0 .5px rgba(255,255,255,.08),
+        0 2px 4px rgba(0,0,0,.3),
+        0 20px 60px rgba(0,0,0,.36),
+        0 48px 80px -16px rgba(0,0,0,.3);
+    }
+    /* Volume buttons left */
+    .flow-device.phone::before{
+      content:'';position:absolute;
+      left:-2px;top:106px;
+      width:2px;height:32px;
+      background:#2a2a2c;border-radius:1px 0 0 1px;
+      box-shadow:-1px 0 0 rgba(255,255,255,.04),-2px 0 6px rgba(0,0,0,.4);
+    }
+    /* Power button right */
+    .flow-device.phone::after{
+      content:'';position:absolute;
+      right:-2px;top:126px;
+      width:2px;height:64px;
+      background:#2a2a2c;border-radius:0 1px 1px 0;
+      box-shadow:1px 0 0 rgba(255,255,255,.04),2px 0 6px rgba(0,0,0,.4);
+    }
+
+    /* Dynamic Island overlay */
+    .device-island{
+      position:absolute;
+      top:16px;left:50%;transform:translateX(-50%);
+      width:90px;height:28px;
+      background:#0d0d0f;
+      border-radius:100px;
+      z-index:15;pointer-events:none;
+    }
+
+    .flow-device.phone .device-screen{
+      width:262px;height:566px;
+      background:white;
+      border-radius:40px;
+      overflow:hidden;position:relative;
+    }
+
+    /* iPad */
+    .flow-device.tablet{
+      width:420px;
+      background:linear-gradient(160deg,#323235 0%,#1c1c1e 100%);
+      border-radius:26px;
+      padding:16px 14px 20px;
+      box-shadow:
+        inset 0 0 0 .5px rgba(255,255,255,.08),
+        0 2px 4px rgba(0,0,0,.3),
+        0 20px 60px rgba(0,0,0,.36),
+        0 48px 80px -16px rgba(0,0,0,.3);
+    }
+    .flow-device.tablet::before{
+      content:'';position:absolute;
+      top:50%;left:8px;transform:translateY(-50%);
+      width:4px;height:4px;
+      background:#1e1e20;border-radius:50%;
+      box-shadow:0 0 0 1px rgba(255,255,255,.05);
+    }
+    .flow-device.tablet .device-screen{
+      width:392px;height:518px;
+      background:white;
+      border-radius:11px;
+      overflow:hidden;position:relative;
+    }
+
+    /* AI panel */
+    .flow-device.ai-panel{
+      width:272px;min-height:490px;
+      background:#0d0d12;
+      border:1px solid rgba(44,122,252,.16);
+      border-radius:28px;
+      box-shadow:0 0 60px rgba(44,122,252,.07),0 40px 80px -20px rgba(0,0,0,.35);
+      padding:28px 22px;
+      display:flex;flex-direction:column;
+      position:relative;overflow:hidden;
+    }
+    .flow-device.ai-panel::before{
+      content:'';position:absolute;
+      top:-100px;left:-60px;
+      width:260px;height:260px;
+      background:radial-gradient(circle,rgba(44,122,252,.1) 0%,transparent 70%);
+      pointer-events:none;
+    }
+
+    /* ── FLOW PNG DEVICE FRAMES ── */
+    /* Phone: 320×654 (iPhone PNG at 8/9 size) */
+    .flow-png-phone{position:relative;width:320px;height:654px;flex-shrink:0}
+    .flow-png-phone .device-screen{position:absolute;left:5.33%;top:7.97%;width:89.26%;height:89.49%;overflow:hidden;background:transparent;z-index:1}
+    .flow-png-phone .device-screen iframe{position:absolute;left:0;top:0;width:390px;height:801px;transform:scale(0.732);transform-origin:top left;border:0;display:block;background:white}
+    .flow-png-phone .flow-sb{position:absolute;left:5.33%;top:5.4%;width:89.26%;z-index:2;display:flex;align-items:center;pointer-events:none}
+    .flow-png-phone .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+    /* Tablet: 918×654 (iPad PNG, same height as single phone) */
+    .flow-png-tablet{position:relative;width:918px;height:654px;flex-shrink:0}
+    .flow-png-tablet .device-screen{position:absolute;left:4.17%;top:5.64%;width:91.63%;height:88.67%;overflow:hidden;border-radius:7px;background:#fff;z-index:1}
+    .flow-png-tablet .device-screen iframe{width:768px;height:529px;transform:scale(1.096);transform-origin:top left;border:0;display:block;background:white}
+    .flow-png-tablet .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+
+    /* Iframe inside screen */
+    .device-screen iframe{display:block;border:0;pointer-events:none;background:white}
+
+    /* Tap overlay */
+    .tap-overlay{position:absolute;inset:0;z-index:10;cursor:pointer;background:transparent}
+
+    /* ── DEVICE NOTIFICATION BANNER ── */
+    .device-notif-banner{
+      position:absolute;
+      top:10px;left:8px;right:8px;
+      background:rgba(252,252,254,.94);
+      backdrop-filter:saturate(200%) blur(32px);
+      -webkit-backdrop-filter:saturate(200%) blur(32px);
+      border-radius:18px;
+      padding:11px 12px;
+      display:flex;align-items:center;gap:10px;
+      box-shadow:0 4px 28px rgba(0,0,0,.15),0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05);
+      z-index:20;pointer-events:none;
+      animation:dnb-in .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .device-notif-banner.bottom{
+      top:auto;bottom:10px;
+      animation:dnb-up .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes dnb-in{from{transform:translateY(-100px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes dnb-up{from{transform:translateY(80px);opacity:0} to{transform:none;opacity:1}}
+
+    /* Pulsing ring — tappable hint */
+    .device-notif-banner.tappable{animation:dnb-in .5s cubic-bezier(.34,1.56,.64,1) both}
+    .device-notif-banner.tappable::after{
+      content:'';position:absolute;inset:-3px;border-radius:21px;
+      border:1.5px solid rgba(44,122,252,.45);
+      animation:notif-ring 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .device-notif-banner.bottom.tappable::after{border-radius:21px}
+    @keyframes notif-ring{0%,100%{opacity:.7;transform:scale(1)} 50%{opacity:.15;transform:scale(1.025)}}
+
+    .dnb-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .dnb-icon.sos     {background:var(--red)}
+    .dnb-icon.care    {background:var(--green)}
+    .dnb-icon.ai      {background:var(--blue)}
+    .dnb-icon.guardian{background:var(--ink)}
+    .dnb-icon-label{font-size:13px;font-weight:800;color:white;letter-spacing:-.01em}
+
+    .dnb-body{flex:1;min-width:0}
+    .dnb-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.25}
+    .dnb-msg{font-size:11px;color:var(--mute);margin-top:2px;letter-spacing:-.005em;line-height:1.3}
+    .dnb-time{font-size:10px;color:rgba(0,0,0,.25);flex-shrink:0;align-self:flex-start;margin-top:2px;white-space:nowrap}
+
+    /* iPad/tablet: notification pill centered — uses own keyframes to preserve translateX(-50%) */
+    @keyframes dnb-in-tablet{from{transform:translateX(-50%) translateY(-80px);opacity:0}to{transform:translateX(-50%);opacity:1}}
+    @keyframes dnb-up-tablet{from{transform:translateX(-50%) translateY(60px);opacity:0} to{transform:translateX(-50%);opacity:1}}
+
+    .flow-png-tablet .device-notif-banner,
+    .flow-png-tablet .device-notif-banner.tappable,
+    .sc-ipad-screen .device-notif-banner,
+    .sc-ipad-screen .device-notif-banner.tappable {
+      left:50%;right:auto;
+      width:max-content;max-width:320px;min-width:240px;
+      top:14px;
+      animation:dnb-in-tablet .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .flow-png-tablet .device-notif-banner.bottom,
+    .flow-png-tablet .device-notif-banner.bottom.tappable,
+    .sc-ipad-screen .device-notif-banner.bottom,
+    .sc-ipad-screen .device-notif-banner.bottom.tappable {
+      top:auto;bottom:14px;
+      animation:dnb-up-tablet .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    /* Phase enter/exit */
+    @keyframes enter-right  {from{transform:translateX(64px);opacity:0} to{transform:none;opacity:1}}
+    @keyframes enter-left   {from{transform:translateX(-64px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes enter-center {from{opacity:0;transform:scale(.94)}       to{opacity:1;transform:none}}
+    @keyframes exit-left    {from{transform:none;opacity:1}to{transform:translateX(-80px);opacity:0}}
+    @keyframes exit-right   {from{transform:none;opacity:1}to{transform:translateX(80px);opacity:0}}
+    @keyframes exit-fade    {from{opacity:1}to{opacity:0;transform:scale(.96)}}
+    .anim-enter-right {animation:enter-right  .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-enter-left  {animation:enter-left   .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-enter-center{animation:enter-center .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-exit-left   {animation:exit-left  .32s ease forwards}
+    .anim-exit-right  {animation:exit-right .32s ease forwards}
+    .anim-exit-fade   {animation:exit-fade  .32s ease forwards}
+
+    /* AI panel content */
+    .ai-header{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-shrink:0;position:relative}
+    .ai-dot-pulse{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:ai-blink 1.5s ease-in-out infinite}
+    @keyframes ai-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .ai-header-label{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+    .ai-lines{display:flex;flex-direction:column;gap:0;flex:1;position:relative}
+    .ai-line{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);opacity:0;animation:ai-appear .4s ease both}
+    .ai-line:last-child{border-bottom:none}
+    .ai-line-title{font-size:13px;color:rgba(255,255,255,.6);font-weight:400;margin-bottom:3px}
+    .ai-line-title.bold{font-weight:600;color:white}
+    .ai-line-title.blue{color:var(--blue);font-weight:600}
+    .ai-line-sub{font-size:11px;color:rgba(255,255,255,.28);line-height:1.4}
+    .ai-line-sub.blue{color:rgba(44,122,252,.5)}
+    @keyframes ai-appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .ai-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);font-size:10px;color:rgba(255,255,255,.16);letter-spacing:.06em;position:relative}
+
+    /* ── COMPLETE ── */
+    #complete-screen{
+      display:none;flex-direction:column;align-items:center;justify-content:center;
+      gap:24px;text-align:center;padding:48px;width:100%;height:100%;background:var(--sys);
+    }
+    #complete-screen.show{display:flex}
+    .complete-headline{font-size:clamp(26px,4vw,40px);font-weight:700;color:var(--ink);letter-spacing:-.03em;line-height:1.2}
+    .complete-flow-pills{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+    .flow-pill{font-size:12px;color:rgba(0,0,0,.5);background:rgba(0,0,0,.06);padding:6px 16px;border-radius:100px}
+    .flow-pill-arrow{font-size:12px;color:rgba(0,0,0,.2)}
+    .complete-sub{font-size:15px;color:var(--mute);letter-spacing:-.01em}
+    #complete-cta{
+      background:var(--ink);color:white;
+      padding:15px 32px;border-radius:14px;
+      font-size:14px;font-weight:600;letter-spacing:-.01em;
+      display:inline-flex;align-items:center;gap:10px;
+      transition:background .2s,transform .1s;
+    }
+    #complete-cta:hover{background:var(--blue)}
+
+    /* ═══════════════════════ MAIN PAGE ═══════════════════════ */
+    #main-page{filter:blur(14px);opacity:.25;pointer-events:none;user-select:none;transition:filter .7s ease,opacity .7s ease}
+    #main-page.revealed{filter:none;opacity:1;pointer-events:auto;user-select:auto}
+
+    .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+    section{padding-top:var(--pad-section);padding-bottom:var(--pad-section)}
+    .hairline{height:1px;background:var(--line);width:100%}
+    .progress-bar{position:fixed;top:0;left:0;height:2px;background:var(--blue);width:0%;z-index:200;transition:width .08s linear}
+    .topbar{
+      position:fixed;top:0;left:0;right:0;height:60px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--gutter);z-index:100;
+      background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(14px);
+      -webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s;
+    }
+    .topbar.scrolled{border-bottom-color:var(--line)}
+    .topbar-left{display:flex;align-items:center;gap:10px}
+    .logo-mark{width:18px;height:18px}
+    .logo-text{font-size:14px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+    .topbar-nav{display:flex;gap:28px}
+    .nav-link{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);transition:color .2s;position:relative;padding-bottom:2px}
+    .nav-link::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+    .nav-link:hover,.nav-link.active{color:var(--ink)}
+    .nav-link.active::after{transform:scaleX(1)}
+
+    .hero{min-height:100vh;padding:0;display:flex;flex-direction:column;position:relative;overflow:hidden;background:url('Gemini_Generated_Image_nagze5nagze5nagz.png') center 30%/cover no-repeat}
+    .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.45) 55%,rgba(255,255,255,.08) 100%);z-index:1}
+    .hero-inner{position:relative;z-index:2;max-width:var(--container);margin:0 auto;padding:100px var(--gutter) 0;flex:1;display:flex;flex-direction:column;width:100%}
+    .hero-body{display:flex;flex-direction:column;justify-content:flex-end;flex:1;padding-bottom:64px;max-width:680px}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px}
+    .hero-eyebrow::before{content:'';display:inline-block;width:6px;height:6px;background:var(--blue);border-radius:50%;flex-shrink:0}
+    .hero-title{font-size:clamp(72px,11vw,148px);font-weight:700;line-height:.95;letter-spacing:-.05em;color:var(--ink);margin-bottom:40px}
+    .hero-sub{font-size:clamp(17px,1.6vw,20px);font-weight:400;line-height:1.7;color:var(--ink-2);max-width:46ch;letter-spacing:-.01em;margin-bottom:52px}
+    .hero-sub strong{font-weight:600;color:var(--ink)}
+    .hero-actions{display:flex;align-items:center;gap:28px}
+    .btn-primary{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;background:var(--blue);color:white;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;transition:transform .2s ease,box-shadow .2s ease;border-radius:12px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(44,122,252,.35)}
+    .btn-primary:active{transform:translateY(0);box-shadow:none}
+    .btn-primary::after{content:"→"}
+    .hero-hint{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute-2)}
+    .hero-foot{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-top:1px solid rgba(255,255,255,.18)}
+    .hero .hero-eyebrow{color:var(--mute)}
+    .hero .hero-eyebrow::before{background:var(--blue)}
+    .hero .hero-title{color:var(--ink)}
+    .hero .hero-sub{color:var(--ink-2)}
+    .hero .hero-sub strong{color:var(--ink)}
+    .hero .hero-hint{color:var(--mute)}
+    .hero-tags{display:flex;gap:24px}
+    .hero-tag{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+    .hero-feed{background:var(--paper);border:1px solid var(--line);padding:24px;border-radius:20px;align-self:end}
+    .hf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+    .hf-time{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+    .hf-live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#22C55E}
+    .hf-live::before{content:'';width:5px;height:5px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:hf-blink 2s ease-in-out infinite}
+    @keyframes hf-blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .hf-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+    .hf-item:last-of-type{border-bottom:0}
+    .hf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;background:var(--mute-2);position:relative}
+    .hf-dot.care{background:#22C55E}.hf-dot.ai-dot{background:var(--blue);width:10px;height:10px;margin-top:3px}.hf-dot.guardian{background:var(--ink)}.hf-dot.medical{background:var(--mute)}
+    .hf-pulse{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--blue);animation:hf-pulse 2.2s ease-out infinite}
+    @keyframes hf-pulse{0%{opacity:.7;transform:scale(.7)}100%{opacity:0;transform:scale(2.4)}}
+    .hf-body{flex:1;min-width:0}
+    .hf-who{display:block;font-size:12px;font-weight:600;color:var(--ink);letter-spacing:-.01em;line-height:1.3}
+    .hf-what{display:block;font-size:11px;color:var(--mute);letter-spacing:-.005em;margin-top:2px;line-height:1.4}
+    .hf-badge{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);white-space:nowrap;flex-shrink:0;margin-top:2px}
+    .hf-badge.done{color:#22C55E}.hf-badge.alert{color:#EF4444}
+    .hf-stat{display:flex;justify-content:space-between;align-items:baseline;padding-top:18px;margin-top:4px;border-top:1px solid var(--line)}
+    .hf-stat-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .hf-stat-val{font-size:28px;font-weight:700;letter-spacing:-.04em;color:var(--ink);font-feature-settings:"tnum" 1}
+    .hf-stat-val small{font-size:13px;font-weight:500;color:var(--mute);margin-left:2px}
+
+    .sec-head{margin-bottom:72px}
+    .sec-eyebrow{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:18px}
+    .sec-title{font-size:clamp(32px,4.5vw,52px);font-weight:700;line-height:1.15;letter-spacing:-.03em;color:var(--ink);margin-bottom:20px}
+    .sec-title em{font-style:normal;color:var(--blue)}
+    .sec-sub{max-width:60ch;font-size:17px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;font-weight:400}
+    .overview-grid{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .overview-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+    .overview-body p{font-size:18px;line-height:1.85;color:var(--ink-2);letter-spacing:-.01em}
+    .overview-body p+p{margin-top:24px}
+    .overview-body strong{font-weight:600;color:var(--ink)}
+    /* ── MARKET RESEARCH ─────────────────────────── */
+    .mkt-section{background:var(--paper)}
+    .mkt-inner{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .mkt-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+    .mkt-statement{font-size:clamp(22px,2.4vw,30px);font-weight:600;line-height:1.5;letter-spacing:-.025em;color:var(--ink);margin-bottom:12px}
+    .mkt-sub{font-size:15px;line-height:1.8;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:48px}
+    .mkt-sub em{font-style:normal;font-weight:600;color:var(--ink)}
+    .mkt-chart-wrap{margin-bottom:48px}
+    .mkt-chart-hed{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:20px}
+    .mkt-chart-svg{width:100%;height:auto;display:block;overflow:visible}
+    .mkt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E8E8E8;border:1px solid #E8E8E8;border-radius:16px;overflow:hidden}
+    .mkt-stat{background:white;padding:28px 24px}
+    .mkt-stat-num{font-size:38px;font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1}
+    .mkt-stat-num sup{font-size:16px;font-weight:500;color:var(--mute);vertical-align:super;margin-left:2px}
+    .mkt-stat-desc{font-size:13px;line-height:1.65;color:var(--ink-2);margin-top:8px}
+    .mkt-stat-source{font-size:10px;font-weight:500;letter-spacing:.08em;color:#B5B5B5;margin-top:10px;text-transform:uppercase}
+
+    /* ── Pain bridge + scroll zone ── */
+    /* pain-zone: 질문(100vh) + 카피(180px×7) 통합 */
+    .pain-zone{height:100vh;position:relative;background:var(--paper);overflow:hidden}
+    .pain-driver{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;z-index:2}
+    .pain-driver::-webkit-scrollbar{display:none}
+    .pain-anchor{height:100vh;scroll-snap-align:start;scroll-snap-stop:always}
+    .pain-stage{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .pain-list{position:absolute;top:0;left:0;width:100%;transition:transform .72s cubic-bezier(.16,1,.3,1);will-change:transform}
+    /* intro item: 질문 전체화면 */
+    .pain-item--intro{height:100vh;display:flex;align-items:center;justify-content:center;padding:0 clamp(32px,8vw,140px);text-align:center}
+    .pain-copy--intro{font-size:clamp(28px,4vw,52px);font-weight:700;letter-spacing:-.03em;color:var(--ink);line-height:1.3;opacity:1!important;transform:none!important;transition:none!important}
+    /* copy items: 180px 슬라이딩 */
+    .pain-item{height:180px;display:flex;align-items:center;justify-content:center;padding:0 clamp(32px,8vw,140px);text-align:center}
+    .pain-copy{font-size:clamp(24px,3.8vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.38;color:var(--ink);text-align:center;opacity:.04;transform:scale(.84);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1)}
+    .pain-item[data-dist="0"] .pain-copy{opacity:1;transform:scale(1)}
+    .pain-item[data-dist="1"] .pain-copy{opacity:.18;transform:scale(.93)}
+    .pain-item[data-dist="2"] .pain-copy{opacity:.08;transform:scale(.88)}
+    .pain-item[data-dist="3"] .pain-copy{opacity:.04;transform:scale(.84)}
+
+    .pain-nav{position:absolute;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;pointer-events:none}
+    .pain-dot{width:4px;height:4px;border-radius:50%;background:#d0d0d0;transition:background .4s,transform .4s}
+    .pain-dot.on{background:var(--ink);transform:scale(1.6)}
+
+    .pain-scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2);white-space:nowrap;pointer-events:none;animation:pain-cue 2.2s ease-in-out infinite}
+    @keyframes pain-cue{0%,100%{opacity:.9;transform:translateX(-50%) translateY(0)}55%{opacity:.35;transform:translateX(-50%) translateY(6px)}}
+
+    .concept{background:var(--dark);color:white}
+    .concept-inner{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .concept-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+    .concept-statement{font-size:clamp(28px,3.6vw,44px);font-weight:400;line-height:1.4;letter-spacing:-.02em;color:white}
+    .concept-statement em{font-style:normal;color:var(--blue);font-weight:600}
+    .concept-meta{margin-top:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding-top:40px;border-top:1px solid rgba(255,255,255,.1)}
+    .concept-meta-cell .ck{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+    .concept-meta-cell .cv{font-size:15px;color:rgba(255,255,255,.72);line-height:1.62;letter-spacing:-.01em}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .stat{padding:56px 32px;background:white}
+    .stat-num{font-size:clamp(48px,6vw,72px);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);margin-bottom:16px;font-feature-settings:"tnum" 1}
+    .stat-num .unit{font-size:.4em;font-weight:500;color:var(--mute);margin-left:6px}
+    .stat-desc{font-size:15px;line-height:1.6;color:var(--ink-2);margin-bottom:16px;max-width:24ch;letter-spacing:-.005em}
+    .stat-source{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+    .persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .persona{padding:48px 32px;background:white}
+    .persona-tag{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:24px}
+    .persona-name{font-size:28px;font-weight:600;letter-spacing:-.025em;color:var(--ink);margin-bottom:6px}
+    .persona-meta{font-size:13px;color:var(--mute);margin-bottom:28px;letter-spacing:-.005em}
+    .persona-quote{font-size:15px;font-weight:400;line-height:1.72;color:var(--ink-2);letter-spacing:-.008em;padding:18px 20px;background:var(--paper);border-radius:12px}
+    .roles-list{border-top:1px solid var(--line)}
+    .role-row{display:grid;grid-template-columns:56px 1fr 2fr 90px;gap:48px;align-items:baseline;padding:36px 0;border-bottom:1px solid var(--line)}
+    .role-num{font-size:12px;font-weight:500;color:var(--mute);font-feature-settings:"tnum" 1}
+    .role-name{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+    .role-name span{display:block;font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+    .role-desc{font-size:15px;line-height:1.7;color:var(--ink-2);letter-spacing:-.01em}
+    .role-platform{font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;text-align:right}
+    .closing{padding-top:clamp(140px,18vw,220px);padding-bottom:clamp(140px,18vw,220px);text-align:center}
+    .closing-mark{font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:48px}
+    .closing-title{font-size:clamp(40px,6vw,80px);font-weight:700;line-height:1.1;letter-spacing:-.04em;color:var(--ink);margin-bottom:28px}
+    .closing-title em{font-style:normal;color:var(--blue)}
+    .closing-line{font-size:17px;line-height:1.72;color:var(--ink-2);max-width:38ch;margin:0 auto 56px;letter-spacing:-.01em}
+    .closing-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border:1px solid var(--ink);font-size:13px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);transition:all .2s;border-radius:12px}
+    .closing-cta:hover{background:var(--ink);color:white}
+    .closing-cta::after{content:"→"}
+    footer{padding:40px var(--gutter);border-top:1px solid var(--line)}
+    .ft-wrap{max-width:var(--container);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap}
+    .ft-brand{display:flex;align-items:center;gap:10px}
+    .ft-meta{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
+    .reveal.in{opacity:1;transform:none}
+
+    /* ── INTERACTIVE TOGGLE ── */
+    #interact-toggle{
+      position:absolute;left:24px;top:50%;transform:translateY(-50%);
+      background:rgba(0,0,0,.06);color:rgba(0,0,0,.42);
+      padding:7px 14px;border-radius:100px;
+      font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+      transition:all .2s;
+    }
+    #interact-toggle:hover{background:rgba(0,0,0,.1);color:var(--ink)}
+    #interact-toggle.on{background:var(--ink);color:white}
+    #flow-stage.interact-mode .tap-overlay{display:none}
+    #flow-stage.interact-mode iframe{pointer-events:auto !important}
+    #flow-stage.interact-mode .device-notif-banner.tappable::after{display:none}
+    #interact-next-wrap{display:none;justify-content:center;padding-top:14px}
+    #interact-next-wrap.show{display:flex}
+    #interact-next{
+      background:var(--ink);color:white;
+      padding:11px 28px;border-radius:12px;
+      font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:.04em;
+      transition:background .2s;
+    }
+    #interact-next:hover{background:var(--blue)}
+
+    /* ── SHOWCASE SECTION ── */
+    .showcase-tabs{display:flex;gap:8px;margin-bottom:56px;flex-wrap:wrap}
+    .sc-tab{
+      padding:10px 24px;border-radius:100px;
+      font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:-.01em;
+      color:var(--mute);background:var(--paper);border:1px solid var(--line);
+      transition:all .2s;cursor:pointer;
+    }
+    .sc-tab:hover{border-color:var(--ink-2);color:var(--ink)}
+    .sc-tab.active{background:var(--ink);color:white;border-color:var(--ink)}
+    .showcase-stage{display:flex;justify-content:center;gap:40px;align-items:flex-start;flex-wrap:wrap;min-height:640px}
+    .showcase-hint{text-align:center;margin-top:32px;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+
+    /* ── PNG DEVICE MOCKUPS (Showcase) ── */
+    .sc-device-col{display:flex;flex-direction:column;align-items:center;gap:28px;width:100%}
+    .sc-screen-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .sc-stab{padding:7px 16px;border:1px solid var(--line);border-radius:100px;background:transparent;color:var(--mute);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font)}
+    .sc-stab:hover{border-color:rgba(0,0,0,.3);color:var(--ink)}
+    .sc-stab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    /* Phone */
+    .sc-phone-wrap{position:relative;width:360px;height:736px;flex-shrink:0}
+    .sc-phone-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-phone-screen{position:absolute;left:5.33%;top:7.97%;width:89.26%;height:89.49%;overflow:hidden;background:transparent;z-index:1}
+    .sc-phone-screen iframe{position:absolute;left:0;top:0;width:390px;height:801px;transform:scale(0.823);transform-origin:top left;border:none;pointer-events:auto;display:block}
+    .sc-ios-statusbar{position:absolute;left:5.33%;top:5.4%;width:89.26%;z-index:2;display:flex;align-items:center;pointer-events:none}
+    .sc-ios-sb-left{width:34%;display:flex;justify-content:center;align-items:center}
+    .sc-ios-sb-mid{flex:0 0 32%}
+    .sc-ios-sb-right{width:34%;display:flex;justify-content:center;align-items:center;gap:5px}
+    .sc-ios-statusbar img{height:11px;width:auto;display:block}
+    /* iPad */
+    .sc-ipad-wrap{position:relative;width:720px;height:513px;flex-shrink:0}
+    .sc-ipad-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-ipad-screen{position:absolute;left:4.17%;top:5.64%;width:91.63%;height:88.67%;overflow:hidden;border-radius:10px;background:#fff;z-index:1}
+    .sc-ipad-screen iframe{width:1102px;height:760px;transform:scale(0.599);transform-origin:top left;border:none;pointer-events:auto;display:block}
+    /* iMac */
+    .sc-imac-wrap{position:relative;width:820px;height:698px;flex-shrink:0}
+    .sc-imac-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-imac-screen{position:absolute;left:2.60%;top:3.40%;width:94.80%;height:62.80%;overflow:hidden;background:#fff;z-index:1;display:flex;flex-direction:column}
+    .sc-browser-bar{flex-shrink:0;height:34px;background:#EBEBEB;border-bottom:1px solid #CACACA;display:flex;align-items:center;padding:0 12px;gap:8px}
+    .sc-b-dots{display:flex;gap:6px}
+    .sc-b-dot{width:11px;height:11px;border-radius:50%}
+    .sc-b-dot.r{background:#FF5F57}.sc-b-dot.y{background:#FEBC2E}.sc-b-dot.g{background:#28C840}
+    .sc-b-url{flex:1;height:20px;background:#fff;border-radius:5px;margin:0 60px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;font-family:-apple-system,sans-serif}
+    .sc-browser-content{flex:1;overflow:hidden;position:relative}
+    .sc-browser-content iframe{width:1200px;height:622px;transform:scale(0.643);transform-origin:top left;border:none;pointer-events:auto;display:block}
+
+    /* ═══════════════════ CONNECTION ═══════════════════ */
+    .conn-wrap{display:flex;flex-direction:column;align-items:center;gap:64px}
+    .conn-diagram{position:relative;width:480px;height:380px;flex-shrink:0}
+    .conn-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .conn-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .conn-node.patient {top:0;left:50%;transform:translateX(-50%)}
+    .conn-node.guardian{bottom:0;left:0}
+    .conn-node.medical {bottom:0;right:0}
+    .conn-circle{
+      width:72px;height:72px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;color:white;letter-spacing:.04em;
+    }
+    .conn-node.guardian .conn-circle{background:var(--blue)}
+    .conn-node.medical  .conn-circle{background:var(--green)}
+    .conn-node.patient  .conn-circle{background:var(--orange)}
+    .conn-node-label{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+    .conn-node-sub{font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+    .conn-center{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+    }
+    .conn-center-logo{width:28px;height:28px}
+    .conn-center-badge{
+      font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--green);background:rgba(34,197,94,.1);padding:5px 12px;border-radius:100px;white-space:nowrap;
+    }
+    .conn-compare{
+      display:flex;align-items:center;gap:56px;
+      padding:36px 64px;border:1px solid var(--line);border-radius:20px;background:var(--paper);
+    }
+    .cc-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .cc-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .cc-val{font-size:36px;font-weight:700;letter-spacing:-.04em}
+    .cc-col.competitor .cc-val{color:var(--mute-2)}
+    .cc-col.haru .cc-val{color:var(--ink)}
+    .cc-note{font-size:13px;color:var(--mute);letter-spacing:-.005em;text-align:center}
+    .cc-divider{font-size:12px;font-weight:500;color:var(--mute-2);letter-spacing:.1em}
+
+    /* ═══════════════════ DAILY REPORT SECTION ═══════════════════ */
+    .report-section{background:white;padding:120px 0 140px;overflow:hidden}
+    .report-sec-head{text-align:center;margin-bottom:80px}
+    /* Stage: centered phone + floating UI cards */
+    .report-stage{
+      position:relative;
+      display:flex;justify-content:center;align-items:center;
+      min-height:800px;
+      max-width:1120px;margin:0 auto;padding:60px var(--gutter);
+    }
+    .report-phone-hero{position:relative;z-index:2}
+    .report-phone-hero .flow-png-phone{
+      transform:scale(1.1);transform-origin:center center;
+      filter:drop-shadow(0 40px 80px rgba(0,0,0,.13)) drop-shadow(0 8px 24px rgba(0,0,0,.07));
+    }
+    /* ── Sleep widget float ── */
+    .sleep-float{
+      position:absolute;
+      left:calc(50% + 110px);
+      top:50%;
+      transform:translateY(-50%) scale(1.13);
+      transform-origin:left center;
+      width:272px;
+      z-index:10;
+      filter:drop-shadow(0 28px 64px rgba(0,0,0,.14)) drop-shadow(0 4px 16px rgba(0,0,0,.08));
+    }
+    .sleep-float .sf-w{
+      background:rgba(255,255,255,.98);
+      border:1px solid rgba(0,0,0,.07);
+      border-radius:20px;
+      padding:18px;
+      font-family:var(--font);
+      -webkit-font-smoothing:antialiased;
+    }
+    .sleep-float .sf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .sleep-float .sf-title{font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:6px;letter-spacing:-.3px}
+    .sleep-float .sf-big{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px;color:#111827}
+    .sleep-float .sf-big span{font-size:16px;font-weight:600;opacity:.4}
+    .sleep-float .sf-sub{font-size:11px;color:rgba(0,0,0,.35)}
+    .sleep-float .sf-chart{margin-top:10px}
+    .sleep-float .sf-bars{display:flex;align-items:flex-end;gap:5px;height:96px;padding:0 2px}
+    .sleep-float .sf-bars .sb{flex:1;border-radius:4px;min-height:3px}
+    .sleep-float .sf-ticks{display:flex;margin-top:4px;height:10px;position:relative}
+    .sleep-float .sf-ticks .tk{flex:1;position:relative}
+    .sleep-float .sf-ticks .tk::before{content:'';position:absolute;left:0;top:0;width:1px;height:4px;background:rgba(0,0,0,.13)}
+    .sleep-float .sf-ticks .tk.major::before{height:9px;background:rgba(0,0,0,.45);width:1.5px}
+    .sleep-float .sf-ticks::after{content:'';position:absolute;right:0;top:0;width:1.5px;height:9px;background:rgba(0,0,0,.45)}
+    .sleep-float .sf-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:rgba(0,0,0,.35);font-weight:600;letter-spacing:.2px}
+    .sleep-float .sf-legend{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:10px;color:rgba(0,0,0,.35);font-weight:500}
+    .sleep-float .sf-legend .grad-bar{flex:1;height:5px;border-radius:3px;background:linear-gradient(90deg,hsl(217,85%,88%) 0%,hsl(217,90%,69%) 50%,hsl(217,95%,50%) 100%)}
+
+    /* ═══════════════════ ROI ═══════════════════ */
+    .roi-section{background:var(--paper)}
+    .roi-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .roi-controls{display:flex;flex-direction:column;gap:44px;padding-top:8px}
+    .roi-control{display:flex;flex-direction:column;gap:16px}
+    .roi-control-header{display:flex;justify-content:space-between;align-items:baseline}
+    .roi-control-label{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+    .roi-control-val{font-size:24px;font-weight:700;color:var(--green);letter-spacing:-.04em;font-feature-settings:"tnum" 1}
+    .roi-slider{
+      -webkit-appearance:none;appearance:none;
+      width:100%;height:3px;border-radius:2px;background:var(--line);outline:none;cursor:pointer;
+    }
+    .roi-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:22px;height:22px;border-radius:50%;background:var(--ink);cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .1s;
+    }
+    .roi-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+    .roi-results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .roi-result{padding:28px 24px;border-radius:16px;background:white;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+    .roi-result-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .roi-result-val{font-size:clamp(28px,3.5vw,40px);font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1;font-feature-settings:"tnum" 1;transition:color .3s}
+    .roi-result-val span{font-size:.38em;font-weight:500;color:var(--mute);margin-left:3px}
+    .roi-result-note{font-size:12px;color:var(--mute);letter-spacing:-.005em}
+    .roi-result-val.highlight{color:var(--green)}
+
+    /* ═══════════════════ PERSONA ENHANCED ═══════════════════ */
+    .persona-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .persona-v2{padding:40px 32px;background:white;display:flex;flex-direction:column}
+    .persona-role-badge{
+      display:inline-flex;align-items:center;
+      font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      padding:5px 12px;border-radius:100px;align-self:flex-start;margin-bottom:20px;
+    }
+    .persona-role-badge.guardian{background:rgba(44,122,252,.08);color:var(--blue)}
+    .persona-role-badge.medical {background:rgba(34,197,94,.08);color:var(--green)}
+    .persona-role-badge.patient {background:rgba(251,146,60,.08);color:var(--orange)}
+    .persona-v2 .p2-name{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink);margin-bottom:4px}
+    .persona-v2 .p2-meta{font-size:12px;color:var(--mute);margin-bottom:22px;letter-spacing:-.005em}
+    .persona-v2 .p2-pain{font-size:14px;font-weight:400;line-height:1.75;color:var(--ink-2);padding:16px 18px;background:var(--paper);border-radius:12px;margin-bottom:24px;flex:1}
+    .persona-v2 .p2-change-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+    .persona-v2 .p2-change{font-size:14px;font-weight:500;line-height:1.6;color:var(--ink);letter-spacing:-.01em}
+
+    /* CTA block */
+    .cta-block{background:var(--paper);padding:clamp(80px,12vw,140px) var(--gutter);text-align:center}
+    .cta-title{font-size:clamp(36px,5.5vw,72px);font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1.1;margin-bottom:18px}
+    .cta-sub{font-size:17px;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:52px}
+    .cta-btns{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap}
+    .cta-btn-primary{
+      padding:16px 32px;border-radius:14px;background:var(--ink);color:white;
+      font-family:var(--font);font-size:14px;font-weight:600;letter-spacing:-.01em;
+      cursor:pointer;border:none;transition:all .2s;
+    }
+    .cta-btn-primary:hover{background:var(--ink-2);transform:translateY(-2px)}
+    .cta-btn-secondary{
+      display:inline-block;padding:16px 32px;border-radius:14px;background:transparent;color:var(--ink-2);
+      border:1px solid var(--line);font-family:var(--font);font-size:14px;font-weight:500;
+      letter-spacing:-.01em;cursor:pointer;transition:all .2s;
+    }
+    .cta-btn-secondary:hover{background:var(--line-soft);color:var(--ink)}
+
+    @media(max-width:900px){
+      .topbar-nav{display:none}
+      .hero-body{max-width:100%}
+      .overview-grid,.concept-inner,.mkt-inner{grid-template-columns:1fr;gap:28px}
+      .mkt-stats{grid-template-columns:1fr}
+      .stats-row,.persona-grid{grid-template-columns:1fr;border-radius:16px}
+      .role-row{grid-template-columns:40px 1fr;gap:16px}
+      .role-row .role-desc,.role-row .role-platform{grid-column:2}
+      .concept-meta{grid-template-columns:1fr;gap:24px}
+      .conn-diagram{width:320px;height:280px}
+      .conn-compare{flex-direction:column;gap:24px;padding:28px 32px}
+      .sleep-float{display:none}
+      .report-stage{min-height:auto;padding:20px var(--gutter)}
+      .report-phone-hero .flow-png-phone{transform:scale(.88)}
+      .ai-cards{grid-template-columns:1fr}
+      .roi-inner{grid-template-columns:1fr;gap:40px}
+      .roi-results-grid{grid-template-columns:1fr}
+      .persona-v2-grid{grid-template-columns:1fr}
+      #flow-stage{padding:16px;gap:16px}
+      .flow-png-phone{zoom:0.67}
+      .flow-png-tablet{zoom:0.37}
+      .intro-stack{max-width:calc(100vw - 48px)}
+    }
+
+    /* ── TIMESTAMP INSERT ── */
+    #timestamp-screen{
+      position:absolute;inset:0;z-index:30;
+      background:#0A0A0A;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+      opacity:0;pointer-events:none;
+      transition:opacity .45s ease;
+    }
+    #timestamp-screen.show{opacity:1;pointer-events:auto}
+    #timestamp-screen.out{opacity:0;pointer-events:none}
+    .ts-time{font-size:clamp(36px,6vw,72px);font-weight:700;letter-spacing:-.04em;color:white;opacity:0;animation:fade-up .5s ease .15s both}
+    .ts-ctx{font-size:13px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.36);opacity:0;animation:fade-up .5s ease .35s both}
+
+    /* ── MORNING INSERT ── */
+    #morning-insert{
+      position:absolute;inset:0;z-index:25;
+      background:#0A0A0A;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+      opacity:0;pointer-events:none;
+      transition:opacity .4s ease;
+    }
+    #morning-insert.show{opacity:1;pointer-events:none}
+    .mi-time{font-size:clamp(28px,5vw,52px);font-weight:700;letter-spacing:-.04em;color:white;opacity:0;animation:fade-up .5s ease .1s both}
+    .mi-sub{font-size:11px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);opacity:0;animation:fade-up .5s ease .3s both}
+
+    /* ── SPEED BADGE ── */
+    .speed-badge{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:5px;flex-shrink:0;
+      opacity:0;animation:sb-pop .45s cubic-bezier(.34,1.56,.64,1) .6s both;
+    }
+    @keyframes sb-pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+    .sb-num{font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--ink)}
+    .sb-label{font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+    /* ── CTX LOCATION ── */
+    .ctx-location{
+      position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+      font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--mute);white-space:nowrap;
+      opacity:0;animation:fade-up .45s ease .5s both;
+    }
+
+    /* ── APPROVAL FLASH ── */
+    @keyframes apv-flash{
+      0%{opacity:0;transform:scale(.85)}
+      35%{opacity:1;transform:scale(1)}
+      100%{opacity:0;transform:scale(1.06)}
+    }
+    .approval-flash{
+      position:absolute;inset:0;z-index:30;
+      background:rgba(34,197,94,.13);
+      display:flex;align-items:center;justify-content:center;
+      animation:apv-flash .65s ease forwards;
+      pointer-events:none;border-radius:inherit;
+    }
+    .apv-icon{font-size:56px;color:#22C55E}
+
+    /* ── AI TYPING LINES ── */
+    .ai-line-typed{
+      padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);
+      opacity:0;animation:ai-appear .4s ease both;
+    }
+    .ai-line-typed:last-child{border-bottom:none}
+    .ai-line-typed .ai-line-title{font-size:13px;color:rgba(255,255,255,.6);font-weight:400;margin-bottom:3px}
+    .ai-line-typed .ai-line-title.bold{font-weight:600;color:white}
+    .ai-line-typed .ai-line-title.blue{color:var(--blue);font-weight:600}
+    .ai-line-typed .ai-line-sub{font-size:11px;color:rgba(255,255,255,.28);line-height:1.4}
+    .ai-line-typed .ai-line-sub.blue{color:rgba(44,122,252,.5)}
+
+    /* ── LOCK SCREEN DEVICE ── */
+    .lsphone-bg{
+      position:absolute;inset:0;
+      background:linear-gradient(175deg,#1a6fdd 0%,#0e4fc7 30%,#0838a8 62%,#041e6b 100%);
+      overflow:hidden;font-family:'Pretendard Variable',-apple-system,sans-serif;
+    }
+    .ls-time-block{display:flex;flex-direction:column;align-items:center;padding-top:44px}
+    .ls-date{font-size:14px;color:rgba(255,255,255,.82);font-weight:400;letter-spacing:.01em;margin-bottom:2px}
+    .ls-clock{font-size:74px;font-weight:200;color:#fff;letter-spacing:-.04em;line-height:1}
+    .ls-notif-wrap{position:absolute;top:188px;left:0;right:0;padding:0 10px;display:flex;flex-direction:column;gap:8px}
+    .ls-notif-card{
+      background:rgba(255,255,255,.22);
+      backdrop-filter:blur(30px) saturate(180%);
+      -webkit-backdrop-filter:blur(30px) saturate(180%);
+      border-radius:18px;padding:13px 14px 12px;
+      border:1px solid rgba(255,255,255,.28);
+      position:relative;
+      animation:ls-card-in .6s cubic-bezier(.34,1.56,.64,1) .5s both;
+    }
+    @keyframes ls-card-in{from{transform:translateY(-48px);opacity:0}to{transform:none;opacity:1}}
+    .ls-notif-card.tappable::after{
+      content:'';position:absolute;inset:-3px;border-radius:21px;
+      border:1.5px solid rgba(255,255,255,.4);
+      animation:notif-ring 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .ls-notif-hd{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+    .ls-notif-icon{
+      width:19px;height:19px;border-radius:5px;background:var(--blue);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .ls-notif-app{font-size:11px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .ls-notif-ago{font-size:11px;color:rgba(255,255,255,.48)}
+    .ls-notif-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.3;margin-bottom:4px}
+    .ls-notif-body{font-size:12px;color:rgba(255,255,255,.78);line-height:1.4}
+    .ls-notif-actions{display:flex;gap:8px;margin-top:10px}
+    .ls-notif-btn{
+      flex:1;background:rgba(255,255,255,.15);border-radius:10px;
+      padding:8px 6px;text-align:center;font-size:12px;font-weight:600;
+      color:rgba(255,255,255,.9);cursor:pointer;
+    }
+    .ls-notif-btn.allow{background:rgba(255,255,255,.9);color:var(--blue)}
+    .ls-bottom-btns{
+      position:absolute;bottom:28px;left:0;right:0;
+      display:flex;justify-content:space-between;padding:0 30px;
+    }
+    .ls-bottom-btn{
+      width:50px;height:50px;
+      background:rgba(255,255,255,.18);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+    }
+    .ls-home-bar{
+      position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+      width:118px;height:4px;background:rgba(255,255,255,.55);border-radius:2px;
+    }
+  </style>
+</head>
+<body class="flow-active">
+
+<!-- ══════════════════════════════════ FLOW OVERLAY ══════════════════════════════════ -->
+<div id="flow-overlay">
+  <!-- INTRO: iOS Notification Stack -->
+  <div id="intro-screen">
+    <div class="intro-sos-card">
+      <div class="sos-drag-handle"></div>
+      <div class="notif-app-header">
+        <div class="notif-app-icon">
+          <svg viewBox="0 0 2526 2526" fill="none" style="width:14px;height:14px">
+            <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+            <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+          </svg>
+        </div>
+        <span class="notif-app-name">하루안부</span>
+      </div>
+      <div class="sos-content">
+        <div class="sos-title">SOS 도움 요청이<br>들어왔어요!</div>
+        <div class="sos-desc">102호 김순자 어르신이 도움을 요청하고 있어요. 즉시 확인해서 응답하거나, 필요 시 의료진과 보호자에게 알림이 전송됩니다.</div>
+      </div>
+      <div class="sos-illust">
+        <div class="sos-illust-circle">
+          <div class="sos-ring"></div>
+          <div class="sos-ring"></div>
+          <div class="sos-badge-wrap">
+            <span class="sos-excl">!</span>
+          </div>
+        </div>
+      </div>
+      <div class="sos-actions">
+        <div class="sos-action-btn sos-dismiss" onclick="skipFlow()">무시</div>
+        <div class="sos-action-btn sos-accept" onclick="startFlow()">즉시 응답</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIMESTAMP INSERT -->
+  <div id="timestamp-screen">
+    <div class="ts-time">오전 2시 34분</div>
+    <div class="ts-ctx">305호 · 김순자 어르신</div>
+  </div>
+
+  <!-- FLOW -->
+  <div id="flow-screen" class="hidden">
+    <div id="flow-header">
+      <div class="flow-steps">
+        <div class="flow-step active" id="fs1"><div class="fs-dot"></div><span class="fs-label">환자 SOS</span></div>
+        <div class="fs-line" id="fl1"></div>
+        <div class="flow-step" id="fs2"><div class="fs-dot"></div><span class="fs-label">요양보호사</span></div>
+        <div class="fs-line" id="fl2"></div>
+        <div class="flow-step" id="fs3"><div class="fs-dot"></div><span class="fs-label">간호사 연결</span></div>
+        <div class="fs-line" id="fl3"></div>
+        <div class="flow-step" id="fs4"><div class="fs-dot"></div><span class="fs-label">AI 판단</span></div>
+        <div class="fs-line" id="fl4"></div>
+        <div class="flow-step" id="fs5"><div class="fs-dot"></div><span class="fs-label">보호자 허용</span></div>
+        <div class="fs-line" id="fl5"></div>
+        <div class="flow-step" id="fs6"><div class="fs-dot"></div><span class="fs-label">일일 리포트</span></div>
+      </div>
+      <span id="flow-counter">01 / 06</span>
+    </div>
+    <div id="flow-stage">
+      <div id="morning-insert">
+        <div class="mi-time">다음 날 아침 8:00</div>
+        <div class="mi-sub">새벽 응급 처치 완료 · 안정적</div>
+      </div>
+    </div>
+    <div id="flow-footer">
+      <div id="flow-title"></div>
+      <div id="flow-sub"></div>
+      <div id="interact-next-wrap">
+        <button id="interact-next" onclick="interactNext()">다음 단계 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETE -->
+  <div id="complete-screen">
+    <div class="complete-headline">오늘도, 안녕하셨습니다.</div>
+    <div class="complete-flow-pills">
+      <span class="flow-pill">새벽 2:34</span><span class="flow-pill-arrow">→</span>
+      <span class="flow-pill">SOS</span><span class="flow-pill-arrow">→</span>
+      <span class="flow-pill">AI 판단</span><span class="flow-pill-arrow">→</span>
+      <span class="flow-pill">보호자 허용</span><span class="flow-pill-arrow">→</span>
+      <span class="flow-pill">아침 8:00</span>
+    </div>
+    <div class="complete-sub">3분 안에 연결되고, 다음 날 아침 안심으로 마무리됩니다.</div>
+    <button id="complete-cta" onclick="completeFlow()">서비스 소개 보기 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MAIN PAGE ══════════════════════════════════ -->
+<div id="main-page">
+  <div class="progress-bar" id="progressBar"></div>
+  <nav class="topbar" id="topbar">
+    <a class="topbar-left" href="#hero">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+      </svg>
+    </a>
+    <div class="topbar-nav">
+      <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
+      <a class="nav-link" href="#problem" data-nav="problem">Problem</a>
+      <a class="nav-link" href="#connection" data-nav="connection">Connection</a>
+      <a class="nav-link" href="#ai" data-nav="ai">리포트</a>
+      <a class="nav-link" href="#roi" data-nav="roi">ROI</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="hero-body">
+        <div class="hero-content">
+          <div class="hero-eyebrow reveal">AI Care Communication Platform — 2026</div>
+          <h1 class="hero-title reveal">하루안부.</h1>
+          <p class="hero-sub reveal"><strong>보호자 · 의료진 · 환자</strong>, 흩어진 세 시선을<br>하루의 안부 한 줄로 잇는 케어 플랫폼.</p>
+          <div class="hero-actions reveal">
+            <a class="btn-primary" href="#overview">서비스 소개 보기</a>
+            <span class="hero-hint">Scroll to explore</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="hairline"></div>
+
+  <section id="overview" class="container">
+    <div class="overview-grid">
+      <div class="reveal"><div class="overview-label">Overview</div></div>
+      <div class="overview-body reveal">
+        <p>하루안부는 <strong>환자 · 요양보호사 · 의료진 · 보호자</strong> — 요양 현장의 네 주체를 하나의 흐름으로 연결하는 케어 커뮤니케이션 플랫폼입니다.</p>
+        <p>환자의 하루 기록은 요양보호사의 현장 확인을 거쳐 의료진의 검토로 이어지고, 보호자에게 자동으로 공유됩니다. 긴급 SOS부터 복약 확인, 일상 안부, 방문 케어 기록까지 — <strong>한 번의 기록이 역할에 맞는 사람에게 정확히 전달</strong>됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mkt-section">
+    <div class="container">
+      <div class="mkt-inner">
+        <div class="reveal"><div class="mkt-label">The Backdrop</div></div>
+        <div class="reveal">
+          <p class="mkt-statement">세계 어느 나라도<br>이만큼 빠르게 늙지 않았습니다.</p>
+          <p class="mkt-sub">고령화사회(7%)에서 고령사회(14%)까지, 프랑스는 <em>115년</em>·미국은 <em>73년</em>이 걸렸습니다. 한국은 <em>17년</em>이었고, 초고령사회(20%)까지 <em>7년</em>이 더 걸렸습니다. 현재 65세 이상 1인 가구는 <em>214만 명</em>을 넘어섰고, <em>OECD 노인 빈곤율 1위</em>라는 수치는 이 변화가 단순한 인구 통계가 아닌 사회적 위기임을 말해줍니다. 돌봄의 수요는 폭발하고 있지만, 가족과 의료진이 연결되는 방식은 여전히 전화 한 통에 머물러 있습니다.</p>
+
+          <div class="mkt-chart-wrap">
+            <div class="mkt-chart-hed">65세 이상 인구 비율 — 한국 (2000–2040)</div>
+            <svg class="mkt-chart-svg" viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bdGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2C7AFC" stop-opacity="0.16"/>
+                  <stop offset="100%" stop-color="#2C7AFC" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Horizontal gridlines -->
+              <line x1="0" y1="121" x2="560" y2="121" stroke="#F1F1F1" stroke-width="1"/>
+              <line x1="0" y1="88"  x2="560" y2="88"  stroke="#F1F1F1" stroke-width="1"/>
+              <line x1="0" y1="54"  x2="560" y2="54"  stroke="#F1F1F1" stroke-width="1"/>
+              <!-- Y-axis labels -->
+              <text x="566" y="124" font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">10%</text>
+              <text x="566" y="91"  font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">20%</text>
+              <text x="566" y="57"  font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">30%</text>
+              <!-- Area fill -->
+              <path d="M 0,131 L 70,124 L 140,118 L 210,111 L 238,108 L 280,102 L 350,87 L 420,69 L 490,53 L 560,39 L 560,155 L 0,155 Z" fill="url(#bdGrad)"/>
+              <!-- Solid line: actual 2000–2025 -->
+              <polyline points="0,131 70,124 140,118 210,111 238,108 280,102 350,87" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Dashed line: projected 2025–2040 -->
+              <polyline points="350,87 420,69 490,53 560,39" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-dasharray="4 5" opacity="0.38" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Baseline -->
+              <line x1="0" y1="155" x2="560" y2="155" stroke="#E8E8E8" stroke-width="1"/>
+              <!-- Milestone: 2017 고령사회 -->
+              <line x1="238" y1="108" x2="238" y2="155" stroke="#EBEBEB" stroke-width="1" stroke-dasharray="3 4"/>
+              <circle cx="238" cy="108" r="3.5" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+              <text x="238" y="169" text-anchor="middle" font-size="9" fill="#AAAAAA" font-family="system-ui,-apple-system,sans-serif">2017</text>
+              <text x="238" y="181" text-anchor="middle" font-size="8" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">고령사회 14%</text>
+              <!-- Milestone: 2025 NOW -->
+              <line x1="350" y1="87" x2="350" y2="155" stroke="#2C7AFC" stroke-width="1" stroke-dasharray="3 4" opacity="0.22"/>
+              <circle cx="350" cy="87" r="6" fill="#2C7AFC" stroke="white" stroke-width="2.5"/>
+              <!-- NOW pill -->
+              <rect x="323" y="60" width="54" height="18" rx="9" fill="#2C7AFC"/>
+              <text x="350" y="72.5" text-anchor="middle" font-size="9" fill="white" font-weight="700" letter-spacing="0.06em" font-family="system-ui,-apple-system,sans-serif">NOW</text>
+              <!-- Connector dot→pill -->
+              <line x1="350" y1="81" x2="350" y2="78" stroke="#2C7AFC" stroke-width="1.5"/>
+              <text x="350" y="169" text-anchor="middle" font-size="9" fill="#2C7AFC" font-weight="700" font-family="system-ui,-apple-system,sans-serif">2025</text>
+              <text x="350" y="181" text-anchor="middle" font-size="8" fill="#2C7AFC" opacity="0.75" font-family="system-ui,-apple-system,sans-serif">초고령사회 20.3%</text>
+              <!-- Year range labels -->
+              <text x="0"   y="169" text-anchor="start" font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">2000</text>
+              <text x="560" y="169" text-anchor="end"   font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">2040 (추계)</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mktEndSentinel" style="height:1px"></div>
+  </section>
+
+  <!-- ══ PAIN ZONE: 질문(index 0) + 카피(index 1-7) 통합 ══ -->
+  <div class="pain-zone" id="painZone">
+    <!-- 드라이버: 8 앵커 (질문 1 + 카피 7) -->
+    <div class="pain-driver" id="painDriver">
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+      <div class="pain-anchor"></div>
+    </div>
+    <!-- 시각 레이어 -->
+    <div class="pain-stage">
+      <div class="pain-list" id="painList">
+        <!-- index 0: 질문 (100vh, 카피 완전히 숨김) -->
+        <div class="pain-item--intro" data-dist="0">
+          <p class="pain-copy--intro">그렇다면 왜 가족은<br>여전히 불안할까요?</p>
+        </div>
+        <!-- index 1-7: 보호자 카피 (180px, 전후 희미하게 노출) -->
+        <div class="pain-item" data-dist="1"><p class="pain-copy">오늘 밥은 잘 드셨는지<br>모르겠어요.</p></div>
+        <div class="pain-item" data-dist="2"><p class="pain-copy">면회 못 간 날은<br>하루 종일 불안해요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">멀리 살아서<br>자주 못 가요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">어떤 치료를<br>받고 계신지 알 수가 없어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">케어 기록을<br>직접 볼 수가 없어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">부모님 곁에<br>있어드리고 싶어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">상태가 나빠졌을 때<br>제때 연락이 올지 걱정돼요.</p></div>
+      </div>
+    </div>
+    <div class="pain-nav" id="painDots"></div>
+    <div class="pain-scroll-hint">scroll</div>
+  </div>
+
+  <section id="problem" class="container">
+    <div class="sec-head reveal"><div class="sec-eyebrow">Problem</div><h2 class="sec-title">국내 6개 경쟁사,<br>모두 같은 자리에 있었다.</h2><p class="sec-sub">시설 매칭, 시설 운영, 보호자 결제 — '입소 후 3자 실시간 소통'은 단 한 곳도 다루지 않았습니다.</p></div>
+    <div class="stats-row reveal">
+      <div class="stat"><div class="stat-num">187<span class="unit">만 가구</span></div><div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div><div class="stat-source">통계청 2024</div></div>
+      <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
+      <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 3자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- ══ CONNECTION ══ -->
+  <section id="connection" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Connection</div>
+      <h2 class="sec-title">경쟁사가 멈춘 자리에서,<br>하루안부가 시작됩니다.</h2>
+      <p class="sec-sub">국내 6개 경쟁사 모두 최대 2자 연결. 입소 후 3자 실시간 소통은 단 한 곳도 없었습니다.</p>
+    </div>
+    <div class="conn-wrap reveal">
+      <div class="conn-diagram">
+        <svg class="conn-svg" viewBox="0 0 480 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Connection lines -->
+          <path id="cpg" d="M 240 72 L 58 268" stroke="#2C7AFC" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <path id="cpm" d="M 240 72 L 422 268" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <path id="cgm" d="M 108 304 L 372 304" stroke="#FB923C" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <!-- Animated flow dots -->
+          <circle r="4.5" fill="#2C7AFC" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#cpg"/></animateMotion>
+          </circle>
+          <circle r="4.5" fill="#22C55E" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.8s"><mpath href="#cpm"/></animateMotion>
+          </circle>
+          <circle r="4.5" fill="#FB923C" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#cgm"/></animateMotion>
+          </circle>
+          <!-- Reverse dots -->
+          <circle r="3" fill="#2C7AFC" opacity="0.4">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.2s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpg"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#22C55E" opacity="0.4">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="2.0s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpm"/></animateMotion>
+          </circle>
+        </svg>
+        <!-- Patient — top center -->
+        <div class="conn-node patient">
+          <div class="conn-circle">환자</div>
+          <div class="conn-node-label">김순자 어르신</div>
+          <div class="conn-node-sub">Patient Tablet</div>
+        </div>
+        <!-- Guardian — bottom left -->
+        <div class="conn-node guardian">
+          <div class="conn-circle">보호자</div>
+          <div class="conn-node-label">김미영</div>
+          <div class="conn-node-sub">Guardian App</div>
+        </div>
+        <!-- Medical — bottom right -->
+        <div class="conn-node medical">
+          <div class="conn-circle">의료진</div>
+          <div class="conn-node-label">박지현</div>
+          <div class="conn-node-sub">Medical Web</div>
+        </div>
+        <!-- Center badge -->
+        <div class="conn-center">
+          <svg class="conn-center-logo" viewBox="0 0 2526 2526" fill="none">
+            <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+            <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+          </svg>
+          <div class="conn-center-badge">3자 실시간</div>
+        </div>
+      </div>
+      <!-- vs row -->
+      <div class="conn-compare">
+        <div class="cc-col competitor">
+          <div class="cc-label">경쟁사 최대</div>
+          <div class="cc-val">2자</div>
+          <div class="cc-note">시설 매칭 · 운영 · 결제</div>
+        </div>
+        <div class="cc-divider">vs</div>
+        <div class="cc-col haru">
+          <div class="cc-label">하루안부</div>
+          <div class="cc-val">3자 실시간</div>
+          <div class="cc-note">보호자 · 의료진 · 환자 동시</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="hairline"></div>
+
+  <section id="showcase" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Interactive Demo</div>
+      <h2 class="sec-title">직접 써보세요.</h2>
+      <p class="sec-sub">각 역할의 화면을 스크롤하고 탭하며 직접 경험해보세요.</p>
+    </div>
+    <div class="showcase-tabs reveal">
+      <button class="sc-tab active" data-role="guardian">보호자 앱</button>
+      <button class="sc-tab" data-role="caregiver">요양보호사 앱</button>
+      <button class="sc-tab" data-role="patient">환자 앱</button>
+      <button class="sc-tab" data-role="nurse">의료진 웹</button>
+    </div>
+    <div class="showcase-stage reveal" id="showcase-stage"></div>
+    <p class="showcase-hint reveal">스크롤하고 탭해보세요 — 실제 앱과 동일합니다</p>
+  </section>
+  <div class="hairline"></div>
+
+  <section id="solution" class="container">
+    <div class="sec-head reveal"><div class="sec-eyebrow">Solution</div><h2 class="sec-title">한 번의 안부,<br>다섯 개의 화면.</h2><p class="sec-sub">같은 데이터를 보호자는 안심 지수로, 요양보호사는 스텝퍼로, 환자는 큰 글씨 한 화면으로, 의료진은 47명 대시보드로 봅니다.</p></div>
+    <div class="roles-list reveal">
+      <div class="role-row"><div class="role-num">01</div><div class="role-name">보호자 앱<span>Guardian</span></div><div class="role-desc">멀리 있어도 오늘이 보이는 한 화면. 식사·복약·기분 흐름과 안심 지수를 1일 1회 자동 수신합니다.</div><div class="role-platform">Mobile</div></div>
+      <div class="role-row"><div class="role-num">02</div><div class="role-name">요양보호사 앱<span>Caregiver</span></div><div class="role-desc">방문 동선 위에서 8단계 스텝퍼로 빠르게 기록. SOS 즉시 간호사 전달.</div><div class="role-platform">Mobile</div></div>
+      <div class="role-row"><div class="role-num">03</div><div class="role-name">환자 앱<span>Patient</span></div><div class="role-desc">거실 거치형 태블릿. 화면 3개·터치 56px·글자 +2px. 조작이 아니라 '있는 것'.</div><div class="role-platform">Tablet</div></div>
+      <div class="role-row"><div class="role-num">04</div><div class="role-name">의료진 웹<span>Medical</span></div><div class="role-desc">47명의 환자를 한 대시보드에. AI가 이상 신호를 중요도 순으로 정렬합니다.</div><div class="role-platform">Desktop</div></div>
+      <div class="role-row"><div class="role-num">05</div><div class="role-name">의료진 앱<span>Medical</span></div><div class="role-desc">병동 이동 중에도 환자 상태를 즉시 확인. SOS 수신·처치 기록·간호사 인계를 모바일에서 처리합니다.</div><div class="role-platform">Mobile</div></div>
+    </div>
+  </section>
+
+  <!-- ══ DAILY REPORT SECTION ══ -->
+  <section id="ai" class="report-section">
+    <div class="report-sec-head reveal">
+      <div class="sec-eyebrow">보호자 일일리포트</div>
+      <h2 class="sec-title">매일 아침 8시,<br>어머니의 하루가 도착합니다.</h2>
+    </div>
+
+    <div class="report-stage">
+
+      <!-- Center phone hero -->
+      <div class="report-phone-hero reveal">
+        <div class="flow-png-phone">
+          <div class="device-screen">
+            <iframe src="07_디자인/mockup/v11_보호자앱/g-guardian-live.html" title="보호자 앱 홈"></iframe>
+          </div>
+          <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
+        </div>
+      </div>
+
+      <!-- Floating sleep widget — 폰 오른쪽에 겹쳐서 팝업 -->
+      <div class="sleep-float reveal">
+        <div class="sf-w">
+          <div class="sf-head">
+            <div class="sf-title">
+              <iconify-icon icon="fluent:weather-moon-24-filled" style="color:#2C7AFC;font-size:17px"></iconify-icon>
+              수면
+            </div>
+          </div>
+          <div class="sf-big">7<span>시간 </span>32<span>분</span></div>
+          <div class="sf-sub">지난 밤 · 깨심 1회</div>
+          <div class="sf-chart">
+            <div class="sf-bars">
+              <div class="sb" style="height:4px;background:hsl(217,85%,88%)"></div><div class="sb" style="height:8px;background:hsl(217,85%,86%)"></div><div class="sb" style="height:14px;background:hsl(217,86%,84%)"></div><div class="sb" style="height:22px;background:hsl(217,87%,81%)"></div><div class="sb" style="height:34px;background:hsl(217,88%,76%)"></div><div class="sb" style="height:50px;background:hsl(217,90%,70%)"></div><div class="sb" style="height:66px;background:hsl(217,91%,63%)"></div><div class="sb" style="height:80px;background:hsl(217,93%,58%)"></div><div class="sb" style="height:90px;background:hsl(217,94%,54%)"></div><div class="sb" style="height:96px;background:hsl(217,95%,51%)"></div><div class="sb" style="height:96px;background:hsl(217,95%,50%)"></div><div class="sb" style="height:90px;background:hsl(217,94%,52%)"></div><div class="sb" style="height:80px;background:hsl(217,93%,56%)"></div><div class="sb" style="height:68px;background:hsl(217,92%,61%)"></div><div class="sb" style="height:54px;background:hsl(217,91%,67%)"></div><div class="sb" style="height:38px;background:hsl(217,89%,73%)"></div><div class="sb" style="height:24px;background:hsl(217,88%,79%)"></div><div class="sb" style="height:14px;background:hsl(217,86%,82%)"></div><div class="sb" style="height:8px;background:hsl(217,86%,86%)"></div><div class="sb" style="height:4px;background:hsl(217,85%,88%)"></div>
+            </div>
+            <div class="sf-ticks">
+              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
+              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
+              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
+              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
+              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
+            </div>
+            <div class="sf-labels">
+              <span>22시</span><span>00시</span><span>02시</span><span>04시</span><span>06시</span><span>08시</span>
+            </div>
+          </div>
+          <div class="sf-legend">
+            <span>깨어있음</span>
+            <div class="grad-bar"></div>
+            <span>깊은 수면</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ ROI ══ -->
+  <section id="roi" class="roi-section container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">ROI Calculator</div>
+      <h2 class="sec-title">숫자로 확인하는<br>도입 효과.</h2>
+      <p class="sec-sub">요양원 규모를 입력하면 하루안부 도입 후 절감 효과를 바로 확인할 수 있습니다.</p>
+    </div>
+    <div class="roi-inner reveal">
+      <div class="roi-controls">
+        <div class="roi-control">
+          <div class="roi-control-header">
+            <span class="roi-control-label">요양원 환자 수</span>
+            <span class="roi-control-val" id="roi-patients-val">50명</span>
+          </div>
+          <input class="roi-slider" id="roi-patients" type="range" min="10" max="200" value="50" step="5">
+        </div>
+        <div class="roi-control">
+          <div class="roi-control-header">
+            <span class="roi-control-label">의료진 수</span>
+            <span class="roi-control-val" id="roi-staff-val">5명</span>
+          </div>
+          <input class="roi-slider" id="roi-staff" type="range" min="1" max="20" value="5">
+        </div>
+      </div>
+      <div class="roi-results-grid">
+        <div class="roi-result">
+          <div class="roi-result-label">하루 절감 시간</div>
+          <div class="roi-result-val highlight" id="roi-daily">75<span>분</span></div>
+          <div class="roi-result-note">전화 응대 + 기록 시간 합산</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">월간 절감 시간</div>
+          <div class="roi-result-val" id="roi-monthly">27<span>시간</span></div>
+          <div class="roi-result-note">영업일 22일 기준</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">보호자 만족도 예상</div>
+          <div class="roi-result-val highlight" id="roi-satisfaction">82<span>점</span></div>
+          <div class="roi-result-note">안심지수 기반 추정</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">연간 운영 효율</div>
+          <div class="roi-result-val" id="roi-annual">330<span>시간</span></div>
+          <div class="roi-result-note">월간 × 12개월</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="hairline"></div>
+
+  <!-- ══ PERSONAS + CTA ══ -->
+  <section class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Who It's For</div>
+      <h2 class="sec-title">기능이 아니라<br>안심을 설계합니다.</h2>
+    </div>
+    <div class="persona-v2-grid reveal">
+      <div class="persona-v2">
+        <div class="persona-role-badge guardian">Guardian</div>
+        <div class="p2-name">김미영</div>
+        <div class="p2-meta">53세 · 보호자 · 모친 5년 입소</div>
+        <div class="p2-pain">오늘 엄마가 식사를 하셨는지 알 길이 없다. 전화하긴 죄송하고, 기다리긴 불안하다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">매일 오전 8시, 안심지수 한 줄로 하루가 열립니다.</div>
+      </div>
+      <div class="persona-v2">
+        <div class="persona-role-badge medical">Medical</div>
+        <div class="p2-name">박지현</div>
+        <div class="p2-meta">38세 · 간호사 · 환자 47명 담당</div>
+        <div class="p2-pain">전화 응대에 하루 2시간. 같은 질문을 47번 받고 나면, 정작 환자를 볼 시간이 없다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">AI가 대신 답하고, 의료진은 의료에 집중합니다.</div>
+      </div>
+      <div class="persona-v2">
+        <div class="persona-role-badge patient">Patient</div>
+        <div class="p2-name">김순자</div>
+        <div class="p2-meta">82세 · 입소 환자 · 치매 초기</div>
+        <div class="p2-pain">아들 얼굴이 보고 싶다. 휴대폰은 어렵고, 누군가 도와주면 좋겠다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">큰 버튼 하나로 가족에게 영상 통화를 겁니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2 class="cta-title">오늘 하루도,<br>안녕하셨습니까?</h2>
+    <p class="cta-sub">하루안부가 매일 답합니다.</p>
+    <div class="cta-btns">
+      <button class="cta-btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'})">서비스 데모 다시 보기</button>
+      <a class="cta-btn-secondary" href="mailto:lg22twins@gmail.com">도입 문의</a>
+    </div>
+  </div>
+
+  <section class="closing container">
+    <div class="closing-mark">— Epilogue —</div>
+    <h2 class="closing-title">오늘 하루도,<br><em>안녕하셨습니다.</em></h2>
+    <p class="closing-line">매일 잊지 않고 안부를 묻는 마음.<br>그것이 곧 하루안부입니다.</p>
+  </section>
+
+  <footer>
+    <div class="ft-wrap">
+      <div class="ft-brand">
+        <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+          <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+          <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+        </svg>
+        <span class="logo-text">하루안부</span>
+      </div>
+      <div class="ft-meta">© 2026 — Showcase v6</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   IFRAME REGISTRY
+══════════════════════════════════════════ */
+const IFRAMES = {
+  'patient':         {src:'07_디자인/mockup/v12_환자앱/p09-sos.html',       nw:768, nh:1024},
+  'caregiver-today': {src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html',  nw:390, nh:844},
+  'caregiver-check': {src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html',nw:390, nh:844},
+  'nurse-sos':       {src:'07_디자인/mockup/v6_전체화면/nurse/n05-sos.html',   nw:390, nh:844},
+  'nurse-check':     {src:'07_디자인/mockup/v6_전체화면/nurse/n03-checklist.html',nw:390, nh:844},
+  'guardian-alert':  {src:'07_디자인/mockup/v11_보호자앱/g06-alert.html',      nw:390, nh:844},
+  'guardian-home':   {src:'07_디자인/mockup/v11_보호자앱/g-guardian-live.html', nw:390, nh:844},
+  'guardian-report': {src:'07_디자인/mockup/v11_보호자앱/g02-ai-report.html',   nw:390, nh:844},
+};
+
+/* Preload HTML content as srcdoc for reliable local file rendering */
+const SRCDOC = {};
+(async () => {
+  const jobs = Object.entries(IFRAMES).map(async ([key, d]) => {
+    try {
+      const resp = await fetch(d.src);
+      if (!resp.ok) throw new Error(resp.status);
+      let html = await resp.text();
+      const baseUrl = resp.url.substring(0, resp.url.lastIndexOf('/') + 1);
+      html = html.replace(/(<head[^>]*>)/i, `$1<base href="${baseUrl}">`);
+      SRCDOC[key] = html;
+    } catch(e) { /* fallback to src */ }
+  });
+  await Promise.all(jobs);
+})();
+
+const AI_STEPS = [
+  {title:'케어 데이터 분석 중',  sub:'305호 김순자 · 새벽 2:34', delay:500},
+  {title:'투약 이력 · 알레르기 확인', sub:'낙상 위험 지수 ↑, 통증 가능성 판단', delay:1800},
+  {title:'투약 필요 판단', sub:'진통제 500mg 권장', delay:3100, bold:true},
+  {title:'보호자에게 허용 요청 전송', sub:'김미영 → 투약 허용 요청 알림 발송', delay:4300, blue:true},
+];
+
+function buildAIPanel(containerEl) {
+  containerEl.innerHTML = `
+    <div class="ai-header"><div class="ai-dot-pulse"></div><span class="ai-header-label">AI 분석 중</span></div>
+    <div class="ai-lines" id="ai-lines-box" style="flex:1;display:flex;flex-direction:column;gap:0;position:relative"></div>
+    <div class="ai-footer">Claude API · 실시간 분석</div>
+  `;
+  const box = containerEl.querySelector('#ai-lines-box');
+  AI_STEPS.forEach(step => {
+    setTimeout(() => {
+      const line = document.createElement('div');
+      line.className = 'ai-line-typed';
+      line.innerHTML = `
+        <div class="ai-line-title${step.bold?' bold':''}${step.blue?' blue':''}">${step.title}</div>
+        <div class="ai-line-sub${step.blue?' blue':''}">${step.sub}</div>
+      `;
+      box.appendChild(line);
+    }, step.delay);
+  });
+}
+
+/* ══════════════════════════════════════════
+   DEVICE FACTORY
+══════════════════════════════════════════ */
+function makeIframeEl(key, cW, cH) {
+  const d = IFRAMES[key];
+  if (!d) return null;
+  const scale = cW / d.nw;
+  const iH = Math.ceil(cH / scale);
+  const ifr = document.createElement('iframe');
+  ifr.style.cssText = `width:${d.nw}px;height:${iH}px;transform:scale(${scale});transform-origin:top left;border:0;display:block;background:white;pointer-events:none;`;
+  if (SRCDOC[key]) {
+    ifr.srcdoc = SRCDOC[key];
+  } else {
+    ifr.src = d.src;
+  }
+  return ifr;
+}
+
+function getScreenDims(type) {
+  if (type === 'tablet') return {w:388, h:518};
+  return {w:262, h:566};
+}
+
+function makePngIframe(key, w, h, scale) {
+  const d = IFRAMES[key];
+  if (!d) return null;
+  const ifr = document.createElement('iframe');
+  ifr.style.cssText = `position:absolute;left:0;top:0;width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;border:0;display:block;background:white;`;
+  if (SRCDOC[key]) ifr.srcdoc = SRCDOC[key];
+  else ifr.src = d.src;
+  return ifr;
+}
+
+function createDevice(type, key) {
+  if (type === 'ai-panel') {
+    const el = document.createElement('div');
+    el.className = 'flow-device ai-panel';
+    buildAIPanel(el);
+    return el;
+  }
+
+  if (type === 'phone') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-phone';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen';
+    const ifr = makePngIframe(key, 390, 801, 0.732);
+    // apply caregiver/guardian status-bar offset
+    if (ifr) {
+      const d = IFRAMES[key];
+      if (d && d.nw === 390) {
+        const isSrc = d.src || '';
+        if (isSrc.includes('요양보호사') || isSrc.includes('caregiver')) {
+          ifr.style.top = '-46px'; ifr.style.height = '857px';
+        } else {
+          ifr.style.top = '-7px'; ifr.style.height = '809px';
+        }
+      }
+      screen.appendChild(ifr);
+    }
+    wrap.appendChild(screen);
+
+    const sb = document.createElement('div');
+    sb.className = 'flow-sb sc-ios-statusbar';
+    sb.innerHTML = `
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>`;
+    wrap.appendChild(sb);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPhone 17 Pro - Silver - Portrait.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  if (type === 'lockscreen') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-phone';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen lsphone-bg';
+    screen.style.background = 'linear-gradient(175deg,#1a6fdd 0%,#0e4fc7 30%,#0838a8 62%,#041e6b 100%)';
+    screen.innerHTML = `
+      <div class="ls-time-block">
+        <div class="ls-date">5월 17일 일요일</div>
+        <div class="ls-clock">2:35</div>
+      </div>
+      <div class="ls-notif-wrap">
+        <div class="ls-notif-card tappable" id="ls-notif-main">
+          <div class="ls-notif-hd">
+            <div class="ls-notif-icon">
+              <svg viewBox="0 0 2526 2526" fill="none" style="width:11px;height:11px">
+                <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+                <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+              </svg>
+            </div>
+            <span class="ls-notif-app">하루안부</span>
+            <span class="ls-notif-ago">지금</span>
+          </div>
+          <div class="ls-notif-title">투약 허용 요청</div>
+          <div class="ls-notif-body">진통제 500mg · 허용하시겠습니까?</div>
+          <div class="ls-notif-actions">
+            <div class="ls-notif-btn">거부</div>
+            <div class="ls-notif-btn allow" id="ls-allow-btn">허용</div>
+          </div>
+        </div>
+      </div>
+      <div class="ls-bottom-btns">
+        <div class="ls-bottom-btn">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+            <path d="M12 4v16M8 8l4-4 4 4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="18" r="2" fill="white"/>
+          </svg>
+        </div>
+        <div class="ls-bottom-btn">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+            <rect x="2" y="6" width="20" height="14" rx="3" stroke="white" stroke-width="1.5"/>
+            <circle cx="12" cy="13" r="3.5" stroke="white" stroke-width="1.5"/>
+            <path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ls-home-bar"></div>
+    `;
+
+    const card = screen.querySelector('#ls-notif-main');
+    if (card) card.addEventListener('click', (e) => { e.stopPropagation(); goToPhase('5b'); });
+
+    wrap.appendChild(screen);
+
+    const sb = document.createElement('div');
+    sb.className = 'flow-sb sc-ios-statusbar';
+    sb.innerHTML = `
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>`;
+    wrap.appendChild(sb);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPhone 17 Pro - Silver - Portrait.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  if (type === 'tablet') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-tablet';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen';
+    const ifr = makePngIframe(key, 768, 529, 1.096);
+    if (ifr) screen.appendChild(ifr);
+    wrap.appendChild(screen);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPad Pro (M5) 11" - Silver - Landscape.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  // fallback
+  const el = document.createElement('div');
+  el.className = `flow-device ${type}`;
+  return el;
+}
+
+/* ══════════════════════════════════════════
+   FLOW STATE
+══════════════════════════════════════════ */
+const stage       = document.getElementById('flow-stage');
+const flowTitle   = document.getElementById('flow-title');
+const flowSub     = document.getElementById('flow-sub');
+const flowCounter = document.getElementById('flow-counter');
+let currentDevices = {};
+let autoTimer      = null;
+let currentPhase   = 1;
+let interactMode   = false;
+const NEXT_PHASE_MAP = {1:2,2:3,3:4,4:5,5:'5b','5b':6,6:'6b','6b':'done'};
+
+const PHASES = {
+  1:   {p:1, c:'01 / 06', t:'김순자 어르신이 갑자기 몸이 불편해졌습니다.',       s:'환자 태블릿에서 SOS 도움 요청을 받아보세요.'},
+  2:   {p:2, c:'02 / 06', t:'요양보호사 이서연에게 즉시 알림이 전달됩니다.',     s:'요양보호사가 SOS를 접수하고 간호사에게 전달합니다.'},
+  3:   {p:3, c:'03 / 06', t:'요양보호사와 간호사가 실시간으로 연결됩니다.',      s:'한 번의 전송으로 간호사에게 즉시 알림이 도착합니다.', auto:3200},
+  4:   {p:4, c:'04 / 06', t:'AI가 상황을 분석하고 판단합니다.',               s:'케어 데이터를 검토해 투약을 판단하고, 보호자에게 허용 요청을 보냅니다.', auto:5400},
+  5:   {p:5, c:'05 / 06', t:'보호자 김미영에게 알림이 도착했습니다.',           s:'알림을 탭해서 투약을 허용해보세요.'},
+  '5b':{p:5, c:'05 / 06', t:'투약이 허용되었습니다.',                        s:'간호사가 즉시 투약을 진행합니다.', auto:2800},
+  6:   {p:6, c:'06 / 06', t:'일일 케어 리포트가 도착했습니다.',                s:'AI 일일 리포트 알림을 탭해보세요.'},
+  '6b':{p:6, c:'06 / 06', t:'오늘 하루도, 안녕하셨습니다.',                   s:'AI가 매일 아침 케어 데이터를 분석해 이 리포트를 전달합니다.'},
+};
+
+function setProgress(p) {
+  for (let i = 1; i <= 6; i++) {
+    const dot  = document.getElementById('fs' + i);
+    const line = document.getElementById('fl' + i);
+    if (!dot) continue;
+    dot.classList.remove('active','done');
+    if (line) line.classList.remove('done');
+    if (i < p)  { dot.classList.add('done'); if (line) line.classList.add('done'); }
+    if (i === p)  dot.classList.add('active');
+  }
+}
+
+function setFooter(phase) {
+  const d = PHASES[phase];
+  if (!d) return;
+  flowTitle.textContent   = d.t;
+  flowSub.textContent     = d.s;
+  flowCounter.textContent = d.c;
+  setProgress(d.p);
+}
+
+function clearAuto() { if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } }
+
+/* Device helpers */
+function enterDevice(id, type, key, anim, delay) {
+  setTimeout(() => {
+    const el = createDevice(type, key);
+    el.id = `dev-${id}`;
+    el.classList.add(anim);
+    stage.appendChild(el);
+    currentDevices[id] = el;
+  }, delay || 0);
+}
+
+function exitDevice(id, dir, delay) {
+  const el = currentDevices[id];
+  if (!el) return;
+  setTimeout(() => {
+    el.classList.add(`anim-exit-${dir}`);
+    setTimeout(() => { el.remove(); delete currentDevices[id]; }, 380);
+  }, delay || 0);
+}
+
+function clearAll() {
+  Object.values(currentDevices).forEach(el => el.remove());
+  currentDevices = {};
+  document.getElementById('speed-badge')?.remove();
+  document.getElementById('morning-insert')?.classList.remove('show');
+}
+
+/* Notification banner on device screen */
+function addNotifBanner(id, next, iconType, iconLabel, title, msg, time, bottomMode, delay) {
+  const el = currentDevices[id];
+  if (!el) return;
+  const screen = el.querySelector('.device-screen') || el;
+
+  setTimeout(() => {
+    const banner = document.createElement('div');
+    banner.className = 'device-notif-banner tappable' + (bottomMode ? ' bottom' : '');
+    banner.innerHTML = `
+      <div class="dnb-icon ${iconType}">
+        <span class="dnb-icon-label">${iconLabel}</span>
+      </div>
+      <div class="dnb-body">
+        <div class="dnb-title">${title}</div>
+        <div class="dnb-msg">${msg}</div>
+      </div>
+      <div class="dnb-time">${time}</div>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'tap-overlay';
+    overlay.onclick = () => {
+      if (next === 'done') showComplete();
+      else goToPhase(next);
+    };
+
+    screen.appendChild(banner);
+    screen.appendChild(overlay);
+  }, delay || 0);
+}
+
+function clearBanners(id) {
+  const el = currentDevices[id];
+  if (!el) return;
+  const screen = el.querySelector('.device-screen') || el;
+  screen.querySelectorAll('.device-notif-banner,.tap-overlay').forEach(n => n.remove());
+}
+
+function rebindIframe(id, newKey) {
+  const el = currentDevices[id];
+  if (!el) return;
+  clearBanners(id);
+  const ifr = el.querySelector('iframe');
+  if (!ifr) return;
+  el.style.transition = 'opacity .2s';
+  el.style.opacity = '0';
+  setTimeout(() => {
+    if (SRCDOC[newKey]) { ifr.srcdoc = SRCDOC[newKey]; }
+    else                { ifr.src   = IFRAMES[newKey].src; }
+    el.style.opacity = '1';
+  }, 240);
+}
+
+/* ══════════════════════════════════════════
+   PHASE MACHINE
+══════════════════════════════════════════ */
+function goToPhase(phase) {
+  currentPhase = phase;
+  clearAuto();
+  setFooter(phase);
+
+  if (phase === 1) {
+    clearAll();
+    stage.classList.remove('dual');
+    enterDevice('patient', 'tablet', 'patient', 'anim-enter-center', 0);
+    /* Notification: SOS received */
+    setTimeout(() => {
+      addNotifBanner('patient', 2, 'sos', '!',
+        'SOS 도움 요청',
+        '할머니가 도움을 요청하고 있어요',
+        '방금 전', false, 0);
+    }, 700);
+  }
+
+  else if (phase === 2) {
+    stage.classList.remove('dual');
+    exitDevice('patient', 'left', 0);
+    enterDevice('caregiver', 'phone', 'caregiver-today', 'anim-enter-right', 220);
+    setTimeout(() => {
+      addNotifBanner('caregiver', 3, 'sos', '!',
+        'SOS 수신',
+        '이서연 요양보호사 → 간호사에게 전달',
+        '방금 전', false, 0);
+    }, 800);
+  }
+
+  else if (phase === 3) {
+    stage.classList.add('dual');
+    clearBanners('caregiver');
+    rebindIframe('caregiver', 'caregiver-check');
+    enterDevice('nurse', 'phone', 'nurse-sos', 'anim-enter-right', 120);
+    /* Speed badge between the two phones */
+    setTimeout(() => {
+      const nurseEl   = currentDevices['nurse'];
+      const badge = document.createElement('div');
+      badge.className = 'speed-badge';
+      badge.id = 'speed-badge';
+      badge.innerHTML = '<div class="sb-num">0.3초</div><div class="sb-label">알림 전달</div>';
+      if (nurseEl) stage.insertBefore(badge, nurseEl);
+      else stage.appendChild(badge);
+    }, 300);
+    const d = PHASES[3];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(4), d.auto);
+  }
+
+  else if (phase === 4) {
+    document.getElementById('speed-badge')?.remove();
+    exitDevice('caregiver', 'left', 0);
+    enterDevice('ai', 'ai-panel', null, 'anim-enter-right', 180);
+    const d = PHASES[4];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(5), d.auto);
+  }
+
+  else if (phase === 5) {
+    stage.classList.remove('dual');
+    exitDevice('nurse', 'left', 0);
+    exitDevice('ai',    'right', 0);
+    enterDevice('guardian', 'lockscreen', null, 'anim-enter-right', 360);
+  }
+
+  else if (phase === '5b') {
+    stage.classList.add('dual');
+    clearBanners('guardian');
+    /* Approval flash on guardian screen */
+    setTimeout(() => {
+      const gEl = currentDevices['guardian'];
+      if (gEl) {
+        const screen = gEl.querySelector('.device-screen');
+        if (screen) {
+          const flash = document.createElement('div');
+          flash.className = 'approval-flash';
+          flash.innerHTML = '<span class="apv-icon">✓</span>';
+          screen.appendChild(flash);
+          setTimeout(() => flash.remove(), 700);
+        }
+      }
+    }, 80);
+    enterDevice('nurse-apv', 'phone', 'nurse-check', 'anim-enter-left', 100);
+    const d = PHASES['5b'];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(6), d.auto);
+  }
+
+  else if (phase === 6) {
+    stage.classList.remove('dual');
+    exitDevice('nurse-apv', 'left', 0);
+    /* If guardian is still a lockscreen, swap to app phone */
+    const gPrev = currentDevices['guardian'];
+    if (gPrev && gPrev.querySelector('.lsphone-bg')) {
+      exitDevice('guardian', 'fade', 0);
+      enterDevice('guardian', 'phone', 'guardian-home', 'anim-enter-center', 400);
+    }
+    /* Morning time insert */
+    const mi = document.getElementById('morning-insert');
+    mi.classList.add('show');
+    setTimeout(() => {
+      mi.classList.remove('show');
+      rebindIframe('guardian', 'guardian-home');
+      setTimeout(() => {
+        addNotifBanner('guardian', '6b', 'guardian', '♡',
+          'AI 일일 리포트 도착',
+          '안심 지수 87점 · 어젯밤 응급 처치 완료',
+          '방금', false, 0);
+      }, 600);
+    }, 1300);
+  }
+
+  else if (phase === '6b') {
+    clearBanners('guardian');
+    rebindIframe('guardian', 'guardian-report');
+    setTimeout(() => {
+      addNotifBanner('guardian', 'done', 'guardian', '♡',
+        '오늘도, 안녕하셨습니다',
+        '새벽 2:34의 이야기가 아침 리포트로 닫혔습니다',
+        '', true, 0);
+    }, 800);
+  }
+}
+
+function showComplete() {
+  clearAuto();
+  document.getElementById('flow-screen').classList.add('hidden');
+  document.getElementById('complete-screen').classList.add('show');
+}
+
+function startFlow() {
+  document.getElementById('intro-screen').style.display = 'none';
+  const ts = document.getElementById('timestamp-screen');
+  ts.classList.add('show');
+  setTimeout(() => {
+    ts.classList.add('out');
+    setTimeout(() => {
+      ts.style.display = 'none';
+      document.getElementById('flow-screen').classList.remove('hidden');
+      goToPhase(1);
+    }, 450);
+  }, 1300);
+}
+
+function completeFlow() {
+  clearAuto();
+  const ov = document.getElementById('flow-overlay');
+  ov.classList.add('exit');
+  document.body.classList.remove('flow-active');
+  setTimeout(() => {
+    document.getElementById('main-page').classList.add('revealed');
+    ov.style.display = 'none';
+  }, 500);
+}
+
+function skipFlow() { completeFlow(); }
+
+/* ══════════════════════════════════════════
+   INTERACTIVE MODE
+══════════════════════════════════════════ */
+function toggleInteract() {
+  interactMode = !interactMode;
+  const btn      = document.getElementById('interact-toggle');
+  const stageEl  = document.getElementById('flow-stage');
+  const nextWrap = document.getElementById('interact-next-wrap');
+  btn.classList.toggle('on', interactMode);
+  btn.textContent = interactMode ? '스토리로 보기' : '직접 조작';
+  stageEl.classList.toggle('interact-mode', interactMode);
+  nextWrap.classList.toggle('show', interactMode);
+  stageEl.querySelectorAll('iframe').forEach(ifr => {
+    ifr.style.pointerEvents = interactMode ? 'auto' : 'none';
+  });
+}
+
+function interactNext() {
+  const next = NEXT_PHASE_MAP[currentPhase];
+  if (!next) return;
+  if (interactMode) toggleInteract();
+  if (next === 'done') showComplete();
+  else goToPhase(next);
+}
+
+/* ══════════════════════════════════════════
+   SHOWCASE — PNG Device Mockups
+══════════════════════════════════════════ */
+const SC_ROLES = {
+  guardian: {
+    type: 'phone',
+    iframeStyle: 'top:-7px;height:809px;',
+    screens: [
+      {label:'실시간',    src:'07_디자인/mockup/v11_보호자앱/g-guardian-live.html'},
+      {label:'알림',      src:'07_디자인/mockup/v11_보호자앱/g06-alert.html'},
+      {label:'AI 리포트', src:'07_디자인/mockup/v11_보호자앱/g02-ai-report.html'},
+      {label:'채팅',      src:'07_디자인/mockup/v11_보호자앱/g03-chat-nurse.html'},
+    ]
+  },
+  caregiver: {
+    type: 'phone',
+    iframeStyle: 'top:-46px;height:857px;',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html'},
+      {label:'소통',      src:'07_디자인/mockup/v11_요양보호사앱/c03-sotong.html'},
+    ]
+  },
+  patient: {
+    type: 'ipad',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v12_환자앱/p01-today.html'},
+      {label:'복약 알림', src:'07_디자인/mockup/v12_환자앱/p02-med-alert.html'},
+      {label:'영상통화',  src:'07_디자인/mockup/v12_환자앱/p03-call.html'},
+      {label:'SOS',       src:'07_디자인/mockup/v12_환자앱/p09-sos.html'},
+    ]
+  },
+  nurse: {
+    type: 'imac',
+    url: 'haru-anbu.kr/nurse',
+    screens: [
+      {label:'대시보드',  src:'07_디자인/mockup/v1_의료진웹/n01-dashboard.html'},
+      {label:'환자 목록', src:'07_디자인/mockup/v1_의료진웹/n02-patients.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v1_의료진웹/n03-checklist.html'},
+      {label:'SOS',       src:'07_디자인/mockup/v1_의료진웹/n05-sos.html'},
+    ]
+  }
+};
+
+const SB_PATH = 'Mockup-templates/iOS iPadOS 26 Community/';
+
+function buildPhoneMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-phone-wrap';
+  wrap.innerHTML = `
+    <div class="sc-phone-screen">
+      <iframe src="${d.screens[0].src}" style="${d.iframeStyle||''}"></iframe>
+    </div>
+    <div class="sc-ios-statusbar">
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
+  `;
+  return wrap;
+}
+
+function buildIpadMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-ipad-wrap';
+  wrap.innerHTML = `
+    <div class="sc-ipad-screen">
+      <iframe src="${d.screens[0].src}"></iframe>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iPad Pro (M5) 11&quot; - Silver - Landscape.png" alt="">
+  `;
+  return wrap;
+}
+
+function buildImacMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-imac-wrap';
+  wrap.innerHTML = `
+    <div class="sc-imac-screen">
+      <div class="sc-browser-bar">
+        <div class="sc-b-dots">
+          <div class="sc-b-dot r"></div>
+          <div class="sc-b-dot y"></div>
+          <div class="sc-b-dot g"></div>
+        </div>
+        <div class="sc-b-url">${d.url || 'haru-anbu.kr'}</div>
+      </div>
+      <div class="sc-browser-content">
+        <iframe src="${d.screens[0].src}"></iframe>
+      </div>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iMac M4 24-inch Silver.png" alt="">
+  `;
+  return wrap;
+}
+
+function renderScRole(role, stageEl) {
+  const d = SC_ROLES[role];
+  stageEl.innerHTML = '';
+
+  const col = document.createElement('div');
+  col.className = 'sc-device-col';
+
+  let deviceWrap;
+  if (d.type === 'phone')      deviceWrap = buildPhoneMockup(role);
+  else if (d.type === 'ipad')  deviceWrap = buildIpadMockup(role);
+  else                          deviceWrap = buildImacMockup(role);
+
+  // screen selector — find the iframe inside the device
+  const tabsEl = document.createElement('div');
+  tabsEl.className = 'sc-screen-tabs';
+  d.screens.forEach((sc, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sc-stab' + (i === 0 ? ' active' : '');
+    btn.textContent = sc.label;
+    btn.addEventListener('click', () => {
+      tabsEl.querySelectorAll('.sc-stab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const ifr = deviceWrap.querySelector('iframe');
+      if (ifr) ifr.src = sc.src;
+    });
+    tabsEl.appendChild(btn);
+  });
+
+  col.appendChild(deviceWrap);
+  col.appendChild(tabsEl);
+  stageEl.appendChild(col);
+}
+
+function initShowcase() {
+  const scStage = document.getElementById('showcase-stage');
+  const tabs    = document.querySelectorAll('.sc-tab[data-role]');
+  if (!scStage || !tabs.length) return;
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderScRole(tab.dataset.role, scStage);
+    });
+  });
+
+  renderScRole('guardian', scStage);
+}
+
+initShowcase();
+
+/* ══════════════════════════════════════════
+   MAIN PAGE
+══════════════════════════════════════════ */
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY, t = document.documentElement.scrollHeight - window.innerHeight;
+  if (progressBar) progressBar.style.width = (s / t * 100) + '%';
+  document.getElementById('topbar')?.classList.toggle('scrolled', window.scrollY > 20);
+}, {passive:true});
+
+const io = new IntersectionObserver(es => {
+  es.forEach(e => e.isIntersecting && e.target.classList.add('in'));
+}, {threshold:.1});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const navLinks = document.querySelectorAll('.nav-link[data-nav]');
+const navObs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector(`.nav-link[data-nav="${e.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold:.35, rootMargin:'-70px 0px -40% 0px'});
+document.querySelectorAll('section[id]').forEach(s => navObs.observe(s));
+
+/* ══════════════════════════════════════════
+   ROI CALCULATOR
+══════════════════════════════════════════ */
+function calcROI() {
+  const patients = parseInt(document.getElementById('roi-patients').value);
+  const staff    = parseInt(document.getElementById('roi-staff').value);
+
+  document.getElementById('roi-patients-val').textContent = patients + '명';
+  document.getElementById('roi-staff-val').textContent    = staff + '명';
+
+  const dailyMin   = Math.round(patients * 0.5 + staff * 10);
+  const monthlyHr  = Math.round(dailyMin * 22 / 60);
+  const annualHr   = monthlyHr * 12;
+  const satisfaction = Math.min(98, 80 + Math.floor(patients / 20));
+
+  animateNum('roi-daily',        dailyMin,     '분');
+  animateNum('roi-monthly',      monthlyHr,    '시간');
+  animateNum('roi-satisfaction', satisfaction, '점');
+  animateNum('roi-annual',       annualHr,     '시간');
+}
+
+function animateNum(id, target, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = parseInt(el.textContent) || 0;
+  const dur   = 420;
+  const t0    = performance.now();
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.innerHTML = Math.round(start + (target - start) * ease) + `<span>${unit}</span>`;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+document.getElementById('roi-patients')?.addEventListener('input', calcROI);
+document.getElementById('roi-staff')?.addEventListener('input', calcROI);
+
+// ── Pain scroll zone (질문 index=0 / 카피 index=1-7 혼합 높이) ──
+(function () {
+  const COPY_H   = 180;        // 카피 아이템 높이
+  const zone     = document.getElementById('painZone');
+  const driver   = document.getElementById('painDriver');
+  const list     = document.getElementById('painList');
+  const dotsWrap = document.getElementById('painDots');
+  const hint     = document.querySelector('.pain-scroll-hint');
+  if (!zone || !driver || !list || !dotsWrap) return;
+
+  // 0: intro(100vh), 1-7: 카피(180px)
+  const introEl  = list.querySelector('.pain-item--intro');
+  const copyEls  = Array.from(list.querySelectorAll('.pain-item'));
+  const allItems = [introEl, ...copyEls];
+  const dots     = [];
+
+  // 도트는 카피(index 1-7)에만 생성
+  copyEls.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'pain-dot';
+    dotsWrap.appendChild(d);
+    dots.push(d);
+  });
+
+  function introH() { return zone.clientHeight; }  // 100vh in px (dynamic)
+
+  // pain-list 내 각 index의 top 위치 (px)
+  function itemTop(idx) {
+    return idx === 0 ? 0 : introH() + (idx - 1) * COPY_H;
+  }
+
+  function setActive(idx) {
+    let ty;
+    if (idx === 0) {
+      // 질문: list를 그대로 두면 introEl이 zone 전체를 채움
+      ty = 0;
+    } else {
+      const centerY = zone.clientHeight / 2;
+      ty = -(itemTop(idx) - (centerY - COPY_H / 2));
+    }
+    list.style.transform = `translateY(${ty}px)`;
+
+    // data-dist: intro는 독립 처리
+    introEl.dataset.dist = idx === 0 ? '0' : '3';
+    copyEls.forEach((el, i) => {
+      el.dataset.dist = String(Math.min(Math.abs((i + 1) - idx), 3));
+    });
+
+    // 도트 (카피 구간에서만 표시)
+    dots.forEach((d, i) => d.classList.toggle('on', i + 1 === idx));
+    dotsWrap.style.opacity  = idx === 0 ? '0' : '1';
+    if (hint) hint.style.opacity = idx === 0 ? '1' : '0';
+  }
+
+  driver.addEventListener('scroll', () => {
+    const idx = Math.round(driver.scrollTop / driver.clientHeight);
+    setActive(idx);
+  }, { passive: true });
+
+  setActive(0);
+})();
+
+// ── The Backdrop → Pain zone 오토스크롤 (easeOutBack 쫀득) ──
+(function () {
+  const mkt    = document.querySelector('.mkt-section');
+  const target = document.getElementById('painZone');
+  if (!mkt || !target) return;
+
+  let triggered = false;
+  let lastY     = window.scrollY;
+
+  function springScrollTo(targetY) {
+    const startY = window.scrollY;
+    const dist   = targetY - startY;
+    if (Math.abs(dist) < 2) { triggered = false; return; }
+    const dur = Math.min(950, Math.max(520, Math.abs(dist) * 0.36));
+    const t0  = performance.now();
+
+    function ease(x) {
+      const c1 = 1.70158, c3 = c1 + 1;
+      return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+    }
+    function tick(now) {
+      const p = Math.min(1, (now - t0) / dur);
+      window.scrollTo(0, startY + dist * ease(p));
+      if (p < 1) requestAnimationFrame(tick);
+      else { window.scrollTo(0, targetY); setTimeout(() => { triggered = false; }, 700); }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('scroll', () => {
+    const nowY      = window.scrollY;
+    const goingDown = nowY > lastY;
+    lastY = nowY;
+    if (triggered || !goingDown) return;
+
+    // scrollY(뷰포트 상단)이 mkt-section 중간을 지나야 발동
+    // → 사용자가 Backdrop을 절반 이상 스크롤한 뒤에만 다음으로 넘어감
+    if (nowY >= mkt.offsetTop + mkt.offsetHeight * 0.5) {
+      triggered = true;
+      springScrollTo(target.offsetTop);
+    }
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

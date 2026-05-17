@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>하루안부 로고 브랜드 가이드</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+  @page { size:A4; margin:0; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Pretendard Variable','Pretendard',sans-serif;
+    background:#fff;color:#1A2030;-webkit-font-smoothing:antialiased;
+    width:210mm;margin:0 auto;
+  }
+
+  .page{
+    width:210mm;min-height:297mm;padding:20mm 24mm;
+    page-break-after:always;position:relative;
+  }
+  .page:last-child{page-break-after:auto}
+
+  /* P1: 표지 */
+  .cover{
+    background:#0B0E14;color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+  }
+  .cover svg{width:120px;height:120px;margin-bottom:32px}
+  .cover h1{font-size:48px;font-weight:900;letter-spacing:-2px;margin-bottom:8px}
+  .cover p{font-size:16px;font-weight:200;color:rgba(255,255,255,0.4)}
+  .cover .sub{margin-top:48px;font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.2);text-transform:uppercase}
+
+  /* 공통 */
+  .section-label{font-size:10px;font-weight:700;letter-spacing:4px;color:#2C7AFC;margin-bottom:8px}
+  .section-title{font-size:28px;font-weight:800;color:#1A2030;margin-bottom:24px;letter-spacing:-1px}
+  .body{font-size:13px;font-weight:300;color:#555;line-height:1.9;max-width:480px}
+  hr.div{border:none;border-top:1px solid #E8E8E8;margin:32px 0}
+
+  /* P2: 로고 소개 */
+  .logo-display{
+    display:flex;align-items:center;justify-content:center;
+    height:140px;margin:32px 0;
+  }
+  .logo-display svg{width:140px;height:140px}
+
+  /* 의미 테이블 */
+  .meaning-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:12px}
+  .meaning-table th{text-align:left;padding:10px 12px;background:#F5F5F5;font-weight:700;color:#1A2030;border-bottom:1px solid #E8E8E8}
+  .meaning-table td{padding:10px 12px;border-bottom:1px solid #F0F0F0;color:#555;font-weight:300}
+  .meaning-table td:first-child{font-weight:600;color:#2C7AFC;width:140px}
+
+  /* P3: 열린 형태 */
+  .form-row{display:flex;gap:16px;margin-top:24px}
+  .form-item{
+    flex:1;padding:20px 16px;border-radius:12px;border:1px solid #E8E8E8;
+    text-align:center;
+  }
+  .form-item .icon{font-size:24px;margin-bottom:12px;display:block}
+  .form-item h4{font-size:13px;font-weight:700;color:#1A2030;margin-bottom:4px}
+  .form-item p{font-size:11px;font-weight:300;color:#888;line-height:1.5}
+
+  /* P4: 서비스 연결 */
+  .svc-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F0F0F0}
+  .svc-dot{width:8px;height:8px;border-radius:50%;background:#2C7AFC;flex-shrink:0}
+  .svc-row strong{font-size:12px;color:#2C7AFC;font-weight:700}
+  .svc-row span{font-size:12px;color:#777;font-weight:300}
+
+  /* P5: 브랜드 시스템 */
+  .sys-row{display:flex;gap:12px;margin-top:24px}
+  .sys-item{
+    flex:1;border:1px solid #E8E8E8;border-radius:12px;overflow:hidden;
+    text-align:center;
+  }
+  .sys-preview{
+    height:100px;display:flex;align-items:center;justify-content:center;
+    background:#F8F8F8;
+  }
+  .sys-preview svg{width:50px;height:50px}
+  .sys-preview.dark{background:#1A2030}
+  .sys-label{padding:10px 8px;font-size:10px}
+  .sys-label h5{font-weight:700;color:#1A2030;font-size:11px}
+  .sys-label span{font-weight:300;color:#999;font-size:10px}
+
+  /* P6: 컬러 */
+  .color-block{
+    display:flex;align-items:center;gap:32px;margin-top:24px;
+  }
+  .swatch{
+    width:100px;height:100px;border-radius:20px;background:#2C7AFC;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;
+    flex-shrink:0;
+  }
+  .swatch span{font-size:10px;color:rgba(255,255,255,0.7)}
+  .color-text h4{font-size:18px;font-weight:800;color:#1A2030;margin-bottom:8px}
+  .color-text p{font-size:12px;font-weight:300;color:#777;line-height:1.8}
+
+  /* 발표 스크립트 */
+  .script{
+    background:#F8F9FB;border-radius:12px;padding:24px 28px;margin-top:24px;
+    font-size:13px;font-weight:300;color:#555;line-height:2;
+  }
+  .script strong{font-weight:700;color:#1A2030}
+
+  @media print{
+    body{width:auto}
+    .page{padding:16mm 20mm}
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: 표지 -->
+<div class="page cover">
+  <svg viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+  <h1>하루안부</h1>
+  <p>오늘 하루도, 안녕하셨습니다</p>
+  <div class="sub">Brand Identity Guide — 2026</div>
+</div>
+
+<!-- PAGE 2: 로고 소개 + 의미 -->
+<div class="page">
+  <div class="section-label">01 — THE SYMBOL</div>
+  <div class="section-title">두 개의 곡선이 만나, 하나의 안부가 됩니다</div>
+
+  <div class="logo-display">
+    <svg viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+  </div>
+
+  <p class="body">
+    하루안부의 로고는 두 개의 유기적 곡선이 서로를 향해 흐르며 중앙에서 만나는 형태입니다. 이 심볼은 서비스의 핵심 가치인 "돌봄의 연결"을 시각적으로 표현합니다.
+  </p>
+
+  <table class="meaning-table">
+    <tr><th>요소</th><th>의미</th><th>서비스 연결</th></tr>
+    <tr><td>오른쪽 곡선</td><td>멀리서 안부를 묻는 보호자의 마음</td><td>보호자 대시보드</td></tr>
+    <tr><td>왼쪽 곡선</td><td>현장에서 돌봄을 전하는 의료진의 손길</td><td>케어 체크리스트</td></tr>
+    <tr><td>중앙 교차</td><td>두 마음이 만나는 플랫폼의 연결점</td><td>1:1 메시징</td></tr>
+    <tr><td>열린 상단</td><td>매일 아침 새 안부가 시작되는 공간</td><td>AI 데일리 리포트</td></tr>
+    <tr><td>열린 하단</td><td>끊이지 않는 돌봄의 연속성</td><td>의료 타임라인</td></tr>
+    <tr><td>유기적 곡선</td><td>차가운 직선이 아닌 부드러운 돌봄의 온도</td><td>AI 케어 가이드</td></tr>
+  </table>
+</div>
+
+<!-- PAGE 3: 열린 형태 -->
+<div class="page">
+  <div class="section-label">02 — OPEN FORM</div>
+  <div class="section-title">열린 형태, 끊이지 않는 안부</div>
+
+  <p class="body">
+    이 로고는 닫힌 원이 아닙니다. 위와 아래가 열려 있습니다. 이것은 매일 반복되지만 매일 새로운 "안부"의 본질을 담고 있습니다.
+  </p>
+
+  <div class="form-row">
+    <div class="form-item"><span class="icon">↑</span><h4>하루의 시작</h4><p>매일 아침 새 안부가<br>흘러들어오는 공간</p></div>
+    <div class="form-item"><span class="icon">↓</span><h4>연결의 지속</h4><p>끊이지 않는 케어의<br>연속성</p></div>
+    <div class="form-item"><span class="icon">〰</span><h4>따뜻한 곡선</h4><p>차가운 직선이 아닌<br>부드러운 돌봄의 온도</p></div>
+    <div class="form-item"><span class="icon">◎</span><h4>3자의 만남</h4><p>보호자 · 의료진 · 환자<br>하나로 모이는 중심</p></div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section-label">03 — SERVICE CONNECTION</div>
+  <div class="section-title">로고의 모든 요소는 기능과 연결됩니다</div>
+
+  <div class="svc-row"><div class="svc-dot"></div><strong>오른쪽 곡선</strong><span>→ 보호자 대시보드 — 실시간 안부 확인</span></div>
+  <div class="svc-row"><div class="svc-dot"></div><strong>왼쪽 곡선</strong><span>→ 케어 체크리스트 — 현장 돌봄 기록</span></div>
+  <div class="svc-row"><div class="svc-dot"></div><strong>중앙 교차</strong><span>→ 1:1 메시징 — 보호자 ↔ 의료진 소통</span></div>
+  <div class="svc-row"><div class="svc-dot"></div><strong>열린 상단</strong><span>→ AI 데일리 리포트 — 매일 아침 안부 요약</span></div>
+  <div class="svc-row"><div class="svc-dot"></div><strong>열린 하단</strong><span>→ 의료 타임라인 — 끊이지 않는 돌봄 기록</span></div>
+  <div class="svc-row"><div class="svc-dot"></div><strong>유기적 곡선</strong><span>→ AI 케어 가이드 — 대화형 돌봄 안내</span></div>
+</div>
+
+<!-- PAGE 4: 브랜드 시스템 + 컬러 -->
+<div class="page">
+  <div class="section-label">04 — BRAND SYSTEM</div>
+  <div class="section-title">하나의 심볼, 다섯 가지 형태</div>
+
+  <div class="sys-row">
+    <div class="sys-item">
+      <div class="sys-preview"><svg viewBox="0 0 2526 2526" fill="none" width="50"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg></div>
+      <div class="sys-label"><h5>심볼 단독</h5><span>앱 아이콘 · 파비콘</span></div>
+    </div>
+    <div class="sys-item">
+      <div class="sys-preview"><span style="font-weight:800;font-size:20px;color:#2C7AFC;letter-spacing:-1px">하루안부</span></div>
+      <div class="sys-label"><h5>워드마크</h5><span>네비게이션 · 좁은 공간</span></div>
+    </div>
+    <div class="sys-item">
+      <div class="sys-preview" style="gap:8px;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 2526 2526" fill="none" width="28"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+        <span style="font-weight:800;font-size:16px;color:#1A2030;letter-spacing:-0.5px">하루안부</span>
+      </div>
+      <div class="sys-label"><h5>콤비네이션 가로</h5><span>헤더 · 발표 · 명함</span></div>
+    </div>
+    <div class="sys-item">
+      <div class="sys-preview" style="flex-direction:column;gap:6px;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 2526 2526" fill="none" width="36"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+        <span style="font-weight:800;font-size:13px;color:#1A2030;letter-spacing:-0.5px">하루안부</span>
+      </div>
+      <div class="sys-label"><h5>콤비네이션 세로</h5><span>스플래시 · 포스터</span></div>
+    </div>
+    <div class="sys-item">
+      <div class="sys-preview dark"><svg viewBox="0 0 2526 2526" fill="none" width="50"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="rgba(255,255,255,0.2)"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="rgba(255,255,255,0.2)"/></svg></div>
+      <div class="sys-label"><h5>단색 버전</h5><span>흑백 인쇄 · 워터마크</span></div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section-label">05 — COLOR</div>
+  <div class="section-title">신뢰 위에 세운 따뜻함</div>
+
+  <div class="color-block">
+    <div class="swatch"><span>#2C7AFC</span></div>
+    <div class="color-text">
+      <h4>하루안부 블루</h4>
+      <p>
+        블루는 신뢰, 안정, 전문성의 색입니다.<br>
+        하지만 차가운 네이비가 아닌 밝고 선명한 블루.<br>
+        신뢰하되 다가가기 쉬운 — "걱정 마세요, 저희가 잘 돌보고 있어요"
+      </p>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section-label">06 — BRAND STORY</div>
+  <div class="section-title">발표용 스크립트</div>
+
+  <div class="script">
+    하루안부의 로고는 <strong>두 개의 곡선</strong>으로 이루어져 있습니다.<br><br>
+    오른쪽 곡선은 멀리서 안부를 묻는 <strong>보호자의 마음</strong>입니다.<br>
+    왼쪽 곡선은 현장에서 돌봄을 전하는 <strong>의료진의 손길</strong>입니다.<br><br>
+    이 두 곡선이 <strong>중앙에서 만납니다.</strong> 그곳이 바로 하루안부입니다.<br><br>
+    그리고 이 로고는 <strong>닫혀있지 않습니다.</strong><br>
+    오늘의 안부가 끝나면, 내일의 안부가 다시 시작되니까요.<br><br>
+    <strong>매일 하루, 매일 안부. 하루안부는 그 연결을 멈추지 않습니다.</strong>
+  </div>
+</div>
+
+</body>
+</html>

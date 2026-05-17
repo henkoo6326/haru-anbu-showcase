@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>하루안부 — 보호자</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+:root {
+  --primary: #0891B2;
+  --primary-light: #22D3EE;
+  --accent: #059669;
+  --bg: #F0F4F8;
+  --card: #FFFFFF;
+  --text: #0F172A;
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
+  --border: #E2E8F0;
+  --destructive: #DC2626;
+  --warning: #F59E0B;
+  --success: #059669;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:390px;min-height:844px;background:var(--bg);font-family:'Pretendard',-apple-system,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.5}
+
+/* Status bar */
+.sb{height:54px;padding:16px 20px 0;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--text)}
+
+/* Header */
+.hd{background:linear-gradient(180deg,#D9F0F7 0%,var(--bg) 100%);padding-bottom:8px}
+.hd-inner{padding:4px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start}
+.hd-title{font-size:28px;font-weight:800;letter-spacing:-0.5px;line-height:1.2}
+.hd-title span{color:var(--primary)}
+.hd-sub{font-size:14px;color:var(--text-secondary);margin-top:4px}
+.hd-actions{display:flex;gap:8px;margin-top:4px}
+.hd-btn{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative}
+.hd-btn svg{width:20px;height:20px;stroke:var(--text-secondary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hd-dot{position:absolute;top:0;right:0;width:10px;height:10px;background:var(--destructive);border-radius:50%;border:2px solid var(--bg)}
+
+.sc{padding:0 16px 100px}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;border:1px solid var(--border)}
+
+/* Section header */
+.sh{padding:14px 16px 6px;display:flex;justify-content:space-between;align-items:center}
+.sh-label{font-size:12px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.8px}
+.sh-link{font-size:14px;color:var(--primary);font-weight:500}
+
+/* Patient summary card */
+.patient-card{background:linear-gradient(135deg,var(--primary) 0%,#0E7490 100%);border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:12px;border:none}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.pc-name{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.pc-detail{font-size:13px;opacity:0.75;margin-top:3px}
+.pc-avatar{width:44px;height:44px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center}
+.pc-avatar svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:1.8}
+.pc-metrics{display:flex;gap:8px}
+.pc-metric{flex:1;background:rgba(255,255,255,0.12);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;backdrop-filter:blur(8px)}
+.pc-metric-val{font-size:20px;font-weight:700}
+.pc-metric-label{font-size:11px;opacity:0.7;margin-top:2px}
+
+/* Quick actions */
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.qa-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.qa-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.qa-icon svg{width:20px;height:20px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.qa-label{font-size:11px;font-weight:500;color:var(--text-secondary)}
+
+/* List row */
+.lr{display:flex;align-items:center;padding:12px 16px;min-height:48px;border-bottom:1px solid var(--border);gap:12px}
+.lr:last-child{border:none}
+.lr-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lr-icon svg{width:18px;height:18px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.lr-body{flex:1;min-width:0}
+.lr-title{font-size:15px;font-weight:500;letter-spacing:-0.2px}
+.lr-desc{font-size:13px;color:var(--text-secondary);margin-top:1px}
+.lr-right{display:flex;align-items:center;gap:6px}
+.lr-val{font-size:15px;font-weight:600}
+.lr-val.green{color:var(--success)}
+.lr-val.blue{color:var(--primary)}
+.lr-val.orange{color:var(--warning)}
+.lr-chev{width:16px;height:16px}
+.lr-chev svg{width:16px;height:16px;stroke:var(--text-tertiary);fill:none;stroke-width:2}
+
+/* Chart */
+.chart{padding:16px}
+.chart-tabs{display:flex;background:#E2E8F0;border-radius:var(--radius-xs);padding:2px;margin-bottom:14px}
+.chart-tab{flex:1;text-align:center;font-size:12px;font-weight:600;padding:6px;border-radius:6px;color:var(--text-secondary)}
+.chart-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.chart-meta{margin-bottom:4px}
+.chart-meta-label{font-size:12px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+.chart-meta-val{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--primary)}
+.chart-meta-unit{font-size:16px;font-weight:400;color:var(--text-secondary)}
+.chart-meta-date{font-size:12px;color:var(--text-tertiary)}
+.bars{display:flex;gap:4px;align-items:flex-end;height:100px;margin-top:12px}
+.bar-w{flex:1;display:flex;flex-direction:column;align-items:center}
+.bar{width:100%;border-radius:3px}
+.bar-day{font-size:11px;color:var(--text-tertiary);margin-top:6px}
+
+/* Highlight */
+.hl{padding:16px;border-top:1px solid var(--border)}
+.hl-title{font-size:16px;font-weight:700;letter-spacing:-0.2px;margin-bottom:10px}
+.hl-text{font-size:14px;color:var(--text-secondary);line-height:1.6}
+.hl-text b{color:var(--primary);font-weight:600}
+.hl-compare{display:flex;gap:24px;margin-top:12px}
+.hl-stat-label{font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px}
+.hl-dot{width:8px;height:8px;border-radius:50%}
+.hl-stat-val{font-size:20px;font-weight:700;letter-spacing:-0.5px;margin-top:2px}
+
+/* AI Report */
+.ai{padding:16px}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--primary);background:#E0F7FA;padding:4px 10px;border-radius:6px}
+.ai-time{font-size:12px;color:var(--text-tertiary);float:right;margin-top:4px}
+.ai-text{font-size:14px;line-height:1.7;color:var(--text);margin-top:10px}
+.ai-text b{color:var(--primary)}
+.ai-footer{font-size:13px;color:var(--text-tertiary);margin-top:10px;font-style:italic}
+
+/* Timeline */
+.tl-item{display:flex;align-items:center;padding:12px 16px;gap:12px;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border:none}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tl-time{font-size:13px;color:var(--text-tertiary);width:42px;flex-shrink:0}
+.tl-text{font-size:14px;flex:1}
+
+/* Suggest */
+.sug{padding:14px 16px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border)}
+.sug:last-child{border:none}
+.sug-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sug-icon svg{width:20px;height:20px;stroke-width:1.8;fill:none}
+.sug-body{flex:1}
+.sug-title{font-size:15px;font-weight:600}
+.sug-desc{font-size:13px;color:var(--text-secondary);margin-top:2px;line-height:1.4}
+.sug-btn{display:inline-block;margin-top:8px;font-size:14px;font-weight:600;color:var(--primary);background:#E0F7FA;padding:6px 16px;border-radius:20px}
+
+/* Tab bar */
+.tb{position:fixed;bottom:0;left:0;width:390px;height:82px;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 28px}
+.t{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:500;color:var(--text-tertiary);border:none;background:none}
+.t.active{color:var(--primary)}
+.t svg{width:24px;height:24px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.t.active svg{stroke:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="sb"><span>9:41</span><span style="font-size:12px;color:var(--text-secondary)">LTE ■■■ 100%</span></div>
+  <div class="hd-inner">
+    <div>
+      <div class="hd-title">하루<span>안부</span></div>
+      <div class="hd-sub">김순자 어르신 · 101호</div>
+    </div>
+    <div class="hd-actions">
+      <div class="hd-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="hd-dot"></div></div>
+      <div class="hd-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<div class="sc">
+
+<!-- Patient summary -->
+<div class="patient-card">
+  <div class="pc-top">
+    <div><div class="pc-name">김순자 어르신</div><div class="pc-detail">3등급 · 입소 6개월 · 박지현 간호사</div></div>
+    <div class="pc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+  </div>
+  <div class="pc-metrics">
+    <div class="pc-metric"><div class="pc-metric-val">양호</div><div class="pc-metric-label">컨디션</div></div>
+    <div class="pc-metric"><div class="pc-metric-val">85%</div><div class="pc-metric-label">케어 완료</div></div>
+    <div class="pc-metric"><div class="pc-metric-val">3/3</div><div class="pc-metric-label">투약 완료</div></div>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="qa">
+  <div class="qa-item">
+    <div class="qa-icon" style="background:#E0F7FA"><svg viewBox="0 0 24 24" stroke="var(--primary)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="qa-label">AI 가이드</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-icon" style="background:#E8F5E9"><svg viewBox="0 0 24 24" stroke="var(--accent)"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+    <div class="qa-label">채팅</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-icon" style="background:#FEF3C7"><svg viewBox="0 0 24 24" stroke="var(--warning)"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+    <div class="qa-label">처방전</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-icon" style="background:#F3E8FF"><svg viewBox="0 0 24 24" stroke="#7C3AED"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+    <div class="qa-label">일과표</div>
+  </div>
+</div>
+
+<!-- Today's care -->
+<div class="card">
+  <div class="sh"><span class="sh-label">오늘 케어 현황</span><span class="sh-link">전체보기</span></div>
+  <div class="lr">
+    <div class="lr-icon" style="background:#DCFCE7"><svg viewBox="0 0 24 24" stroke="var(--success)"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+    <div class="lr-body"><div class="lr-title">식사</div><div class="lr-desc">아침 80% · 점심 85%</div></div>
+    <div class="lr-right"><span class="lr-val green">80%</span><div class="lr-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+  </div>
+  <div class="lr">
+    <div class="lr-icon" style="background:#E0F7FA"><svg viewBox="0 0 24 24" stroke="var(--primary)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+    <div class="lr-body"><div class="lr-title">투약</div><div class="lr-desc">오전 · 오후 · 취침 전</div></div>
+    <div class="lr-right"><span class="lr-val blue">3/3</span><div class="lr-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+  </div>
+  <div class="lr">
+    <div class="lr-icon" style="background:#FEF3C7"><svg viewBox="0 0 24 24" stroke="var(--warning)"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg></div>
+    <div class="lr-body"><div class="lr-title">위생</div><div class="lr-desc">오후 진행 예정</div></div>
+    <div class="lr-right"><span class="lr-val orange">50%</span><div class="lr-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+  </div>
+  <div class="lr">
+    <div class="lr-icon" style="background:#F3E8FF"><svg viewBox="0 0 24 24" stroke="#7C3AED"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+    <div class="lr-body"><div class="lr-title">활동</div><div class="lr-desc">재활 30분 + 산책 20분</div></div>
+    <div class="lr-right"><span class="lr-val green">완료</span><div class="lr-chev"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+  </div>
+</div>
+
+<!-- Weekly chart -->
+<div class="card">
+  <div class="chart">
+    <div class="chart-tabs">
+      <div class="chart-tab">일</div><div class="chart-tab active">주</div><div class="chart-tab">월</div><div class="chart-tab">6개월</div><div class="chart-tab">년</div>
+    </div>
+    <div class="chart-meta">
+      <div class="chart-meta-label">AVERAGE</div>
+      <div><span class="chart-meta-val">82</span><span class="chart-meta-unit"> %</span></div>
+      <div class="chart-meta-date">3월 17일 ~ 3월 23일</div>
+    </div>
+    <div class="bars">
+      <div class="bar-w"><div class="bar" style="height:84px;background:var(--primary)"></div><div class="bar-day">월</div></div>
+      <div class="bar-w"><div class="bar" style="height:72px;background:var(--primary)"></div><div class="bar-day">화</div></div>
+      <div class="bar-w"><div class="bar" style="height:90px;background:var(--primary)"></div><div class="bar-day">수</div></div>
+      <div class="bar-w"><div class="bar" style="height:78px;background:var(--primary)"></div><div class="bar-day">목</div></div>
+      <div class="bar-w"><div class="bar" style="height:96px;background:var(--primary)"></div><div class="bar-day">금</div></div>
+      <div class="bar-w"><div class="bar" style="height:60px;background:#CBD5E1"></div><div class="bar-day">토</div></div>
+      <div class="bar-w"><div class="bar" style="height:42px;background:#CBD5E1"></div><div class="bar-day">일</div></div>
+    </div>
+  </div>
+  <div class="hl">
+    <div class="hl-title">Highlights</div>
+    <div class="hl-text">이번 주 어머님의 케어 완료율은 평균 82%로, 지난 주 대비 <b>5% 상승</b>했습니다.</div>
+    <div class="hl-compare">
+      <div><div class="hl-stat-label"><div class="hl-dot" style="background:var(--primary)"></div>이번 주</div><div class="hl-stat-val" style="color:var(--primary)">82%</div></div>
+      <div><div class="hl-stat-label"><div class="hl-dot" style="background:#CBD5E1"></div>지난 주</div><div class="hl-stat-val">77%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Report -->
+<div class="card">
+  <div class="sh"><span class="sh-label">AI 일일 리포트</span></div>
+  <div class="ai">
+    <div><span class="ai-badge"><svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--primary)" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> AI 자동 생성</span><span class="ai-time">오늘 19:00</span></div>
+    <div class="ai-text">
+      오늘 어머님은 전반적으로 <b>양호한 컨디션</b>을 보이셨습니다.<br><br>
+      식사 — 아침 80%, 점심 85% 섭취<br>
+      투약 — 3회 모두 완료<br>
+      활동 — 재활 30분 + 산책 20분
+    </div>
+    <div class="ai-footer">오늘 하루도, 안녕하셨습니다.</div>
+  </div>
+</div>
+
+<!-- Timeline -->
+<div class="card">
+  <div class="sh"><span class="sh-label">오늘 타임라인</span></div>
+  <div class="tl-item"><div class="tl-dot" style="background:var(--success)"></div><div class="tl-time">09:00</div><div class="tl-text">오전 투약 완료</div></div>
+  <div class="tl-item"><div class="tl-dot" style="background:var(--primary)"></div><div class="tl-time">10:00</div><div class="tl-text">재활운동 30분</div></div>
+  <div class="tl-item"><div class="tl-dot" style="background:var(--success)"></div><div class="tl-time">12:30</div><div class="tl-text">점심 식사 85%</div></div>
+  <div class="tl-item"><div class="tl-dot" style="background:var(--warning)"></div><div class="tl-time">14:00</div><div class="tl-text" style="color:var(--warning);font-weight:500">오후 투약 예정</div></div>
+</div>
+
+<!-- Suggestions -->
+<div class="card">
+  <div class="sh"><span class="sh-label">추천</span></div>
+  <div class="sug">
+    <div class="sug-icon" style="background:#E0F7FA"><svg viewBox="0 0 24 24" stroke="var(--primary)"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+    <div class="sug-body"><div class="sug-title">요양비 계산</div><div class="sug-desc">등급별 본인부담금과 시설 vs 재가 비용을 비교해보세요.</div><span class="sug-btn">시작하기</span></div>
+  </div>
+  <div class="sug">
+    <div class="sug-icon" style="background:#FEE2E2"><svg viewBox="0 0 24 24" stroke="var(--destructive)"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+    <div class="sug-body"><div class="sug-title">요양원 찾기</div><div class="sug-desc">AI가 조건에 맞는 요양원을 찾아드립니다.</div><span class="sug-btn">시작하기</span></div>
+  </div>
+</div>
+
+</div>
+
+<!-- Tab bar -->
+<div class="tb">
+  <div class="t active"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>요약</div>
+  <div class="t"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>채팅</div>
+  <div class="t"><svg viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>AI</div>
+  <div class="t"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>리포트</div>
+  <div class="t"><svg viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>탐색</div>
+</div>
+
+</body></html>

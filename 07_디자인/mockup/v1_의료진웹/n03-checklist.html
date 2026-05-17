@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — 케어 체크리스트</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    html,body { height:100%; }
+    .checklist-layout { display:grid; grid-template-columns:280px 1fr; gap:16px; height:calc(100vh - 58px - 44px - 80px); }
+    .patient-sidebar-panel {
+      background:var(--glass); backdrop-filter:blur(20px) saturate(160%);
+      border:0.5px solid var(--glass-border); box-shadow:var(--glass-shadow);
+      border-radius:20px; overflow:hidden; position:relative;
+    }
+    .patient-sidebar-panel::before {
+      content:''; position:absolute; inset:0; border-radius:inherit;
+      background:linear-gradient(148deg, rgba(255,255,255,.42) 0%, transparent 55%);
+      pointer-events:none; z-index:0;
+    }
+    .patient-sidebar-panel > * { position:relative; z-index:1; }
+    .psp-header { padding:14px 16px; border-bottom:0.5px solid rgba(0,0,0,.06); }
+    .psp-title { font-size:13px; font-weight:700; color:var(--slate-800); }
+    .psp-search { margin-top:8px; position:relative; }
+    .psp-search-input {
+      width:100%; padding:7px 12px 7px 28px;
+      background:rgba(0,0,0,.04); border:0.5px solid rgba(0,0,0,.08);
+      border-radius:999px; font-size:12px; font-family:var(--font); outline:none; color:var(--slate-700);
+    }
+    .psp-search-icon { position:absolute; left:9px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--slate-400); }
+    .psp-list { overflow-y:auto; height:calc(100% - 90px); }
+    .psp-item {
+      display:flex; align-items:center; gap:10px; padding:10px 14px;
+      cursor:pointer; transition:background .1s; border-bottom:0.5px solid rgba(0,0,0,.04);
+    }
+    .psp-item.active { background:rgba(5,150,105,.08); }
+    .psp-item:hover:not(.active) { background:rgba(255,255,255,.45); }
+    .psp-avatar {
+      width:36px; height:36px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px; font-weight:800; flex-shrink:0;
+      background:linear-gradient(135deg, var(--nurse-light), var(--nurse-50)); color:var(--nurse-dark);
+    }
+    .psp-info { flex:1; min-width:0; }
+    .psp-name { font-size:12px; font-weight:700; color:var(--slate-800); }
+    .psp-sub  { font-size:10px; color:var(--slate-400); margin-top:1px; }
+    .psp-pct  { font-size:11px; font-weight:700; }
+
+    .checklist-main { display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+    .cl-header-card {
+      background:linear-gradient(135deg, var(--nurse-dark), var(--nurse-deeper));
+      border-radius:20px; padding:20px 22px;
+      display:flex; align-items:center; gap:20px;
+    }
+    .cl-patient-name { font-size:22px; font-weight:800; color:#fff; letter-spacing:-.5px; }
+    .cl-patient-meta { font-size:12px; color:rgba(255,255,255,.65); margin-top:4px; }
+    .cl-overall { margin-left:auto; text-align:center; }
+    .cl-pct { font-size:36px; font-weight:800; color:#fff; line-height:1; }
+    .cl-pct-label { font-size:11px; color:rgba(255,255,255,.65); margin-top:4px; }
+    .cl-mini-stats { display:flex; gap:12px; }
+    .cl-mini-stat { background:rgba(255,255,255,.12); border-radius:10px; padding:8px 14px; text-align:center; }
+    .cl-mini-val { font-size:16px; font-weight:800; color:#fff; }
+    .cl-mini-label { font-size:10px; color:rgba(255,255,255,.60); margin-top:2px; }
+
+    .category-tabs { display:flex; gap:4px; background:rgba(0,0,0,.05); border-radius:999px; padding:4px; }
+    .cat-tab {
+      flex:1; padding:8px 12px; border-radius:999px;
+      font-size:13px; font-weight:600; color:var(--slate-500);
+      text-align:center; cursor:pointer; transition:all .15s;
+      display:flex; align-items:center; justify-content:center; gap:5px;
+    }
+    .cat-tab.active { background:#fff; color:var(--slate-800); font-weight:700; box-shadow:0 1px 6px rgba(0,0,0,.10); }
+    .cat-tab.done { color:var(--nurse-dark); }
+    .cat-tab .cat-count { font-size:10px; font-weight:700; padding:1px 6px; border-radius:999px; background:rgba(0,0,0,.08); }
+    .cat-tab.active .cat-count { background:var(--nurse); color:#fff; }
+
+    .cl-section { background:var(--glass); backdrop-filter:blur(20px) saturate(160%); border:0.5px solid var(--glass-border); box-shadow:var(--glass-shadow); border-radius:20px; overflow:hidden; position:relative; }
+    .cl-section::before { content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(148deg, rgba(255,255,255,.38) 0%, transparent 55%); pointer-events:none; z-index:0; }
+    .cl-section > * { position:relative; z-index:1; }
+    .cl-section-header { padding:13px 16px; border-bottom:0.5px solid rgba(0,0,0,.06); display:flex; align-items:center; gap:10px; }
+    .cl-section-icon { width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .cl-section-icon.meal    { background:rgba(249,115,22,.12); }
+    .cl-section-icon.med     { background:rgba(59,130,246,.12); }
+    .cl-section-icon.hygiene { background:rgba(5,150,105,.12); }
+    .cl-section-icon.activity{ background:rgba(250,204,21,.12); }
+    .cl-section-title { font-size:13px; font-weight:700; color:var(--slate-800); }
+    .cl-section-sub { font-size:11px; color:var(--slate-400); margin-left:auto; }
+
+    .cl-item { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:0.5px solid rgba(0,0,0,.04); }
+    .cl-item:last-child { border-bottom:none; }
+    .cl-checkbox {
+      width:24px; height:24px; border-radius:7px; flex-shrink:0;
+      border:1.5px solid rgba(0,0,0,.15);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .15s;
+    }
+    .cl-checkbox.checked { background:var(--nurse); border-color:var(--nurse); }
+    .cl-checkbox.checked::after { content:'✓'; color:#fff; font-size:13px; font-weight:800; }
+    .cl-content { flex:1; }
+    .cl-name { font-size:13px; font-weight:600; color:var(--slate-800); }
+    .cl-name.done { color:var(--slate-400); text-decoration:line-through; }
+    .cl-sub { font-size:11px; color:var(--slate-400); margin-top:2px; }
+    .cl-input-wrap { display:flex; align-items:center; gap:8px; }
+    .cl-mini-input {
+      padding:5px 10px; width:90px; border-radius:8px;
+      border:0.5px solid rgba(0,0,0,.10); background:rgba(255,255,255,.70);
+      font-size:12px; font-family:var(--font); outline:none; color:var(--slate-700);
+    }
+    .cl-mini-input:focus { border-color:var(--nurse); }
+    .cl-unit { font-size:11px; color:var(--slate-400); }
+    .cl-time-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
+    .cl-time-badge.done { background:rgba(5,150,105,.10); color:var(--nurse-dark); }
+    .cl-time-badge.pending { background:rgba(0,0,0,.07); color:var(--slate-500); }
+    .cl-memo-btn { font-size:11px; color:var(--nurse); cursor:pointer; padding:4px 8px; border-radius:8px; background:rgba(5,150,105,.07); border:none; font-family:var(--font); }
+    .save-bar {
+      background:var(--glass); backdrop-filter:blur(20px);
+      border:0.5px solid var(--glass-border); box-shadow:var(--glass-shadow);
+      border-radius:20px; padding:14px 18px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .save-note { font-size:12px; color:var(--slate-500); }
+    .save-note strong { color:var(--nurse-dark); font-weight:700; }
+  </style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="bg-g1"></div><div class="bg-g2"></div><div class="bg-g3"></div></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon"><iconify-icon icon="ph:heartbeat-bold" width="22" style="color:#fff"></iconify-icon></div>
+      <div><div class="logo-name">하루안부</div><div class="logo-sub">오늘 하루도, 안녕하셨습니다</div></div>
+    </div>
+  </div>
+  <div class="sidebar-facility"><div class="facility-dot"></div><span class="facility-name">햇살요양원 · 2병동</span></div>
+  <div class="nav-section-label">메인 메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:house-bold"></iconify-icon>대시보드</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:users-bold"></iconify-icon>환자 관리<span class="nav-badge yellow">3</span></a></li>
+    <li class="nav-item"><a class="nav-link active"><iconify-icon class="nav-icon" icon="ph:clipboard-text-bold"></iconify-icon>케어 체크리스트<span class="nav-badge">2</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:arrows-clockwise-bold"></iconify-icon>AI 인수인계</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:siren-bold"></iconify-icon>SOS 센터<span class="nav-badge">1</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:chats-bold"></iconify-icon>보호자 채팅<span class="nav-badge green">5</span></a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:calendar-bold"></iconify-icon>시간표 관리</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:pill-bold"></iconify-icon>처방전 관리</a></li>
+    <li class="nav-item"><a class="nav-link"><iconify-icon class="nav-icon" icon="ph:clock-countdown-bold"></iconify-icon>의료 타임라인</a></li>
+  </ul>
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div><div class="user-name">박지현</div><div class="user-role">수간호사 · 2병동</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">케어 체크리스트</span>
+      <span class="page-date">2026년 4월 16일</span>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost btn-sm btn-pill"><iconify-icon icon="ph:export-bold"></iconify-icon>내보내기</button>
+      <button class="icon-btn"><iconify-icon icon="ph:bell-bold"></iconify-icon><span class="notif-dot"></span></button>
+      <button class="sos-btn"><iconify-icon icon="ph:siren-bold"></iconify-icon>SOS</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="greeting mb-4">
+      <h1>케어 체크리스트</h1>
+      <p>오늘 담당 환자 <strong>12명</strong> · 평균 완료율 <strong>73%</strong> · 2명 미완료 항목 있음</p>
+    </div>
+
+    <div class="checklist-layout">
+      <!-- 환자 선택 사이드바 -->
+      <div class="patient-sidebar-panel">
+        <div class="psp-header">
+          <div class="psp-title">환자 선택</div>
+          <div class="psp-search">
+            <iconify-icon class="psp-search-icon" icon="ph:magnifying-glass-bold"></iconify-icon>
+            <input class="psp-search-input" type="text" placeholder="환자명 검색...">
+          </div>
+        </div>
+        <div class="psp-list">
+          <div class="psp-item active">
+            <div class="psp-avatar" style="background:linear-gradient(135deg,#FEE2E2,#FECACA);color:var(--red-600)">김</div>
+            <div class="psp-info">
+              <div class="psp-name">김순자</div>
+              <div class="psp-sub">201호 · 82세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:45%;height:100%;background:var(--red-500);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--red-500)">45%</span>
+              </div>
+            </div>
+            <span class="badge critical" style="font-size:9px">긴급</span>
+          </div>
+          <div class="psp-item">
+            <div class="psp-avatar" style="background:linear-gradient(135deg,#FEF3C7,#FED7AA);color:var(--orange-500)">이</div>
+            <div class="psp-info">
+              <div class="psp-name">이철수</div>
+              <div class="psp-sub">205호 · 77세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:68%;height:100%;background:var(--orange-500);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--orange-500)">68%</span>
+              </div>
+            </div>
+            <span class="badge caution" style="font-size:9px">주의</span>
+          </div>
+          <div class="psp-item">
+            <div class="psp-avatar">최</div>
+            <div class="psp-info">
+              <div class="psp-name">최영자</div>
+              <div class="psp-sub">203호 · 79세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:91%;height:100%;background:var(--nurse);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--nurse)">91%</span>
+              </div>
+            </div>
+          </div>
+          <div class="psp-item">
+            <div class="psp-avatar">정</div>
+            <div class="psp-info">
+              <div class="psp-name">정만수</div>
+              <div class="psp-sub">204호 · 81세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:88%;height:100%;background:var(--nurse);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--nurse)">88%</span>
+              </div>
+            </div>
+          </div>
+          <div class="psp-item">
+            <div class="psp-avatar" style="background:linear-gradient(135deg,#FEF3C7,#FED7AA);color:var(--orange-500)">박</div>
+            <div class="psp-info">
+              <div class="psp-name">박복순</div>
+              <div class="psp-sub">208호 · 85세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:52%;height:100%;background:var(--orange-500);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--orange-500)">52%</span>
+              </div>
+            </div>
+            <span class="badge caution" style="font-size:9px">주의</span>
+          </div>
+          <div class="psp-item">
+            <div class="psp-avatar">강</div>
+            <div class="psp-info">
+              <div class="psp-name">강말순</div>
+              <div class="psp-sub">206호 · 76세</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+                <div style="flex:1;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden"><div style="width:96%;height:100%;background:var(--nurse);border-radius:2px"></div></div>
+                <span class="psp-pct" style="color:var(--nurse)">96%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 체크리스트 메인 -->
+      <div class="checklist-main">
+        <!-- 환자 헤더 -->
+        <div class="cl-header-card">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0">김</div>
+          <div>
+            <div class="cl-patient-name">김순자</div>
+            <div class="cl-patient-meta">201호 · 82세 여 · 요양 3등급 · 오늘 체크리스트</div>
+          </div>
+          <div class="cl-mini-stats">
+            <div class="cl-mini-stat"><div class="cl-mini-val">5</div><div class="cl-mini-label">완료</div></div>
+            <div class="cl-mini-stat"><div class="cl-mini-val" style="color:#FBBF24">6</div><div class="cl-mini-label">미완료</div></div>
+            <div class="cl-mini-stat"><div class="cl-mini-val">2</div><div class="cl-mini-label">긴급</div></div>
+          </div>
+          <div class="cl-overall">
+            <div class="cl-pct">45%</div>
+            <div class="cl-pct-label">오늘 완료율</div>
+          </div>
+        </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs">
+          <div class="cat-tab active">🍚 식사<span class="cat-count">3/4</span></div>
+          <div class="cat-tab">💊 투약<span class="cat-count">0/3</span></div>
+          <div class="cat-tab done">🚿 위생<span class="cat-count">2/2</span></div>
+          <div class="cat-tab">🏃 활동<span class="cat-count">1/3</span></div>
+          <div class="cat-tab">📝 특이사항</div>
+        </div>
+
+        <!-- 식사 섹션 -->
+        <div class="cl-section">
+          <div class="cl-section-header">
+            <div class="cl-section-icon meal">🍚</div>
+            <div class="cl-section-title">식사 기록</div>
+            <div class="cl-section-sub">3/4 완료</div>
+          </div>
+          <div class="cl-item">
+            <div class="cl-checkbox checked"></div>
+            <div class="cl-content">
+              <div class="cl-name done">아침 식사 (07:30)</div>
+              <div class="cl-sub">밥 + 반찬 · 기록됨</div>
+            </div>
+            <div class="cl-input-wrap">
+              <input class="cl-mini-input" type="number" value="85" placeholder="섭취율">
+              <span class="cl-unit">%</span>
+            </div>
+            <span class="cl-time-badge done">07:42 기록</span>
+          </div>
+          <div class="cl-item">
+            <div class="cl-checkbox checked"></div>
+            <div class="cl-content">
+              <div class="cl-name done">점심 식사 (12:00)</div>
+              <div class="cl-sub">죽 + 반찬 · 기록됨</div>
+            </div>
+            <div class="cl-input-wrap">
+              <input class="cl-mini-input" type="number" value="70" placeholder="섭취율">
+              <span class="cl-unit">%</span>
+            </div>
+            <span class="cl-time-badge done">12:15 기록</span>
+          </div>
+          <div class="cl-item" style="background:rgba(249,115,22,.04)">
+            <div class="cl-checkbox"></div>
+            <div class="cl-content">
+              <div class="cl-name">저녁 식사 (17:30)</div>
+              <div class="cl-sub" style="color:var(--orange-500)">아직 미기록</div>
+            </div>
+            <div class="cl-input-wrap">
+              <input class="cl-mini-input" type="number" placeholder="섭취율">
+              <span class="cl-unit">%</span>
+            </div>
+            <span class="cl-time-badge pending">예정</span>
+            <button class="cl-memo-btn">메모</button>
+          </div>
+          <div class="cl-item">
+            <div class="cl-checkbox checked"></div>
+            <div class="cl-content">
+              <div class="cl-name done">수분 섭취 확인</div>
+              <div class="cl-sub">하루 1,500mL 목표</div>
+            </div>
+            <div class="cl-input-wrap">
+              <input class="cl-mini-input" type="number" value="900" placeholder="섭취량">
+              <span class="cl-unit">mL</span>
+            </div>
+            <span class="cl-time-badge done">14:00 기록</span>
+          </div>
+        </div>
+
+        <!-- 저장 버튼 -->
+        <div class="save-bar">
+          <div class="save-note">마지막 저장 <strong>2026.04.16 14:22</strong> · 변경사항 있음</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm btn-pill">임시 저장</button>
+            <button class="btn btn-primary btn-sm btn-pill"><iconify-icon icon="ph:floppy-disk-bold"></iconify-icon>저장 및 보호자 알림 발송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

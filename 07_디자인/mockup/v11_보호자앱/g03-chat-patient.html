@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#EEF3FB">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 환자 채팅</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--amber:#F59E0B;--amber-l:#FBBF24;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --glass:rgba(255,255,255,.75);--glass-b:rgba(0,0,0,.05);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#EEF3FB;overflow:hidden}
+    .app{max-width:430px;height:100%;margin:0 auto;display:flex;flex-direction:column;position:relative}
+
+    /* ═══ 배경 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+
+    /* ═══ 헤더 — 표준(대화 특화) ═══ */
+    .header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 10px;background:rgba(212,228,255,.85);transition:background .3s;flex-shrink:0}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .btn-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;color:var(--t1);transition:transform .1s}
+    .btn-back:active{transform:scale(.93)}
+    .patient-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#FBBF24);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .patient-av iconify-icon{font-size:18px;color:#fff}
+    .h-info{flex:1}
+    .h-name{font-size:16px;font-weight:700}
+    .h-sub{font-size:11px;color:var(--t3);margin-top:1px}
+    .h-actions{display:flex;gap:6px}
+    .h-btn,.nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .h-btn:active,.nav-btn:active{transform:scale(.93)}
+    .h-btn iconify-icon,.nav-btn iconify-icon{font-size:18px;color:var(--blue)}
+
+    /* ═══ 메시지 ═══ */
+    .messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:160px}
+    .messages::-webkit-scrollbar{display:none}
+
+    .date-divider{text-align:center;font-size:11px;color:var(--t3);padding:4px 0}
+
+    .msg{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px;max-width:85%}
+    .msg.in{align-self:flex-start}
+    .msg.out{align-self:flex-end;flex-direction:row-reverse}
+    .msg-sender{font-size:11px;color:var(--t3);margin-bottom:2px;padding-left:2px;width:100%}
+
+    .bubble{padding:12px 16px;font-size:15px;line-height:1.5;word-break:break-word;max-width:100%}
+    .msg.in .bubble{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px 18px 18px 4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .msg.out .bubble{background:var(--blue);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:0 2px 8px rgba(44,122,252,.2)}
+    .msg-time{font-size:10px;color:var(--t3);align-self:flex-end;flex-shrink:0;padding-bottom:4px}
+    .msg-read{font-size:10px;color:var(--blue);width:100%;text-align:right}
+
+    /* 음성 메시지 */
+    .voice{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px 18px 18px 4px;box-shadow:0 2px 8px rgba(0,0,0,.04);max-width:200px}
+    .voice-play{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--amber-l));border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:#fff}
+    .voice-play iconify-icon{font-size:14px}
+    .voice-wave{flex:1;height:24px;display:flex;align-items:center;gap:2px}
+    .voice-bar{width:3px;border-radius:999px;background:rgba(245,158,11,.4)}
+    .voice-dur{font-size:10px;color:var(--t3);flex-shrink:0}
+
+    /* 미읽음 구분선 */
+    .unread-line{display:flex;align-items:center;gap:8px;padding:4px 0}
+    .unread-line::before,.unread-line::after{content:'';flex:1;height:1px;background:rgba(245,158,11,.3)}
+    .unread-line span{font-size:11px;color:var(--amber);font-weight:600;white-space:nowrap}
+
+    /* ═══ 입력바 — 홈 채팅바 톤 ═══ */
+    .input-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:370px;z-index:41;display:flex;align-items:center;gap:4px;padding:8px 10px 8px 10px;border-radius:999px;background:#fff;border:0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .input-icon{width:36px;height:36px;border:none;border-radius:50%;background:transparent;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .input-icon iconify-icon{font-size:20px}
+    .input-wrap{flex:1;display:flex;align-items:center;height:36px;border-radius:999px;background:transparent;border:0;padding:0 6px}
+    .input-field{flex:1;height:100%;border:none;font-family:var(--font);font-size:15px;outline:none;background:transparent;color:var(--t1)}
+    .input-field::placeholder{color:rgba(28,28,30,.4)}
+    .input-emoji{border:none;background:none;cursor:pointer;display:flex;align-items:center;padding:0}
+    .input-emoji iconify-icon{font-size:20px;color:var(--t3)}
+
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+  </style>
+</head>
+<body>
+
+  <!-- 배경 -->
+  <div class="bg">
+    <svg class="bg-logo" viewBox="0 0 2526 2526" fill="none">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+      <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/>
+    </svg>
+  </div>
+
+  <div class="app">
+
+    <!-- ═══ 헤더 ═══ -->
+    <div class="header">
+      <a href="g03-sotong.html" class="btn-back">
+        <iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px"></iconify-icon>
+      </a>
+      <div class="patient-av">
+        <iconify-icon icon="fluent:heart-24-filled"></iconify-icon>
+      </div>
+      <div class="h-info">
+        <div class="h-name">손정희 어머니</div>
+        <div class="h-sub">입소자 · 3층 302호 · 음성 메시지 지원</div>
+      </div>
+      <div class="h-actions">
+        <div class="h-btn"><iconify-icon icon="fluent:call-24-filled"></iconify-icon></div>
+      </div>
+    </div>
+
+    <!-- ═══ 메시지 ═══ -->
+    <div class="messages" id="messages">
+      <div class="date-divider">오늘</div>
+
+      <div class="msg out">
+        <div class="bubble">어머니 잘 주무셨어요? 오늘 날씨 좋대요</div>
+        <span class="msg-time">오전 9:00</span>
+        <span class="msg-read">읽음</span>
+      </div>
+
+      <!-- 음성 메시지 -->
+      <div class="msg in">
+        <span class="msg-sender">손정희 어머니</span>
+        <div class="voice">
+          <button class="voice-play"><iconify-icon icon="fluent:play-24-filled"></iconify-icon></button>
+          <div class="voice-wave">
+            <div class="voice-bar" style="height:8px"></div>
+            <div class="voice-bar" style="height:16px"></div>
+            <div class="voice-bar" style="height:10px"></div>
+            <div class="voice-bar" style="height:20px"></div>
+            <div class="voice-bar" style="height:12px"></div>
+            <div class="voice-bar" style="height:18px"></div>
+            <div class="voice-bar" style="height:8px"></div>
+            <div class="voice-bar" style="height:14px"></div>
+            <div class="voice-bar" style="height:22px"></div>
+            <div class="voice-bar" style="height:10px"></div>
+          </div>
+          <span class="voice-dur">0:07</span>
+        </div>
+        <span class="msg-time">오전 9:05</span>
+      </div>
+
+      <div class="msg out">
+        <div class="bubble">어머니 목소리 들으니 좋네요 오늘 산책도 하세요!</div>
+        <span class="msg-time">오전 9:10</span>
+        <span class="msg-read">읽음</span>
+      </div>
+
+      <div class="msg in">
+        <span class="msg-sender">손정희 어머니</span>
+        <div class="bubble">응 알았어~ 밥도 잘 먹고 있어</div>
+        <span class="msg-time">오전 9:12</span>
+      </div>
+
+      <div class="msg in">
+        <span class="msg-sender">손정희 어머니</span>
+        <div class="bubble">예찬이 너도 밥 잘 먹어야 한다</div>
+        <span class="msg-time">오전 9:12</span>
+      </div>
+
+      <div class="msg out">
+        <div class="bubble">네네 걱정 마세요 주말에 면회 갈게요!</div>
+        <span class="msg-time">오전 10:30</span>
+        <span class="msg-read">읽음</span>
+      </div>
+
+      <!-- 미읽음 -->
+      <div class="unread-line"><span>읽지 않은 메시지 2개</span></div>
+
+      <div class="msg in">
+        <span class="msg-sender">손정희 어머니</span>
+        <div class="bubble">잘 있어요~ 걱정 마세요</div>
+        <span class="msg-time">오전 11:30</span>
+      </div>
+
+      <div class="msg in">
+        <span class="msg-sender">손정희 어머니</span>
+        <div class="voice">
+          <button class="voice-play"><iconify-icon icon="fluent:play-24-filled"></iconify-icon></button>
+          <div class="voice-wave">
+            <div class="voice-bar" style="height:12px"></div>
+            <div class="voice-bar" style="height:20px"></div>
+            <div class="voice-bar" style="height:8px"></div>
+            <div class="voice-bar" style="height:18px"></div>
+            <div class="voice-bar" style="height:14px"></div>
+            <div class="voice-bar" style="height:22px"></div>
+            <div class="voice-bar" style="height:10px"></div>
+            <div class="voice-bar" style="height:16px"></div>
+            <div class="voice-bar" style="height:20px"></div>
+            <div class="voice-bar" style="height:8px"></div>
+          </div>
+          <span class="voice-dur">0:12</span>
+        </div>
+        <span class="msg-time">오전 11:32</span>
+      </div>
+    </div>
+
+    <!-- ═══ 입력바 ═══ -->
+    <div class="input-bar">
+      <button class="input-icon"><iconify-icon icon="fluent:add-circle-24-filled"></iconify-icon></button>
+      <div class="input-wrap">
+        <input class="input-field" type="text" placeholder="메시지 입력">
+        <button class="input-emoji"><iconify-icon icon="fluent:emoji-24-filled"></iconify-icon></button>
+      </div>
+    </div>
+
+
+  </div>
+
+  <script>
+    var m=document.getElementById('messages');
+    if(m) m.scrollTop=m.scrollHeight;
+  </script>
+</body>
+</html>

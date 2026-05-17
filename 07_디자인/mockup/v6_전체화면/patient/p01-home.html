@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="patient">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 환자 홈</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    /* 인사 — 큰 글씨 */
+    .greeting {
+      padding: var(--space-xl) 0 var(--space-lg);
+    }
+    .greeting-sub {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+      font-weight: var(--weight-medium);
+    }
+    .greeting-main {
+      font-size: 28px;
+      font-weight: var(--weight-bold);
+      line-height: var(--line-height-tight);
+    }
+    .greeting-main span { color: var(--primary); }
+
+    /* --- 히어로 일과 카드 (Apple Card 스타일) --- */
+    .hero-card {
+      background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 65%, #78350F));
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      color: white;
+      box-shadow: 0 8px 28px rgba(251, 146, 60, 0.35);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: 30%;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-xl);
+      position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      padding: 4px var(--space-md);
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .hero-date {
+      font-size: var(--text-caption);
+      opacity: 0.7;
+    }
+    .hero-center {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      position: relative; z-index: 1;
+    }
+    .hero-ring {
+      position: relative;
+      width: 100px; height: 100px;
+      flex-shrink: 0;
+    }
+    .hero-ring svg { transform: rotate(-90deg); }
+    .hero-ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .hero-ring-value {
+      font-size: 28px;
+      font-weight: var(--weight-bold);
+      line-height: 1;
+    }
+    .hero-ring-unit {
+      font-size: var(--text-caption);
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+    .hero-info { flex: 1; }
+    .hero-name {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-xs);
+    }
+    .hero-desc {
+      font-size: var(--text-body-large);
+      opacity: 0.85;
+      line-height: var(--line-height-relaxed);
+    }
+    .hero-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative; z-index: 1;
+      padding-top: var(--space-md);
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .hero-footer-text {
+      font-size: var(--text-callout);
+      opacity: 0.7;
+    }
+    .hero-footer-action {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      display: flex; align-items: center; gap: var(--space-xs);
+    }
+
+    /* 투약 카드 (정리된 버전 + 프로그레스 링) */
+    .med-card {
+      background: var(--patient-light);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      box-shadow: 0 4px 16px rgba(251, 146, 60, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .med-card::before {
+      content: '';
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(251, 146, 60, 0.08);
+    }
+    .med-card::after {
+      content: '';
+      position: absolute;
+      bottom: -15px; left: 20%;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: rgba(251, 146, 60, 0.05);
+    }
+    .med-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      position: relative; z-index: 1;
+    }
+    .med-progress-ring {
+      position: relative;
+      width: 72px; height: 72px;
+      flex-shrink: 0;
+    }
+    .med-progress-ring svg { transform: rotate(-90deg); }
+    .med-progress-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .med-progress-icon {
+      color: var(--primary);
+    }
+    .med-card-info {
+      flex: 1;
+      position: relative; z-index: 1;
+    }
+    .med-card-title {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      line-height: 1.4;
+      margin-bottom: var(--space-xs);
+      color: var(--text-primary);
+    }
+    .med-card-sub {
+      font-size: var(--text-body-large);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .med-card-progress-text {
+      font-size: var(--text-callout);
+      color: var(--primary);
+      font-weight: var(--weight-semibold);
+    }
+    .med-card-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: var(--weight-bold);
+      font-family: var(--font-family);
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(251, 146, 60, 0.35);
+      position: relative; z-index: 1;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .med-card-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(251, 146, 60, 0.25);
+    }
+
+    /* 큰 카드 메뉴 */
+    .big-menu {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .big-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-xl);
+      min-height: 72px;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .big-card:active {
+      transform: scale(0.97);
+      box-shadow: var(--shadow-sm);
+    }
+    .big-card-icon {
+      width: 56px; height: 56px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .big-card-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+    .big-card:active .big-card-icon::after {
+      opacity: 1;
+    }
+    .big-card-icon--schedule {
+      background: linear-gradient(135deg, #E8F0FE, #D6E4FD);
+    }
+    .big-card-icon--schedule::after {
+      background: rgba(0, 122, 255, 0.08);
+    }
+    .big-card-icon--family {
+      background: linear-gradient(135deg, #FFF3E0, #FFE8CC);
+    }
+    .big-card-icon--family::after {
+      background: rgba(217, 119, 6, 0.08);
+    }
+    .big-card-icon--help {
+      background: linear-gradient(135deg, #FFEBEE, #FFDDE1);
+    }
+    .big-card-icon--help::after {
+      background: rgba(255, 59, 48, 0.08);
+    }
+    .big-card-text { flex: 1; }
+    .big-card-title {
+      font-size: var(--text-body-large);
+      font-weight: var(--weight-semibold);
+      margin-bottom: 2px;
+    }
+    .big-card-desc {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+    .big-card-chevron {
+      font-size: 20px;
+      color: var(--text-tertiary);
+      transition: transform var(--transition-fast);
+    }
+    .big-card:active .big-card-chevron {
+      transform: translateX(2px);
+    }
+
+    /* 긴급 도움 FAB */
+    .fab-sos {
+      position: fixed;
+      bottom: calc(140px + env(safe-area-inset-bottom, 20px));
+      right: var(--space-lg);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--critical);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(255, 59, 48, 0.4);
+      z-index: 100;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      text-decoration: none;
+    }
+    .fab-sos:active {
+      transform: scale(0.92);
+      box-shadow: 0 3px 12px rgba(255, 59, 48, 0.3);
+    }
+
+    /* 환자용 탭바 (큰 아이콘) */
+    .tabbar--patient .tab {
+      font-size: 12px;
+    }
+    .tabbar--patient .tab-icon {
+      font-size: 28px;
+    }
+    .tabbar--patient .tab-label {
+      font-size: 14px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      padding: 14px 28px;
+      background: #1C1C1E;
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      text-align: center;
+      max-width: 380px;
+      font-family: var(--font-family);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 투약 확인 모달 */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      display: none;
+    }
+    .confirm-overlay.show { display: flex; }
+    .confirm-modal {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      width: calc(100% - 64px);
+      max-width: 360px;
+      text-align: center;
+    }
+    .confirm-modal-title {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-xl);
+      color: var(--text-primary);
+      line-height: var(--line-height-relaxed);
+    }
+    .confirm-modal-btns {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .confirm-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: var(--weight-bold);
+      font-family: var(--font-family);
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+    }
+    .confirm-btn--yes {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(251, 146, 60, 0.35);
+    }
+    .confirm-btn--no {
+      background: var(--bg);
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>  <div class="content">
+    <!-- 인사 -->
+    <div class="greeting">
+      <h1 class="greeting-main">좋은 아침이에요,<br><span>정희</span>님 오늘도 건강하게</h1>
+    </div>
+
+    <!-- 히어로 일과 카드 -->
+    <div class="section">
+      <div class="hero-card">
+        <div class="hero-top">
+          <div class="hero-badge">
+            <i data-lucide="sun" style="width:14px;height:14px;"></i>
+            오늘의 일과
+          </div>
+          <span class="hero-date">4월 2일 수요일</span>
+        </div>
+        <div class="hero-center">
+          <div class="hero-ring">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8" />
+              <circle cx="50" cy="50" r="42" fill="none" stroke="white" stroke-width="8"
+                      stroke-linecap="round"
+                      stroke-dasharray="264"
+                      stroke-dashoffset="158" />
+            </svg>
+            <div class="hero-ring-label">
+              <span class="hero-ring-value">2/5</span>
+              <span class="hero-ring-unit">완료</span>
+            </div>
+          </div>
+          <div class="hero-info">
+            <div class="hero-name">일과 2/5 완료</div>
+            <div class="hero-desc">다음: 오후 2시 산책</div>
+            <a href="#" style="color:white; font-size:var(--text-body); opacity:0.8; margin-top:var(--space-sm); display:inline-block;">더보기 ›</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 투약 카드 -->
+    <div class="section">
+      <div class="med-card">
+        <div class="med-card-header">
+          <div style="width:56px; height:56px; border-radius:var(--radius-md); background:var(--primary-light); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="pill" style="width:28px;height:28px;color:var(--primary);"></i>
+          </div>
+          <div class="med-card-info">
+            <h2 class="med-card-title">점심 약 드실 시간이에요</h2>
+            <p class="med-card-sub">소화제 등 2알 · 12:30</p>
+            <p class="med-card-progress-text">오늘 투약 1/3 완료</p>
+          </div>
+        </div>
+        <button class="med-card-btn" onclick="showMedConfirm()">
+          <i data-lucide="check-circle" style="width:28px;height:28px;"></i> 네, 다 먹었어요!
+        </button>
+      </div>
+    </div>
+
+    <!-- 큰 메뉴 카드 -->
+    <div class="section">
+      <div class="big-menu">
+        <a href="p02-family.html" class="big-card">
+          <div class="big-card-icon big-card-icon--schedule"><i data-lucide="calendar" style="color:var(--info)"></i></div>
+          <div class="big-card-text">
+            <div class="big-card-title">오늘 일과표</div>
+            <div class="big-card-desc">다음: 오후 2시 산책</div>
+          </div>
+          <span class="big-card-chevron">›</span>
+        </a>
+        <a href="p02-family.html" class="big-card">
+          <div class="big-card-icon big-card-icon--family"><i data-lucide="users" style="color:#d97706"></i></div>
+          <div class="big-card-text">
+            <div class="big-card-title">가족 소식</div>
+            <div class="big-card-desc">예찬님이 메시지를 보냈어요</div>
+          </div>
+          <span class="big-card-chevron">›</span>
+        </a>
+        <a href="p03-help.html" class="big-card">
+          <div class="big-card-icon big-card-icon--help"><i data-lucide="file-text" style="color:var(--critical)"></i></div>
+          <div class="big-card-text">
+            <div class="big-card-title">도움 요청</div>
+            <div class="big-card-desc">물, 담요, 통증 알림</div>
+          </div>
+          <span class="big-card-chevron">›</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 긴급 도움 FAB -->
+  <a href="p03-help.html" class="fab-sos" aria-label="긴급 도움 요청">
+    <i data-lucide="bell-ring" style="width:24px;height:24px;"></i>
+  </a>
+
+  <nav class="tabbar tabbar--patient" role="navigation" aria-label="메인 내비게이션" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(60px + 44px); padding-bottom:44px; display:flex; justify-content:space-around; align-items:center;">
+    <a href="p01-home.html" class="tab active" style="flex:1;" aria-current="page">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="p02-family.html" class="tab" style="flex:1;">
+      <span class="tab-icon"><i data-lucide="heart"></i></span>
+      <span class="tab-label">가족</span>
+    </a>
+    <a href="p03-help.html" class="tab" style="flex:1; color:var(--critical);">
+      <span class="tab-icon"><i data-lucide="bell-ring"></i></span>
+      <span class="tab-label">도움</span>
+    </a>
+  </nav>
+
+  <!-- 투약 확인 모달 -->
+  <div class="confirm-overlay" id="medConfirmOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-modal-title">정말 다 드셨나요?</div>
+      <div class="confirm-modal-btns">
+        <button class="confirm-btn confirm-btn--yes" onclick="confirmMed()">네, 먹었어요</button>
+        <button class="confirm-btn confirm-btn--no" onclick="cancelMed()">아니요</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => { t.classList.remove('show'); }, 4500);
+    }
+    function showMedConfirm() {
+      document.getElementById('medConfirmOverlay').classList.add('show');
+    }
+    function confirmMed() {
+      document.getElementById('medConfirmOverlay').classList.remove('show');
+      showToast('오전 투약이 완료되었어요 ✅');
+    }
+    function cancelMed() {
+      document.getElementById('medConfirmOverlay').classList.remove('show');
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>홈 인사말 예쁘게 · 방향 1·2·3 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@400;500;600;700;800;900&family=Nanum+Myeongjo:wght@700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#2C7AFC;--t1:#1C1C1E}
+  body{font-family:'Pretendard Variable',-apple-system,sans-serif;background:#EEF3FB;min-height:100vh;padding:40px 20px;color:var(--t1)}
+  .wrap{max-width:1400px;margin:0 auto}
+  .title{font-size:16px;font-weight:700;color:rgba(28,28,30,.6);margin-bottom:20px;text-align:center}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  @media(max-width:1100px){.row{grid-template-columns:1fr}}
+  .col{display:flex;flex-direction:column;align-items:center}
+  .phone{width:390px;height:620px;border-radius:40px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(30,60,120,.18);border:1px solid rgba(255,255,255,.4)}
+  .topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:20px 22px;z-index:5}
+  .logo{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px}
+  .nav-ic{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;color:rgba(28,28,30,.65)}
+  .nav-ic+.nav-ic{margin-left:6px}
+  .label{font-size:13px;font-weight:600;color:var(--blue);margin-top:14px}
+  .sub{font-size:11.5px;color:rgba(28,28,30,.5);margin-top:4px;text-align:center;max-width:320px;line-height:1.4}
+
+  /* ========= 방향 1: 시간대 앰비언스 (저녁 22시) ========= */
+  .v1{background:linear-gradient(180deg,#1a2650 0%,#2c3e7a 25%,#4a5aa8 55%,#7891d1 85%,#9fb4e0 100%)}
+  .v1 .logo{color:#fff}
+  .v1 .nav-ic{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .v1 .stars{position:absolute;inset:0;pointer-events:none}
+  .v1 .stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.8;box-shadow:0 0 4px #fff}
+  .v1 .moon{position:absolute;top:70px;right:40px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fffbea,#f4d97a 60%,#d9a84e);box-shadow:0 0 40px rgba(255,220,140,.5),0 0 80px rgba(255,220,140,.25)}
+  .v1 .greet-wrap{position:absolute;top:130px;left:24px;right:24px;color:#fff}
+  .v1 .greet-main{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.8px;text-shadow:0 2px 20px rgba(0,0,0,.3)}
+  .v1 .greet-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px;font-weight:500}
+  .v1 .snap{position:absolute;bottom:28px;left:20px;right:20px;display:flex;flex-direction:column;gap:10px}
+  .v1 .snap-item{display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,.12);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.2);border-radius:16px;color:#fff}
+  .v1 .snap-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;background:rgba(255,255,255,.15);color:#fff}
+  .v1 .snap-title{font-size:13.5px;font-weight:600}
+  .v1 .snap-val{font-size:13px;font-weight:700;margin-left:6px;color:#fff}
+  .v1 .snap-note{font-size:12px;color:rgba(255,255,255,.65);margin-top:2px}
+
+  /* ========= 방향 2: 에디토리얼 잡지풍 ========= */
+  .v2{background:#fafaf7}
+  .v2 .logo{color:var(--t1)}
+  .v2 .nav-ic{background:rgba(0,0,0,.04);color:rgba(28,28,30,.5)}
+  .v2 .brand-line{position:absolute;top:78px;left:24px;right:24px;display:flex;align-items:center;gap:10px;color:rgba(28,28,30,.4);font-size:11px;letter-spacing:3px;font-weight:600;text-transform:uppercase}
+  .v2 .brand-line::before{content:'';flex:1;height:1px;background:rgba(28,28,30,.15)}
+  .v2 .brand-line::after{content:'';flex:1;height:1px;background:rgba(28,28,30,.15)}
+  .v2 .greet-wrap{position:absolute;top:120px;left:28px;right:28px}
+  .v2 .greet-serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:600;font-size:50px;line-height:1;color:var(--t1);letter-spacing:-1.5px}
+  .v2 .greet-sans{font-size:30px;font-weight:800;line-height:1.1;letter-spacing:-1px;color:var(--t1);margin-top:4px}
+  .v2 .greet-sub{font-size:12px;color:rgba(28,28,30,.5);margin-top:14px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+  .v2 .snap{position:absolute;bottom:32px;left:28px;right:28px}
+  .v2 .snap-item{display:flex;align-items:baseline;gap:14px;padding:14px 0;border-bottom:1px solid rgba(28,28,30,.1)}
+  .v2 .snap-item:last-child{border-bottom:none}
+  .v2 .snap-num{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;font-weight:600;color:var(--blue);width:26px;flex-shrink:0}
+  .v2 .snap-body{flex:1}
+  .v2 .snap-title{font-size:13px;font-weight:600;letter-spacing:.3px}
+  .v2 .snap-val{font-size:13px;font-weight:700;color:var(--blue);margin-left:6px}
+  .v2 .snap-note{font-size:11.5px;color:rgba(28,28,30,.5);margin-top:2px}
+
+  /* ========= 방향 3: 감정 포트레이트 ========= */
+  .v3{background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%)}
+  .v3 .logo{color:var(--blue)}
+  .v3 .nav-ic{background:rgba(255,255,255,.65);color:rgba(28,28,30,.55)}
+  .v3 .avatar-wrap{position:absolute;top:80px;left:50%;transform:translateX(-50%);text-align:center}
+  .v3 .aura{position:absolute;top:-18px;left:-18px;right:-18px;bottom:-18px;border-radius:50%;background:conic-gradient(from 0deg,#F59E0B,#34D399,#2C7AFC,#F59E0B);filter:blur(18px);opacity:.45;animation:spin 8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .v3 .avatar{position:relative;width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#F5E6D3,#E5C9AA);display:grid;place-items:center;font-size:44px;color:#8b6f47;font-weight:700;font-family:'Nanum Myeongjo',serif;border:4px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  .v3 .live-dot{position:absolute;bottom:6px;right:6px;width:22px;height:22px;border-radius:50%;background:#34D399;border:3px solid #fff;box-shadow:0 0 0 0 rgba(52,211,153,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}70%{box-shadow:0 0 0 14px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  .v3 .greet-wrap{position:absolute;top:230px;left:24px;right:24px;text-align:center}
+  .v3 .greet-main{font-size:22px;font-weight:800;letter-spacing:-.6px;color:var(--t1);line-height:1.3}
+  .v3 .greet-mom{color:var(--blue)}
+  .v3 .greet-sub{font-size:13px;color:rgba(28,28,30,.55);margin-top:6px}
+  .v3 .snap{position:absolute;bottom:28px;left:20px;right:20px;display:flex;flex-direction:column;gap:8px}
+  .v3 .snap-item{display:flex;align-items:center;gap:11px;padding:12px 14px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.04);border-radius:14px}
+  .v3 .snap-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+  .v3 .snap-ic.m{background:rgba(245,158,11,.14);color:#F59E0B}
+  .v3 .snap-ic.n{background:rgba(52,211,153,.14);color:#059669}
+  .v3 .snap-ic.g{background:rgba(44,122,252,.14);color:var(--blue)}
+  .v3 .snap-title{font-size:13px;font-weight:600}
+  .v3 .snap-val{font-size:12.5px;font-weight:700;color:var(--blue);margin-left:5px}
+  .v3 .snap-note{font-size:11.5px;color:rgba(28,28,30,.5);margin-top:1px}
+</style></head><body>
+<div class="wrap">
+  <h1 class="title">홈 인사말 · 예쁘게 만들기 · 저녁 22시 기준</h1>
+  <div class="row">
+
+    <!-- 방향 1: 시간대 앰비언스 -->
+    <div class="col">
+      <div class="phone v1">
+        <div class="stars">
+          <span style="top:40px;left:60px"></span><span style="top:80px;left:180px"></span>
+          <span style="top:60px;left:280px"></span><span style="top:120px;left:340px"></span>
+          <span style="top:150px;left:50px"></span><span style="top:200px;left:310px"></span>
+          <span style="top:30px;left:220px"></span><span style="top:100px;left:120px"></span>
+        </div>
+        <div class="moon"></div>
+        <div class="topbar">
+          <div class="logo"><span style="color:#9fb4e0">✦</span> 하루안부</div>
+          <div style="display:flex"><div class="nav-ic"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:18px"></span></div><div class="nav-ic"><span class="iconify" data-icon="fluent:person-24-filled" style="font-size:18px"></span></div></div>
+        </div>
+        <div class="greet-wrap">
+          <div class="greet-main">편안한 밤이에요,<br>예찬님</div>
+          <div class="greet-sub">정희님도 편히 주무시고 계세요</div>
+        </div>
+        <div class="snap">
+          <div class="snap-item"><div class="snap-ic"><span class="iconify" data-icon="fluent:weather-sunny-24-filled" style="font-size:19px"></span></div><div><div><span class="snap-title">오전 산책</span><span class="snap-val">15분</span></div><div class="snap-note">햇빛이 좋았어요</div></div></div>
+          <div class="snap-item"><div class="snap-ic"><span class="iconify" data-icon="fluent:food-24-filled" style="font-size:19px"></span></div><div><div><span class="snap-title">저녁 식사</span><span class="snap-val">90%</span></div><div class="snap-note">평소보다 잘 드셨어요</div></div></div>
+          <div class="snap-item"><div class="snap-ic"><span class="iconify" data-icon="fluent:pill-24-filled" style="font-size:19px"></span></div><div><div><span class="snap-title">저녁 투약</span><span class="snap-val">완료</span></div><div class="snap-note">편히 주무시고 계세요</div></div></div>
+        </div>
+      </div>
+      <div class="label">방향 1 · 시간대 앰비언스</div>
+      <div class="sub">배경이 아침→낮→저녁→밤으로 변함. 달·별·햇살이 은은하게 움직임. 애플 날씨앱 감성.</div>
+    </div>
+
+    <!-- 방향 2: 에디토리얼 잡지풍 -->
+    <div class="col">
+      <div class="phone v2">
+        <div class="topbar">
+          <div class="logo">하루안부</div>
+          <div style="display:flex"><div class="nav-ic"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:18px"></span></div><div class="nav-ic"><span class="iconify" data-icon="fluent:person-24-filled" style="font-size:18px"></span></div></div>
+        </div>
+        <div class="brand-line">Today · April 17</div>
+        <div class="greet-wrap">
+          <div class="greet-serif">편안한</div>
+          <div class="greet-sans">밤이에요, 예찬님</div>
+          <div class="greet-sub">Your Mom's Evening</div>
+        </div>
+        <div class="snap">
+          <div class="snap-item"><div class="snap-num">01</div><div class="snap-body"><div><span class="snap-title">오전 산책</span><span class="snap-val">15분</span></div><div class="snap-note">햇빛이 좋았어요</div></div></div>
+          <div class="snap-item"><div class="snap-num">02</div><div class="snap-body"><div><span class="snap-title">저녁 식사</span><span class="snap-val">90%</span></div><div class="snap-note">평소보다 잘 드셨어요</div></div></div>
+          <div class="snap-item"><div class="snap-num">03</div><div class="snap-body"><div><span class="snap-title">저녁 투약</span><span class="snap-val">완료</span></div><div class="snap-note">편히 주무시고 계세요</div></div></div>
+        </div>
+      </div>
+      <div class="label">방향 2 · 에디토리얼 잡지풍</div>
+      <div class="sub">세리프+산세리프 믹스. 2톤 컬러. 여백 크게. NYT·Kinfolk·고급 매거진 감성.</div>
+    </div>
+
+    <!-- 방향 3: 감정 포트레이트 -->
+    <div class="col">
+      <div class="phone v3">
+        <div class="topbar">
+          <div class="logo">하루안부</div>
+          <div style="display:flex"><div class="nav-ic"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:18px"></span></div><div class="nav-ic"><span class="iconify" data-icon="fluent:person-24-filled" style="font-size:18px"></span></div></div>
+        </div>
+        <div class="avatar-wrap">
+          <div style="position:relative">
+            <div class="aura"></div>
+            <div class="avatar">정</div>
+            <div class="live-dot"></div>
+          </div>
+        </div>
+        <div class="greet-wrap">
+          <div class="greet-main"><span class="greet-mom">정희님</span>이 편히 주무시고 계세요</div>
+          <div class="greet-sub">편안한 밤이에요, 예찬님</div>
+        </div>
+        <div class="snap">
+          <div class="snap-item"><div class="snap-ic m"><span class="iconify" data-icon="fluent:weather-sunny-24-filled" style="font-size:17px"></span></div><div><div><span class="snap-title">오전 산책</span><span class="snap-val">15분</span></div><div class="snap-note">햇빛이 좋았어요</div></div></div>
+          <div class="snap-item"><div class="snap-ic n"><span class="iconify" data-icon="fluent:food-24-filled" style="font-size:17px"></span></div><div><div><span class="snap-title">저녁 식사</span><span class="snap-val">90%</span></div><div class="snap-note">평소보다 잘 드셨어요</div></div></div>
+          <div class="snap-item"><div class="snap-ic g"><span class="iconify" data-icon="fluent:pill-24-filled" style="font-size:17px"></span></div><div><div><span class="snap-title">저녁 투약</span><span class="snap-val">완료</span></div><div class="snap-note">편히 주무세요</div></div></div>
+        </div>
+      </div>
+      <div class="label">방향 3 · 감정 포트레이트</div>
+      <div class="sub">어머님 아바타 + 감정 aura(회전). 초록펄싱 점 = 실시간 케어 중. 가족앨범+스토리 감성.</div>
+    </div>
+
+  </div>
+</div>
+</body></html>

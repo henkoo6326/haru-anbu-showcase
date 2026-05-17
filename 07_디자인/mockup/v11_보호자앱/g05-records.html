@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 기록</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--amber-d:#D97706;--red:#EF4444;
+      --purple:#7C3AED;--purple-l:#A78BFA;
+      --coral:#F97066;--coral-d:#DC2626;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%;background:#d4e4ff}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;overflow-x:hidden}
+
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.14)0%,transparent 65%);filter:blur(30px)}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.20)0%,transparent 65%);filter:blur(40px)}
+
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 112px)}
+
+    /* 헤더 */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+
+    .content{position:relative;z-index:1;padding:0 16px}
+
+    /* 검색창 */
+    .search-wrap{margin-bottom:18px}
+    .search-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.45);border-radius:14px;padding:11px 14px;transition:border-color .2s,box-shadow .2s}
+    .search-bar:focus-within{border-color:rgba(44,122,252,.3);box-shadow:0 0 0 3px rgba(44,122,252,.08)}
+    .search-bar iconify-icon{font-size:17px;color:var(--t3);flex-shrink:0}
+    .search-input{flex:1;border:none;outline:none;background:transparent;font-family:var(--font);font-size:14px;font-weight:500;color:var(--t1)}
+    .search-input::placeholder{color:var(--t3);font-weight:500}
+
+    /* 벤토 그리드 */
+    .bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+
+    /* 기록 카드 */
+    .rec-card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.55);border-radius:18px;padding:16px;cursor:pointer;transition:transform .12s,box-shadow .12s;text-decoration:none;color:var(--t1);display:block}
+    .rec-card:active{transform:scale(.96)}
+    .rec-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06)}
+    .rec-card.wide{grid-column:1/-1;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(44,122,252,.13) 0%,rgba(91,155,255,.06) 100%);border-color:rgba(44,122,252,.18)}
+    .rec-card.wide .rec-icon{margin-bottom:0;flex-shrink:0}
+    .rec-card.wide .rec-info{flex:1}
+    .rec-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+    .rec-title{font-size:15px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px}
+    .rec-sub{font-size:12px;color:var(--t3);font-weight:500}
+    .rec-stat{font-size:11px;font-weight:700;margin-top:8px;padding:3px 8px;border-radius:999px;display:inline-block}
+
+    /* 상세 페이지 드릴다운 영역 (숨김) */
+    .drilldown{display:none;position:fixed;inset:0;z-index:50;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .drilldown.show{display:block}
+    .drill-header{position:sticky;top:0;z-index:10;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 12px;background:rgba(212,228,255,.92);display:flex;align-items:center;gap:12px}
+    .drill-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .1s}
+    .drill-back:active{transform:scale(.9)}
+    .drill-title{font-size:17px;font-weight:800}
+    .drill-content{padding:12px 16px calc(max(env(safe-area-inset-bottom,0px),20px) + 20px);max-width:430px;margin:0 auto}
+
+    /* 드릴다운 카드 */
+    .dl-card{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:20px;padding:18px;margin-bottom:10px}
+    .dl-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .dl-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dl-title{font-size:15px;font-weight:700;flex:1}
+    .dl-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+    .dl-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.02);margin-bottom:6px}
+    .dl-row:last-child{margin-bottom:0}
+    .dl-row-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .dl-row-name{font-size:13px;font-weight:600;flex:1}
+    .dl-row-info{font-size:11px;color:var(--t2)}
+
+    /* 타임라인 행 */
+    .tl-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+    .tl-item:last-child{border-bottom:none}
+    .tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+    .tl-body{flex:1}
+    .tl-time{font-size:11px;font-weight:600;color:var(--t3);margin-bottom:2px}
+    .tl-text{font-size:14px;font-weight:600}
+    .tl-sub{font-size:12px;color:var(--t2);margin-top:2px}
+    .tl-type{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;display:inline-block;margin-top:4px}
+
+    /* 결제 행 */
+    .bill-card{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:20px;padding:20px;margin-bottom:10px;text-align:center}
+    .bill-amount{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:4px}
+    .bill-period{font-size:12px;color:var(--t3);margin-bottom:16px}
+    .bill-status{display:inline-flex;align-items:center;gap:4px;padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700}
+    .bill-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px}
+    .bill-row:last-child{border-bottom:none}
+    .bill-row-label{color:var(--t2)}
+    .bill-row-val{font-weight:600}
+
+    /* ── 하단 섹션 공통 ── */
+    .section{margin-bottom:32px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .section-title{font-size:16px;font-weight:800;letter-spacing:-.3px}
+    .section-more{font-size:12px;font-weight:600;color:var(--t3);cursor:pointer}
+
+    /* 최근 기록 피드 */
+    .feed-card{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:18px;overflow:hidden}
+    .feed-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.03);cursor:pointer;transition:background .12s}
+    .feed-item:last-child{border-bottom:none}
+    .feed-item:active{background:rgba(0,0,0,.02)}
+    .feed-dot{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .feed-body{flex:1;min-width:0}
+    .feed-text{font-size:13.5px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .feed-meta{font-size:11px;color:var(--t3);margin-top:2px;font-weight:500}
+    .feed-time{font-size:11px;color:var(--t3);font-weight:500;flex-shrink:0}
+
+    /* 다가오는 일정 */
+    .sched-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -16px;padding:0 16px 2px}
+    .sched-scroll::-webkit-scrollbar{display:none}
+    .sched-scroll::after{content:'';flex-shrink:0;width:8px}
+    .sched-chip{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:16px;padding:14px 16px;min-width:155px;flex-shrink:0;cursor:pointer;transition:transform .12s;margin-right:2px}
+    .sched-chip:active{transform:scale(.96)}
+    .sched-dday{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;display:inline-block;margin-bottom:14px}
+    .sched-name{font-size:13.5px;font-weight:700;margin-bottom:3px;line-height:1.3}
+    .sched-date{font-size:11px;color:var(--t3);font-weight:500}
+
+    /* 의료 타임라인 */
+    .med-tl{background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.55);border-radius:18px;padding:18px 16px 12px}
+    .med-tl-item{display:flex;gap:12px;position:relative;padding-bottom:16px}
+    .med-tl-item:last-child{padding-bottom:4px}
+    .med-tl-item:last-child .med-tl-line{display:none}
+    .med-tl-left{display:flex;flex-direction:column;align-items:center;width:12px;flex-shrink:0;position:relative}
+    .med-tl-dot{width:10px;height:10px;border-radius:50%;border:2px solid;flex-shrink:0;position:relative;z-index:1;background:#f2f6ff}
+    .med-tl-line{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:1.5px;bottom:0;background:rgba(0,0,0,.06)}
+    .med-tl-right{flex:1;padding-top:0}
+    .med-tl-date{font-size:11px;font-weight:600;color:var(--t3);margin-bottom:2px}
+    .med-tl-title{font-size:13.5px;font-weight:700;line-height:1.3;margin-bottom:2px}
+    .med-tl-desc{font-size:12px;color:var(--t2);line-height:1.4}
+    .med-tl-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block;margin-top:4px}
+
+    /* 플로팅 AI */
+
+    /* 탭바 */
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+
+  <div class="bg"><div class="g1"></div><div class="g2"></div></div>
+
+  <div class="app">
+
+    <!-- 헤더 -->
+    <div class="header" id="header">
+      <div class="header-inner">
+        <span class="header-title">기록</span>
+        <a href="g06-alert.html" class="nav-btn" aria-label="알림">
+          <iconify-icon icon="fluent:alert-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- 검색창 -->
+      <div class="search-wrap">
+        <div class="search-bar">
+          <iconify-icon icon="fluent:search-24-filled"></iconify-icon>
+          <input class="search-input" type="text" placeholder="진료기록, 처방전, 검사결과 검색">
+        </div>
+      </div>
+
+      <!-- 2×2 벤토 그리드 -->
+      <div class="bento">
+
+        <!-- AI 리포트 (풀 와이드) -->
+        <a class="rec-card wide" onclick="openDrill('report')">
+          <div class="rec-icon" style="background:linear-gradient(135deg,rgba(44,122,252,.2),rgba(91,155,255,.12))">
+            <svg width="19" height="19" viewBox="0 0 2526 2526" fill="var(--blue)">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+              <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/>
+            </svg>
+          </div>
+          <div class="rec-info">
+            <div class="rec-title" style="color:var(--blue-d)">AI 리포트</div>
+            <div class="rec-sub">일일·주간·월간 케어 요약</div>
+          </div>
+          <iconify-icon icon="fluent:chevron-right-24-filled" style="font-size:16px;color:rgba(44,122,252,.4)"></iconify-icon>
+        </a>
+
+        <!-- 오늘의 케어 -->
+        <a class="rec-card" onclick="openDrill('timeline')">
+          <div class="rec-icon" style="background:linear-gradient(135deg,rgba(5,150,105,.15),rgba(52,211,153,.08))">
+            <iconify-icon icon="fluent:clipboard-heart-24-filled" style="font-size:19px;color:var(--green-d)"></iconify-icon>
+          </div>
+          <div class="rec-title">오늘의 케어</div>
+          <div class="rec-sub">투약·식사·활동·재활</div>
+          <div class="rec-stat" style="color:var(--green-d);background:rgba(5,150,105,.09)">오늘 5건</div>
+        </a>
+
+        <!-- 처방·약물 -->
+        <a class="rec-card" onclick="openDrill('prescription')">
+          <div class="rec-icon" style="background:linear-gradient(135deg,rgba(217,119,6,.15),rgba(245,158,11,.08))">
+            <iconify-icon icon="fluent:pill-24-filled" style="font-size:19px;color:var(--amber-d)"></iconify-icon>
+          </div>
+          <div class="rec-title">처방·약물</div>
+          <div class="rec-sub">복용약 5종·주의사항</div>
+          <div class="rec-stat" style="color:var(--amber-d);background:rgba(217,119,6,.09)">D-23 갱신</div>
+        </a>
+
+        <!-- 진료·검사 -->
+        <a class="rec-card" onclick="openDrill('medical')">
+          <div class="rec-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(167,139,250,.08))">
+            <iconify-icon icon="fluent:microscope-24-filled" style="font-size:19px;color:var(--purple)"></iconify-icon>
+          </div>
+          <div class="rec-title">진료·검사</div>
+          <div class="rec-sub">진료·혈액·영상 이력</div>
+          <div class="rec-stat" style="color:var(--purple);background:rgba(124,58,237,.09)">4/10 최근</div>
+        </a>
+
+        <!-- 비용 -->
+        <a class="rec-card" onclick="openDrill('billing')">
+          <div class="rec-icon" style="background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(249,112,102,.07))">
+            <iconify-icon icon="fluent:money-24-filled" style="font-size:19px;color:var(--coral-d)"></iconify-icon>
+          </div>
+          <div class="rec-title">비용</div>
+          <div class="rec-sub">청구·납부 현황</div>
+          <div class="rec-stat" style="color:var(--coral-d);background:rgba(220,38,38,.08)">D-9 납부</div>
+        </a>
+
+      </div>
+
+      <!-- ── 다가오는 일정 ── -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">다가오는 일정</span>
+        </div>
+        <div class="sched-scroll">
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--red);background:rgba(239,68,68,.08)">D-9</div>
+            <div class="sched-name">4월 요양비 납부</div>
+            <div class="sched-date">4월 25일 (금)</div>
+          </div>
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--blue);background:rgba(44,122,252,.08)">D-18</div>
+            <div class="sched-name">정기 진료</div>
+            <div class="sched-date">5월 4일 (월) · 김영수 전문의</div>
+          </div>
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--blue);background:rgba(44,122,252,.08)">D-24</div>
+            <div class="sched-name">처방전 갱신</div>
+            <div class="sched-date">5월 10일 (일)</div>
+          </div>
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--blue);background:rgba(44,122,252,.08)">D-30</div>
+            <div class="sched-name">혈액 검사</div>
+            <div class="sched-date">5월 16일 (토) · 검사실</div>
+          </div>
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--blue);background:rgba(44,122,252,.08)">D-44</div>
+            <div class="sched-name">5월 요양비 납부</div>
+            <div class="sched-date">5월 30일 (금)</div>
+          </div>
+          <div class="sched-chip">
+            <div class="sched-dday" style="color:var(--blue);background:rgba(44,122,252,.08)">D-57</div>
+            <div class="sched-name">관절 추적 검사</div>
+            <div class="sched-date">6월 12일 (금) · X-ray</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 최근 기록 ── -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">최근 기록</span>
+          <span class="section-more">전체보기</span>
+        </div>
+        <div class="feed-card">
+          <div class="feed-item" onclick="openDrill('timeline')">
+            <div class="feed-dot" style="background:rgba(5,150,105,.12)"><iconify-icon icon="fluent:checkmark-circle-24-filled" style="font-size:16px;color:var(--green-d)"></iconify-icon></div>
+            <div class="feed-body">
+              <div class="feed-text">아침 투약 완료</div>
+              <div class="feed-meta">혈압약 · 당뇨약 복용</div>
+            </div>
+            <span class="feed-time">오늘 08:20</span>
+          </div>
+          <div class="feed-item" onclick="openDrill('timeline')">
+            <div class="feed-dot" style="background:rgba(217,119,6,.12)"><iconify-icon icon="fluent:food-24-filled" style="font-size:16px;color:var(--amber-d)"></iconify-icon></div>
+            <div class="feed-body">
+              <div class="feed-text">점심 식사 · 섭취율 80%</div>
+              <div class="feed-meta">밥 + 국 + 반찬 3종</div>
+            </div>
+            <span class="feed-time">오늘 12:05</span>
+          </div>
+          <div class="feed-item" onclick="openDrill('medical')">
+            <div class="feed-dot" style="background:rgba(124,58,237,.1)"><iconify-icon icon="fluent:document-text-24-filled" style="font-size:16px;color:var(--purple)"></iconify-icon></div>
+            <div class="feed-body">
+              <div class="feed-text">정기 진료 결과 등록</div>
+              <div class="feed-meta">고혈압·당뇨 경과 양호</div>
+            </div>
+            <span class="feed-time">4/10</span>
+          </div>
+          <div class="feed-item" onclick="openDrill('medical')">
+            <div class="feed-dot" style="background:rgba(44,122,252,.1)"><iconify-icon icon="fluent:beaker-24-filled" style="font-size:16px;color:var(--blue)"></iconify-icon></div>
+            <div class="feed-body">
+              <div class="feed-text">혈액 검사 결과</div>
+              <div class="feed-meta">콜레스테롤 215 경계</div>
+            </div>
+            <span class="feed-time">4/5</span>
+          </div>
+          <div class="feed-item" onclick="openDrill('billing')">
+            <div class="feed-dot" style="background:rgba(220,38,38,.09)"><iconify-icon icon="fluent:receipt-24-filled" style="font-size:16px;color:var(--coral-d)"></iconify-icon></div>
+            <div class="feed-body">
+              <div class="feed-text">4월 청구서 발행</div>
+              <div class="feed-meta">1,245,000원 · 납부기한 4/25</div>
+            </div>
+            <span class="feed-time">4/1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 의료 타임라인 ── -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">의료 타임라인</span>
+          <span class="section-more">전체보기</span>
+        </div>
+        <div class="med-tl">
+          <div class="med-tl-item">
+            <div class="med-tl-left">
+              <div class="med-tl-dot" style="border-color:var(--purple)"></div>
+              <div class="med-tl-line"></div>
+            </div>
+            <div class="med-tl-right">
+              <div class="med-tl-date">2026.04.10</div>
+              <div class="med-tl-title">정기 진료</div>
+              <div class="med-tl-desc">김영수 전문의 · 고혈압, 당뇨 경과 양호 · 현 처방 유지</div>
+              <span class="med-tl-tag" style="color:var(--purple);background:rgba(124,58,237,.09)">진료</span>
+            </div>
+          </div>
+          <div class="med-tl-item">
+            <div class="med-tl-left">
+              <div class="med-tl-dot" style="border-color:var(--blue)"></div>
+              <div class="med-tl-line"></div>
+            </div>
+            <div class="med-tl-right">
+              <div class="med-tl-date">2026.04.05</div>
+              <div class="med-tl-title">혈액 검사</div>
+              <div class="med-tl-desc">공복혈당 118 정상 · HbA1c 6.4% 양호 · 콜레스테롤 215 경계</div>
+              <span class="med-tl-tag" style="color:var(--blue);background:rgba(44,122,252,.09)">혈액</span>
+            </div>
+          </div>
+          <div class="med-tl-item">
+            <div class="med-tl-left">
+              <div class="med-tl-dot" style="border-color:var(--amber-d)"></div>
+              <div class="med-tl-line"></div>
+            </div>
+            <div class="med-tl-right">
+              <div class="med-tl-date">2026.03.20</div>
+              <div class="med-tl-title">관절 검사 (X-ray)</div>
+              <div class="med-tl-desc">우측 무릎 퇴행성 관절염 경미 진행 · 물리치료 병행</div>
+              <span class="med-tl-tag" style="color:var(--amber-d);background:rgba(217,119,6,.09)">영상</span>
+            </div>
+          </div>
+          <div class="med-tl-item">
+            <div class="med-tl-left">
+              <div class="med-tl-dot" style="border-color:var(--purple)"></div>
+              <div class="med-tl-line"></div>
+            </div>
+            <div class="med-tl-right">
+              <div class="med-tl-date">2026.03.10</div>
+              <div class="med-tl-title">정기 진료</div>
+              <div class="med-tl-desc">전반적 안정세 · 관절약 셀레콕시브 추가 처방</div>
+              <span class="med-tl-tag" style="color:var(--purple);background:rgba(124,58,237,.09)">진료</span>
+            </div>
+          </div>
+          <div class="med-tl-item">
+            <div class="med-tl-left">
+              <div class="med-tl-dot" style="border-color:var(--blue)"></div>
+            </div>
+            <div class="med-tl-right">
+              <div class="med-tl-date">2026.02.28</div>
+              <div class="med-tl-title">혈액 검사</div>
+              <div class="med-tl-desc">공복혈당 122 · HbA1c 6.5% · 혈압 130/84</div>
+              <span class="med-tl-tag" style="color:var(--blue);background:rgba(44,122,252,.09)">혈액</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ 드릴다운: AI 리포트 ═══ -->
+  <div class="drilldown" id="drillReport">
+    <div class="drill-header">
+      <div class="drill-back" onclick="closeDrill('report')"><iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px;color:var(--t2)"></iconify-icon></div>
+      <div class="drill-title">AI 리포트</div>
+    </div>
+    <div class="drill-content">
+      <!-- 일일 리포트 -->
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)">
+            <svg width="18" height="18" viewBox="0 0 2526 2526" style="fill:var(--blue)">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+              <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/>
+            </svg>
+          </div>
+          <div class="dl-title">일일 리포트</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.1)" id="reportDate"></div>
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+          오늘 하루 전반적으로 양호한 컨디션을 유지했습니다. 아침 투약과 식사 모두 정상 완료되었으며, 오전 산책과 재활 체조에 적극적으로 참여했습니다. 점심 섭취율 80%로 양호합니다.
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">식사</div><div class="dl-row-info">섭취율 평균 80%</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">투약</div><div class="dl-row-info">아침 완료 · 저녁 예정</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">활동</div><div class="dl-row-info">산책 + 재활 + 인지훈련</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:rgba(0,0,0,.15)"></div><div class="dl-row-name">특이사항</div><div class="dl-row-info">없음</div></div>
+      </div>
+      <!-- 주간 리포트 -->
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:calendar-week-start-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">주간 리포트</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.1)">4/7 ~ 4/13</div>
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+          이번 주 전체적으로 안정적인 컨디션을 유지했습니다. 식사 섭취율이 전주 대비 5% 상승했으며, 재활 참여율도 높은 수준입니다.
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">평균 식사 섭취율</div><div class="dl-row-info">82%</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">투약 완료율</div><div class="dl-row-info">100%</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">재활 참여</div><div class="dl-row-info">5회 / 주 5회</div></div>
+      </div>
+      <!-- 월간 리포트 -->
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:calendar-month-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">월간 리포트</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.08)">3월</div>
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+          3월 한 달간 전반적으로 안정세를 보였습니다. 관절 상태가 점진적으로 개선되고 있으며, 인지 기능 유지에 긍정적 변화가 관찰됩니다.
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">평균 식사 섭취율</div><div class="dl-row-info">79%</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">투약 완료율</div><div class="dl-row-info">98%</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">체중 변화</div><div class="dl-row-info">58.2kg (변동 없음)</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">SOS 발생</div><div class="dl-row-info">0건</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 드릴다운: 진료기록 ═══ -->
+  <div class="drilldown" id="drillMedical">
+    <div class="drill-header">
+      <div class="drill-back" onclick="closeDrill('medical')"><iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px;color:var(--t2)"></iconify-icon></div>
+      <div class="drill-title">진료·검사</div>
+    </div>
+    <div class="drill-content">
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:stethoscope-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">정기 진료</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.1)">04.10</div>
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">담당의</div><div class="dl-row-info">김영수 전문의</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">진단</div><div class="dl-row-info">고혈압, 당뇨 경과 양호</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:rgba(0,0,0,.15)"></div><div class="dl-row-name">소견</div><div class="dl-row-info">현 처방 유지, 다음 진료 5월</div></div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:beaker-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">혈액 검사</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.1)">04.05</div>
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">공복 혈당</div><div class="dl-row-info">118 mg/dL (정상)</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">HbA1c</div><div class="dl-row-info">6.4% (양호)</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">혈압</div><div class="dl-row-info">128/82 mmHg</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">콜레스테롤</div><div class="dl-row-info">215 mg/dL (경계)</div></div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:scan-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">관절 검사</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.08)">03.20</div>
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">검사</div><div class="dl-row-info">우측 무릎 X-ray</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">결과</div><div class="dl-row-info">퇴행성 관절염, 경미한 진행</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:rgba(0,0,0,.15)"></div><div class="dl-row-name">소견</div><div class="dl-row-info">물리치료 병행, 6개월 후 추적</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 드릴다운: 처방전 ═══ -->
+  <div class="drilldown" id="drillPrescription">
+    <div class="drill-header">
+      <div class="drill-back" onclick="closeDrill('prescription')"><iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px;color:var(--t2)"></iconify-icon></div>
+      <div class="drill-title">처방·약물</div>
+    </div>
+    <div class="drill-content">
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.1)"><iconify-icon icon="fluent:pill-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">현재 복용 약물</div>
+          <div class="dl-badge" style="color:var(--blue);background:rgba(44,122,252,.1)">5종</div>
+        </div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">아모디핀 (혈압약)</div><div class="dl-row-info">1일 2회 · 아침/저녁</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">메트포르민 (당뇨약)</div><div class="dl-row-info">1일 1회 · 아침</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">셀레콕시브 (관절약)</div><div class="dl-row-info">1일 1회 · 저녁</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:var(--blue)"></div><div class="dl-row-name">판토프라졸 (소화제)</div><div class="dl-row-info">1일 1회 · 점심</div></div>
+        <div class="dl-row"><div class="dl-row-dot" style="background:rgba(0,0,0,.15)"></div><div class="dl-row-name">비타민D (영양제)</div><div class="dl-row-info">1일 1회 · 저녁</div></div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(239,68,68,.08)"><iconify-icon icon="fluent:warning-24-filled" style="font-size:18px;color:var(--red)"></iconify-icon></div>
+          <div class="dl-title">주의사항</div>
+        </div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6">
+          · 아모디핀: 자몽 주스와 함께 복용 금지<br>
+          · 메트포르민: 공복 복용 시 위장장애 가능<br>
+          · 셀레콕시브: 장기 복용 시 위장 출혈 주의
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 드릴다운: 타임라인 ═══ -->
+  <div class="drilldown" id="drillTimeline">
+    <div class="drill-header">
+      <div class="drill-back" onclick="closeDrill('timeline')"><iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px;color:var(--t2)"></iconify-icon></div>
+      <div class="drill-title">오늘의 케어</div>
+    </div>
+    <div class="drill-content">
+      <div class="dl-card">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">08:20</div>
+            <div class="tl-text">아침 투약 완료</div>
+            <div class="tl-sub">혈압약 · 당뇨약 복용</div>
+            <span class="tl-type" style="color:var(--blue);background:rgba(44,122,252,.1)">투약</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">09:30</div>
+            <div class="tl-text">오전 산책</div>
+            <div class="tl-sub">정원 2바퀴, 보조보행기 사용</div>
+            <span class="tl-type" style="color:var(--blue);background:rgba(44,122,252,.08)">활동</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">10:00</div>
+            <div class="tl-text">재활 체조</div>
+            <div class="tl-sub">상체 스트레칭 + 하체 근력, 참여도 높음</div>
+            <span class="tl-type" style="color:var(--blue);background:rgba(44,122,252,.08)">재활</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">12:05</div>
+            <div class="tl-text">점심 식사</div>
+            <div class="tl-sub">밥 + 국 + 반찬 3종, 섭취율 80%</div>
+            <span class="tl-type" style="color:var(--blue);background:rgba(44,122,252,.1)">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">14:00</div>
+            <div class="tl-text">물리치료</div>
+            <div class="tl-sub">관절 가동 범위 운동 + 온열치료</div>
+            <span class="tl-type" style="color:var(--blue);background:rgba(44,122,252,.08)">재활</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--blue)"></div>
+          <div class="tl-body">
+            <div class="tl-time">15:30</div>
+            <div class="tl-text">인지 훈련</div>
+            <div class="tl-sub">그림 맞추기 + 단어 회상 · 진행 중</div>
+            <span class="tl-type" style="color:#fff;background:var(--blue)">진행중</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 드릴다운: 결제 ═══ -->
+  <div class="drilldown" id="drillBilling">
+    <div class="drill-header">
+      <div class="drill-back" onclick="closeDrill('billing')"><iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px;color:var(--t2)"></iconify-icon></div>
+      <div class="drill-title">비용</div>
+    </div>
+    <div class="drill-content">
+      <div class="bill-card">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:8px">4월 요양비</div>
+        <div class="bill-amount">1,245,000<span style="font-size:16px;font-weight:500">원</span></div>
+        <div class="bill-period">2026.04.01 ~ 04.30 · 납부기한 4월 25일</div>
+        <div class="bill-status" style="color:var(--blue);background:rgba(44,122,252,.1)">
+          <iconify-icon icon="fluent:clock-24-filled" style="font-size:12px"></iconify-icon>
+          미납 · D-9
+        </div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:receipt-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">청구 내역</div>
+        </div>
+        <div class="bill-row"><span class="bill-row-label">요양서비스</span><span class="bill-row-val">850,000원</span></div>
+        <div class="bill-row"><span class="bill-row-label">간호관리</span><span class="bill-row-val">180,000원</span></div>
+        <div class="bill-row"><span class="bill-row-label">식비</span><span class="bill-row-val">150,000원</span></div>
+        <div class="bill-row"><span class="bill-row-label">물리치료</span><span class="bill-row-val">65,000원</span></div>
+        <div class="bill-row" style="border-top:2px solid rgba(0,0,0,.08);font-weight:700"><span>합계</span><span style="color:var(--blue)">1,245,000원</span></div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-head">
+          <div class="dl-icon" style="background:rgba(44,122,252,.08)"><iconify-icon icon="fluent:history-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div>
+          <div class="dl-title">납부 이력</div>
+        </div>
+        <div class="bill-row"><span class="bill-row-label">3월</span><span class="bill-row-val" style="color:var(--blue)">1,220,000원 · 완납</span></div>
+        <div class="bill-row"><span class="bill-row-label">2월</span><span class="bill-row-val" style="color:var(--blue)">1,195,000원 · 완납</span></div>
+        <div class="bill-row"><span class="bill-row-label">1월</span><span class="bill-row-val" style="color:var(--blue)">1,230,000원 · 완납</span></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 탭바 -->
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab active"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+
+  <script>
+    window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+
+    // 날짜
+    (function(){
+      var now=new Date(),days=['일','월','화','수','목','금','토'];
+      var rd=document.getElementById('reportDate');
+      if(rd)rd.textContent=(now.getMonth()+1)+'/'+ now.getDate()+' ('+days[now.getDay()]+')';
+    })();
+
+    // 드릴다운
+    function openDrill(type){
+      var id='drill'+type.charAt(0).toUpperCase()+type.slice(1);
+      var el=document.getElementById(id);
+      if(el){el.classList.add('show');el.scrollTop=0;}
+    }
+    function closeDrill(type){
+      var id='drill'+type.charAt(0).toUpperCase()+type.slice(1);
+      var el=document.getElementById(id);
+      if(el)el.classList.remove('show');
+    }
+
+    function openAiOverlay(){}
+    function toast(msg){}
+  </script>
+</body>
+</html>

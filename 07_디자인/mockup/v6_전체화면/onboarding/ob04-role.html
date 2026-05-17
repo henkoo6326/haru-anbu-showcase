@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 역할 선택</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+
+    #bg-gradient {
+      position: fixed; inset: 0; z-index: -1;
+      transition: background 0.5s ease;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.95)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.78)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      max-width: 430px; left: 50%; transform: translateX(-50%);
+    }
+
+    body {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 34px;
+      position: relative;
+    }
+
+    /* ── 히어로 헤더 ── */
+    .role-hero {
+      background: transparent;
+      padding: 8px 28px 28px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: calc(max(env(safe-area-inset-top, 0px), 59px) + 8px);
+      left: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .back-btn:active { opacity: 0.6; }
+
+    .role-hero h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1C1C1E;
+      letter-spacing: -0.7px;
+      line-height: 1.2;
+      margin-top: 0;
+      margin-bottom: 6px;
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .role-hero p {
+      font-size: 16px;
+      color: rgba(28,28,30,0.55);
+      line-height: 1.6;
+      letter-spacing: -0.2px;
+      animation: fadeInUp 0.4s ease 0.06s both;
+    }
+
+    /* ── 리스트 영역 ── */
+    .role-grid {
+      padding: 8px 24px 0;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInUp 0.4s ease 0.12s both;
+    }
+
+    /* ── 역할 행 ── */
+    .role-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 0;
+      border-bottom: 0.5px solid rgba(28,28,30,0.10);
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .role-card:last-child { border-bottom: none; }
+    .role-card:active { opacity: 0.5; }
+
+    /* 아이콘 */
+    .role-icon {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .role-icon--guardian { background: rgba(8, 145, 178, 0.15); }
+    .role-icon--nurse    { background: rgba(5, 150, 105, 0.15); }
+    .role-icon--patient  { background: rgba(234, 88, 12, 0.13); }
+
+    .role-info { flex: 1; }
+
+    .role-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1C1C1E;
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    .role-desc {
+      font-size: 14px;
+      color: rgba(28,28,30,0.5);
+      line-height: 1.55;
+      letter-spacing: -0.1px;
+    }
+
+    .role-badge { display: none; }
+
+    .role-arrow { flex-shrink: 0; opacity: 0.3; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .role-hero h1,
+      .role-hero p,
+      .role-grid { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="bg-gradient"></div>
+
+  <!-- 그라디언트 히어로 헤더 -->
+  <div class="role-hero">
+    <button class="back-btn" onclick="history.back()" aria-label="뒤로가기">
+      <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
+        <path d="M9 1L2 8.5L9 16" stroke="#1C1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h1>하루안부와<br>함께해요!</h1>
+    <p>어떤 분이신지 선택해 주시면<br>바로 시작할 수 있어요</p>
+  </div>
+
+  <!-- 역할 카드 (flex fill) -->
+  <div class="role-grid">
+
+    <a class="role-card role-card--guardian" href="ob05-g-intro.html?role=guardian" aria-label="보호자로 시작하기">
+      <div class="role-icon role-icon--guardian">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#0369A1" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="9" cy="7" r="4" stroke="#0369A1" stroke-width="2"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#0369A1" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="role-info">
+        <div class="role-name">보호자</div>
+        <div class="role-desc">부모님의 케어를 함께 관리해요</div>
+        <span class="role-badge">장기요양 가족 약 200만+ 명</span>
+      </div>
+      <div class="role-arrow">
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+          <path d="M1 1l6 6-6 6" stroke="#1C1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+    <a class="role-card role-card--nurse" href="ob05-n-intro.html?role=nurse" aria-label="의료진으로 시작하기">
+      <div class="role-icon role-icon--nurse">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="role-info">
+        <div class="role-name">의료진</div>
+        <div class="role-desc">환자 케어 기록과 소통을 효율화해요</div>
+        <span class="role-badge">요양보호사 등록자 약 57만 명</span>
+      </div>
+      <div class="role-arrow">
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+          <path d="M1 1l6 6-6 6" stroke="#1C1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+    <a class="role-card role-card--patient" href="ob05-p-intro.html?role=patient" aria-label="환자로 시작하기">
+      <div class="role-icon role-icon--patient">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="#EA580C" stroke-width="2"/>
+          <path d="M6 20v-2a6 6 0 0112 0v2" stroke="#EA580C" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="role-info">
+        <div class="role-name">환자</div>
+        <div class="role-desc">일과와 가족 소식을 확인해요</div>
+        <span class="role-badge">장기요양 이용자 약 117만 명</span>
+      </div>
+      <div class="role-arrow">
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+          <path d="M1 1l6 6-6 6" stroke="#1C1C1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="ios-home-indicator"></div>
+
+  <script>
+    const bg = document.getElementById('bg-gradient');
+
+    const gradients = {
+      default: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.95)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.78)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC`,
+      nurse: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(52,211,153,0.95)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(6,182,212,0.88)    0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(16,185,129,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(5,150,105,0.78)    0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E0F5EE`,
+      patient: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(251,191,36,0.90)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(251,146,60,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(245,158,11,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(234,88,12,0.70)    0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #FEF3E2`,
+    };
+
+    document.querySelectorAll('.role-card').forEach(card => {
+      const role = card.classList.contains('role-card--nurse')    ? 'nurse'
+                 : card.classList.contains('role-card--patient')  ? 'patient'
+                 : 'default';
+
+      card.addEventListener('mouseenter', () => bg.style.background = gradients[role]);
+      card.addEventListener('mouseleave', () => bg.style.background = gradients.default);
+      card.addEventListener('touchstart', () => bg.style.background = gradients[role], { passive: true });
+    });
+  </script>
+</body>
+</html>

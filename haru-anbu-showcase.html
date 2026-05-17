@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — Project Showcase</title>
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    :root {
+      --ink:        #111111;
+      --ink-2:      #333333;
+      --mute:       #888888;
+      --mute-2:     #B5B5B5;
+      --line:       #E8E8E8;
+      --line-soft:  #F1F1F1;
+      --paper:      #FAFAFA;
+      --bg:         #FFFFFF;
+      --blue:       #2C7AFC;
+      --dark:       #0A0A0A;
+
+      --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+
+      --container: 1200px;
+      --gutter: clamp(24px, 5vw, 64px);
+
+      --pad-section: clamp(96px, 14vw, 180px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ─── type scale ─── */
+    .t-label    { font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+    .t-caption  { font-size: 13px; font-weight: 400; line-height: 1.6; color: var(--mute); letter-spacing: -0.005em; }
+    .t-body-s   { font-size: 14px; font-weight: 400; line-height: 1.7; color: var(--ink-2); letter-spacing: -0.005em; }
+    .t-body     { font-size: 16px; font-weight: 400; line-height: 1.75; color: var(--ink-2); letter-spacing: -0.005em; }
+    .t-body-l   { font-size: 18px; font-weight: 400; line-height: 1.7; color: var(--ink-2); letter-spacing: -0.01em; }
+    .t-h3       { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -0.015em; color: var(--ink); }
+    .t-h2       { font-size: clamp(28px, 3.4vw, 36px); font-weight: 600; line-height: 1.25; letter-spacing: -0.025em; color: var(--ink); }
+    .t-h1       { font-size: clamp(40px, 5vw, 56px); font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: var(--ink); }
+    .t-display  { font-size: clamp(56px, 8vw, 96px); font-weight: 700; line-height: 1.02; letter-spacing: -0.04em; color: var(--ink); }
+
+    .t-mono     { font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums; }
+
+    /* ─── shells ─── */
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+    }
+    section {
+      padding-top: var(--pad-section);
+      padding-bottom: var(--pad-section);
+    }
+    .hairline {
+      height: 1px;
+      background: var(--line);
+      width: 100%;
+    }
+
+    /* ═════════ TOP NAV ═════════ */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--gutter);
+      z-index: 50;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid transparent;
+      transition: border-color .3s;
+    }
+    .topbar.scrolled { border-bottom-color: var(--line); }
+    .topbar.dark {
+      background: rgba(10,10,10,.7);
+      border-bottom-color: rgba(255,255,255,0.06);
+      color: white;
+    }
+    .topbar.dark .nav-link { color: rgba(255,255,255,.7); }
+    .topbar.dark .nav-link:hover { color: white; }
+    .topbar.dark .logo-mark path { fill: white; }
+    .topbar.dark .logo-text { color: white; }
+
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .logo-mark { width: 18px; height: 18px; }
+    .logo-text {
+      font-size: 14px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .topbar-nav { display: flex; gap: 28px; }
+    .nav-link {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      transition: color .2s;
+    }
+    .nav-link:hover { color: var(--ink); }
+
+    /* ═════════ COVER ═════════ */
+    .cover {
+      min-height: 100vh;
+      padding-top: 120px;
+      padding-bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .meta-cell .meta-key {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 8px;
+    }
+    .meta-cell .meta-val {
+      font-size: 14px; font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .cover-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(48px, 10vw, 120px) 0;
+    }
+    .cover-eyebrow {
+      font-size: 13px; font-weight: 500;
+      color: var(--mute);
+      margin-bottom: 24px;
+      letter-spacing: -0.005em;
+    }
+    .cover-title {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.045em;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .cover-tag {
+      font-size: clamp(18px, 1.8vw, 22px);
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 56ch;
+      letter-spacing: -0.01em;
+    }
+
+    .cover-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+    .cover-foot .t-label { color: var(--mute); }
+    .scroll-indicator {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .scroll-indicator::after {
+      content: "";
+      width: 24px; height: 1px; background: var(--mute);
+    }
+
+    /* ═════════ INDEX ═════════ */
+    .index {
+      padding-top: clamp(80px, 12vw, 140px);
+      padding-bottom: clamp(80px, 12vw, 140px);
+    }
+    .index-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr auto;
+      gap: 32px;
+      align-items: baseline;
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+      transition: padding .25s ease;
+    }
+    .index-row:last-child { border-bottom: 1px solid var(--line); }
+    .index-row:hover { padding-left: 12px; }
+    .index-num {
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.04em;
+    }
+    .index-name {
+      font-size: 22px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .index-desc {
+      font-size: 14px; font-weight: 400;
+      color: var(--mute);
+      line-height: 1.6;
+    }
+    .index-page {
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+    }
+
+    /* ═════════ SECTION HEAD (shared) ═════════ */
+    .sec-head {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 64px;
+      align-items: start;
+      margin-bottom: 80px;
+    }
+    .sec-head-left .t-label { display: block; margin-bottom: 12px; }
+    .sec-head-num {
+      font-size: 13px; font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      font-feature-settings: "tnum" 1;
+    }
+    .sec-head-title {
+      font-size: clamp(32px, 4.5vw, 52px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .sec-head-title em {
+      font-style: normal;
+      color: var(--blue);
+    }
+    .sec-head-sub {
+      margin-top: 24px;
+      max-width: 56ch;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+      font-weight: 400;
+    }
+
+    /* ═════════ 01 OVERVIEW ═════════ */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 64px;
+    }
+    .overview-body p {
+      font-size: 18px;
+      line-height: 1.85;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+      font-weight: 400;
+    }
+    .overview-body p + p { margin-top: 24px; }
+    .overview-body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ═════════ 02 CONCEPT ═════════ */
+    .concept {
+      background: var(--dark);
+      color: white;
+    }
+    .concept-statement {
+      font-size: clamp(28px, 3.6vw, 44px);
+      font-weight: 400;
+      line-height: 1.4;
+      letter-spacing: -0.02em;
+      color: white;
+      max-width: 28ch;
+    }
+    .concept-statement em {
+      font-style: normal;
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .concept-meta {
+      margin-top: 80px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .concept-meta-cell .ck {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 12px;
+    }
+    .concept-meta-cell .cv {
+      font-size: 16px; font-weight: 400;
+      color: rgba(255,255,255,.85);
+      line-height: 1.6;
+      letter-spacing: -0.01em;
+    }
+
+    /* ═════════ 03 TRY IT ═════════ */
+    .try-stage {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: clamp(40px, 5vw, 64px);
+    }
+    .try-cue {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 40px;
+    }
+    .try-cue-left { display: flex; align-items: center; gap: 14px; }
+    .try-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    .try-cue-text {
+      font-size: 13px; font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .try-time {
+      font-size: 12px; font-weight: 400;
+      color: var(--mute);
+      letter-spacing: 0.02em;
+    }
+
+    .try-question {
+      font-size: clamp(24px, 3vw, 32px);
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      max-width: 22ch;
+      margin-bottom: 56px;
+    }
+    .try-question em { font-style: normal; color: var(--blue); }
+
+    .try-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+    .try-step {
+      padding: 28px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: white;
+      cursor: pointer;
+      transition: background .2s;
+      text-align: left;
+      width: 100%;
+    }
+    .try-step:hover { background: var(--paper); }
+    .try-step.active { background: var(--ink); color: white; }
+    .try-step.active .ts-actor { color: rgba(255,255,255,.5); }
+    .try-step.active .ts-title { color: white; }
+    .try-step.active .ts-num { color: var(--blue); }
+    .ts-num {
+      font-size: 11px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.16em;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .ts-title {
+      font-size: 15px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .ts-actor {
+      font-size: 11px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .try-detail {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .try-detail-text .td-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .try-detail-text .td-text {
+      font-size: 17px; font-weight: 400;
+      line-height: 1.75;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+    }
+    .try-detail-text .td-text strong {
+      font-weight: 600; color: var(--ink);
+    }
+    .try-frame {
+      background: white;
+      border: 1px solid var(--line);
+      aspect-ratio: 9 / 18;
+      max-width: 320px;
+      margin-left: auto;
+    }
+    .try-frame iframe {
+      width: 100%; height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    /* ═════════ 04 PROBLEM ═════════ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    .stat {
+      padding: 56px 32px;
+      background: white;
+    }
+    .stat-num {
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ink);
+      margin-bottom: 16px;
+      font-feature-settings: "tnum" 1;
+    }
+    .stat-num .unit {
+      font-size: 0.4em;
+      font-weight: 500;
+      color: var(--mute);
+      margin-left: 6px;
+      letter-spacing: -0.01em;
+    }
+    .stat-desc {
+      font-size: 15px; font-weight: 400;
+      line-height: 1.6;
+      color: var(--ink-2);
+      letter-spacing: -0.005em;
+      margin-bottom: 16px;
+      max-width: 24ch;
+    }
+    .stat-source {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--mute-2);
+    }
+
+    /* ═════════ 05 PERSONA ═════════ */
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    .persona {
+      padding: 48px 32px;
+      background: white;
+    }
+    .persona-tag {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 24px;
+    }
+    .persona-name {
+      font-size: 28px; font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .persona-meta {
+      font-size: 13px; font-weight: 400;
+      color: var(--mute);
+      margin-bottom: 32px;
+      letter-spacing: -0.005em;
+    }
+    .persona-quote {
+      font-size: 16px; font-weight: 400;
+      line-height: 1.7;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+      padding-left: 16px;
+      border-left: 2px solid var(--blue);
+    }
+
+    /* ═════════ 06 SOLUTION ═════════ */
+    .roles-list {
+      border-top: 1px solid var(--line);
+    }
+    .role-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 2fr 1fr;
+      gap: 48px;
+      align-items: baseline;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .role-num {
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.04em;
+      font-feature-settings: "tnum" 1;
+    }
+    .role-name {
+      font-size: 22px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .role-name span {
+      display: block;
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+    .role-desc {
+      font-size: 15px; font-weight: 400;
+      line-height: 1.7;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+    }
+    .role-platform {
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    /* ─── screens gallery ─── */
+    .screens-block + .screens-block {
+      margin-top: clamp(80px, 12vw, 140px);
+    }
+    .screens-head {
+      display: grid;
+      grid-template-columns: 240px 1fr auto;
+      gap: 32px;
+      align-items: baseline;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 48px;
+    }
+    .screens-head .sh-num {
+      font-size: 12px; font-weight: 500;
+      color: var(--mute);
+      letter-spacing: 0.04em;
+      font-feature-settings: "tnum" 1;
+    }
+    .screens-head .sh-title {
+      font-size: 22px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .screens-head .sh-title em {
+      font-style: normal;
+      font-weight: 500;
+      color: var(--mute);
+      margin-left: 12px;
+      font-size: 0.9em;
+    }
+    .screens-head .sh-meta {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    .screens-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .screens-grid.mobile {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .screens-grid.desktop {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .frame-card {
+      background: white;
+    }
+    .frame-card .frame-shell {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      transition: border-color .25s, transform .25s;
+    }
+    .screens-grid.mobile .frame-shell { aspect-ratio: 9 / 18; }
+    .screens-grid.desktop .frame-shell { aspect-ratio: 16 / 10; }
+    .frame-card:hover .frame-shell {
+      border-color: var(--ink);
+    }
+    .frame-card iframe {
+      width: 100%; height: 100%;
+      border: 0;
+      background: white;
+      pointer-events: none;
+    }
+    .frame-card .frame-meta {
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12px;
+    }
+    .frame-card .frame-name {
+      color: var(--ink); font-weight: 500;
+      letter-spacing: -0.005em;
+    }
+    .frame-card .frame-id {
+      color: var(--mute); letter-spacing: 0.08em;
+      font-feature-settings: "tnum" 1;
+      font-size: 11px;
+    }
+
+    /* ═════════ 07 DESIGN SYSTEM ═════════ */
+    .ds-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    .ds-cell {
+      padding: 56px 40px;
+      background: white;
+      min-height: 240px;
+    }
+    .ds-cell.dark {
+      background: var(--ink);
+      color: white;
+    }
+    .ds-cell.blue { background: var(--blue); color: white; }
+    .ds-cell.dark .t-label { color: rgba(255,255,255,.5); }
+    .ds-cell.blue .t-label { color: rgba(255,255,255,.7); }
+
+    .ds-cell .t-label { display: block; margin-bottom: auto; }
+    .ds-color-name {
+      font-size: 22px; font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-top: 64px;
+    }
+    .ds-color-hex {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--mute);
+      margin-top: 6px;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: 0.04em;
+    }
+    .ds-cell.dark .ds-color-hex,
+    .ds-cell.blue .ds-color-hex { color: rgba(255,255,255,.6); }
+
+    .ds-typo-sample {
+      margin-top: 64px;
+      font-size: 56px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .ds-typo-meta {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--mute);
+      letter-spacing: -0.005em;
+    }
+
+    /* ═════════ 08 AI / FEATURE ═════════ */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .feature-card {
+      padding: 56px 48px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+    .feature-card-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
+    .feature-card-num {
+      font-size: 80px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+      margin-bottom: 24px;
+    }
+    .feature-card-num .unit {
+      font-size: 0.3em; font-weight: 500;
+      color: var(--mute);
+      margin-left: 4px;
+    }
+    .feature-card-msg {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink-2);
+      letter-spacing: -0.005em;
+    }
+
+    /* ═════════ 09 ROI ═════════ */
+    .roi-tabs {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 64px;
+    }
+    .roi-tab {
+      flex: 1;
+      padding: 24px 16px;
+      background: transparent;
+      border: 0;
+      border-right: 1px solid var(--line);
+      text-align: left;
+      transition: background .2s;
+    }
+    .roi-tab:last-child { border-right: 0; }
+    .roi-tab:hover { background: var(--paper); }
+    .roi-tab.active { background: var(--ink); color: white; }
+    .roi-tab .rt-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 6px;
+    }
+    .roi-tab.active .rt-label { color: rgba(255,255,255,.5); }
+    .roi-tab .rt-name {
+      font-size: 15px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .roi-tab.active .rt-name { color: white; }
+
+    .roi-result {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    .roi-cell {
+      padding: 40px 28px;
+      background: white;
+    }
+    .roi-cell .rc-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 20px;
+    }
+    .roi-val {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+      transition: color .3s;
+    }
+    .roi-val.accent { color: var(--blue); }
+    .roi-val .unit {
+      font-size: 0.4em; font-weight: 500;
+      color: var(--mute);
+      margin-left: 4px;
+    }
+    .rc-foot {
+      margin-top: 16px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--mute);
+      letter-spacing: -0.005em;
+    }
+
+    .roi-summary {
+      margin-top: 56px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--ink-2);
+      letter-spacing: -0.01em;
+    }
+    .roi-summary strong { font-weight: 600; color: var(--ink); }
+    .roi-summary em { font-style: normal; color: var(--blue); }
+
+    /* ═════════ CLOSING ═════════ */
+    .closing {
+      padding-top: clamp(140px, 18vw, 220px);
+      padding-bottom: clamp(140px, 18vw, 220px);
+      text-align: center;
+    }
+    .closing-mark {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 48px;
+    }
+    .closing-title {
+      font-size: clamp(40px, 6vw, 80px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .closing-title em {
+      font-style: normal;
+      color: var(--blue);
+    }
+    .closing-line {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--ink-2);
+      max-width: 38ch;
+      margin: 0 auto 64px;
+      letter-spacing: -0.01em;
+    }
+    .closing-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 28px;
+      border: 1px solid var(--ink);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      transition: all .2s;
+    }
+    .closing-cta:hover {
+      background: var(--ink);
+      color: white;
+    }
+    .closing-cta::after { content: "→"; }
+
+    /* ═════════ FOOTER ═════════ */
+    footer {
+      padding: 40px var(--gutter);
+      border-top: 1px solid var(--line);
+    }
+    .ft-wrap {
+      max-width: var(--container);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .ft-brand { display: flex; align-items: center; gap: 10px; }
+    .ft-meta {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--mute);
+    }
+
+    /* ─── reveal ─── */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ─── responsive ─── */
+    @media (max-width: 900px) {
+      :root { --pad-section: 96px; }
+      .topbar-nav { display: none; }
+      .cover-meta { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .index-row { grid-template-columns: 40px 1fr auto; }
+      .index-row .index-desc { display: none; }
+      .sec-head { grid-template-columns: 1fr; gap: 24px; margin-bottom: 56px; }
+      .overview-grid { grid-template-columns: 1fr; gap: 24px; }
+      .stats-row, .persona-grid, .ds-block { grid-template-columns: 1fr; }
+      .try-steps { grid-template-columns: 1fr 1fr; }
+      .try-detail { grid-template-columns: 1fr; }
+      .try-frame { max-width: 280px; margin: 32px 0 0; }
+      .role-row { grid-template-columns: 40px 1fr; gap: 16px; }
+      .role-row .role-desc, .role-row .role-platform { grid-column: 2; }
+      .feature-grid { grid-template-columns: 1fr; gap: 40px; }
+      .roi-tabs { flex-direction: column; }
+      .roi-tab { border-right: 0; border-bottom: 1px solid var(--line); }
+      .roi-result { grid-template-columns: 1fr 1fr; }
+      .concept-meta { grid-template-columns: 1fr; gap: 24px; }
+      .screens-head { grid-template-columns: 1fr; gap: 12px; }
+      .screens-grid.mobile { grid-template-columns: 1fr 1fr; }
+      .screens-grid.desktop { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═════════ TOP NAV ═════════ -->
+  <nav class="topbar" id="topbar">
+    <a class="topbar-left" href="#cover">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#111111"/>
+        <path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#111111"/>
+      </svg>
+      <span class="logo-text">하루안부</span>
+    </a>
+    <div class="topbar-nav">
+      <a class="nav-link" href="#overview">01 Overview</a>
+      <a class="nav-link" href="#try">02 Try It</a>
+      <a class="nav-link" href="#solution">03 Solution</a>
+      <a class="nav-link" href="#screens">04 Screens</a>
+      <a class="nav-link" href="#design">05 Design</a>
+    </div>
+  </nav>
+
+  <!-- ═════════ COVER ═════════ -->
+  <section class="cover container" id="cover">
+    <div class="cover-meta">
+      <div class="meta-cell">
+        <div class="meta-key">Project</div>
+        <div class="meta-val">Haru-Anbu</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Category</div>
+        <div class="meta-val">Care Communication</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Year</div>
+        <div class="meta-val">2026</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-key">Scope</div>
+        <div class="meta-val">UX · UI · Brand</div>
+      </div>
+    </div>
+
+    <div class="cover-main">
+      <div class="cover-eyebrow">AI Care Communication Platform</div>
+      <h1 class="cover-title">하루안부.</h1>
+      <p class="cover-tag">
+        보호자 · 의료진 · 환자, 흩어진 세 시선을 하루의 안부 한 줄로 잇는 케어 플랫폼.
+      </p>
+    </div>
+
+    <div class="cover-foot">
+      <span class="t-label">Showcase v3</span>
+      <span class="scroll-indicator">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ═════════ INDEX ═════════ -->
+  <section class="index container">
+    <div class="index-row">
+      <div class="index-num">01</div>
+      <div class="index-name">Overview</div>
+      <div class="index-desc">프로젝트 한 줄 정의와 배경</div>
+      <div class="index-page">P. 03</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">02</div>
+      <div class="index-name">Try It</div>
+      <div class="index-desc">실제 시나리오로 따라가는 4단계 흐름</div>
+      <div class="index-page">P. 04</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">03</div>
+      <div class="index-name">Problem</div>
+      <div class="index-desc">시장 데이터와 페르소나 페인포인트</div>
+      <div class="index-page">P. 05</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">04</div>
+      <div class="index-name">Solution</div>
+      <div class="index-desc">5종 앱과 4역할 시스템</div>
+      <div class="index-page">P. 06</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">05</div>
+      <div class="index-name">Screens</div>
+      <div class="index-desc">49개 화면 풀 라이브러리</div>
+      <div class="index-page">P. 07</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">06</div>
+      <div class="index-name">Design</div>
+      <div class="index-desc">단일 토큰 · 모노 컬러 시스템</div>
+      <div class="index-page">P. 08</div>
+    </div>
+    <div class="index-row">
+      <div class="index-num">07</div>
+      <div class="index-name">Impact</div>
+      <div class="index-desc">시설 ROI와 안심 지수</div>
+      <div class="index-page">P. 09</div>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- ═════════ 01 OVERVIEW ═════════ -->
+  <section id="overview" class="container">
+    <div class="overview-grid">
+      <div class="sec-head-left reveal">
+        <span class="t-label">Section 01</span>
+        <div class="sec-head-num" style="margin-top:12px;">Overview</div>
+      </div>
+      <div class="overview-body reveal">
+        <p>
+          하루안부는 요양원에 가족을 모신 <strong>보호자</strong>, 47명을 동시에 돌보는 <strong>의료진</strong>, 가족과 디지털로 연결되지 못한 <strong>환자</strong> — 흩어진 세 시선을 하나의 안부로 잇는 케어 커뮤니케이션 플랫폼입니다.
+        </p>
+        <p>
+          전화 한 통으로 묻기엔 사소하고 묻지 않기엔 중요한 <strong>오늘 하루의 흐름</strong>을, 한 화면 안에서 묻고 답하게 합니다. 같은 데이터, 다른 시선. 한 번의 기록이 네 명에게 자동으로 닿습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 02 CONCEPT (dark) ═════════ -->
+  <section class="concept">
+    <div class="container">
+      <div class="overview-grid">
+        <div class="sec-head-left reveal">
+          <span class="t-label">Concept</span>
+          <div class="sec-head-num" style="margin-top:12px; color:white;">두 곡선</div>
+        </div>
+        <div class="reveal">
+          <p class="concept-statement">
+            두 개의 곡선이 만나<br>
+            <em>하나의 안부</em>가 됩니다.
+          </p>
+
+          <div class="concept-meta">
+            <div class="concept-meta-cell">
+              <div class="ck">Symbol</div>
+              <div class="cv">멀리서 묻는 가족의 마음과 현장에서 답하는 의료진의 손길, 두 곡선이 가운데에서 맞물립니다.</div>
+            </div>
+            <div class="concept-meta-cell">
+              <div class="ck">Open Form</div>
+              <div class="cv">닫히지 않은 형태. 매일 새 안부가 흘러들어오는 열린 공간을 의미합니다.</div>
+            </div>
+            <div class="concept-meta-cell">
+              <div class="ck">Tagline</div>
+              <div class="cv">오늘 하루도, 안녕하셨습니다. 매일 잊지 않고 안부를 묻는 마음 그 자체.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 03 TRY IT ═════════ -->
+  <section id="try" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Section 02</span>
+        <div class="sec-head-num" style="margin-top:12px;">Try It</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          엄마가 오늘<br>식사를 거르셨어요.
+        </h2>
+        <p class="sec-head-sub">
+          평일 오전 10시, 김순자 어르신이 아침 식사를 거의 드시지 않았습니다. 하루안부의 4역할이 어떻게 움직이는지 단계를 클릭하며 따라가 보세요.
+        </p>
+      </div>
+    </div>
+
+    <div class="try-stage reveal">
+      <div class="try-cue">
+        <div class="try-cue-left">
+          <div class="try-dot"></div>
+          <div class="try-cue-text">환자 #007 김순자 · 식사량 15% 미만 감지</div>
+        </div>
+        <div class="try-time">10:14 AM</div>
+      </div>
+
+      <h3 class="try-question">
+        한 줄의 신호가, <em>네 사람</em>을 어떻게 잇는가.
+      </h3>
+
+      <div class="try-steps" id="trySteps">
+        <button class="try-step active" data-step="1">
+          <span class="ts-num">STEP 01</span>
+          <div class="ts-title">요양보호사 기록</div>
+          <div class="ts-actor">Caregiver</div>
+        </button>
+        <button class="try-step" data-step="2">
+          <span class="ts-num">STEP 02</span>
+          <div class="ts-title">AI 신호 감지</div>
+          <div class="ts-actor">AI Engine</div>
+        </button>
+        <button class="try-step" data-step="3">
+          <span class="ts-num">STEP 03</span>
+          <div class="ts-title">보호자 알림</div>
+          <div class="ts-actor">Guardian</div>
+        </button>
+        <button class="try-step" data-step="4">
+          <span class="ts-num">STEP 04</span>
+          <div class="ts-title">의료진 회신</div>
+          <div class="ts-actor">Medical</div>
+        </button>
+      </div>
+
+      <div class="try-detail">
+        <div class="try-detail-text">
+          <div class="td-label" id="tdLabel">Step 01 · Caregiver</div>
+          <div class="td-text" id="tdText">
+            8단계 케어 스텝퍼 中 <strong>식사 단계</strong>에서 섭취량 15%를 기록합니다. 정형화된 입력이라 AI가 곧장 의미를 파악하고, 같은 데이터가 보호자·의료진에게 자동으로 닿습니다.
+          </div>
+        </div>
+        <div class="try-frame">
+          <iframe id="tryFrame" src="07_디자인/v3_preview_checklist.html" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 04 PROBLEM ═════════ -->
+  <section id="problem" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Section 03</span>
+        <div class="sec-head-num" style="margin-top:12px;">Problem</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          국내 6개 경쟁사,<br>모두 같은 자리에 있었다.
+        </h2>
+        <p class="sec-head-sub">
+          시설 매칭, 시설 운영, 보호자 결제 — '입소 후 3자 실시간 소통'은 단 한 곳도 다루지 않았습니다. 하루안부가 점령한 자리는 블루오션이 아니라 화이트 스페이스였습니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="stats-row reveal">
+      <div class="stat">
+        <div class="stat-num">187<span class="unit">만 가구</span></div>
+        <div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div>
+        <div class="stat-source">통계청 2024</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">22<span class="unit">통/일</span></div>
+        <div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div>
+        <div class="stat-source">현장 인터뷰 v2.1</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0<span class="unit">곳</span></div>
+        <div class="stat-desc">입소 후 3자 실시간 소통 시장의 국내 사업자 수.</div>
+        <div class="stat-source">경쟁사 6곳 분석</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 05 PERSONA ═════════ -->
+  <section class="container" style="padding-top:0;">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Persona</span>
+        <div class="sec-head-num" style="margin-top:12px;">Three Voices</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          기능이 아니라<br>안심을 설계한다.
+        </h2>
+      </div>
+    </div>
+
+    <div class="persona-grid reveal">
+      <div class="persona">
+        <div class="persona-tag">Guardian</div>
+        <div class="persona-name">김미영</div>
+        <div class="persona-meta">53세 · 보호자 · 모친 5년 입소</div>
+        <div class="persona-quote">오늘 엄마가 식사를 하셨는지 알 길이 없다. 전화하긴 죄송하고, 기다리긴 불안하다.</div>
+      </div>
+      <div class="persona">
+        <div class="persona-tag">Medical</div>
+        <div class="persona-name">박지현</div>
+        <div class="persona-meta">38세 · 간호사 · 환자 47명 담당</div>
+        <div class="persona-quote">전화 응대에 하루 2시간. 같은 질문을 47번 받고 나면, 정작 환자를 볼 시간이 없다.</div>
+      </div>
+      <div class="persona">
+        <div class="persona-tag">Patient</div>
+        <div class="persona-name">김순자</div>
+        <div class="persona-meta">82세 · 입소 환자 · 치매 초기</div>
+        <div class="persona-quote">아들 얼굴이 보고 싶다. 휴대폰은 어렵고, 누군가 도와주면 좋겠다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 06 SOLUTION ═════════ -->
+  <section id="solution" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Section 04</span>
+        <div class="sec-head-num" style="margin-top:12px;">Solution</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          한 번의 안부,<br>다섯 개의 화면.
+        </h2>
+        <p class="sec-head-sub">
+          같은 데이터를 보호자는 안심 지수로, 요양보호사는 8단계 스텝퍼로, 환자는 큰 글씨 한 화면으로, 의료진은 47명 대시보드로 봅니다. 실제 화면은 다음 섹션 — 49개의 라이브러리에서 확인할 수 있습니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="roles-list reveal">
+      <div class="role-row">
+        <div class="role-num">01</div>
+        <div class="role-name">온보딩<span>Onboarding</span></div>
+        <div class="role-desc">최초 진입 1회. 역할을 묻고, 케어 그룹에 매칭하고, 권한을 부여해 본 앱으로 분기시킵니다.</div>
+        <div class="role-platform">Mobile</div>
+      </div>
+      <div class="role-row">
+        <div class="role-num">02</div>
+        <div class="role-name">보호자 앱<span>Guardian</span></div>
+        <div class="role-desc">멀리 있어도 오늘이 보이는 한 화면. 식사·복약·기분 흐름과 안심 지수를 1일 1회 자동 수신합니다.</div>
+        <div class="role-platform">Mobile</div>
+      </div>
+      <div class="role-row">
+        <div class="role-num">03</div>
+        <div class="role-name">요양보호사 앱<span>Caregiver</span></div>
+        <div class="role-desc">방문 동선 위에서 8단계 스텝퍼로 빠르게 기록. 음성 메모는 AI가 정리해 인계장으로 전환합니다.</div>
+        <div class="role-platform">Mobile</div>
+      </div>
+      <div class="role-row">
+        <div class="role-num">04</div>
+        <div class="role-name">환자 앱<span>Patient</span></div>
+        <div class="role-desc">거실 거치형 태블릿. 화면 3개·터치 56px·글자 +2px. 조작이 아니라 '있는 것'.</div>
+        <div class="role-platform">Tablet</div>
+      </div>
+      <div class="role-row">
+        <div class="role-num">05</div>
+        <div class="role-name">의료진 웹<span>Medical</span></div>
+        <div class="role-desc">47명의 환자를 한 대시보드에. 이상 신호는 AI가 먼저 정렬하고 우선순위 큐로 전달합니다.</div>
+        <div class="role-platform">Desktop</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═════════ SCREENS LIBRARY ═════════ -->
+  <section id="screens" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Library</span>
+        <div class="sec-head-num" style="margin-top:12px;">Screens</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          49개의 화면,<br>네 개의 시선.
+        </h2>
+        <p class="sec-head-sub">
+          모든 화면은 단일 tokens.css만 import하고 <code style="font-family:ui-monospace,monospace;font-size:14px;background:var(--paper);padding:2px 6px;">data-role</code> 속성으로 분기됩니다. 아래 화면들은 실제 동작하는 인터랙티브 HTML입니다.
+        </p>
+      </div>
+    </div>
+
+    <!-- 01 ONBOARDING -->
+    <div class="screens-block reveal">
+      <div class="screens-head">
+        <div class="sh-num">— 01</div>
+        <div class="sh-title">Onboarding<em>역할 선택 · 가입 · 권한</em></div>
+        <div class="sh-meta">11 Screens · Mobile</div>
+      </div>
+      <div class="screens-grid mobile">
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob01-splash.html" loading="lazy" title="ob01"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">스플래시</span><span class="frame-id">OB · 01</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob02-start.html" loading="lazy" title="ob02"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">시작 화면</span><span class="frame-id">OB · 02</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob02-login.html" loading="lazy" title="ob02 login"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">로그인</span><span class="frame-id">OB · 02-L</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob03-social.html" loading="lazy" title="ob03 social"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">소셜 로그인</span><span class="frame-id">OB · 03-S</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob04-role.html" loading="lazy" title="ob04 role"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">역할 선택</span><span class="frame-id">OB · 04</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob05-g-intro.html" loading="lazy" title="guardian intro"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">보호자 인트로</span><span class="frame-id">OB · 05-G</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob05-n-intro.html" loading="lazy" title="nurse intro"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">의료진 인트로</span><span class="frame-id">OB · 05-N</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob05-p-intro.html" loading="lazy" title="patient intro"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">환자 인트로</span><span class="frame-id">OB · 05-P</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob06-agree.html" loading="lazy" title="agree"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">약관 동의</span><span class="frame-id">OB · 06</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob07-profile.html" loading="lazy" title="profile"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">프로필 설정</span><span class="frame-id">OB · 07</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/onboarding/ob03-role.html" loading="lazy" title="role b"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">역할 분기 B</span><span class="frame-id">OB · 03-B</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 GUARDIAN -->
+    <div class="screens-block reveal">
+      <div class="screens-head">
+        <div class="sh-num">— 02</div>
+        <div class="sh-title">Guardian<em>보호자 앱 · v11</em></div>
+        <div class="sh-meta">17 Screens · Mobile</div>
+      </div>
+      <div class="screens-grid mobile">
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g-guardian-live.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">실시간 안부 홈</span><span class="frame-id">G · 00</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g-ai.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">AI 인트로</span><span class="frame-id">G · 01</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g02-ai-report.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">AI 리포트</span><span class="frame-id">G · 02</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g02-ai-guide.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">AI 케어 가이드</span><span class="frame-id">G · 02-G</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-sotong.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">소통 인박스</span><span class="frame-id">G · 03</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-chat-nurse.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">간호사 채팅</span><span class="frame-id">G · 03-N</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-chat-family.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">가족 채팅</span><span class="frame-id">G · 03-F</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-chat-patient.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">환자 채팅</span><span class="frame-id">G · 03-P</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-chat-ai.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">AI 채팅</span><span class="frame-id">G · 03-A</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g05-mypage.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">마이페이지</span><span class="frame-id">G · 05</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g05-records.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">기록 보기</span><span class="frame-id">G · 05-R</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g06-alert.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">긴급 알림</span><span class="frame-id">G · 06</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g07-settings.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">알림 설정</span><span class="frame-id">G · 07</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g08-billing.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">결제 · 청구</span><span class="frame-id">G · 08</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g09-prescription.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">처방전</span><span class="frame-id">G · 09</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g10-timeline.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">케어 타임라인</span><span class="frame-id">G · 10</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v11_보호자앱/g03-chat.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">채팅 목록</span><span class="frame-id">G · 03-L</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 PATIENT -->
+    <div class="screens-block reveal">
+      <div class="screens-head">
+        <div class="sh-num">— 03</div>
+        <div class="sh-title">Patient<em>환자 앱 · v12 · 태블릿</em></div>
+        <div class="sh-meta">11 Screens · Tablet</div>
+      </div>
+      <div class="screens-grid mobile">
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p-patient-live.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">실시간 홈</span><span class="frame-id">P · 00</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p01-today.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">오늘</span><span class="frame-id">P · 01</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p02-med-alert.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">복약 알림</span><span class="frame-id">P · 02</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p03-call.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">가족 통화</span><span class="frame-id">P · 03</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p05-voice.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">말벗 AI</span><span class="frame-id">P · 05</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p06-photo.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">사진 큰 보기</span><span class="frame-id">P · 06</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p07-message.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">가족 메시지</span><span class="frame-id">P · 07</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p08-help.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">도움 요청</span><span class="frame-id">P · 08</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p09-sos.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">긴급 SOS</span><span class="frame-id">P · 09</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/p10-med-done.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">복약 완료</span><span class="frame-id">P · 10</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v12_환자앱/index.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">인덱스</span><span class="frame-id">P · IDX</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 MEDICAL -->
+    <div class="screens-block reveal">
+      <div class="screens-head">
+        <div class="sh-num">— 04</div>
+        <div class="sh-title">Medical<em>의료진 웹 · 데스크톱</em></div>
+        <div class="sh-meta">10 Screens · Desktop</div>
+      </div>
+      <div class="screens-grid desktop">
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n01-dashboard.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">대시보드</span><span class="frame-id">N · 01</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n02-patients.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">환자 목록</span><span class="frame-id">N · 02</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n03-checklist.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">8단계 케어 스텝퍼</span><span class="frame-id">N · 03</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n05-sos.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">SOS 응대</span><span class="frame-id">N · 05</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n06-handoff.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">인계장</span><span class="frame-id">N · 06</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n07-chat.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">보호자 채팅</span><span class="frame-id">N · 07</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n08-schedule.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">스케줄</span><span class="frame-id">N · 08</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n09-prescription.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">처방 관리</span><span class="frame-id">N · 09</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n10-timeline.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">의료 타임라인</span><span class="frame-id">N · 10</span></div>
+        </div>
+        <div class="frame-card">
+          <div class="frame-shell"><iframe src="07_디자인/mockup/v6_전체화면/nurse/n04-mypage.html" loading="lazy"></iframe></div>
+          <div class="frame-meta"><span class="frame-name">마이페이지</span><span class="frame-id">N · 04</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 07 DESIGN ═════════ -->
+  <section id="design" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Section 05</span>
+        <div class="sec-head-num" style="margin-top:12px;">Design</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          하나의 토큰,<br>네 개의 얼굴.
+        </h2>
+        <p class="sec-head-sub">
+          5종 앱 모두 단일 tokens.css 한 파일을 import합니다. 역할별 분기는 <code style="font-family:ui-monospace,monospace;font-size:14px;background:var(--paper);padding:2px 6px;">data-role</code> 속성만으로 — 화면 CSS에 하드코딩된 색은 단 하나도 없습니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="ds-block reveal">
+      <div class="ds-cell">
+        <span class="t-label">Primary</span>
+        <div class="ds-color-name">하루안부 블루</div>
+        <div class="ds-color-hex">#2C7AFC</div>
+      </div>
+      <div class="ds-cell blue">
+        <span class="t-label">Application</span>
+        <div class="ds-color-name">신뢰 위에 따뜻함</div>
+        <div class="ds-color-hex">단일 액센트 컬러</div>
+      </div>
+      <div class="ds-cell dark">
+        <span class="t-label">Typography</span>
+        <div class="ds-typo-sample">하루안부</div>
+        <div class="ds-typo-meta">Pretendard Variable · 단일 패밀리</div>
+      </div>
+      <div class="ds-cell">
+        <span class="t-label">Accessibility</span>
+        <div class="ds-color-name">+2px / 56px</div>
+        <div class="ds-color-hex">data-role="patient" 자동 확대</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 08 AI / ANBU INDEX ═════════ -->
+  <section class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Feature</span>
+        <div class="sec-head-num" style="margin-top:12px;">Anbu Index</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          매일 자동 리포트,<br>국내에 없던 것.
+        </h2>
+        <p class="sec-head-sub">
+          Claude Sonnet이 일일 리포트를, Haiku가 케어가이드 대화를 담당합니다. MVP 기준 월 32만원, 시설당 3만원 — 구독료 대비 30% 수준의 지속 가능한 구조.
+        </p>
+      </div>
+    </div>
+
+    <div class="feature-grid reveal">
+      <div>
+        <p style="font-size:18px; line-height:1.85; color:var(--ink-2); letter-spacing:-0.01em;">
+          지난 7일의 식사율, 투약율, 활동 참여, 특이사항을 Claude에 보냅니다. 돌아오는 것은 0~100점의 점수와 따뜻한 한 문장. 보호자 홈의 첫 카드로, "오늘은 안심해도 된다"는 신호를 매주 만들어 줍니다.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-label">This Week · 김순자</div>
+        <div class="feature-card-num">87<span class="unit">점</span></div>
+        <div class="feature-card-msg">
+          식사량이 평소보다 좋아졌어요.<br>
+          투약은 모두 정상 진행 중이에요.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 09 ROI ═════════ -->
+  <section id="impact" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-head-left">
+        <span class="t-label">Section 06</span>
+        <div class="sec-head-num" style="margin-top:12px;">Impact</div>
+      </div>
+      <div>
+        <h2 class="sec-head-title">
+          보호자 무료,<br>시설은 4.4배 남는다.
+        </h2>
+        <p class="sec-head-sub">
+          보호자 무료 → 빠른 확산 → 시설이 구독. 의료진 응대 시간 절감으로 인건비를 회수합니다. 시설 규모를 선택해 ROI를 확인해 보세요.
+        </p>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="roi-tabs" id="roiTabs">
+        <button class="roi-tab" data-size="small">
+          <div class="rt-label">Type 01</div>
+          <div class="rt-name">소형 — 30명</div>
+        </button>
+        <button class="roi-tab active" data-size="mid">
+          <div class="rt-label">Type 02</div>
+          <div class="rt-name">중형 — 100명</div>
+        </button>
+        <button class="roi-tab" data-size="large">
+          <div class="rt-label">Type 03</div>
+          <div class="rt-name">대형 — 100명+</div>
+        </button>
+      </div>
+
+      <div class="roi-result">
+        <div class="roi-cell">
+          <div class="rc-label">Current</div>
+          <div class="roi-val" id="roiCalls">22<span class="unit">통</span></div>
+          <div class="rc-foot">의료진 일일 안부 응대 평균.</div>
+        </div>
+        <div class="roi-cell">
+          <div class="rc-label">Reduction</div>
+          <div class="roi-val accent" id="roiCut">−50<span class="unit">%</span></div>
+          <div class="rc-foot">반복 질의가 보호자 앱으로 자동 응답.</div>
+        </div>
+        <div class="roi-cell">
+          <div class="rc-label">Time Saved</div>
+          <div class="roi-val" id="roiHours">22<span class="unit">시간/월</span></div>
+          <div class="rc-foot">간호사 시급 2만원 환산 기준.</div>
+        </div>
+        <div class="roi-cell">
+          <div class="rc-label">Cost Saved</div>
+          <div class="roi-val accent" id="roiKrw">44<span class="unit">만원</span></div>
+          <div class="rc-foot">구독료 9.9만 → ROI 4.4배.</div>
+        </div>
+      </div>
+
+      <p class="roi-summary">
+        보호자 무료로 빠른 확산 — 시설이 ROI <em>4.4배</em>를 회수하는 구조. 돈을 따라가는 모델이 아니라 <strong>시간</strong>을 따라가는 모델입니다.
+      </p>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- ═════════ CLOSING ═════════ -->
+  <section class="closing container">
+    <div class="closing-mark">— Epilogue —</div>
+    <h2 class="closing-title">오늘 하루도,<br>안녕하셨습니다.</h2>
+    <p class="closing-line">
+      매일 잊지 않고 안부를 묻는 마음.<br>
+      그것이 곧 하루안부입니다.
+    </p>
+    <a class="closing-cta" href="https://github.com/lg21twins/haru-anbu" target="_blank" rel="noopener">View on GitHub</a>
+  </section>
+
+  <!-- ═════════ FOOTER ═════════ -->
+  <footer>
+    <div class="ft-wrap">
+      <div class="ft-brand">
+        <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+          <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#111111"/>
+          <path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#111111"/>
+        </svg>
+        <span class="logo-text">하루안부</span>
+      </div>
+      <div class="ft-meta">© 2026 — Showcase v3</div>
+    </div>
+  </footer>
+
+  <script>
+    /* topbar scroll */
+    const topbar = document.getElementById('topbar');
+    const concept = document.querySelector('.concept');
+    window.addEventListener('scroll', () => {
+      topbar.classList.toggle('scrolled', window.scrollY > 20);
+      const cRect = concept.getBoundingClientRect();
+      topbar.classList.toggle('dark', cRect.top < 60 && cRect.bottom > 60);
+    }, { passive: true });
+
+    /* reveal */
+    const io = new IntersectionObserver((es) => {
+      es.forEach(e => e.isIntersecting && e.target.classList.add('in'));
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* try-it stepper */
+    const stepData = {
+      1: {
+        label: 'Step 01 · Caregiver',
+        text: '8단계 케어 스텝퍼 中 <strong>식사 단계</strong>에서 섭취량 15%를 기록합니다. 정형화된 입력이라 AI가 곧장 의미를 파악하고, 같은 데이터가 보호자·의료진에게 자동으로 닿습니다.',
+        frame: '07_디자인/v3_preview_checklist.html'
+      },
+      2: {
+        label: 'Step 02 · AI Engine',
+        text: 'Claude API가 환자의 평균 식사량(70%)과 비교, <strong>−55%p 이탈</strong>을 "주의" 등급으로 분류합니다. 보호자에게 보낼 자연어 알림 메시지를 함께 생성합니다.',
+        frame: '07_디자인/v3_preview_handover.html'
+      },
+      3: {
+        label: 'Step 03 · Guardian',
+        text: '보호자 앱의 식사 카드가 <strong>강조 상태</strong>로 전환되고, 푸시 알림이 3초 내 도착합니다. 같은 신호로 안심 지수도 함께 갱신됩니다.',
+        frame: '07_디자인/v3_preview_alert_calendar.html'
+      },
+      4: {
+        label: 'Step 04 · Medical',
+        text: '의료진은 채팅 큐에서 보호자 메시지를 보고 <strong>1분 내 회신</strong>: "어제 늦게 주무셔서, 점심 보충식 준비 중입니다." 한 사이클이 4분 안에 끝납니다.',
+        frame: '07_디자인/v3_preview_handover.html'
+      }
+    };
+    const tryFrame = document.getElementById('tryFrame');
+    const tdLabel = document.getElementById('tdLabel');
+    const tdText = document.getElementById('tdText');
+    document.querySelectorAll('.try-step').forEach(step => {
+      step.addEventListener('click', () => {
+        document.querySelectorAll('.try-step').forEach(s => s.classList.remove('active'));
+        step.classList.add('active');
+        const d = stepData[step.dataset.step];
+        tdLabel.textContent = d.label;
+        tdText.innerHTML = d.text;
+        tryFrame.src = d.frame;
+      });
+    });
+
+    /* ROI */
+    const roiData = {
+      small: { calls: 12, cut: 50, hours: 12, krw: 24 },
+      mid:   { calls: 22, cut: 50, hours: 22, krw: 44 },
+      large: { calls: 38, cut: 55, hours: 42, krw: 84 }
+    };
+    const tg = {
+      calls: document.getElementById('roiCalls'),
+      cut:   document.getElementById('roiCut'),
+      hours: document.getElementById('roiHours'),
+      krw:   document.getElementById('roiKrw')
+    };
+    document.querySelectorAll('.roi-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.roi-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const d = roiData[tab.dataset.size];
+        tg.calls.innerHTML = `${d.calls}<span class="unit">통</span>`;
+        tg.cut.innerHTML   = `−${d.cut}<span class="unit">%</span>`;
+        tg.hours.innerHTML = `${d.hours}<span class="unit">시간/월</span>`;
+        tg.krw.innerHTML   = `${d.krw}<span class="unit">만원</span>`;
+      });
+    });
+  </script>
+</body>
+</html>

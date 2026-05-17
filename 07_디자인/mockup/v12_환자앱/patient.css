@@ -1,0 +1,331 @@
+/* ============================================================================
+   하루안부 · 환자 태블릿 앱 (v12 — 2026-04-18 전면 개편)
+   ============================================================================
+   설계 원칙 (README와 일치):
+     · 한 화면에 히어로 1개 + 액션 1~2개만
+     · 배경 blur orb 제거 → 단색 warm white 캔버스
+     · SOS는 단일 (우측 상단 고정, 도움요청 버튼과 중복 제거)
+     · 장식 칩·뱃지·스트릭·일정·AI코멘트 제거 → 정보 밀도 확 낮춤
+     · 이모지 금지 — 모든 감정/상태는 iconify-icon (fluent:*)
+     · 태블릿 거치형 기본 (iPad 10" / Galaxy Tab A), 폰 반응형은 fallback
+   ============================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: #FFF5E8; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-family-base);
+  -webkit-font-smoothing: antialiased;
+  color: var(--color-text-primary);
+  background: #FFF5E8;               /* 단색 warm white, 그라데이션 · orb 제거 */
+  overflow: hidden;                  /* 한 화면=한 뷰포트 */
+}
+
+/* ============================================================================
+   레이아웃 컨테이너 — 태블릿 거치형 풀 뷰포트
+   ============================================================================ */
+.app {
+  position: relative;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8) var(--space-9) var(--space-8);
+  gap: var(--space-7);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   헤더 — 브랜드 + 큰 시계. 그 외 없음.
+   (네비바가 있는 .p-header--nav 변형은 아래 별도 정의)
+   ============================================================================ */
+.p-header:not(.p-header--nav) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding-right: 80px;               /* SOS 영역 확보 */
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.brand img { width: 40px; height: 40px; }
+.brand-text {
+  font: var(--weight-bold) var(--text-headline) / 1 var(--font-family-base);
+  letter-spacing: -0.3px;
+}
+.clock {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+.clock-time {
+  font: var(--weight-bold) var(--font-40) / 1 var(--font-family-base);
+  letter-spacing: -0.02em;
+}
+.clock-date {
+  font: var(--weight-medium) var(--text-body-lg) / 1 var(--font-family-base);
+  color: var(--color-text-secondary);
+}
+
+/* 뒤로가기 — 하위 페이지 헤더에 사용 */
+.p-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.2px;
+  padding: 16px 8px;                  /* 터치 타깃 확보 */
+}
+.p-back iconify-icon { color: var(--color-text-primary); }
+
+/* ============================================================================
+   상단 중앙 네비바 — 모든 페이지 공통 (SOS 제외)
+   한 줄 유지: 좌(시계/뒤로) · 가운데(네비) · 우(SOS 여백).
+   그리드 1fr auto 1fr 로 네비 pill이 항상 뷰포트 정가운데 정렬.
+   ============================================================================ */
+.p-header.p-header--nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  padding-right: 0;
+  min-height: 72px;
+}
+.p-header--nav > .clock,
+.p-header--nav > .p-back {
+  justify-self: start;
+  min-width: 0;
+}
+.p-header--nav .clock {
+  flex-wrap: nowrap;
+  gap: var(--space-3);
+}
+.p-header--nav .clock-time {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+  white-space: nowrap;
+}
+.p-header--nav .clock-date {
+  font-size: 15px; font-weight: 600; color: var(--color-text-secondary);
+  letter-spacing: -0.3px; white-space: nowrap;
+}
+.p-header--nav .p-back {
+  padding: 10px 12px 10px 4px;
+  font-size: 19px;
+}
+
+.top-nav {
+  justify-self: center;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 20px rgba(194, 98, 28, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 16px; font-weight: 700; letter-spacing: -0.2px;
+  transition: background .15s, color .15s, box-shadow .15s;
+}
+.nav-tab iconify-icon { color: currentColor; flex-shrink: 0; }
+.nav-tab:hover {
+  background: rgba(251, 146, 60, 0.1);
+  color: var(--color-text-primary);
+}
+.nav-tab--active {
+  background: linear-gradient(135deg, var(--brand-orange-400), var(--brand-orange-500));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.35);
+}
+.nav-tab--active:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-orange-400), var(--brand-orange-500));
+}
+
+/* 중간 뷰포트 (쇼케이스 카드/태블릿 세로) — 한 줄 유지, 날짜 숨김 */
+@media (max-width: 880px) {
+  .p-header.p-header--nav {
+    gap: 10px;
+  }
+  .p-header--nav .clock-date { display: none; }
+  .p-header--nav .clock-time { font-size: 22px; }
+  .nav-tab { padding: 9px 13px; font-size: 14px; gap: 5px; }
+  .nav-tab iconify-icon { font-size: 18px; }
+}
+
+/* 스마트폰 — 시계 숨기고 네비만 가운데 */
+@media (max-width: 600px) {
+  .p-header.p-header--nav {
+    grid-template-columns: 1fr;
+    padding-right: 0;
+    gap: 8px;
+  }
+  .p-header--nav > .clock { display: none; }
+  .p-header--nav > .p-back { justify-self: center; }
+  .top-nav { justify-self: center; }
+  .nav-tab { padding: 9px 12px; font-size: 13px; }
+}
+
+/* ============================================================================
+   글래스 카드 — 유지하되 쉐도우 톤 다운
+   ============================================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-hero);
+  box-shadow: 0 4px 18px rgba(194, 98, 28, 0.08);   /* 오렌지 톤 미세 쉐도우 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ============================================================================
+   버튼 프리미티브
+   ============================================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-family-base);
+  letter-spacing: -0.2px;
+  transition: transform var(--motion-micro) var(--easing-standard),
+              box-shadow var(--motion-micro) var(--easing-standard);
+}
+.btn:active { transform: scale(0.97); }
+
+/* 크기 — 노인용 큰 글자 UI */
+.btn--xl { height: 96px; border-radius: 22px; font-size: 26px; font-weight: 800; padding: 0 var(--space-8); }
+.btn--lg { height: 80px; border-radius: 20px; font-size: 22px; font-weight: 700; padding: 0 var(--space-7); }
+.btn--md { height: 64px; border-radius: 16px; font-size: 20px; font-weight: 700; padding: 0 var(--space-6); }
+
+/* 변형 */
+.btn--primary {
+  background: var(--brand-orange-400);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(251, 146, 60, 0.38);
+}
+.btn--primary:active { box-shadow: 0 4px 14px rgba(251, 146, 60, 0.28); }
+
+.btn--success {
+  background: var(--brand-green-600);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.35);
+}
+
+.btn--ghost {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text-primary);
+  border: 1.5px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================================
+   SOS — 단 하나의 빨간색 요소. 우측 상단 고정.
+   "도움요청" 버튼 없음 → 여기가 유일한 긴급 동선.
+   ============================================================================ */
+.sos-fab {
+  position: fixed;
+  top: var(--space-7);
+  right: var(--space-8);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+  z-index: var(--z-overlay);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.42);
+  animation: sos-pulse 2.4s var(--easing-standard) infinite;
+  transition: transform var(--motion-micro) var(--easing-standard);
+}
+.sos-fab:active { transform: scale(0.94); }
+.sos-fab-label {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: var(--weight-bold) var(--text-caption) / 1 var(--font-family-base);
+  color: var(--color-danger);
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+@keyframes sos-pulse {
+  0%, 100% { box-shadow: 0 6px 20px rgba(220, 38, 38, 0.42); }
+  50%      { box-shadow: 0 6px 28px rgba(220, 38, 38, 0.72), 0 0 0 8px rgba(220, 38, 38, 0.10); }
+}
+
+/* ============================================================================
+   아바타 — 더미 알파벳 (가족 색상 3종)
+   ============================================================================ */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.avatar--orange { background: linear-gradient(135deg, #FDBA74, #EA580C); }
+.avatar--blue   { background: linear-gradient(135deg, #93C5FD, #2C7AFC); }
+.avatar--green  { background: linear-gradient(135deg, #86EFAC, #16A34A); }
+
+.avatar--sm { width: 48px; height: 48px; font-size: 17px; }
+.avatar--md { width: 80px; height: 80px; font-size: 28px; }
+.avatar--lg { width: 140px; height: 140px; font-size: 48px; }
+.avatar--xl { width: 180px; height: 180px; font-size: 64px; }
+
+.avatar-dot {
+  position: absolute;
+  right: 4%;
+  bottom: 4%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: var(--palette-gray-300);          /* 기본: offline */
+}
+.avatar--lg .avatar-dot,
+.avatar--xl .avatar-dot { width: 26px; height: 26px; border-width: 4px; }
+.avatar-dot--online { background: #22C55E; }
+
+/* ============================================================================
+   반응형 fallback (스마트폰)
+   ============================================================================ */
+@media (max-width: 820px) {
+  .app {
+    padding: var(--space-6) var(--space-5) var(--space-6);
+    gap: var(--space-5);
+  }
+  .p-header:not(.p-header--nav) { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+  .clock-time { font-size: 32px; }
+  .sos-fab { width: 60px; height: 60px; top: var(--space-5); right: var(--space-5); }
+  .btn--xl { height: 84px; font-size: 22px; }
+  .btn--lg { height: 70px; font-size: 20px; }
+  .btn--md { height: 58px; font-size: 18px; }
+}

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="patient">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 도움 요청</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    .page-header {
+      text-align: center;
+      background: linear-gradient(180deg, var(--primary-light) 0%, transparent 100%);
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+      padding: var(--space-2xl) var(--space-lg);
+      margin: 0 calc(-1 * var(--space-lg));
+      margin-bottom: var(--space-xl);
+    }
+    .page-header-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-md);
+    }
+    .page-title {
+      font-size: 28px;
+      font-weight: var(--weight-bold);
+      line-height: var(--line-height-tight);
+      padding: 0;
+    }
+    .page-subtitle {
+      font-size: var(--text-body-large);
+      color: var(--text-secondary);
+      margin-top: var(--space-sm);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* 도움 요청 버튼 그리드 */
+    .help-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .help-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      min-height: 150px;
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      border: none;
+      cursor: pointer;
+      padding: var(--space-xl);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .help-btn:active {
+      transform: scale(0.94);
+      box-shadow: var(--shadow-sm);
+      background: var(--primary-light);
+    }
+    .help-btn--urgent {
+      border: 2px solid rgba(255, 59, 48, 0.2);
+      animation: pulse-urgent 2s ease infinite;
+    }
+    @keyframes pulse-urgent {
+      0%, 100% { border-color: rgba(255, 59, 48, 0.2); }
+      50% { border-color: rgba(255, 59, 48, 0.5); }
+    }
+    .help-btn-emoji {
+      font-size: 48px;
+      line-height: 1;
+    }
+    .help-btn-label {
+      font-size: 20px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+    }
+
+    /* 요청 상태 카드 */
+    .request-status {
+      background: var(--primary-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      text-align: center;
+      margin-bottom: var(--space-xl);
+      display: none;
+    }
+    .request-status.show {
+      display: block;
+      animation: fadeInUp 0.3s ease;
+    }
+    .request-status-icon {
+      font-size: 40px;
+      margin-bottom: var(--space-sm);
+    }
+    .request-status-text {
+      font-size: var(--text-body-large);
+      font-weight: var(--weight-semibold);
+      color: var(--primary);
+      line-height: var(--line-height-relaxed);
+    }
+    .request-status-sub {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      margin-top: var(--space-xs);
+    }
+
+    /* 구분선 */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+      color: var(--text-tertiary);
+      font-size: var(--text-body);
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--divider);
+    }
+
+    /* 긴급 전화 버튼 */
+    .emergency-call {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      width: 100%;
+      height: 72px;
+      background: #D32F2F;
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-family);
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(211, 47, 47, 0.35);
+      -webkit-tap-highlight-color: transparent;
+      animation: pulse-emergency 4s ease infinite;
+    }
+    @keyframes pulse-emergency {
+      0%, 100% { box-shadow: 0 6px 20px rgba(211, 47, 47, 0.35); }
+      50% { box-shadow: 0 6px 30px rgba(211, 47, 47, 0.55); }
+    }
+    .emergency-call:active {
+      transform: scale(0.98);
+    }
+
+    /* 토스트 */
+    .toast-custom {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-xl);
+      background: var(--text-primary);
+      color: var(--surface);
+      border-radius: var(--radius-full);
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      box-shadow: var(--shadow-lg);
+      z-index: var(--z-toast);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      max-width: 380px;
+      text-align: center;
+    }
+    .toast-custom.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 탭바 도움 탭 강조 */
+    .tab--help {
+      color: var(--critical) !important;
+    }
+    .tab--help.active {
+      color: var(--critical) !important;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .help-btn--urgent,
+      .emergency-call {
+        animation: none !important;
+      }
+    }
+
+    /* 긴급 호출 확인 모달 */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      display: none;
+    }
+    .confirm-overlay.show { display: flex; }
+    .confirm-modal {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      width: calc(100% - 64px);
+      max-width: 320px;
+      text-align: center;
+    }
+    .confirm-modal-title {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-xl);
+      color: var(--text-primary);
+      line-height: var(--line-height-relaxed);
+    }
+    .confirm-modal-btns {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .confirm-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: var(--weight-bold);
+      font-family: var(--font-family);
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+    }
+    .confirm-btn--yes {
+      background: #D32F2F;
+      color: white;
+      box-shadow: 0 4px 14px rgba(211, 47, 47, 0.35);
+    }
+    .confirm-btn--no {
+      background: var(--bg);
+      color: var(--text-secondary);
+    }
+    .tabbar--patient .tab-label {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>  <div style="flex-shrink:0; padding:var(--space-sm) var(--space-lg) var(--space-md);">
+    <a href="p01-home.html" class="btn-icon" aria-label="뒤로 가기" style="font-size:32px;">&#8249;</a>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div class="page-header-icon"><i data-lucide="bell-ring" style="width:48px;height:48px;color:var(--critical)"></i></div>
+      <h1 class="page-title">도움이 필요하세요?</h1>
+      <p class="page-subtitle">아래 버튼을 누르면<br>간호사님이 와주실 거예요</p>
+    </div>
+
+    <!-- 요청 상태 카드 -->
+    <div class="request-status" id="requestStatus">
+      <div class="request-status-icon"><i data-lucide="check-circle" style="width:40px;height:40px;color:var(--primary);"></i></div>
+      <div class="request-status-text" id="requestText">요청을 보냈어요</div>
+      <div class="request-status-sub">간호사님이 곧 와주실 거예요</div>
+    </div>
+
+    <!-- 4개 도움 요청 버튼 -->
+    <div class="help-grid">
+      <button class="help-btn" onclick="requestHelp('water')">
+        <span class="help-btn-emoji">💧</span>
+        <span class="help-btn-label">물 주세요</span>
+      </button>
+      <button class="help-btn" onclick="requestHelp('cold')">
+        <span class="help-btn-emoji">🥶</span>
+        <span class="help-btn-label">추워요</span>
+      </button>
+      <button class="help-btn" onclick="requestHelp('hot')">
+        <span class="help-btn-emoji">🥵</span>
+        <span class="help-btn-label">더워요</span>
+      </button>
+      <button class="help-btn help-btn--urgent" onclick="requestHelp('pain')">
+        <span class="help-btn-emoji">😣</span>
+        <span class="help-btn-label">아파요</span>
+      </button>
+    </div>
+
+    <!-- 구분선 -->
+    <div class="divider">긴급 상황일 때</div>
+
+    <!-- 긴급 전화 버튼 -->
+    <button class="emergency-call" onclick="showEmergencyConfirm()">
+      <i data-lucide="phone-call" style="width:28px;height:28px;"></i>
+      긴급 호출
+    </button>
+  </div>
+
+  <!-- 긴급 호출 확인 모달 -->
+  <div class="confirm-overlay" id="emergencyConfirmOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-modal-title">정말 긴급 호출을 하시겠어요?</div>
+      <div class="confirm-modal-btns">
+        <button class="confirm-btn confirm-btn--yes" onclick="confirmEmergency()">네, 호출할게요</button>
+        <button class="confirm-btn confirm-btn--no" onclick="cancelEmergency()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast-custom" id="toast"></div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar tabbar--patient" role="navigation" aria-label="메인 내비게이션" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(60px + 44px); padding-bottom:44px; display:flex; justify-content:space-around; align-items:center;">
+    <a href="p01-home.html" class="tab" style="flex:1;">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="p02-family.html" class="tab" style="flex:1;">
+      <span class="tab-icon"><i data-lucide="heart"></i></span>
+      <span class="tab-label">가족</span>
+    </a>
+    <a href="p03-help.html" class="tab tab--help active" style="flex:1;">
+      <span class="tab-icon"><i data-lucide="bell-ring"></i></span>
+      <span class="tab-label">도움</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    const messages = {
+      water: '물 요청을 보냈어요 💧',
+      cold: '담요 요청을 보냈어요 🥶',
+      hot: '환기 요청을 보냈어요 🥵',
+      pain: '통증 알림을 보냈어요 😣'
+    };
+
+    function requestHelp(type) {
+      const status = document.getElementById('requestStatus');
+      const text = document.getElementById('requestText');
+      text.textContent = messages[type];
+      status.classList.add('show');
+      showToast(messages[type] + ' 간호사님이 곧 와주실 거예요');
+      setTimeout(() => { status.classList.remove('show'); }, 4000);
+    }
+
+    function showEmergencyConfirm() {
+      document.getElementById('emergencyConfirmOverlay').classList.add('show');
+    }
+    function confirmEmergency() {
+      document.getElementById('emergencyConfirmOverlay').classList.remove('show');
+      showToast('긴급 호출을 보냈어요!');
+    }
+    function cancelEmergency() {
+      document.getElementById('emergencyConfirmOverlay').classList.remove('show');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 4500);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

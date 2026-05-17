@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Competitor Analysis & Positioning Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#161310;
+  color:#fff;
+  font-family:'Noto Sans KR','Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  width:720px;
+  margin:0 auto;
+  padding:56px 0 80px;
+}
+
+/* ━━━ 헤더 ━━━ */
+.eyebrow{
+  text-align:center;
+  font-size:12px;color:#c2732a;font-weight:600;
+  letter-spacing:.04em;margin-bottom:18px;
+}
+.headline{
+  text-align:center;
+  font-size:28px;font-weight:400;color:rgba(255,255,255,.8);
+  line-height:1.5;margin-bottom:4px;
+}
+.headline strong{
+  display:block;
+  font-size:36px;font-weight:900;
+  color:#e8874c;
+}
+.headline-gap{height:44px}
+
+/* ━━━ 비교 표 ━━━ */
+table{
+  width:100%;border-collapse:collapse;
+  font-size:12.5px;
+  margin-bottom:44px;
+}
+thead th{
+  padding:8px 6px 12px;
+  color:rgba(255,255,255,.38);
+  font-weight:500;text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  font-size:11.5px;
+  white-space:nowrap;
+}
+thead th:first-child{text-align:left;min-width:64px}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.05)}
+tbody td{
+  padding:13px 6px;text-align:center;
+  color:rgba(255,255,255,.7);
+  font-size:16px;
+}
+tbody td:first-child{
+  text-align:left;font-size:12px;
+  color:rgba(255,255,255,.45);
+  padding-left:0;
+}
+/* 하이라이트 열 */
+.hl{background:rgba(180,90,20,.18);border-radius:0}
+.hl-top{border-radius:6px 6px 0 0}
+.hl-bot{border-radius:0 0 6px 6px}
+.hl-single{border-radius:6px}
+.sym-o{color:#e8874c}
+.sym-tri{color:rgba(255,255,255,.4);font-size:13px}
+.sym-x{color:rgba(255,255,255,.28)}
+
+/* ━━━ 인사이트 3박스 ━━━ */
+.insight-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin-bottom:44px;
+}
+.ins{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:24px 20px;
+}
+.ins-title{
+  font-size:14.5px;font-weight:700;
+  text-align:center;margin-bottom:20px;
+}
+/* 앱 아이콘 스타일 칩 */
+.ins-icons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.app-chip{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.app-ico{
+  border-radius:12px;
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:800;color:#fff;
+  font-family:'Inter',sans-serif;
+}
+.app-lbl{font-size:10.5px;color:rgba(255,255,255,.5)}
+
+.ins-strength{font-size:11px;font-weight:700;color:#f59e0b;margin-bottom:4px;margin-top:0}
+.ins-weakness{font-size:11px;font-weight:700;color:#f87171;margin-bottom:4px;margin-top:10px}
+.ins-desc{font-size:11px;color:rgba(255,255,255,.38);line-height:1.65}
+
+/* ━━━ 중간 설명 카피 ━━━ */
+.mid-copy{
+  text-align:center;margin-bottom:48px;
+}
+.mid-copy p{font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.9}
+
+/* ━━━ 포지셔닝 맵 ━━━ */
+.map-area{
+  position:relative;
+  width:100%;height:500px;
+}
+/* 십자 축 */
+.ax-h,.ax-v{position:absolute;background:rgba(255,255,255,.15)}
+.ax-h{top:50%;left:0;right:0;height:1px}
+.ax-v{left:50%;top:0;bottom:0;width:1px}
+/* 타원 (배경 원) */
+.map-circle{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:340px;height:280px;
+  border-radius:50%;
+  border:1px dashed rgba(255,255,255,.1);
+}
+/* 축 레이블 */
+.ax-lbl{
+  position:absolute;
+  font-size:12px;font-weight:700;color:rgba(255,255,255,.45);
+}
+
+/* 맵 노드 */
+.node{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:default;
+}
+.node-icon{
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Inter',sans-serif;
+  font-weight:800;color:#fff;
+}
+.node-lbl{
+  font-size:11px;color:rgba(255,255,255,.45);
+  text-align:center;
+}
+
+/* toks 특별 스타일 */
+.toks-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 45% 38%,#d4803a,#a85820);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;font-family:'Inter',sans-serif;
+  box-shadow:0 0 40px rgba(180,100,30,.45),0 0 80px rgba(180,100,30,.2);
+}
+.toks-lbl{font-size:11px;font-weight:700;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<p class="eyebrow">Competitor Analysis &amp; Positioning Map</p>
+<div class="headline">
+  그렇다면, 우리 서비스가<br>
+  <strong>나아가야할 방향은 어디일까요?</strong>
+</div>
+<div class="headline-gap"></div>
+
+<!-- 비교표 -->
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>가이드/달성관리</th>
+      <th>참여형 콘텐츠/기능</th>
+      <th>헬린더타임라인</th>
+      <th>목표 달성률</th>
+      <th>원활한 공유/커뮤니티</th>
+      <th>웹 서비스</th>
+      <th>모바일 서비스</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>엘무타</td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-o">○</span></td>
+    </tr>
+    <tr>
+      <td>코드잇</td>
+      <td><span class="sym-o">○</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-x">✕</span></td>
+    </tr>
+    <tr>
+      <td>엘리스</td>
+      <td><span class="sym-o">○</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-o">○</span></td>
+      <td><span class="sym-o">○</span></td>
+    </tr>
+    <tr>
+      <td>Tagroom</td>
+      <td><span class="sym-x">✕</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-o">○</span></td>
+    </tr>
+    <tr>
+      <td>케이크</td>
+      <td><span class="sym-o">○</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-o">○</span></td>
+    </tr>
+    <tr>
+      <td>스터디파이</td>
+      <td><span class="sym-o">○</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-o">○</span></td>
+      <td class="hl hl-single"><span class="sym-o">○</span></td>
+      <td><span class="sym-tri">△</span></td>
+      <td><span class="sym-x">✕</span></td>
+      <td><span class="sym-o">○</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 인사이트 3박스 -->
+<div class="insight-row">
+  <!-- 목표 달성률 -->
+  <div class="ins">
+    <div class="ins-title">목표 달성률</div>
+    <div class="ins-icons">
+      <div class="app-chip">
+        <div class="app-ico" style="background:#1e3a8a;font-size:10px;font-weight:700">STUDY<br>PAI</div>
+        <span class="app-lbl">스터디파이</span>
+      </div>
+      <div class="app-chip">
+        <div class="app-ico" style="background:#7c3aed;font-size:20px">⭐</div>
+        <span class="app-lbl">엘리스</span>
+      </div>
+      <div class="app-chip">
+        <div class="app-ico" style="background:#0e1e3c;border:1.5px solid rgba(255,255,255,.15);font-size:11px">code<br>it</div>
+        <span class="app-lbl">코드잇</span>
+      </div>
+    </div>
+    <p class="ins-strength">Strength</p>
+    <p class="ins-desc">체계적인 커리큘럼 및 효율적인 운영방식</p>
+    <p class="ins-weakness">Weakness</p>
+    <p class="ins-desc">그를 학습의 시너지 부족 및 달성완적인 과제</p>
+  </div>
+
+  <!-- 타이머/참여형 기능 -->
+  <div class="ins">
+    <div class="ins-title">타이머/참여형 기능</div>
+    <div class="ins-icons">
+      <div class="app-chip">
+        <div class="app-ico" style="background:#dc2626;font-size:24px">▶</div>
+        <span class="app-lbl">엘무타</span>
+      </div>
+    </div>
+    <p class="ins-strength">Strength</p>
+    <p class="ins-desc">목표 일정, 시간 측정 및 계획하는 방식에 용이</p>
+    <p class="ins-weakness">Weakness</p>
+    <p class="ins-desc">'시간'이라는 점량적인 수치로만 달성도 측정 가능</p>
+  </div>
+
+  <!-- 원활한 커뮤니티 -->
+  <div class="ins">
+    <div class="ins-title">원활한 커뮤니티</div>
+    <div class="ins-icons">
+      <div class="app-chip">
+        <div class="app-ico" style="background:#1d4ed8;font-size:24px">#</div>
+        <span class="app-lbl">태그룸</span>
+      </div>
+    </div>
+    <p class="ins-strength">Strength</p>
+    <p class="ins-desc">동시간 함께 공부하는 경험으로 동기부여</p>
+    <p class="ins-weakness">Weakness</p>
+    <p class="ins-desc">전문적인 지식을 공유하거나 배울 수 있는 방식은 아님</p>
+  </div>
+</div>
+
+<!-- 중간 카피 -->
+<div class="mid-copy">
+  <p>6가지의 유사 서비스 및 경쟁 서비스의 강점과 약점을 분석하여<br>뚝스가 활용할 방안, 약점을 기회로 잡을 전략을 세울 수 있었습니다.</p>
+</div>
+
+<!-- 포지셔닝 맵 -->
+<div class="map-area">
+  <div class="ax-h"></div>
+  <div class="ax-v"></div>
+  <div class="map-circle"></div>
+
+  <!-- 축 레이블 -->
+  <span class="ax-lbl" style="top:6px;left:50%;transform:translateX(-50%)">체계적인</span>
+  <span class="ax-lbl" style="bottom:4px;left:50%;transform:translateX(-50%)">자율적인</span>
+  <span class="ax-lbl" style="top:50%;left:4px;transform:translateY(-50%)">강의형</span>
+  <span class="ax-lbl" style="top:50%;right:4px;transform:translateY(-50%)">참여형</span>
+
+  <!-- toks (1사분면, 우상단) -->
+  <div class="node" style="left:68%;top:34%">
+    <div class="toks-icon">toks</div>
+    <span class="toks-lbl">toks</span>
+  </div>
+
+  <!-- 코드잇 (2사분면, 좌상단) -->
+  <div class="node" style="left:28%;top:36%">
+    <div class="node-icon" style="width:46px;height:46px;background:#0e1e3c;border:1.5px solid rgba(255,255,255,.15);border-radius:12px;font-size:10px;font-family:'Inter',sans-serif">code<br>it</div>
+    <span class="node-lbl">코드잇</span>
+  </div>
+
+  <!-- 스터디파이 (1사분면, 좌측) -->
+  <div class="node" style="left:54%;top:44%">
+    <div class="node-icon" style="width:46px;height:46px;background:#1e3a8a;border-radius:12px;font-size:9px;font-family:'Inter',sans-serif">STUDY<br>PAI</div>
+    <span class="node-lbl">스터디파이</span>
+  </div>
+
+  <!-- 엘리스 (2사분면, 우측 근방) -->
+  <div class="node" style="left:37%;top:47%">
+    <div class="node-icon" style="width:46px;height:46px;background:#7c3aed;border-radius:12px;font-size:22px">⭐</div>
+    <span class="node-lbl">엘리스</span>
+  </div>
+
+  <!-- 케이크 (3사분면, 좌하단) -->
+  <div class="node" style="left:30%;top:64%">
+    <div class="node-icon" style="width:46px;height:46px;background:#15803d;border-radius:12px;font-size:13px;font-family:'Inter',sans-serif;font-weight:700">cake</div>
+    <span class="node-lbl">케이크</span>
+  </div>
+
+  <!-- 엘무타 (3→4사분면 경계) -->
+  <div class="node" style="left:42%;top:70%">
+    <div class="node-icon" style="width:46px;height:46px;background:#dc2626;border-radius:12px;font-size:22px">▶</div>
+    <span class="node-lbl">엘무타</span>
+  </div>
+
+  <!-- OKKY (4사분면, 우하단) -->
+  <div class="node" style="left:66%;top:64%">
+    <div class="node-icon" style="width:46px;height:46px;background:#0891b2;border-radius:12px;font-size:13px;font-family:'Inter',sans-serif;font-weight:800">OKKY</div>
+    <span class="node-lbl">OKKY</span>
+  </div>
+
+  <!-- 태그룸 (4사분면, 하단) -->
+  <div class="node" style="left:52%;top:76%">
+    <div class="node-icon" style="width:46px;height:46px;background:#1d4ed8;border-radius:12px;font-size:22px">#</div>
+    <span class="node-lbl">태그룸</span>
+  </div>
+</div>
+
+</body>
+</html>

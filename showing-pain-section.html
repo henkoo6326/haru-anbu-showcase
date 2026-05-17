@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쇼잉 — 보호자의 마음</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #ffffff;
+      --ink: #0a0a0a;
+      --item-h: 160px;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Pretendard', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── 스냅 섹션 ── */
+    .snap {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    /* ── 인트로 ── */
+    .intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+    }
+    .intro-eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      color: #aaa;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .intro-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .intro-desc {
+      font-size: clamp(14px, 1.6vw, 17px);
+      color: #999;
+      margin-top: 4px;
+    }
+    .scroll-cue {
+      position: absolute;
+      bottom: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #c0c0c0;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      animation: cue 2.2s ease-in-out infinite;
+    }
+    .scroll-cue-line {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(to bottom, transparent, #c0c0c0);
+    }
+    @keyframes cue {
+      0%,100% { transform: translateY(0); opacity: .9; }
+      55%      { transform: translateY(7px); opacity: .4; }
+    }
+
+    /* ── 카피 스냅 앵커 (스크롤 높이용 투명 섹션) ── */
+    .copy-anchor {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+
+    /* ── 고정 오버레이: position fixed ── */
+    .copy-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .copy-overlay.visible {
+      opacity: 1;
+    }
+
+    /*
+      copy-list의 top을 50vh - item-h/2 로 설정.
+      → activeIdx=0일 때 translateY=0이면 item[0] 중심이 정확히 뷰포트 중앙.
+      → activeIdx=i일 때 translateY = -i * item-h.
+    */
+    .copy-list {
+      position: absolute;
+      top: calc(50vh - var(--item-h) / 2);
+      left: 0;
+      width: 100%;
+      transition: transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .copy-item {
+      height: var(--item-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 clamp(24px, 8vw, 120px);
+      width: 100%;
+      text-align: center;
+
+      font-size: clamp(22px, 3.8vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.35;
+      color: var(--ink);
+
+      opacity: 0.06;
+      transform: scale(0.87);
+      transition:
+        opacity  0.72s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+
+    /* 거리별 스타일 — JS가 data-dist 설정 */
+    .copy-item[data-dist="0"] { opacity: 1;    transform: scale(1);    }
+    .copy-item[data-dist="1"] { opacity: 0.2;  transform: scale(0.93); }
+    .copy-item[data-dist="2"] { opacity: 0.09; transform: scale(0.88); }
+    .copy-item[data-dist="3"] { opacity: 0.04; transform: scale(0.84); }
+
+    /* ── 진행 도트 ── */
+    .dots {
+      position: fixed;
+      right: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .dots.visible { opacity: 1; }
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #d0d0d0;
+      transition: background 0.4s, transform 0.4s;
+    }
+    .dot.on {
+      background: var(--ink);
+      transform: scale(1.6);
+    }
+
+    /* ── 탑바 ── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: var(--ink);
+      width: 0%;
+      z-index: 200;
+      transition: width 0.12s linear;
+    }
+
+    /* ── 아웃트로 ── */
+    .outro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+    .outro-line {
+      font-size: clamp(26px, 4vw, 52px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .outro-line.on { opacity: 1; transform: translateY(0); }
+    .outro-btn {
+      padding: 15px 44px;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      font-family: inherit;
+      pointer-events: all;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.9s ease 0.18s, transform 0.9s ease 0.18s, background 0.2s;
+    }
+    .outro-btn.on { opacity: 1; transform: translateY(0); }
+    .outro-btn:hover { background: #2a2a2a; }
+  </style>
+</head>
+<body>
+
+<div class="topbar" id="topbar"></div>
+<div class="dots" id="dots"></div>
+
+<!-- 고정 오버레이 (fixed, 항상 화면에 있음) -->
+<div class="copy-overlay" id="copyOverlay">
+  <div class="copy-list" id="copyList"></div>
+</div>
+
+<!-- 1. 인트로 스냅 섹션 -->
+<section class="snap intro" id="intro">
+  <span class="intro-eyebrow">Showing</span>
+  <h1 class="intro-title">보호자의 마음</h1>
+  <p class="intro-desc">부모님을 맡기고 나서, 모르는 것들이 너무 많습니다.</p>
+  <div class="scroll-cue">
+    <div class="scroll-cue-line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- 2. 카피 앵커 (JS로 생성) -->
+<div id="anchorZone"></div>
+
+<!-- 3. 아웃트로 스냅 섹션 -->
+<section class="snap outro" id="outro">
+  <p class="outro-line" id="outroline">쇼잉이 항상 곁에 있을게요.</p>
+  <button class="outro-btn" id="outrobtn">쇼잉 시작하기</button>
+</section>
+
+<script>
+const COPIES = [
+  '오늘 밥은 잘 드셨는지\n모르겠어요.',
+  '면회 못 간 날은\n하루 종일 불안해요.',
+  '멀리 살아서\n자주 못 가요.',
+  '어떤 치료를\n받고 계신지 알 수가 없어요.',
+  '케어 기록을\n직접 볼 수가 없어요.',
+  '부모님 곁에\n있어드리고 싶어요.',
+  '상태가 나빠졌을 때\n제때 연락이 올지 걱정돼요.',
+];
+
+const ITEM_H = 160; // CSS --item-h 와 동일
+
+const overlay    = document.getElementById('copyOverlay');
+const copyList   = document.getElementById('copyList');
+const dotsWrap   = document.getElementById('dots');
+const topbar     = document.getElementById('topbar');
+const anchorZone = document.getElementById('anchorZone');
+const outroline  = document.getElementById('outroline');
+const outrobtn   = document.getElementById('outrobtn');
+
+// ── DOM 빌드 ──
+const anchors = [];
+const copyEls = [];
+const dotEls  = [];
+
+COPIES.forEach((text, i) => {
+  // 카피 아이템 (fixed 오버레이 안)
+  const item = document.createElement('div');
+  item.className = 'copy-item';
+  item.innerHTML = text.replace(/\n/g, '<br>');
+  item.dataset.dist = String(i); // 초기: 첫 번째가 활성
+  copyList.appendChild(item);
+  copyEls.push(item);
+
+  // 스냅 앵커 (스크롤 높이 확보)
+  const anchor = document.createElement('div');
+  anchor.className = 'copy-anchor';
+  anchor.dataset.index = String(i);
+  anchorZone.appendChild(anchor);
+  anchors.push(anchor);
+
+  // 도트
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dotsWrap.appendChild(dot);
+  dotEls.push(dot);
+});
+
+// ── 활성 인덱스 업데이트 ──
+let activeIdx = 0;
+
+function setActive(idx) {
+  activeIdx = idx;
+
+  // 리스트를 위로 밀어서 item[idx]가 중앙에 오게 함
+  copyList.style.transform = `translateY(${-idx * ITEM_H}px)`;
+
+  // 각 아이템 거리 설정
+  copyEls.forEach((el, i) => {
+    el.dataset.dist = String(Math.min(Math.abs(i - idx), 3));
+  });
+
+  // 도트
+  dotEls.forEach((d, i) => d.classList.toggle('on', i === idx));
+
+  // 탑바
+  updateBar();
+}
+
+// ── IntersectionObserver: 앵커 진입 감지 ──
+let visibleSet = new Set();
+
+const anchorObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const idx = parseInt(entry.target.dataset.index, 10);
+    if (entry.isIntersecting) {
+      visibleSet.add(idx);
+      setActive(idx);
+    } else {
+      visibleSet.delete(idx);
+    }
+  });
+
+  const inCopyZone = visibleSet.size > 0;
+  overlay.classList.toggle('visible', inCopyZone);
+  dotsWrap.classList.toggle('visible', inCopyZone);
+}, {
+  threshold: 0.5,
+});
+
+anchors.forEach(a => anchorObs.observe(a));
+
+// ── 아웃트로 ──
+const outroObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      outroline.classList.add('on');
+      outrobtn.classList.add('on');
+    }
+  });
+}, { threshold: 0.4 });
+outroObs.observe(document.getElementById('outro'));
+
+// ── 탑바 ──
+function updateBar() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+  topbar.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateBar, { passive: true });
+
+// ── 초기화 ──
+setActive(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 체크리스트</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    .page-header {
+      padding: var(--space-xl) 0 var(--space-md);
+    }
+    .page-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-bold);
+      padding: 0;
+    }
+
+    /* 진행률 */
+    .progress-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .progress-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: var(--space-sm);
+    }
+    .progress-label {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .progress-pct {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      color: var(--primary);
+    }
+    .progress-bar {
+      height: 8px;
+      background: var(--bg);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-sm);
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: var(--radius-full);
+      transition: width 0.8s ease;
+    }
+    .progress-detail {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+
+    /* 시간대 구분 */
+    .time-section-title {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      padding: var(--space-md) 0 var(--space-sm);
+      display: flex; align-items: center; gap: var(--space-sm);
+    }
+    .time-badge {
+      font-size: var(--text-mini);
+      padding: 2px var(--space-sm);
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* 체크 아이템 */
+    .check-group {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-md);
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      min-height: var(--row-height);
+      cursor: pointer;
+    }
+    .check-item + .check-item {
+      border-top: 0.5px solid var(--divider);
+    }
+    .check-box {
+      width: 24px; height: 24px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--divider);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .check-box.done {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .check-info { flex: 1; min-width: 0; }
+    .check-title {
+      font-size: var(--text-headline);
+    }
+    .check-item.done .check-title {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+    .check-meta {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .check-item:active {
+      background: var(--bg);
+    }
+    .check-time {
+      font-size: var(--text-caption);
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="page-header">
+      <h1 class="page-title">체크리스트</h1>
+    </div>
+
+    <!-- 진행률 -->
+    <div class="section">
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="progress-label"><i data-lucide="list-checks" style="width:18px;height:18px;color:var(--primary);vertical-align:-3px;margin-right:4px;"></i> 오늘 업무 진행률</span>
+          <span class="progress-pct">73%</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-fill" style="width:0%" data-width="73%"></div>
+        </div>
+        <div class="progress-detail">완료 11건 / 전체 15건</div>
+      </div>
+    </div>
+
+    <!-- 오전 업무 -->
+    <div class="time-section-title">
+      <i data-lucide="sunrise" style="width:16px;height:16px;"></i> 오전 업무
+      <span class="time-badge">6/6 완료</span>
+    </div>
+    <div class="check-group">
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">아침 라운딩</div>
+          <div class="check-meta">전체 환자 상태 확인</div>
+        </div>
+        <span class="check-time">07:00</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">아침 투약</div>
+          <div class="check-meta">15명 중 15명 완료</div>
+        </div>
+        <span class="check-time">08:00</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">아침 식사 배식 확인</div>
+          <div class="check-meta">식사량 기록 완료</div>
+        </div>
+        <span class="check-time">07:30</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">오전 바이탈 사인 측정</div>
+          <div class="check-meta">주의 환자 2명 추가 측정</div>
+        </div>
+        <span class="check-time">09:00</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">오전 세면 / 위생 관리</div>
+          <div class="check-meta">도움 필요 환자 5명 완료</div>
+        </div>
+        <span class="check-time">09:30</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">오전 프로그램 참여</div>
+          <div class="check-meta">스트레칭 · 참여자 12명</div>
+        </div>
+        <span class="check-time">10:00</span>
+      </div>
+    </div>
+
+    <!-- 오후 업무 -->
+    <div class="time-section-title">
+      <i data-lucide="sun" style="width:16px;height:16px;"></i> 오후 업무
+      <span class="time-badge" style="background:#FFF3E0;color:#E65100;">5/6 진행 중</span>
+    </div>
+    <div class="check-group">
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">점심 투약</div>
+          <div class="check-meta">13명 완료 · 2명 잔여</div>
+        </div>
+        <span class="check-time">12:30</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">점심 식사 확인</div>
+          <div class="check-meta">식사량 기록 완료</div>
+        </div>
+        <span class="check-time">12:00</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">주의 환자 추가 모니터링</div>
+          <div class="check-meta">박영수 305호 혈압 재측정</div>
+        </div>
+        <span class="check-time">13:00</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">보호자 메시지 회신</div>
+          <div class="check-meta">3건 답변 완료</div>
+        </div>
+        <span class="check-time">13:30</span>
+      </div>
+      <div class="check-item done">
+        <div class="check-box done">&#10003;</div>
+        <div class="check-info">
+          <div class="check-title">오후 산책 프로그램</div>
+          <div class="check-meta">참여자 8명 인솔</div>
+        </div>
+        <span class="check-time">14:00</span>
+      </div>
+      <div class="check-item" onclick="this.classList.add('done'); this.querySelector('.check-box').classList.add('done'); this.querySelector('.check-box').innerHTML='&#10003;'; showToast('완료 처리했어요!')">
+        <div class="check-box"></div>
+        <div class="check-info">
+          <div class="check-title"><a href="n06-handoff.html" style="color:inherit;">인수인계 문서 작성</a></div>
+          <div class="check-meta">교대 전 작성 필요</div>
+        </div>
+        <span class="check-time">14:30</span>
+      </div>
+    </div>
+
+    <!-- 미완료 -->
+    <div class="time-section-title">
+      <i data-lucide="alert-circle" style="width:16px;height:16px;color:var(--warning)"></i> 잔여 업무
+      <span class="time-badge" style="background:#FFEBEE;color:var(--critical);">2건</span>
+    </div>
+    <div class="check-group">
+      <div class="check-item" onclick="this.classList.add('done'); this.querySelector('.check-box').classList.add('done'); this.querySelector('.check-box').innerHTML='&#10003;'; showToast('완료 처리했어요!')">
+        <div class="check-box"></div>
+        <div class="check-info">
+          <div class="check-title">이순자 310호 오후 투약</div>
+          <div class="check-meta">오후 투약 시간 지남 — 확인 필요</div>
+        </div>
+        <span class="check-time" style="color:var(--critical);">14:00</span>
+      </div>
+      <div class="check-item" onclick="this.classList.add('done'); this.querySelector('.check-box').classList.add('done'); this.querySelector('.check-box').innerHTML='&#10003;'; showToast('완료 처리했어요!')">
+        <div class="check-box"></div>
+        <div class="check-info">
+          <div class="check-title">박영수 305호 혈압 3차 측정</div>
+          <div class="check-meta">15:00 전 측정 필요</div>
+        </div>
+        <span class="check-time" style="color:var(--warning);">15:00</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(50px + 44px + 8px); padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="n02-patients.html" class="tab">
+      <span class="tab-icon"><i data-lucide="users"></i></span>
+      <span class="tab-label">환자</span>
+    </a>
+    <a href="n03-checklist.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="list-checks"></i></span>
+      <span class="tab-label">체크리스트</span>
+    </a>
+    <a href="n04-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="user"></i></span>
+      <span class="tab-label">내 정보</span>
+    </a>
+  </nav>
+
+  <div id="toast" style="position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);padding:12px 24px;background:#1C1C1E;color:white;border-radius:999px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:300;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;text-align:center;max-width:380px;font-family:var(--font-family);"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    // Animate progress bar on load
+    setTimeout(() => {
+      document.querySelectorAll('.progress-fill').forEach(el => {
+        el.style.width = el.getAttribute('data-width');
+      });
+    }, 100);
+
+    // Toast system
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(-20px)'; }, 3000);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

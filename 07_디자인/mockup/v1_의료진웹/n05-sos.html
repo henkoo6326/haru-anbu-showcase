@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS 센터 — 하루안부 의료진</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ── SOS Page Specific ── */
+    .sos-header-card {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      border-radius: 20px;
+      padding: 26px 30px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 32px rgba(220,38,38,.30);
+      position: relative;
+      overflow: hidden;
+    }
+    .sos-header-card::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+    .sos-header-card::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 40%;
+      width: 320px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .sos-header-left { position: relative; z-index: 1; }
+    .sos-header-title {
+      font-size: 22px; font-weight: 900; color: #fff;
+      letter-spacing: -.5px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .sos-header-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: rgba(255,255,255,.22);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sos-stat-chips { display: flex; gap: 10px; }
+    .sos-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.30);
+      border-radius: 999px; padding: 6px 16px;
+      font-size: 12px; color: #fff; font-weight: 700;
+    }
+    .sos-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+    .sos-chip-dot.blink { animation: blink-dot 1.2s infinite; }
+    @keyframes blink-dot { 0%,100%{opacity:1;} 50%{opacity:.2;} }
+
+    .sos-layout {
+      display: grid;
+      grid-template-columns: 60% 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-heading {
+      font-size: 13px; font-weight: 800; color: var(--slate-700);
+      display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
+    }
+    .section-heading iconify-icon { font-size: 16px; }
+
+    /* Active SOS Card */
+    .sos-active-card {
+      background: linear-gradient(135deg, rgba(220,38,38,.12), rgba(239,68,68,.06));
+      border: 1.5px solid rgba(220,38,38,.35);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative;
+      animation: sos-card-pulse 2.5s infinite;
+    }
+    @keyframes sos-card-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,.18), 0 4px 20px rgba(220,38,38,.10); }
+      50%      { box-shadow: 0 0 0 8px rgba(220,38,38,0), 0 4px 20px rgba(220,38,38,.18); }
+    }
+    .sos-active-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--red-500); color: #fff;
+      font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px;
+      margin-bottom: 12px;
+      animation: blink-dot 1.2s infinite;
+    }
+    .sos-active-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+    .sos-room { font-size: 20px; font-weight: 900; color: var(--red-600); letter-spacing: -.5px; margin-bottom: 2px; }
+    .sos-patient-name { font-size: 15px; font-weight: 700; color: var(--slate-800); margin-bottom: 8px; }
+    .sos-type-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--red-500); color: #fff;
+      font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .sos-meta-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .sos-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--slate-500); }
+    .sos-meta-item iconify-icon { font-size: 13px; }
+    .sos-ai-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(59,130,246,.12); border: 0.5px solid rgba(59,130,246,.25);
+      color: var(--blue-600); font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .sos-actions { display: flex; gap: 10px; }
+    .sos-done-btn {
+      flex: 1; padding: 11px; border-radius: 12px;
+      background: var(--red-500); color: #fff;
+      border: none; font-size: 13px; font-weight: 700;
+      font-family: var(--font); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background .14s, transform .12s;
+    }
+    .sos-done-btn:hover { background: var(--red-600); transform: translateY(-1px); }
+    .sos-notify-btn {
+      padding: 11px 18px; border-radius: 12px;
+      background: rgba(59,130,246,.12); border: 0.5px solid rgba(59,130,246,.25);
+      color: var(--blue-600); font-size: 13px; font-weight: 700;
+      font-family: var(--font); cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .14s;
+    }
+    .sos-notify-btn:hover { background: rgba(59,130,246,.20); }
+
+    /* Completed SOS cards */
+    .sos-done-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0.82;
+    }
+    .sos-done-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(0,0,0,.05); color: var(--slate-400);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sos-done-info { flex: 1; }
+    .sos-done-room { font-size: 13px; font-weight: 700; color: var(--slate-700); margin-bottom: 2px; }
+    .sos-done-type { font-size: 12px; color: var(--slate-500); }
+    .sos-done-time { font-size: 11px; color: var(--slate-400); white-space: nowrap; text-align: right; }
+    .badge-done-sos {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--slate-100); color: var(--slate-500);
+      font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    }
+
+    /* Manual SOS Form */
+    .form-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 20px;
+      padding: 20px;
+      position: sticky;
+      top: 80px;
+    }
+    .form-card-title {
+      font-size: 14px; font-weight: 800; color: var(--slate-800);
+      display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+    }
+    .form-card-title iconify-icon { font-size: 18px; color: var(--red-500); }
+
+    .situation-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sit-chip {
+      padding: 7px 16px; border-radius: 999px;
+      border: 1.5px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.60);
+      font-size: 12px; font-weight: 600; color: var(--slate-600);
+      cursor: pointer; transition: all .14s;
+      font-family: var(--font);
+    }
+    .sit-chip:hover { border-color: var(--red-500); color: var(--red-500); background: rgba(239,68,68,.06); }
+    .sit-chip.selected {
+      background: var(--red-500); color: #fff; border-color: var(--red-500);
+    }
+
+    .big-sos-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      color: #fff; border: none; border-radius: 14px;
+      font-size: 16px; font-weight: 900; font-family: var(--font);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: -.3px;
+      transition: transform .14s, box-shadow .14s;
+      box-shadow: 0 4px 18px rgba(220,38,38,.35);
+      animation: sos-pulse 2.5s infinite;
+    }
+    .big-sos-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(220,38,38,.45); }
+    @keyframes sos-pulse {
+      0%,100% { box-shadow: 0 4px 18px rgba(220,38,38,.35); }
+      50%      { box-shadow: 0 4px 28px rgba(220,38,38,.60); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg">
+  <div class="bg-g1"></div>
+  <div class="bg-g2"></div>
+  <div class="bg-g3"></div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heart-pulse-bold" style="font-size:20px;color:#fff;"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">Care Intelligence Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <span class="facility-name">햇살요양원 · 2병동</span>
+  </div>
+
+  <div class="nav-section-label">메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:house-bold" class="nav-icon"></iconify-icon>
+        대시보드
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:users-bold" class="nav-icon"></iconify-icon>
+        환자 관리
+        <span class="nav-badge yellow">3</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clipboard-text-bold" class="nav-icon"></iconify-icon>
+        케어 체크리스트
+        <span class="nav-badge">2</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:arrows-clockwise-bold" class="nav-icon"></iconify-icon>
+        AI 인수인계
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#">
+        <iconify-icon icon="ph:siren-bold" class="nav-icon"></iconify-icon>
+        SOS 센터
+        <span class="nav-badge">1</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:chats-bold" class="nav-icon"></iconify-icon>
+        보호자 채팅
+        <span class="nav-badge green">5</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:calendar-bold" class="nav-icon"></iconify-icon>
+        시간표 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:pill-bold" class="nav-icon"></iconify-icon>
+        처방전 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clock-countdown-bold" class="nav-icon"></iconify-icon>
+        의료 타임라인
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">SOS 알림 센터</span>
+      <span class="page-date">2026.04.16 목요일</span>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" title="알림">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="sos-btn">
+        <iconify-icon icon="ph:siren-bold" style="font-size:14px;"></iconify-icon>
+        SOS
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- SOS Header Card -->
+    <div class="sos-header-card">
+      <div class="sos-header-left">
+        <div class="sos-header-title">
+          <div class="sos-header-icon">
+            <iconify-icon icon="ph:siren-bold" style="font-size:24px;color:#fff;"></iconify-icon>
+          </div>
+          SOS 알림 센터
+        </div>
+        <div class="sos-stat-chips">
+          <div class="sos-chip">
+            <div class="sos-chip-dot blink"></div>
+            오늘 발생 1건
+          </div>
+          <div class="sos-chip">
+            <div class="sos-chip-dot" style="background:rgba(255,255,255,.5);"></div>
+            처리 완료 0건
+          </div>
+          <div class="sos-chip" style="background:rgba(255,255,255,.30);border-color:rgba(255,255,255,.50);">
+            <div class="sos-chip-dot blink"></div>
+            대기중 1건
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;z-index:1;">
+        <iconify-icon icon="ph:warning-octagon-bold" style="font-size:80px;color:rgba(255,255,255,.15);"></iconify-icon>
+      </div>
+    </div>
+
+    <!-- 2-column layout -->
+    <div class="sos-layout">
+
+      <!-- Left: SOS List -->
+      <div>
+        <!-- 미처리 SOS -->
+        <div class="section-heading" style="color:var(--red-600);">
+          <iconify-icon icon="ph:warning-bold" style="color:var(--red-500);"></iconify-icon>
+          미처리 SOS
+          <span style="background:var(--red-500);color:#fff;font-size:10px;font-weight:800;padding:2px 9px;border-radius:999px;">1건</span>
+        </div>
+
+        <!-- Active SOS Card -->
+        <div class="sos-active-card">
+          <div class="sos-active-badge">
+            <div class="sos-active-badge-dot"></div>
+            활성 SOS
+          </div>
+          <div class="sos-room">201호</div>
+          <div class="sos-patient-name">김순자 (여, 82세)</div>
+          <div class="sos-type-chip">
+            <iconify-icon icon="ph:warning-bold" style="font-size:13px;"></iconify-icon>
+            낙상 감지
+          </div>
+          <div class="sos-meta-row">
+            <div class="sos-meta-item">
+              <iconify-icon icon="ph:clock-bold"></iconify-icon>
+              2분 전 · 14:23
+            </div>
+            <div class="sos-ai-tag">
+              <iconify-icon icon="ph:robot-bold" style="font-size:12px;"></iconify-icon>
+              AI 감지 · 자동 발송
+            </div>
+          </div>
+          <div class="sos-actions">
+            <button class="sos-done-btn">
+              <iconify-icon icon="ph:check-bold" style="font-size:15px;"></iconify-icon>
+              처리 완료
+            </button>
+            <button class="sos-notify-btn">
+              <iconify-icon icon="ph:chat-bold" style="font-size:15px;"></iconify-icon>
+              보호자 알림
+            </button>
+          </div>
+        </div>
+
+        <!-- Completed SOS -->
+        <div class="section-heading" style="margin-top:20px;">
+          <iconify-icon icon="ph:check-circle-bold" style="color:var(--nurse);"></iconify-icon>
+          처리 완료
+        </div>
+
+        <div class="sos-done-card">
+          <div class="sos-done-icon">
+            <iconify-icon icon="ph:check-bold" style="font-size:18px;"></iconify-icon>
+          </div>
+          <div class="sos-done-info">
+            <div class="sos-done-room">203호 이철수 · 혈압이상</div>
+            <div class="sos-done-type">수동 발송 · 박지현 간호사 처리</div>
+          </div>
+          <div class="sos-done-time">
+            <div style="margin-bottom:5px;">
+              <span class="badge-done-sos">
+                <iconify-icon icon="ph:check-bold" style="font-size:10px;"></iconify-icon>
+                완료
+              </span>
+            </div>
+            <div class="sos-done-time">04.15 09:41</div>
+          </div>
+        </div>
+
+        <div class="sos-done-card">
+          <div class="sos-done-icon">
+            <iconify-icon icon="ph:check-bold" style="font-size:18px;"></iconify-icon>
+          </div>
+          <div class="sos-done-info">
+            <div class="sos-done-room">205호 박복순 · 의식저하</div>
+            <div class="sos-done-type">AI 감지 · 이상훈 간호사 처리</div>
+          </div>
+          <div class="sos-done-time">
+            <div style="margin-bottom:5px;">
+              <span class="badge-done-sos">
+                <iconify-icon icon="ph:check-bold" style="font-size:10px;"></iconify-icon>
+                완료
+              </span>
+            </div>
+            <div class="sos-done-time">04.14 22:10</div>
+          </div>
+        </div>
+
+        <div class="sos-done-card">
+          <div class="sos-done-icon">
+            <iconify-icon icon="ph:check-bold" style="font-size:18px;"></iconify-icon>
+          </div>
+          <div class="sos-done-info">
+            <div class="sos-done-room">208호 최영자 · 낙상 감지</div>
+            <div class="sos-done-type">AI 감지 · 박지현 간호사 처리</div>
+          </div>
+          <div class="sos-done-time">
+            <div style="margin-bottom:5px;">
+              <span class="badge-done-sos">
+                <iconify-icon icon="ph:check-bold" style="font-size:10px;"></iconify-icon>
+                완료
+              </span>
+            </div>
+            <div class="sos-done-time">04.13 16:55</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Manual SOS Form -->
+      <div>
+        <div class="form-card">
+          <div class="form-card-title">
+            <iconify-icon icon="ph:paper-plane-tilt-bold"></iconify-icon>
+            SOS 수동 발송
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">환자 선택</label>
+            <select class="form-select">
+              <option value="">환자를 선택하세요</option>
+              <option>201호 김순자 (여, 82세)</option>
+              <option>203호 이철수 (남, 78세)</option>
+              <option>205호 박복순 (여, 75세)</option>
+              <option>207호 정만수 (남, 81세)</option>
+              <option>208호 최영자 (여, 79세)</option>
+              <option>210호 강병철 (남, 84세)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">상황 유형</label>
+            <div class="situation-chips">
+              <button class="sit-chip selected" onclick="selectChip(this)">낙상</button>
+              <button class="sit-chip" onclick="selectChip(this)">혈압이상</button>
+              <button class="sit-chip" onclick="selectChip(this)">의식저하</button>
+              <button class="sit-chip" onclick="selectChip(this)">기타</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">상황 메모</label>
+            <textarea class="form-textarea" placeholder="상황을 간략히 메모해 주세요. 보호자에게 자동 전달됩니다." style="min-height:100px;"></textarea>
+          </div>
+
+          <button class="big-sos-btn">
+            <iconify-icon icon="ph:siren-bold" style="font-size:20px;"></iconify-icon>
+            SOS 발송
+          </button>
+
+          <div style="margin-top:12px;padding:10px 14px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11px;color:var(--slate-500);display:flex;align-items:center;gap:7px;">
+            <iconify-icon icon="ph:info-bold" style="font-size:14px;color:var(--slate-400);flex-shrink:0;"></iconify-icon>
+            SOS 발송 시 담당 보호자에게 즉시 알림이 전송됩니다.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function selectChip(el) {
+  document.querySelectorAll('.sit-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+
+</body>
+</html>

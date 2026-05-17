@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — Light</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-s:#4A8FFF;
+      --mint:#10B981;--amber:#F59E0B;
+      --t1:#111827;--t2:rgba(0,0,0,.55);--t3:rgba(0,0,0,.3);
+      --glass:rgba(255,255,255,.55);--glass-b:rgba(0,0,0,.06);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#EEF3FB;overflow:hidden}
+    .app{position:relative;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column;overflow:hidden}
+
+    /* ═══ 배경 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%)}
+    .bg-logo{
+      position:absolute;width:140%;height:auto;
+      left:50%;top:42%;transform:translate(-50%,-50%);
+      opacity:.07;filter:blur(32px);
+      animation:bg-logo 8s ease-in-out infinite;
+    }
+    @keyframes bg-logo{
+      0%,100%{transform:translate(-50%,-50%)scale(1)rotate(0deg);opacity:.06}
+      50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.09}
+    }
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.2)0%,rgba(44,122,252,.08)30%,transparent 65%);filter:blur(30px);animation:ga 8s ease-in-out infinite alternate}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.3)0%,transparent 65%);filter:blur(40px);animation:gb 10s ease-in-out infinite alternate}
+    .bg .g3{position:absolute;width:700px;height:500px;left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse 100% 70%,rgba(44,122,252,.1)0%,rgba(120,180,255,.05)40%,transparent 70%);filter:blur(35px);animation:gc 12s ease-in-out infinite alternate}
+    @keyframes ga{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.08)translateY(12px)}}
+    @keyframes gb{0%{transform:translate(-50%,-50%)scale(1)}100%{transform:translate(-52%,-48%)scale(1.05)}}
+    @keyframes gc{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.06)translateY(-8px)}}
+
+    /* ═══ 상단바 ═══ */
+    .top-bar{
+      position:relative;z-index:30;flex-shrink:0;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:54px 20px 12px;
+    }
+    .tl{display:flex;align-items:center;gap:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .logo-sm{width:22px;height:22px;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+    .tl.open .logo-sm{transform:rotate(90deg)}
+    .ln{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--t1)}
+    .tr{display:flex;align-items:center;gap:8px}
+    .ib{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+    .nd{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--amber);border:1.5px solid #fff}
+
+    .chat-menu{
+      position:absolute;top:calc(100% + 4px);left:20px;
+      display:flex;flex-direction:column;gap:2px;
+      opacity:0;transform:translateY(-6px);
+      pointer-events:none;
+      transition:all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .chat-menu.show{opacity:1;transform:translateY(0);pointer-events:all}
+    .menu-item{
+      font-size:20px;font-weight:700;letter-spacing:-.3px;
+      color:var(--t3);cursor:pointer;padding:6px 0;
+      transition:color .15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .menu-item:hover{color:var(--t2)}
+    .menu-item.active{color:var(--t1)}
+
+    /* ═══ 스크롤 컨테이너 ═══ */
+    .scroll-container{
+      flex:1;overflow-y:auto;overflow-x:hidden;
+      scroll-snap-type:y mandatory;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    }
+    .scroll-container::-webkit-scrollbar{display:none}
+
+    /* ═══ 섹션 1: 채팅 ═══ */
+    .sec-chat{
+      min-height:100%;scroll-snap-align:start;
+      display:flex;flex-direction:column;
+      position:relative;z-index:1;padding:0 20px 0;
+    }
+    .chat-area{
+      flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+      padding-bottom:12px;gap:12px;
+      overflow-y:auto;scrollbar-width:none;
+    }
+    .chat-area::-webkit-scrollbar{display:none}
+
+    .greeting-msg{text-align:center;padding:40px 0 20px}
+    .greeting-msg h1{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.4;color:var(--t1)}
+    .greeting-msg p{font-size:13px;color:var(--t3);margin-top:6px}
+
+    .msg{display:flex;gap:8px;align-items:flex-end;animation:msg-in .3s ease-out;flex-shrink:0}
+    @keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .msg-ai{justify-content:flex-start}
+    .msg-user{justify-content:flex-end}
+
+    .msg-logo{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .msg-logo svg{width:20px;height:20px}
+    .msg-logo.spin svg{animation:logo-spin 1.2s linear infinite}
+    @keyframes logo-spin{to{transform:rotate(360deg)}}
+
+    .bubble{max-width:75%;padding:12px 16px;font-size:14px;line-height:1.55;border-radius:18px}
+    .bubble-ai{
+      background:rgba(255,255,255,.7);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(0,0,0,.05);
+      border-bottom-left-radius:6px;color:var(--t1);
+    }
+    .bubble-user{background:var(--blue);border-bottom-right-radius:6px;color:#fff}
+
+    .typing{display:flex;align-items:center;gap:4px;padding:4px 0}
+    .typing-dot{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:tdot 1.2s ease-in-out infinite}
+    .typing-dot:nth-child(2){animation-delay:.2s}
+    .typing-dot:nth-child(3){animation-delay:.4s}
+    @keyframes tdot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+
+    .chat-input{flex-shrink:0;padding:8px 0 16px;transition:opacity .3s,transform .3s}
+    .chat-input.hidden{opacity:0;transform:translateY(10px);pointer-events:none}
+    .input-wrap{
+      display:flex;align-items:center;gap:8px;
+      background:rgba(255,255,255,.7);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:24px;padding:4px 6px 4px 16px;
+      box-shadow:0 2px 12px rgba(0,0,0,.04);
+    }
+    .input-wrap input{flex:1;background:none;border:none;outline:none;color:var(--t1);font-family:var(--font);font-size:14px;padding:8px 0}
+    .input-wrap input::placeholder{color:var(--t3)}
+    .send-btn{
+      width:36px;height:36px;border-radius:50%;
+      background:var(--blue);border:none;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;flex-shrink:0;transition:opacity .15s;opacity:.9;
+    }
+    .send-btn:hover{opacity:1}
+
+    /* ═══ 섹션 2: 케어 대시보드 ═══ */
+    .sec-care{
+      min-height:100%;scroll-snap-align:start;
+      position:relative;z-index:1;padding:28px 16px 100px;
+    }
+    .sec-t{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:14px;padding:0 4px;color:var(--t1)}
+
+    .gc{
+      background:rgba(255,255,255,.55);
+      backdrop-filter:blur(28px)saturate(1.4);-webkit-backdrop-filter:blur(28px)saturate(1.4);
+      border:1px solid rgba(0,0,0,.05);border-radius:16px;
+      box-shadow:0 2px 16px rgba(0,0,0,.04);transition:all .2s;
+    }
+    .gc:hover{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08)}
+
+    .main-card{padding:24px;margin-bottom:12px}
+    .mc-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+    .mc-score{font-size:56px;font-weight:800;letter-spacing:-3px;line-height:1;color:var(--t1)}
+    .mc-score span{font-size:24px;font-weight:500;color:var(--t2);letter-spacing:0}
+    .mc-label{font-size:13px;color:var(--t3);margin-top:4px}
+    .mc-time{font-size:11px;color:var(--t3);align-self:flex-end;margin-bottom:8px}
+
+    .rows{display:flex;flex-direction:column;gap:0}
+    .row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid rgba(0,0,0,.05)}
+    .row:first-child{border-top:none;padding-top:0}
+    .row-left{display:flex;flex-direction:column;gap:2px}
+    .row-name{font-size:15px;font-weight:600;color:var(--t1)}
+    .row-desc{font-size:11px;color:var(--t3)}
+    .row-val{font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--t1)}
+    .row-val.done{color:var(--mint)}
+    .row-val.ing{color:var(--blue-s)}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .g2-card{padding:18px}
+    .g2-label{font-size:12px;color:var(--t3);margin-bottom:6px}
+    .g2-val{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--t1)}
+    .g2-val span{font-size:13px;font-weight:500;color:var(--t2)}
+    .g2-sub{font-size:11px;color:var(--t3);margin-top:4px}
+
+    .alert-card{padding:16px 18px;margin-bottom:12px;background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+    .alert-left{display:flex;flex-direction:column;gap:2px}
+    .alert-t{font-size:14px;font-weight:700;color:#D97706}
+    .alert-s{font-size:11px;color:rgba(217,119,6,.5)}
+
+    .ai-cta{padding:18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+    .ai-cta-left{display:flex;flex-direction:column;gap:2px}
+    .ai-cta-t{font-size:15px;font-weight:700;color:var(--t1)}
+    .ai-cta-s{font-size:12px;color:var(--t3)}
+
+    /* ═══ 탭바 ═══ */
+    .tabbar{
+      position:fixed;bottom:12px;left:50%;width:auto;
+      background:rgba(255,255,255,.7);backdrop-filter:blur(32px)saturate(1.6);-webkit-backdrop-filter:blur(32px)saturate(1.6);
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 4px 20px rgba(0,0,0,.06);
+      border-radius:20px;display:flex;gap:0;padding:6px 8px;z-index:100;
+      transform:translateX(-50%);
+      opacity:0;pointer-events:none;
+      transition:opacity .4s,transform .4s;
+    }
+    .tabbar.show{opacity:1;pointer-events:all}
+    .tab{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 16px;border-radius:14px;transition:all .15s;color:rgba(0,0,0,.25)}
+    .tab:hover{background:rgba(0,0,0,.03)}
+    .tab svg{width:20px;height:20px}
+    .tab.on{color:var(--blue)}
+    .tab-label{font-size:9px;font-weight:600;color:inherit;letter-spacing:.2px}
+  </style>
+</head>
+<body>
+
+<!-- 배경 -->
+<div class="bg">
+  <svg class="bg-logo" viewBox="0 0 2526 2526" fill="none">
+    <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+    <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/>
+  </svg>
+  <div class="g1"></div>
+  <div class="g2"></div>
+  <div class="g3"></div>
+</div>
+
+<div class="app">
+  <!-- 상단바 -->
+  <div class="top-bar">
+    <div class="tl" id="tlBtn">
+      <svg class="logo-sm" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg>
+      <span class="ln">하루안부</span>
+    </div>
+    <div class="tr">
+      <div class="ib"><div class="nd"></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    </div>
+    <div class="chat-menu" id="chatMenu">
+      <div class="menu-item active" data-mode="ai">하루 AI</div>
+      <div class="menu-item" data-mode="nurse">담당 간호사</div>
+      <div class="menu-item" data-mode="patient">이순자 어르신</div>
+    </div>
+  </div>
+
+  <!-- 스크롤 컨테이너 -->
+  <div class="scroll-container" id="scroller">
+
+    <!-- 섹션 1: 채팅 -->
+    <div class="sec-chat" id="secChat">
+      <div class="chat-area" id="chatArea">
+        <div class="greeting-msg" id="greetingMsg">
+          <h1>오늘도 안녕히<br>지내고 계세요</h1>
+          <p>이순자 어르신 · 실버케어 302호</p>
+        </div>
+      </div>
+      <div class="chat-input" id="chatInput">
+        <div class="input-wrap">
+          <input type="text" id="msgInput" placeholder="어르신에 대해 물어보세요">
+          <button class="send-btn" id="sendBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션 2: 케어 -->
+    <div class="sec-care" id="secCare">
+      <div class="sec-t">오늘의 케어</div>
+
+      <div class="gc main-card">
+        <div class="mc-top">
+          <div><div class="mc-score">73<span>%</span></div><div class="mc-label">케어 완료율</div></div>
+          <span class="mc-time">오후 5시 기준</span>
+        </div>
+        <div class="rows">
+          <div class="row"><div class="row-left"><div class="row-name">투약</div><div class="row-desc">아침 · 점심 · 오후 완료</div></div><div class="row-val done">3/3</div></div>
+          <div class="row"><div class="row-left"><div class="row-name">식사</div><div class="row-desc">저녁 18:00 예정</div></div><div class="row-val">2/3</div></div>
+          <div class="row"><div class="row-left"><div class="row-name">위생</div><div class="row-desc">취침 전 세면 예정</div></div><div class="row-val">1/2</div></div>
+          <div class="row"><div class="row-left"><div class="row-name" style="color:var(--blue-s)">활동</div><div class="row-desc">오후 산책 진행 중</div></div><div class="row-val ing">진행</div></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="gc g2-card"><div class="g2-label">이번 주 투약</div><div class="g2-val">6<span>/7일</span></div><div class="g2-sub">어제 대비 동일</div></div>
+        <div class="gc g2-card"><div class="g2-label">이번 주 식사</div><div class="g2-val">18<span>/21끼</span></div><div class="g2-sub">평균 85% 섭취</div></div>
+      </div>
+
+      <div class="gc alert-card">
+        <div class="alert-left"><div class="alert-t">특이사항 1건</div><div class="alert-s">점심 식사량 감소 · 경과 관찰 중</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="gc ai-cta" id="backToChat">
+        <div class="ai-cta-left"><div class="ai-cta-t">하루 AI에게 물어보기</div><div class="ai-cta-s">위로 스크롤해서 채팅을 시작하세요</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar" id="tabbar">
+    <a class="tab" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="16" y="9" width="4" height="11" rx="1"/></svg>
+      <span class="tab-label">리포트</span>
+    </a>
+    <a class="tab on" href="#">
+      <svg width="20" height="20" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+      <span class="tab-label">AI</span>
+    </a>
+    <a class="tab" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg>
+      <span class="tab-label">채팅</span>
+    </a>
+    <a class="tab" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg>
+      <span class="tab-label">마이</span>
+    </a>
+  </nav>
+</div>
+
+<script>
+const scroller=document.getElementById('scroller');
+const chatInput=document.getElementById('chatInput');
+const tabbar=document.getElementById('tabbar');
+const chatArea=document.getElementById('chatArea');
+const msgInput=document.getElementById('msgInput');
+const sendBtn=document.getElementById('sendBtn');
+const backToChat=document.getElementById('backToChat');
+const tlBtn=document.getElementById('tlBtn');
+const chatMenu=document.getElementById('chatMenu');
+
+/* ═══ 스크롤 감지 — IntersectionObserver ═══ */
+const secCare=document.getElementById('secCare');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting && e.intersectionRatio>0.1){
+      chatInput.classList.add('hidden');tabbar.classList.add('show');
+    }else{
+      chatInput.classList.remove('hidden');tabbar.classList.remove('show');
+    }
+  });
+},{root:scroller,threshold:[0,0.1,0.5]});
+observer.observe(secCare);
+
+backToChat.addEventListener('click',()=>{scroller.scrollTo({top:0,behavior:'smooth'})});
+
+/* ═══ 채팅 모드 전환 ═══ */
+let currentMode='ai';
+
+const MSG_ICONS={
+  ai:`<svg viewBox="0 0 2526 2526" fill="none" width="20" height="20"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="rgba(44,122,252,.5)"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="rgba(44,122,252,.5)"/></svg>`,
+  nurse:`<svg viewBox="0 0 24 24" fill="rgba(16,185,129,.7)" width="20" height="20"><path d="M12 2a5 5 0 110 10 5 5 0 010-10zM5 20a7 7 0 0114 0H5z"/><path d="M17 6V4h2v2h2v2h-2v2h-2V8h-2V6h2z" opacity=".7"/></svg>`,
+  patient:`<svg viewBox="0 0 24 24" fill="rgba(245,158,11,.7)" width="20" height="20"><path d="M12 2a5 5 0 110 10 5 5 0 010-10zM5 20a7 7 0 0114 0H5z"/></svg>`
+};
+
+const GREETINGS={
+  ai:{title:'오늘도 안녕히<br>지내고 계세요',sub:'이순자 어르신 · 실버케어 302호',placeholder:'어르신에 대해 물어보세요'},
+  nurse:{title:'김서연 간호사님과<br>대화하기',sub:'담당 간호사 · 실버케어 3층',placeholder:'간호사님에게 메시지를 보내세요'},
+  patient:{title:'이순자 어르신과<br>대화하기',sub:'실버케어 302호',placeholder:'어르신에게 메시지를 보내세요'}
+};
+
+const RESPONSES={
+  ai:{
+    '투약':['오늘 투약은 아침, 점심, 오후 3회 모두 완료됐어요.','혈압약과 당뇨약 아침 8시, 소화제 점심 12:30, 관절 영양제 오후 2시에 투여했어요.'],
+    '식사':['아침은 죽과 반찬 2종을 잘 드셨고, 점심은 밥과 국, 반찬 3종 중 80% 정도 드셨어요.','저녁은 18:00에 예정되어 있어요.'],
+    '활동':['오전 9:30에 스트레칭 10분 참여하셨고, 오후 2:30부터 산책 프로그램 진행 중이에요.'],
+    _default:['현재 이순자 어르신은 전반적으로 안정적인 상태예요.','투약 3/3 완료, 식사 2/3 진행, 위생 1/2 예정이에요. 더 궁금한 점 있으시면 물어보세요.']
+  },
+  nurse:{
+    '상태':['어르신 오늘 컨디션 괜찮으세요. 아침 투약도 잘 하셨고 식사도 잘 드셨어요.'],
+    '점심':['점심은 평소보다 조금 적게 드셨어요. 밥 반 공기에 국만 좀 드셨는데, 오후 간식은 잘 드셨어요.'],
+    '산책':['네, 2시 반에 산책 나가셨어요. 지금 1층 정원에서 걸으시는 중이에요.'],
+    _default:['네 보호자님, 궁금하신 점 말씀해 주세요. 어르신 관련해서 바로 확인 도와드릴게요.']
+  },
+  patient:{
+    '밥':['오늘 점심에 된장찌개 나왔는데 맛있었어~','간식으로 귤도 먹었어. 걱정 마~'],
+    '건강':['나는 괜찮아~ 오늘 산책도 다녀왔어.','걱정하지 마, 여기 선생님들이 잘 챙겨줘.'],
+    '보고싶':['나도 보고싶어~ 주말에 올 수 있어?'],
+    _default:['그래그래~ 잘 지내고 있어. 걱정 마~','여기 친구들이랑 잘 지내고 있으니까 너도 건강해야 해~']
+  }
+};
+
+const chatHistory={ai:[],nurse:[],patient:[]};
+
+tlBtn.addEventListener('click',(e)=>{e.stopPropagation();tlBtn.classList.toggle('open');chatMenu.classList.toggle('show')});
+document.addEventListener('click',(e)=>{if(!e.target.closest('.top-bar')){tlBtn.classList.remove('open');chatMenu.classList.remove('show')}});
+
+document.querySelectorAll('.menu-item').forEach(item=>{
+  item.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    const mode=item.dataset.mode;
+    if(mode===currentMode){tlBtn.classList.remove('open');chatMenu.classList.remove('show');return}
+    chatHistory[currentMode]=chatArea.innerHTML;
+    currentMode=mode;
+    document.querySelectorAll('.menu-item').forEach(d=>d.classList.remove('active'));
+    item.classList.add('active');
+    if(chatHistory[mode]){chatArea.innerHTML=chatHistory[mode]}
+    else{const g=GREETINGS[mode];chatArea.innerHTML=`<div class="greeting-msg" id="greetingMsg"><h1>${g.title}</h1><p>${g.sub}</p></div>`}
+    msgInput.placeholder=GREETINGS[mode].placeholder;
+    tlBtn.classList.remove('open');chatMenu.classList.remove('show');
+    scroller.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ═══ 채팅 ═══ */
+function getResp(q){const pool=RESPONSES[currentMode];for(const[k,v]of Object.entries(pool)){if(k!=='_default'&&q.includes(k))return v}return pool._default}
+
+function addMsg(text,type){
+  const d=document.createElement('div');d.className=`msg msg-${type}`;
+  if(type==='ai'){d.innerHTML=`<div class="msg-logo">${MSG_ICONS[currentMode]}</div><div class="bubble bubble-ai">${text}</div>`}
+  else{d.innerHTML=`<div class="bubble bubble-user">${text}</div>`}
+  const g=chatArea.querySelector('.greeting-msg');if(g)g.remove();
+  chatArea.appendChild(d);chatArea.scrollTop=chatArea.scrollHeight;
+}
+function showTyping(){
+  const d=document.createElement('div');d.className='msg msg-ai';d.id='typingMsg';
+  d.innerHTML=`<div class="msg-logo spin">${MSG_ICONS[currentMode]}</div><div class="bubble bubble-ai"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  chatArea.appendChild(d);chatArea.scrollTop=chatArea.scrollHeight;
+}
+function removeTyping(){const t=document.getElementById('typingMsg');if(t)t.remove()}
+
+function send(){
+  const v=msgInput.value.trim();if(!v)return;
+  addMsg(v,'user');msgInput.value='';showTyping();
+  const resp=getResp(v);let i=0;
+  const delay=currentMode==='ai'?1500:800;
+  function next(){removeTyping();if(i<resp.length){addMsg(resp[i],'ai');i++;if(i<resp.length){showTyping();setTimeout(next,delay)}}}
+  setTimeout(next,delay);
+}
+sendBtn.addEventListener('click',send);
+msgInput.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+
+document.querySelectorAll('.gc').forEach(c=>{
+  c.style.transition='transform .5s cubic-bezier(.4,0,.2,1)';
+  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(800px)rotateY(${x*4}deg)rotateX(${-y*3}deg)scale(1.01)`});
+  c.addEventListener('mouseleave',()=>{c.style.transform=''});
+});
+</script>
+</body>
+</html>

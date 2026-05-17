@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v7 시안 B — 대형 프로그레스 링</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    body { background: #E8E8ED; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+    .phone {
+      position: relative;
+      width: 393px; height: 852px;
+      background: #0A0E1A;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 0 0 4px #1a1a1a, 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 36px;
+      background: #000; border-radius: 20px; z-index: 20;
+    }
+
+    .scroll {
+      height: calc(852px - 84px);
+      overflow-y: auto;
+      padding-bottom: 100px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* ===== 다크 배경 + 그라디언트 글로우 ===== */
+    .hero-glow {
+      position: relative;
+      padding: 64px 24px 32px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 300px 200px at 50% 45%, rgba(8,145,178,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 150px at 30% 60%, rgba(5,150,105,0.15) 0%, transparent 70%);
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 상태바 */
+    .sbar-dark {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px 0; height: 54px;
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); z-index: 10;
+    }
+    .sbar-dark .sbar-time { font-size: 15px; font-weight: 700; color: white; }
+    .sbar-dark .sbar-icons { display: flex; gap: 5px; }
+    .sbar-dark .sbar-icons svg { display: block; }
+
+    /* 인사말 */
+    .dark-greeting {
+      font-size: 15px; font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+    .dark-name {
+      font-size: 22px; font-weight: 700;
+      color: white;
+      margin-bottom: 32px;
+    }
+
+    /* 대형 프로그레스 링 */
+    .big-ring {
+      position: relative;
+      width: 200px; height: 200px;
+      margin: 0 auto 24px;
+    }
+    .big-ring svg {
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 0 20px rgba(8,145,178,0.4));
+    }
+    .big-ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .big-pct {
+      font-size: 52px; font-weight: 800;
+      color: white;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .big-pct-unit {
+      font-size: 24px; font-weight: 600;
+      color: rgba(255,255,255,0.5);
+    }
+    .big-sub {
+      font-size: 14px; font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+
+    /* 환자 정보 */
+    .patient-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .patient-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0891B2, #059669);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: white;
+    }
+    .patient-info-text {
+      font-size: 14px; font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+    .patient-detail {
+      font-size: 11px; color: rgba(255,255,255,0.4);
+    }
+
+    /* ===== 하단 컨텐츠 (밝은 배경) ===== */
+    .content-light {
+      background: var(--bg);
+      border-radius: 28px 28px 0 0;
+      padding: 24px 16px;
+      margin-top: -16px;
+      position: relative;
+    }
+    .drag-handle {
+      width: 36px; height: 4px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 999px;
+      margin: 0 auto 20px;
+    }
+
+    /* 상태 그리드 */
+    .stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .stat-icon {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .stat-label {
+      font-size: 12px; color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 17px; font-weight: 700;
+    }
+    .stat-bar {
+      height: 4px;
+      background: #F0F0F5;
+      border-radius: 999px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* 알림 카드 */
+    .alert-card {
+      display: flex; align-items: center; gap: 12px;
+      background: #FFF5F5;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #FEE2E2;
+    }
+    .alert-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #DC2626;
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .alert-msg {
+      flex: 1;
+      font-size: 14px; font-weight: 600;
+      color: #991B1B;
+    }
+    .alert-time {
+      font-size: 12px; color: #DC2626;
+    }
+
+    /* AI 인사이트 */
+    .insight-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+    .insight-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .insight-badge {
+      padding: 3px 10px;
+      background: linear-gradient(135deg, #E0F2FE, #D9F0F7);
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      color: var(--guardian);
+    }
+    .insight-text {
+      font-size: 15px; font-weight: 500;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    /* 빠른 액션 */
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .quick-btn {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      padding: 14px 8px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .quick-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .quick-label {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* 탭바 */
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 84px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(0,0,0,0.08);
+      display: flex; justify-content: space-around; align-items: flex-start;
+      padding-top: 8px;
+    }
+    .tab-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500;
+      color: var(--text-secondary);
+      min-width: 56px;
+    }
+    .tab-item.active { color: var(--guardian); }
+    .tab-icon { font-size: 20px; }
+
+    .home-ind {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px;
+      background: var(--text-primary); border-radius: 999px; opacity: 0.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="scroll">
+      <!-- ===== 다크 히어로 + 대형 링 ===== -->
+      <div class="hero-glow">
+        <div class="sbar-dark">
+          <span class="sbar-time">9:41</span>
+          <div class="sbar-icons">
+            <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity=".7"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="white" opacity=".7"/><rect x="9" y="0" width="3" height="12" rx="1" fill="white" opacity=".7"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity=".2"/></svg>
+            <svg width="16" height="12" fill="none"><path d="M8 2.4A7.5 7.5 0 0 1 14.5 5l1.2-1.2A9.5 9.5 0 0 0 8 0a9.5 9.5 0 0 0-7.7 3.8L1.5 5A7.5 7.5 0 0 1 8 2.4z" fill="white" opacity=".7"/><circle cx="8" cy="11" r="1.5" fill="white" opacity=".7"/></svg>
+            <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-opacity=".3"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="white" opacity=".7"/></svg>
+          </div>
+        </div>
+
+        <div class="dark-greeting">4월 7일 월요일</div>
+        <div class="dark-name">안녕하세요, 예찬님</div>
+
+        <div class="big-ring">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <!-- 배경 트랙 -->
+            <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+            <!-- 프로그레스 -->
+            <circle cx="100" cy="100" r="88" fill="none" stroke="url(#ringGrad)" stroke-width="12"
+              stroke-dasharray="553" stroke-dashoffset="149" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06B6D4"/>
+                <stop offset="50%" stop-color="#0891B2"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="big-ring-label">
+            <span class="big-pct">73<span class="big-pct-unit">%</span></span>
+            <span class="big-sub">오늘의 케어</span>
+          </div>
+        </div>
+
+        <div class="patient-pill">
+          <div class="patient-avatar">정</div>
+          <div>
+            <div class="patient-info-text">손정희님</div>
+            <div class="patient-detail">302호 · 김미영 간호사</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 하단 밝은 영역 ===== -->
+      <div class="content-light">
+        <div class="drag-handle"></div>
+
+        <!-- 긴급 알림 -->
+        <div class="alert-card">
+          <div class="alert-dot"></div>
+          <span class="alert-msg">체온 37.8°C 감지</span>
+          <span class="alert-time">10분 전</span>
+        </div>
+
+        <!-- 상태 그리드 -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #D1FAE5;">🍽</div>
+            <div class="stat-label">식사</div>
+            <div class="stat-value">2/3</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width: 66%; background: var(--success);"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #D9F0F7;">💊</div>
+            <div class="stat-label">투약</div>
+            <div class="stat-value" style="color: var(--success);">완료</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width: 100%; background: var(--success);"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #FEF3C7;">🧼</div>
+            <div class="stat-label">위생</div>
+            <div class="stat-value">1/2</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width: 50%; background: var(--warning);"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: #E0F2FE;">🚶</div>
+            <div class="stat-label">활동</div>
+            <div class="stat-value" style="color: var(--info);">진행 중</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width: 40%; background: var(--info);"></div></div>
+          </div>
+        </div>
+
+        <!-- AI 인사이트 -->
+        <div class="insight-card">
+          <div class="insight-header">
+            <span class="insight-badge">✨ AI 인사이트</span>
+          </div>
+          <div class="insight-text">
+            전반적으로 양호한 하루예요. 오후 산책 시 기분이 좋아 보였어요. 체온이 약간 높으니 수분 섭취를 권장드려요.
+          </div>
+        </div>
+
+        <!-- 빠른 액션 -->
+        <div class="quick-actions">
+          <div class="quick-btn">
+            <div class="quick-icon" style="background: #D9F0F7;">📊</div>
+            <span class="quick-label">리포트</span>
+          </div>
+          <div class="quick-btn">
+            <div class="quick-icon" style="background: #FEF3C7;">💳</div>
+            <span class="quick-label">청구</span>
+          </div>
+          <div class="quick-btn">
+            <div class="quick-icon" style="background: #D1FAE5;">📋</div>
+            <span class="quick-label">처방전</span>
+          </div>
+          <div class="quick-btn">
+            <div class="quick-icon" style="background: #F3E8FF;">📅</div>
+            <span class="quick-label">일정</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 탭바 -->
+    <div class="tab-bar">
+      <div class="tab-item active"><span class="tab-icon">🏠</span>홈</div>
+      <div class="tab-item"><span class="tab-icon">💬</span>채팅</div>
+      <div class="tab-item"><span class="tab-icon">🤖</span>AI가이드</div>
+      <div class="tab-item"><span class="tab-icon">📊</span>리포트</div>
+      <div class="tab-item"><span class="tab-icon">⋯</span>더보기</div>
+    </div>
+    <div class="home-ind"></div>
+  </div>
+</body>
+</html>

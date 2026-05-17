@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하루안부 — 3-App Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 48px;
+  }
+
+  h1 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+
+  .phones {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .phone-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .phone-label .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-guardian { background: #0891B2; }
+  .dot-nurse { background: #059669; }
+  .dot-patient { background: #B45309; }
+
+  .phone-label .pages {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  /* iPhone 15 Pro frame */
+  .iphone {
+    width: 300px;
+    height: 650px;
+    border-radius: 40px;
+    background: #000;
+    padding: 8px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .iphone::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 28px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    z-index: 10;
+  }
+  .iphone iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 32px;
+    background: #F5F5F7;
+  }
+
+  /* Navigation controls */
+  .nav-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 300px;
+  }
+  .nav-btn {
+    padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  .nav-btn.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+<h1>하루안부 v6 — All Apps</h1>
+<p class="subtitle">보호자 · 간호사 · 환자 앱을 한눈에 비교</p>
+
+<div class="phones">
+  <!-- Guardian -->
+  <div class="phone-wrap">
+    <div class="phone-label">
+      <span class="dot dot-guardian"></span>
+      보호자 앱
+      <span class="pages">9 pages</span>
+    </div>
+    <div class="iphone">
+      <iframe id="guardian-frame" src="guardian/g01-home.html"></iframe>
+    </div>
+    <div class="nav-row" id="guardian-nav"></div>
+  </div>
+
+  <!-- Nurse -->
+  <div class="phone-wrap">
+    <div class="phone-label">
+      <span class="dot dot-nurse"></span>
+      간호사 앱
+      <span class="pages">6 pages</span>
+    </div>
+    <div class="iphone">
+      <iframe id="nurse-frame" src="nurse/n01-dashboard.html"></iframe>
+    </div>
+    <div class="nav-row" id="nurse-nav"></div>
+  </div>
+
+  <!-- Patient -->
+  <div class="phone-wrap">
+    <div class="phone-label">
+      <span class="dot dot-patient"></span>
+      환자 앱
+      <span class="pages">3 pages</span>
+    </div>
+    <div class="iphone">
+      <iframe id="patient-frame" src="patient/p01-home.html"></iframe>
+    </div>
+    <div class="nav-row" id="patient-nav"></div>
+  </div>
+</div>
+
+<script>
+const pages = {
+  guardian: [
+    { file: 'guardian/g01-home.html', label: '홈' },
+    { file: 'guardian/g02-ai-report.html', label: 'AI리포트' },
+    { file: 'guardian/g03-chat.html', label: '채팅' },
+    { file: 'guardian/g04-ai-guide.html', label: 'AI가이드' },
+    { file: 'guardian/g05-mypage.html', label: '더보기' },
+    { file: 'guardian/g06-alert.html', label: '긴급알림' },
+    { file: 'guardian/g07-settings.html', label: '설정' },
+    { file: 'guardian/g08-billing.html', label: '청구' },
+    { file: 'guardian/g09-prescription.html', label: '처방' },
+  ],
+  nurse: [
+    { file: 'nurse/n01-dashboard.html', label: '대시보드' },
+    { file: 'nurse/n02-patients.html', label: '환자관리' },
+    { file: 'nurse/n03-checklist.html', label: '체크리스트' },
+    { file: 'nurse/n04-mypage.html', label: '내정보' },
+    { file: 'nurse/n05-sos.html', label: 'SOS' },
+    { file: 'nurse/n06-handoff.html', label: '인수인계' },
+  ],
+  patient: [
+    { file: 'patient/p01-home.html', label: '홈' },
+    { file: 'patient/p02-family.html', label: '가족소식' },
+    { file: 'patient/p03-help.html', label: '도움요청' },
+  ]
+};
+
+Object.entries(pages).forEach(([role, list]) => {
+  const nav = document.getElementById(role + '-nav');
+  const frame = document.getElementById(role + '-frame');
+
+  list.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = p.label;
+    btn.onclick = () => {
+      frame.src = p.file;
+      nav.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    nav.appendChild(btn);
+  });
+});
+</script>
+
+</body>
+</html>

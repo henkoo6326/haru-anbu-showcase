@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 보호자 홈</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.25);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{background:#d4e4ff}
+    body{font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;margin:0;overflow-x:hidden}
+
+    /* 배경 — 통일된 크림 캔버스 */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#fafaf6}
+    .bg .g1,.bg .g2{display:none}
+    .bg::before,.bg::after{display:none}
+    .grain{display:none}
+
+    /* ═══════════════════════════════════════
+       AI 오브 — 영구 배경 레이어 (인트로·홈 공용)
+    ═══════════════════════════════════════ */
+    .ai-orb-bg{position:fixed;top:50%;left:50%;width:560px;height:560px;max-width:110vw;max-height:110vw;transform:translate(-50%,-50%);pointer-events:none;z-index:1;transition:transform 2.4s cubic-bezier(.22,1,.36,1),opacity 1.4s ease}
+    .ai-orb{position:absolute;inset:0;border-radius:50%;
+      background:radial-gradient(circle at 50% 32%,#1BE7EA 0%,rgba(70,195,230,.95) 38%,#46A8FF 72%,rgba(70,168,255,.3) 88%,transparent 100%);
+      filter:blur(24px);
+      animation:orbBreath 7s cubic-bezier(.45,.05,.55,.95) infinite;
+      will-change:transform,opacity,filter}
+    /* 연속적으로 크기 큰 변화 — 재시작 없이 계속 출렁임 */
+    @keyframes orbBreath{
+      0%{transform:scale(1) translateY(0) translateX(0);opacity:.88;filter:blur(24px)}
+      18%{transform:scale(1.14) translateY(-14px) translateX(8px);opacity:.98;filter:blur(20px)}
+      35%{transform:scale(.96) translateY(6px) translateX(-6px);opacity:.85;filter:blur(28px)}
+      52%{transform:scale(1.22) translateY(-18px) translateX(-4px);opacity:1;filter:blur(18px)}
+      70%{transform:scale(1.04) translateY(-2px) translateX(10px);opacity:.92;filter:blur(23px)}
+      85%{transform:scale(1.16) translateY(-10px) translateX(-8px);opacity:.97;filter:blur(21px)}
+      100%{transform:scale(1) translateY(0) translateX(0);opacity:.88;filter:blur(24px)}
+    }
+    /* 피나레: 오브가 커지며 하단에 앉아 상단에 큰 돔(arc)을 만듦 */
+    .ai-orb-bg.finale{transform:translate(-50%,-10%) scale(2)}
+    .ai-orb-bg.finale .ai-orb{animation:none;filter:blur(24px);opacity:1;transition:opacity 1.4s ease}
+
+    /* 인트로 텍스트 오버레이 (오브는 영구, 이것만 사라짐) */
+    .intro{position:fixed;inset:0;z-index:101;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;transition:opacity 1s ease,visibility 1s ease;pointer-events:auto}
+    .intro.gone{opacity:0;visibility:hidden;pointer-events:none}
+    .intro-msg{position:relative;z-index:2;font-size:22px;font-weight:700;color:#1C1C1E;text-align:center;line-height:1.55;letter-spacing:-.5px;max-width:320px;opacity:0;transform:translateY(6px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+    .intro-msg.show{opacity:1;transform:translateY(0)}
+    .intro-skip{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:1.5px;color:rgba(28,28,30,.35);font-weight:600;text-transform:uppercase;cursor:pointer;background:none;border:none;padding:8px 14px;z-index:3}
+
+    /* 인트로 종료 후에도 오브 색은 그대로 유지 (연해지지 않음) */
+    .ai-orb-bg.dimmed{opacity:1}
+    .ai-orb-bg.dimmed.finale{transform:translate(-50%,-10%) scale(2)}
+
+    /* 홈 콘텐츠는 인트로 동안 숨김 — 순차 등장.
+       .intro-enter 클래스가 붙어있을 때만 느린 인트로 트랜지션 적용,
+       등장 완료 후 JS가 제거하면 홈 기본 트랜지션(.4s 등)으로 복귀 */
+    .chat-fixed.intro-enter{opacity:0;transition:opacity 1s cubic-bezier(.22,1,.36,1)}
+    .bottom-bar.intro-enter{opacity:0;transform:translateX(-50%) translateY(12px);transition:opacity 1.8s cubic-bezier(.22,1,.36,1),transform 1.8s cubic-bezier(.22,1,.36,1)}
+    /* 리포트 시트는 화면 아래에서 대기하다가 슬라이드 업 */
+    .report-sheet.intro-enter{transform:translateY(100vh)}
+    body.ready .chat-fixed.intro-enter{opacity:1}
+    body.ready .report-sheet.intro-enter{transform:translateY(0);transition:transform 1.1s cubic-bezier(.22,.68,0,1);transition-delay:1.6s}
+    body.ready .bottom-bar.intro-enter{opacity:1;transform:translateX(-50%) translateY(0);transition-delay:2.5s}
+
+    @media (prefers-reduced-motion:reduce){
+      .ai-orb{animation:none}
+    }
+
+    .app{max-width:430px;margin:0 auto;position:relative;pointer-events:none}
+    .app *{pointer-events:auto}
+
+    /* ═══════════════════════════════════════
+       AI 채팅 — 고정 배경 (움직이지 않음)
+    ═══════════════════════════════════════ */
+    .chat-fixed{
+      position:fixed;top:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:430px;height:100vh;
+      z-index:1;
+      display:flex;flex-direction:column;
+      padding:calc(env(safe-area-inset-top,0px) + 8px) 24px calc(env(safe-area-inset-bottom,0px) + 80px);
+    }
+
+    .top-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .logo{display:flex;align-items:center;gap:9px}
+    .logo span{font-size:17px;font-weight:800;letter-spacing:-.5px;color:#1C1C1E}
+    .top-nav-right{display:flex;align-items:center;gap:8px}
+    .nav-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.55);border:.5px solid rgba(255,255,255,.55);box-shadow:0 1px 1px rgba(255,255,255,.6) inset,0 4px 16px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;color:var(--blue);position:relative;text-decoration:none;cursor:pointer;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+    .notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#FF3B30;border:1.5px solid rgba(255,255,255,.7);z-index:2}
+
+    .greeting-zone{padding:46px 4px 0}
+    .greeting-main{font-size:28px;font-weight:800;line-height:1.18;letter-spacing:-.85px;color:#2a1810;margin-bottom:8px;text-shadow:0 1px 0 rgba(255,255,255,.2)}
+    .greeting-sub{font-size:15px;color:rgba(42,24,16,.62);line-height:1.45;margin-bottom:20px;font-weight:500}
+
+    /* AI 프롬프트 — 센터 칩 */
+    .ai-prompts{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:20px 4px}
+    .ai-prompts-label{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:.4px;text-align:center;margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:6px}
+    .ai-prompts-label::before,.ai-prompts-label::after{content:'';width:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(44,122,252,.3))}
+    .ai-prompts-label::after{background:linear-gradient(270deg,transparent,rgba(44,122,252,.3))}
+    .ai-prompt-item{display:flex;align-items:center;gap:10px;width:100%;font-family:inherit;text-align:left;cursor:pointer;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);box-shadow:0 2px 12px rgba(0,0,0,.04);padding:13px 16px;border-radius:14px;font-size:15px;font-weight:600;color:var(--t1);letter-spacing:-.3px;transition:transform .12s}
+    .ai-prompt-item:active{transform:scale(.97)}
+    .ai-prompt-item iconify-icon{font-size:18px;color:var(--blue);flex-shrink:0}
+
+    /* AI 입력창 — 흰 바탕, 로고 제거, 마이크+전송 버튼 */
+    .chat-input-area{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;z-index:45;padding:0}
+    .ai-input-inner{border-radius:999px;display:flex;align-items:center;gap:4px;padding:8px 10px 8px 22px;background:#fff;border:0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .ai-placeholder{flex:1;font-size:15px;color:rgba(28,28,30,.4);font-family:inherit}
+    .ai-mic-btn,.ai-send-btn{width:38px;height:38px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;padding:0;flex-shrink:0}
+    .ai-mic-btn{background:transparent}
+    .ai-mic-btn iconify-icon{font-size:22px;color:var(--t2)}
+    .ai-send-btn{background:var(--blue)}
+    .ai-send-btn iconify-icon{font-size:18px;color:#fff}
+    .ai-mic-btn:active,.ai-send-btn:active{transform:scale(.9)}
+
+    /* 홈 AI 프롬프트 — 추천 질문 (순환 강조 애니메이션) */
+    .home-prompts{padding:10px 4px 0;display:none;flex-direction:column;gap:14px}
+    body.chat-mode .home-prompts{display:flex}
+    .home-prompts button{
+      font-family:inherit;text-align:left;background:transparent;border:0;cursor:pointer;
+      display:block;width:100%;padding:2px 0;letter-spacing:-.4px;
+      font-size:16px;font-weight:500;color:rgba(42,24,16,.28);
+      transform-origin:left center;will-change:transform,color;
+      animation:cyclePrompt 6s cubic-bezier(.45,.05,.55,.95) infinite;
+    }
+    .home-prompts button:active{opacity:.55}
+    .home-prompts button:nth-child(1){animation-delay:-2s}
+    .home-prompts button:nth-child(2){animation-delay:0s}
+    .home-prompts button:nth-child(3){animation-delay:-4s}
+    @keyframes cyclePrompt{
+      0%     {transform:scale(1);   color:rgba(42,24,16,.28);font-weight:500}
+      33.33% {transform:scale(1.15);color:#2a1810;           font-weight:800}
+      48%,100%{transform:scale(1);  color:rgba(42,24,16,.28);font-weight:500}
+    }
+    @media (prefers-reduced-motion:reduce){.home-prompts button{animation:none}}
+
+    /* 일일 리포트 보기 버튼 — 채팅 모드에서만 노출 */
+    .report-view-btn{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#fff;border:0;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:13px;font-weight:700;color:var(--t1);font-family:inherit;z-index:46;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
+    .report-view-btn.show{opacity:1;pointer-events:auto}
+    .report-view-btn:active{transform:translateX(-50%) scale(.96)}
+    .report-view-btn iconify-icon{font-size:14px;color:var(--blue)}
+
+    /* ═══════════════════════════════════════
+       리포트 시트 — 위에 겹쳐 올라옴
+    ═══════════════════════════════════════ */
+    .report-sheet{
+      position:relative;z-index:5;
+      margin-top:42vh;
+      /* 블루 글라스 15% */
+      background:rgba(180,210,250,.15);
+      backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+      border-radius:28px 28px 0 0;
+      border-top:1.5px solid rgba(255,255,255,.4);
+      border-left:1px solid rgba(255,255,255,.2);
+      border-right:1px solid rgba(255,255,255,.2);
+      box-shadow:0 -8px 40px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.35);
+      min-height:100vh;
+      padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px);
+      transition:transform 1s cubic-bezier(.22,.68,0,1);
+    }
+    .report-sheet.dragging{transition:none!important}
+    .report-sheet.mode-chat{
+      transform:translateY(100vh);
+    }
+
+    /* 시트 드래그 영역 */
+    .sheet-drag{padding:16px 0 12px;cursor:grab;display:flex;justify-content:center;touch-action:none}
+    .sheet-drag-pill{width:40px;height:5px;border-radius:3px;background:rgba(0,0,0,.15)}
+
+    /* 탭바/채팅바 전환 (bottom-bar = 탭바 + AI FAB 통합) */
+    .bottom-bar{transition:opacity .4s cubic-bezier(.32,.72,0,1),transform .4s cubic-bezier(.32,.72,0,1)}
+    .bottom-bar.hide{opacity:0!important;pointer-events:none!important;transform:translateX(-50%) translateY(20px)!important}
+    .chat-input-area{transition:opacity .4s cubic-bezier(.32,.72,0,1),transform .4s cubic-bezier(.32,.72,0,1)}
+    .chat-input-area.hide{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(20px);visibility:hidden}
+
+
+    .report-content{padding:24px 16px 0}
+
+    /* 요약 카드 */
+    .summary-card{background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .summary-title{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:.3px;margin-bottom:12px}
+    .summary-metrics{display:flex}
+    .summary-item{flex:1;text-align:center;position:relative}
+    .summary-item+.summary-item::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:1px;background:rgba(0,0,0,.06)}
+    .summary-icon{font-size:20px;margin-bottom:4px}
+    .summary-val{font-size:18px;font-weight:800;letter-spacing:-.5px;line-height:1}
+    .summary-label{font-size:11px;color:var(--t3);margin-top:3px}
+
+    .section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 10px}
+    .section-title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+    .section-date{font-size:12px;color:var(--t3)}
+
+    .ai-comment{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:16px;margin-bottom:10px;background:rgba(255,255,255,.92);border:1px solid rgba(44,122,252,.1);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .ai-comment-icon{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#22D3EE,var(--blue));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ai-comment-text{font-size:14px;line-height:1.6;flex:1}
+    .ai-comment-text b{color:var(--blue);font-weight:700}
+
+    /* 오늘의 순간 — 사진 + 간호사 코멘트 카드 */
+    .moment-card{display:block;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);cursor:pointer;transition:transform .12s;text-decoration:none;color:inherit}
+    .moment-card:active{transform:scale(.98)}
+    .moment-photo{position:relative;height:200px;background:#f3e9dc url('mockup.png') center/cover no-repeat;overflow:hidden}
+    .moment-photo::after{content:'';position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.18) 100%);pointer-events:none}
+    .moment-tag{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:11px;font-weight:700;color:#92400E;letter-spacing:-.2px}
+    .moment-tag iconify-icon{font-size:13px}
+    .moment-body{padding:14px 18px 16px}
+    .moment-quote{font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.3px;color:var(--t1);margin-bottom:6px}
+    .moment-meta{font-size:11.5px;color:var(--t3);display:flex;align-items:center;gap:6px}
+    .moment-meta::before{content:'';width:14px;height:1px;background:rgba(0,0,0,.15)}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid-full{grid-column:1/-1}
+    .w{background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;padding:18px;cursor:pointer;transition:transform .12s;position:relative;overflow:hidden;contain:layout style paint;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .w.alert{border-color:rgba(245,158,11,.35);box-shadow:0 2px 8px rgba(245,158,11,.08)}
+    /* 상태 점 — 정상(블루) / 주의(노랑) */
+    .w-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;position:relative}
+    .w-dot.ok{background:#34D399;box-shadow:0 0 0 3px rgba(52,211,153,.22)}
+    .w-dot.warn{background:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.2);animation:wDotPulse 1.8s ease-in-out infinite}
+    @keyframes wDotPulse{0%,100%{box-shadow:0 0 0 3px rgba(245,158,11,.2)}50%{box-shadow:0 0 0 6px rgba(245,158,11,.08)}}
+    @media (prefers-reduced-motion:reduce){.w-dot.warn{animation:none}}
+    /* 맥박 위젯 — 상단 빨간 아이콘 타이틀 + 하단 큰 숫자 */
+    .pulse-w{overflow:hidden;min-height:180px;display:flex;flex-direction:column}
+    .pulse-main{margin-top:auto}
+    .pulse-num{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+    .pulse-num .n{font-size:64px;font-weight:800;letter-spacing:-3px;line-height:.88;color:var(--t1)}
+    .pulse-num .u{font-size:15px;font-weight:700;color:var(--t3);letter-spacing:.3px}
+    .pulse-sub{font-size:11.5px;color:var(--t3);font-weight:500}
+    /* 식사 위젯 — 카드 전체 이미지 + 하단 검정 그라디언트 오버레이 */
+    .food-w{padding:0;overflow:hidden;background:#f3e9dc url("image%20(16).png") center/cover no-repeat;min-height:180px;position:relative}
+    .food-overlay{position:absolute;left:0;right:0;bottom:0;padding:14px 16px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.8) 100%);color:#fff}
+    .food-overlay .lbl{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+    .food-overlay .lbl iconify-icon{color:#fff;font-size:16px;opacity:.95}
+    .food-overlay .lbl span{font-size:11.5px;color:rgba(255,255,255,.88);font-weight:600;letter-spacing:.2px}
+    .food-overlay .val{font-size:16px;font-weight:800;letter-spacing:-.3px;line-height:1.25;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    /* 수면 타임라인 그래프 — 풀칸, 레퍼런스 스타일 */
+    .sleep-chart{margin-top:12px}
+    .sleep-bars{display:flex;align-items:flex-end;gap:6px;height:110px;padding:0 2px}
+    .sleep-bars .sb{flex:1;border-radius:5px;min-height:4px}
+    .sleep-ticks{display:flex;margin-top:4px;height:10px;position:relative}
+    .sleep-ticks .tk{flex:1;position:relative}
+    .sleep-ticks .tk::before{content:'';position:absolute;left:0;top:0;width:1px;height:4px;background:rgba(0,0,0,.13)}
+    .sleep-ticks .tk.major::before{height:9px;background:rgba(0,0,0,.45);width:1.5px}
+    .sleep-ticks::after{content:'';position:absolute;right:0;top:0;width:1.5px;height:9px;background:rgba(0,0,0,.45)}
+    .sleep-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.2px}
+    .sleep-legend{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:11px;color:var(--t3);font-weight:500}
+    .sleep-legend .grad-bar{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,hsl(217,85%,88%) 0%,hsl(217,90%,69%) 50%,hsl(217,95%,50%) 100%)}
+    .w:active{transform:scale(.97)}
+    .w-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .w-title{font-size:16px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px;letter-spacing:-.3px}
+    .w-title iconify-icon{font-size:18px}
+    .w-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+    .dot-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:6px auto 0;max-width:160px}
+    .d{width:100%;aspect-ratio:1;border-radius:50%}
+
+    .insight-card{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:16px;margin-bottom:10px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);cursor:pointer;transition:transform .12s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .insight-card:active{transform:scale(.98)}
+    .insight-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .insight-body{flex:1}
+    .insight-title{font-size:14px;font-weight:700;margin-bottom:3px}
+    .insight-desc{font-size:13px;color:var(--t2);line-height:1.45}
+    .insight-cta{font-size:12px;font-weight:700;color:var(--blue);margin-top:6px}
+
+    .schedule-preview{background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .sch-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+    .sch-item:last-child{border-bottom:none}
+    .sch-time-badge{font-size:13px;font-weight:700;color:var(--blue);background:rgba(44,122,252,.08);padding:4px 10px;border-radius:8px;flex-shrink:0;min-width:52px;text-align:center}
+    .sch-time-badge.done{color:var(--t3);background:rgba(0,0,0,.03)}
+    .sch-time-badge.now{color:#fff;background:var(--blue)}
+    .sch-name{font-size:14px;font-weight:600;flex:1}
+    .sch-name.done{color:var(--t3);text-decoration:line-through}
+    .sch-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+
+    .quick-scroll{display:flex;gap:10px;overflow-x:auto;padding:4px 4px;-webkit-overflow-scrolling:touch}
+    .quick-scroll::-webkit-scrollbar{display:none}
+    .quick-btn{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);cursor:pointer;transition:transform .12s;text-decoration:none;color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .quick-btn:active{transform:scale(.96)}
+    .quick-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .quick-label{font-size:13px;font-weight:600;white-space:nowrap}
+
+    /* 탭바 + AI FAB — v9.5 구조, v9 glass-warp 필터, v9 위치(하단) */
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(180,210,250,.15);backdrop-filter:url(#glass-warp) blur(4px);-webkit-backdrop-filter:url(#glass-warp) blur(4px);border:1px solid rgba(255,255,255,.35);box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;padding:0;font:inherit;color:inherit}
+    .ai-fab:active{transform:scale(.92)}
+
+    /* 바텀시트 */
+    .jw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:flex-end;justify-content:center;z-index:200}
+    .jw-overlay.show{display:flex}
+    .jw-sheet{background:rgba(255,255,255,.97);border-radius:28px 28px 0 0;padding:20px 24px calc(32px + env(safe-area-inset-bottom,0px));width:100%;max-width:430px}
+    .sheet-handle{width:36px;height:4px;background:rgba(0,0,0,.08);border-radius:2px;margin:0 auto 20px}
+    .sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .sheet-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+    .sheet-icon iconify-icon{font-size:22px;color:#fff}
+    .sheet-ttl{font-size:20px;font-weight:800}
+    .sheet-sub{font-size:13px;color:var(--t3)}
+    .srow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.025);margin-bottom:8px}
+    .srow-icon{width:36px;height:36px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center}
+    .srow-icon iconify-icon{font-size:18px}
+    .srow-text{flex:1}
+    .srow-label{font-size:12px;color:var(--t3)}
+    .srow-val{font-size:15px;font-weight:600;margin-top:1px}
+    .srow-badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+
+    /* 더블탭 힌트 — 리포트 시트 바로 위 중앙 */
+    .tap-inline-wrap{position:fixed;top:calc(42vh - 62px);left:50%;transform:translateX(-50%);z-index:6;display:flex;justify-content:center;opacity:0;transition:opacity .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+    .tap-inline-text{display:inline-block;text-align:center}
+    .tap-inline-wrap.show{opacity:1}
+    .tap-inline-wrap.dismissed,
+    .tap-inline-wrap.scrolled-away{opacity:0}
+    .tap-inline{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:400;color:rgba(255,255,255,.92);letter-spacing:-.15px;line-height:1.3;text-shadow:0 1px 3px rgba(0,0,0,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:.5px solid rgba(255,255,255,.18)}
+    .tap-inline iconify-icon{font-size:13px;opacity:.95;animation:tapBlink 1.6s ease-in-out infinite}
+    @keyframes tapBlink{0%,100%{opacity:.95}50%{opacity:.45}}
+    @media (prefers-reduced-motion:reduce){.tap-inline iconify-icon{animation:none}}
+
+    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(28,28,30,.88);color:#fff;padding:12px 24px;border-radius:999px;font-size:15px;font-weight:500;font-family:var(--font);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:300;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AI 오브 (영구 배경) -->
+  <div class="ai-orb-bg" id="aiOrbBg"><div class="ai-orb" id="aiOrb"></div></div>
+
+  <!-- 인트로 텍스트 (시퀀스 끝나면 페이드아웃) -->
+  <div class="intro" id="intro">
+    <div class="intro-msg" id="introMsg"></div>
+    <button class="intro-skip" onclick="skipIntro()">SKIP</button>
+  </div>
+
+  <!-- SVG 유리 굴절 필터 — 네비바용 -->
+  <svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+    <defs>
+      <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+        <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+        <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+        <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+        <feGaussianBlur in="d2" stdDeviation="2.5"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="bg"><div class="g1"></div><div class="g2"></div></div>
+  <div class="grain"></div>
+
+
+  <!-- ═══ AI 채팅 — 고정 배경 ═══ -->
+  <div class="chat-fixed intro-enter">
+    <nav class="top-nav">
+      <div class="logo">
+        <svg width="30" height="30" viewBox="0 0 512 512" fill="none"><g transform="translate(50,50) scale(0.163)"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></g></svg>
+        <span>하루안부</span>
+      </div>
+      <div class="top-nav-right">
+        <a href="g06-alert.html" class="nav-btn" aria-label="알림"><iconify-icon icon="fluent:alert-24-filled" style="font-size:20px;color:#2C7AFC"></iconify-icon><span class="notif-dot"></span></a>
+        <a href="g05-mypage.html" class="nav-btn" aria-label="프로필"><iconify-icon icon="fluent:person-24-filled" style="font-size:20px;color:#2C7AFC"></iconify-icon></a>
+      </div>
+    </nav>
+
+    <div class="greeting-zone">
+      <h1 class="greeting-main" id="greetingMain">오늘도 수고하셨어요,<br>정희님 잘 있어요</h1>
+      <p class="greeting-sub" id="greetingSub">저녁 일과도 잘 되고 있어요.</p>
+    </div>
+
+    <!-- 추천 프롬프트 -->
+    <div class="home-prompts">
+      <button class="prompt-p">정희님 오늘 어떠셨어요?</button>
+      <button class="prompt-s">이번 주 케어 내용 요약해줘</button>
+      <button class="prompt-s">간호사한테 메시지 남겨줘</button>
+    </div>
+
+  </div>
+
+  <!-- 일일 리포트 보기 버튼 — 채팅 모드 전용 -->
+  <button class="report-view-btn" id="reportViewBtn" aria-label="일일 리포트 보기">
+    <iconify-icon icon="fluent:arrow-up-24-filled"></iconify-icon>일일 리포트 보기
+  </button>
+
+  <!-- AI 입력바 — 채팅 모드에서 하단 고정 -->
+  <div class="chat-input-area hide" id="chatInputArea">
+    <div class="ai-input-inner">
+      <span class="ai-placeholder" id="aiPlaceholder">리포트에 대해 물어보세요...</span>
+      <button class="ai-mic-btn" aria-label="음성 입력"><iconify-icon icon="material-symbols:mic-rounded"></iconify-icon></button>
+      <button class="ai-send-btn" aria-label="전송"><iconify-icon icon="fluent:send-24-filled"></iconify-icon></button>
+    </div>
+  </div>
+
+  <!-- ═══ 리포트 시트 — 겹쳐 올라오는 카드 ═══ -->
+  <div class="app">
+    <div class="report-sheet intro-enter" id="reportSheet">
+      <div class="sheet-drag" id="sheetDrag"><div class="sheet-drag-pill"></div></div>
+
+      <div class="report-content">
+
+        <div class="section-header"><div class="section-title">일일 리포트</div><div class="section-date" id="reportDate"></div></div>
+
+        <!-- 오늘의 순간 — 간호사가 남긴 사진 + 코멘트 -->
+        <a class="moment-card" href="javascript:void(0)" onclick="toast('오늘의 순간 자세히 보기')" aria-label="오늘의 순간">
+          <div class="moment-photo"></div>
+          <div class="moment-body">
+            <div class="moment-quote">"오전 산책 때 햇빛이 좋아서 한참 머무르셨어요. 기분이 정말 좋아 보이셨어요."</div>
+            <div class="moment-meta">김미영 간호사 · 10:24</div>
+          </div>
+        </a>
+
+        <div class="grid">
+          <!-- Tier 1: 건강 상태 (투약 + 바이탈) -->
+          <div class="w" onclick="jwOpenSheet('pill')" style="position:relative;overflow:hidden;padding:0;min-height:180px">
+            <canvas id="pillWave" style="position:absolute;bottom:0;left:-4px;width:calc(100% + 8px);height:55%"></canvas>
+            <div style="position:relative;z-index:1;padding:18px">
+              <div class="w-head"><div class="w-title"><iconify-icon icon="tabler:pill-filled" style="color:#6EE7B7"></iconify-icon>투약</div></div>
+              <div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px">33<span style="font-size:18px;font-weight:600;opacity:.4">%</span></div>
+              <div style="font-size:12px;color:var(--t3)">1/3 복용 완료</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">다음 복용 18:00</div>
+            </div>
+          </div>
+
+          <div class="w pulse-w" onclick="jwOpenSheet('pulse')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="fluent:pulse-24-filled" style="color:#EF4444"></iconify-icon>맥박</div></div>
+            <div class="pulse-main">
+              <div class="pulse-num"><span class="n">72</span><span class="u">BPM</span></div>
+              <div class="pulse-sub">평균 근처 (±74)</div>
+            </div>
+          </div>
+
+          <!-- Tier 2: 오늘 컨디션 (기분 + 식사) -->
+          <div class="w" onclick="jwOpenSheet('mood')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="ph:smiley-fill" style="color:var(--blue)"></iconify-icon>기분</div></div>
+            <div style="font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:4px">87<span style="font-size:14px;font-weight:500;color:var(--t3)">점</span></div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px">최근 28일</div>
+            <div class="dot-grid" id="moodDots"></div>
+          </div>
+
+          <div class="w food-w" onclick="jwOpenSheet('food')">
+            <div class="food-overlay">
+              <div class="lbl"><iconify-icon icon="fluent:food-24-filled"></iconify-icon><span>오늘 저녁</span></div>
+              <div class="val">90% 드셨어요</div>
+            </div>
+          </div>
+
+          <!-- 수면 — full width, 타임라인 바 그래프 (22시~08시) -->
+          <div class="w grid-full" onclick="jwOpenSheet('sleep')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="ph:moon-fill" style="color:#2C7AFC"></iconify-icon>수면</div></div>
+            <div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px">7<span style="font-size:18px;font-weight:600;opacity:.4">시간 </span>32<span style="font-size:18px;font-weight:600;opacity:.4">분</span></div>
+            <div style="font-size:12px;color:var(--t3)">지난 밤 · 깨심 1회</div>
+            <div class="sleep-chart">
+              <div class="sleep-bars" id="sleepBars"></div>
+              <div class="sleep-ticks" id="sleepTicks"></div>
+              <div class="sleep-labels">
+                <span>22시</span><span>00시</span><span>02시</span><span>04시</span><span>06시</span><span>08시</span>
+              </div>
+            </div>
+            <div class="sleep-legend">
+              <span>깨어있음</span>
+              <div class="grad-bar"></div>
+              <span>깊은 수면</span>
+            </div>
+          </div>
+
+          <!-- 활동 — full width, 바 차트 -->
+          <div class="w grid-full" onclick="jwOpenSheet('activity')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="fluent:walk-24-filled" style="color:var(--amber)"></iconify-icon>활동</div><div class="w-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">+12% vs 지난주</div></div>
+            <div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px">58<span style="font-size:18px;font-weight:600;opacity:.4">%</span></div>
+            <div class="bar-chart" id="activityBars" style="display:flex;gap:2px;margin:12px 0 12px"></div>
+            <div style="font-size:12px;color:var(--t3)">산책 15분 · 체조 10분</div>
+          </div>
+
+          <!-- Tier 3: 일상 + 미래 (위생 + 일정) -->
+          <div class="w" onclick="jwOpenSheet('hygiene')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="fluent:drop-24-filled" style="color:#2DD4BF"></iconify-icon>위생</div></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 0"><div style="width:18px;height:18px;border-radius:5px;background:#2DD4BF;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0">✓</div><span style="font-size:12px;font-weight:600;flex:1">세면</span><span style="font-size:10px;color:var(--t3)">07:30</span></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 0"><div style="width:18px;height:18px;border-radius:5px;background:#2DD4BF;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0">✓</div><span style="font-size:12px;font-weight:600;flex:1">구강</span><span style="font-size:10px;color:var(--t3)">07:40</span></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 0"><div style="width:18px;height:18px;border-radius:5px;border:2px solid rgba(0,0,0,.1);flex-shrink:0"></div><span style="font-size:12px;font-weight:600;flex:1">목욕</span><span style="font-size:10px;color:var(--t3)">예정</span></div>
+          </div>
+
+          <div class="w" onclick="jwOpenSheet('schedule')">
+            <div class="w-head"><div class="w-title"><iconify-icon icon="fluent:calendar-24-filled" style="color:var(--t2)"></iconify-icon>일정</div><div class="w-badge" style="color:var(--t2);background:rgba(0,0,0,.05)">4건</div></div>
+            <div style="font-size:11px;color:var(--t3);margin-top:2px;margin-bottom:2px">다음 일정</div>
+            <div style="font-size:22px;font-weight:800;letter-spacing:-.8px;color:var(--blue);line-height:1.1">15:30</div>
+            <div style="font-size:13px;font-weight:600;margin-top:3px">인지 훈련</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:6px">이후 3건 남음</div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:8px"><div class="section-title">AI 인사이트</div></div>
+        <div class="insight-card" onclick="toast('AI에게 물어보는 중...')"><div class="insight-icon" style="background:rgba(245,158,11,.12)"><iconify-icon icon="fluent:food-24-filled" style="font-size:18px;color:var(--amber)"></iconify-icon></div><div class="insight-body"><div class="insight-title">점심 식사량이 줄었어요</div><div class="insight-desc">최근 3일간 점심 섭취율이 평균 65%로 감소했어요.</div><div class="insight-cta">AI에게 물어보기 →</div></div></div>
+        <div class="insight-card" onclick="toast('자세한 정보 확인')"><div class="insight-icon" style="background:rgba(44,122,252,.10)"><iconify-icon icon="fluent:sleep-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon></div><div class="insight-body"><div class="insight-title">수면 패턴이 안정적이에요</div><div class="insight-desc">이번 주 평균 수면 시간 7.5시간으로 개선되었어요.</div><div class="insight-cta">자세히 보기 →</div></div></div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭바 + AI FAB — v9.5 구조, v9 glass-warp 효과, 홈 로고 유지 -->
+  <div class="bottom-bar intro-enter">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab active" aria-label="홈"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab" aria-label="AI 가이드"><span class="tab-icon"><iconify-icon icon="ph:book-open-text-fill" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab" aria-label="소통"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab" aria-label="기록"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab" aria-label="마이"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <button class="ai-fab" id="aiFab" aria-label="AI와 대화하기">
+      <svg width="22" height="22" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </button>
+  </div>
+
+  <!-- 더블탭 힌트 — 리포트 시트 바로 위 -->
+  <div class="tap-inline-wrap" id="tapInline">
+    <span class="tap-inline">
+      <iconify-icon icon="fluent:tap-double-24-regular"></iconify-icon>
+      <span class="tap-inline-text">화면을 두 번 탭하면<br>AI와 대화할 수 있어요</span>
+    </span>
+  </div>
+
+  <!-- 바텀시트 -->
+  <div class="jw-overlay" id="jwOverlay" onclick="if(event.target===this)jwCloseSheet()">
+    <div class="jw-sheet" id="jwSheetContent"></div>
+  </div>
+  <div class="toast" id="toastEl"></div>
+
+  <script>
+    /* ── 인트로 시퀀스: 첫 방문에만 AI 브리핑 재생 ── */
+    (function(){
+      var STORAGE_KEY = 'haru_intro_seen_v1';
+      // 개발 모드: localhost / 127.0.0.1 / file:// 에서는 매번 인트로 재생
+      var DEV_MODE = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(location.hostname) || location.protocol === 'file:' || /^192\.168\./.test(location.hostname) || /^172\./.test(location.hostname);
+      var messages = [
+        "지욱님, 정희님은<br>오늘 잘 지내셨어요.",
+        "산책·식사·투약<br>모두 완료했어요.",
+        "편히 주무시고 계세요."
+      ];
+      var msgEl = document.getElementById('introMsg');
+      var intro = document.getElementById('intro');
+      var orbBg = document.getElementById('aiOrbBg');
+      var done = false;
+
+      function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+
+      function markSeen(){
+        try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e){}
+      }
+
+      function hasSeen(){
+        if (DEV_MODE) return false;
+        try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch(e){ return false; }
+      }
+
+      // 순차 페이즈: 상단 → 채팅바 등장 → 채팅바 사라짐 + 리포트 슬라이드업 → 탭바
+      async function stageHome(){
+        var chatInputArea = document.getElementById('chatInputArea');
+        // t=0: .chat-fixed (상단) 페이드인 시작 (CSS 1s)
+        await sleep(900);
+        // t=~900ms: 하단 채팅바 등장
+        if (chatInputArea) chatInputArea.classList.remove('hide');
+        await sleep(800);
+        // t=~1700ms: 채팅바 사라지고, 동시에 리포트 슬라이드업 시작 (CSS delay 1.6s)
+        if (chatInputArea) chatInputArea.classList.add('hide');
+        // 탭바 페이드인 끝날 때까지 대기 (delay 2.5s + duration 1.8s = 4.3s, 여유 포함)
+        await sleep(3200);
+        // 인트로 트랜지션 제거 — 이후 홈 사용 중엔 기본 .4s 등 빠른 트랜지션 사용
+        document.querySelectorAll('.intro-enter').forEach(function(el){
+          el.classList.remove('intro-enter');
+        });
+        // 코치마크 표시 (첫 방문 / DEV_MODE 매번)
+        await sleep(600);
+        if (window.showTapHint) window.showTapHint();
+      }
+
+      // 인트로 종료 경로에 따라 리포트 AI 코멘트 분기
+      // - skipped : 인트로 못 본 사람 → "풀 브리핑" (감정 + 팩트 + 액션 모두)
+      // - watched : 끝까지 본 사람/재방문 → "보강" (인트로에 없던 디테일 + 액션만)
+      var skippedByUser = false;
+      function applyCommentForMode(mode){
+        var card = document.querySelector('.ai-comment');
+        var el = document.getElementById('aiCommentText');
+        if (!card || !el) return;
+        if (mode === 'skipped') {
+          el.innerHTML = '예찬님, 정희님은 오늘 <b>안정적이셨어요</b>. 산책 25분 · 식사 3끼 · 아침 투약 모두 완료. 다만 <b>저녁 투약 확인</b>과 <b>점심 섭취량</b>은 내일 지켜봐 주세요.';
+          card.style.display = '';
+        } else {
+          // 인트로 끝까지 본 사람/재방문: 이미 감정+팩트 들었으니 요약 카드 숨김
+          card.style.display = 'none';
+        }
+      }
+
+      // 두 번째 이후 방문: 인트로 없이 바로 홈 + 오브는 피나레 위치에 고정
+      async function goStraightToHome(){
+        intro.classList.add('gone');
+        orbBg.classList.add('finale','dimmed');
+        document.body.classList.add('ready');
+        await stageHome();
+        applyCommentForMode('watched');
+      }
+
+      async function finaleAndEnd(){
+        msgEl.classList.remove('show');
+        orbBg.classList.add('finale');
+        await sleep(2000);
+        intro.classList.add('gone');
+        await sleep(400);
+        orbBg.classList.add('dimmed');
+        document.body.classList.add('ready');
+        markSeen();
+        await stageHome();
+        applyCommentForMode(skippedByUser ? 'skipped' : 'watched');
+      }
+
+      async function run(){
+        // 이미 봤으면 건너뛰기
+        if (hasSeen()) {
+          goStraightToHome();
+          return;
+        }
+        await sleep(400);
+        for (var i = 0; i < messages.length; i++){
+          if (done) return;
+          msgEl.innerHTML = messages[i];
+          msgEl.classList.add('show');
+          await sleep(2200);
+          msgEl.classList.remove('show');
+          await sleep(520);
+        }
+        await finaleAndEnd();
+      }
+
+      window.skipIntro = function(){
+        done = true;
+        skippedByUser = true;
+        markSeen();
+        finaleAndEnd();
+      };
+
+      // 개발용: 인트로 다시 보기
+      window.resetIntro = function(){
+        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+        location.reload();
+      };
+
+      if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', run);
+      } else {
+        run();
+      }
+    })();
+
+    /* 날짜 */
+    (function(){var now=new Date(),days=['일','월','화','수','목','금','토'];var el=document.getElementById('reportDate');if(el)el.textContent=(now.getMonth()+1)+'월 '+now.getDate()+'일 ('+days[now.getDay()]+')';})();
+
+    /* 시간대별 인삿말 */
+    (function(){var h=new Date().getHours(),m=document.getElementById('greetingMain'),s=document.getElementById('greetingSub');if(h>=5&&h<11){m.innerHTML='편안한 아침이에요,<br>정희님도 잘 계세요';s.innerHTML='아침 식사 잘 드셨어요, 안심하세요.';}else if(h>=11&&h<14){m.innerHTML='점심 잘 챙겨드렸어요,<br>안심하세요';s.innerHTML='오후 투약도 간호사님이 챙기고 있어요.';}else if(h>=14&&h<18){m.innerHTML='정희님 옆에서<br>꼼꼼히 챙기고 있어요';s.innerHTML='걱정 없이 맡겨두세요.';}else if(h>=18&&h<22){m.innerHTML='오늘도 수고하셨어요,<br>정희님 잘 있어요';s.innerHTML='저녁 일과도 잘 되고 있어요.';}else{m.innerHTML='편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요';s.innerHTML='오늘 일과 모두 잘 마무리됐어요.';}})();
+
+    function fillPrompt(text){var ph=document.getElementById('aiPlaceholder');ph.textContent=text;ph.style.color='rgba(28,28,30,.75)';ph.style.fontWeight='500';}
+
+    /* ── 시트가 화면 덮으면 뒤 글씨 페이드아웃 ── */
+    (function(){
+      var chatFixed = document.querySelector('.chat-fixed');
+      var sheet = document.getElementById('reportSheet');
+      var tapInline = document.getElementById('tapInline');
+      window.addEventListener('scroll', function(){
+        // 인트로 중이면 스크립트 건드리지 않음 (opacity 덮어쓰기 방지)
+        if (!document.body.classList.contains('ready')) return;
+        var top = sheet.getBoundingClientRect().top;
+        if (top > 80) { chatFixed.style.opacity = 1; }
+        else { chatFixed.style.opacity = Math.max(0, top / 80); }
+        // 리포트 시트가 힌트 위치 근처까지 올라오면 힌트 페이드아웃
+        if (tapInline) {
+          if (top < 340) tapInline.classList.add('scrolled-away');
+          else tapInline.classList.remove('scrolled-away');
+        }
+      }, {passive:true});
+    })();
+
+    /* ── 시트 드래그 ── */
+    (function(){
+      var sheet = document.getElementById('reportSheet');
+      var handle = document.getElementById('sheetDrag');
+      var tabbar = document.querySelector('.bottom-bar');
+      var chatInput = document.getElementById('chatInputArea');
+      var chatMode = false;
+      var startY = 0, dy = 0, dragging = false;
+
+      // 핸들 터치 → 시트 드래그
+      handle.addEventListener('touchstart', function(e) {
+        dragging = true;
+        startY = e.touches[0].clientY;
+        dy = 0;
+        sheet.classList.add('dragging');
+      });
+
+      handle.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        e.preventDefault();
+        dy = e.touches[0].clientY - startY;
+        if (dy < 0) dy = dy * 0.3; // 위로는 저항
+        sheet.style.transform = 'translateY(' + dy + 'px)';
+        var r = Math.min(1, Math.max(0, dy / 200));
+        tabbar.style.opacity = 1 - r;
+      }, {passive:false});
+
+      handle.addEventListener('touchend', function() {
+        if (!dragging) return;
+        dragging = false;
+        tabbar.style.opacity = '';
+        sheet.classList.remove('dragging');
+
+        if (dy > 100) {
+          enterChat();
+        } else {
+          sheet.style.transform = '';
+        }
+      });
+
+      var reportViewBtn = document.getElementById('reportViewBtn');
+
+      function enterChat() {
+        chatMode = true;
+        sheet.classList.remove('dragging');
+        sheet.style.transform = 'translateY(100vh)';
+        tabbar.classList.add('hide');
+        chatInput.classList.remove('hide');
+        if (reportViewBtn) reportViewBtn.classList.add('show');
+        document.body.classList.add('chat-mode');
+        document.body.style.overflow = 'hidden';
+        window.scrollTo(0, 0);
+        if (window.dismissTapHint) window.dismissTapHint();
+      }
+
+      function exitChat() {
+        chatMode = false;
+        sheet.style.transform = '';
+        tabbar.classList.remove('hide');
+        chatInput.classList.add('hide');
+        if (reportViewBtn) reportViewBtn.classList.remove('show');
+        document.body.classList.remove('chat-mode');
+        document.body.style.overflow = '';
+        if (window.showTapHint) window.showTapHint();
+      }
+
+      if (reportViewBtn) {
+        reportViewBtn.addEventListener('click', function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          exitChat();
+        });
+      }
+
+      // AI FAB: 홈 화면에선 별도 페이지 이동 대신 인앱 채팅 모드 진입
+      var aiFab = document.getElementById('aiFab');
+      if (aiFab) {
+        aiFab.addEventListener('click', function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          enterChat();
+        });
+      }
+
+      // 더블탭 인라인 힌트 — 홈에서 상시 표시 (채팅 모드일 때만 숨김)
+      var hintEl = document.getElementById('tapInline');
+      window.showTapHint = function(){
+        if (!hintEl || chatMode) return;
+        hintEl.classList.remove('dismissed');
+        hintEl.classList.add('show');
+      };
+      window.dismissTapHint = function(){
+        if (!hintEl) return;
+        hintEl.classList.add('dismissed');
+      };
+
+      // 더블탭 + 스와이프 — 전부 document에서 처리
+      var lastTap = 0, swipeStartY = 0;
+
+      document.addEventListener('touchstart', function(e) {
+        swipeStartY = e.touches[0].clientY;
+      }, {passive:true});
+
+      document.addEventListener('touchend', function(e) {
+        var y = e.changedTouches[0].clientY;
+        var dy = y - swipeStartY;
+
+        // 채팅 모드 → 위로 스와이프 복귀
+        if (chatMode) {
+          if (dy < -50) exitChat();
+          return;
+        }
+
+        // 리포트 모드 → 시트 위 하늘색 영역 더블탭
+        // 프롬프트/버튼/입력창/탭바/AI FAB 직접 탭은 무시
+        if (e.target.closest('.ai-prompt-item') || e.target.closest('.ai-input-inner') || e.target.closest('.nav-btn') || e.target.closest('.report-sheet') || e.target.closest('.bottom-bar')) return;
+
+        var now = Date.now();
+        if (now - lastTap < 350) {
+          e.preventDefault();
+          enterChat();
+          lastTap = 0;
+          return;
+        }
+        lastTap = now;
+      });
+    })();
+
+    /* 바텀시트 */
+    var JW_SHEETS={
+      pill:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#FBBF24,#F59E0B)"><iconify-icon icon="tabler:pill-filled"></iconify-icon></div><div><div class="sheet-ttl">투약 상세</div><div class="sheet-sub">3회 중 1회 완료</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:syringe-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">아침 투약</div><div class="srow-val">혈압약 · 당뇨약 — 08:20</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="material-symbols:medical-services-rounded" style="color:var(--t3)"></iconify-icon></div><div class="srow-text"><div class="srow-label">점심 투약</div><div class="srow-val">소화제 — 12:30</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">예정</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="ph:heartbeat-fill" style="color:var(--amber)"></iconify-icon></div><div class="srow-text"><div class="srow-label">저녁 투약</div><div class="srow-val">관절약 · 영양제 — 18:00</div></div><div class="srow-badge" style="color:#92400E;background:rgba(245,158,11,.12)">확인 필요</div></div>',
+      food:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#34D399,#059669)"><iconify-icon icon="fluent:food-24-filled"></iconify-icon></div><div><div class="sheet-ttl">식사 상세</div><div class="sheet-sub">3끼 모두 완료</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">아침 08:10</div><div class="srow-val">죽 + 반찬 2종</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">양호</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">점심 12:05</div><div class="srow-val">밥 + 국 + 반찬 3종 — 80%</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">양호</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">저녁 18:30</div><div class="srow-val">밥 + 된장찌개</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">양호</div></div>',
+      mood:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="ph:smiley-fill"></iconify-icon></div><div><div class="sheet-ttl">기분 상세</div><div class="sheet-sub">전반적으로 밝은 상태</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="ph:smiley-fill" style="color:var(--green)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오전</div><div class="srow-val">밝고 활기찬 상태</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">좋음</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="ph:smiley-meh-fill" style="color:var(--blue-l)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오후</div><div class="srow-val">점심 후 안정적</div></div><div class="srow-badge" style="color:var(--blue-d);background:rgba(44,122,252,.1)">보통</div></div>',
+      hygiene:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="fluent:drop-24-filled"></iconify-icon></div><div><div class="sheet-ttl">위생 상세</div><div class="sheet-sub">3건 중 2건 완료</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">세면</div><div class="srow-val">07:30 완료</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">구강</div><div class="srow-val">07:40 완료</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:rgba(44,122,252,.3)"></iconify-icon></div><div class="srow-text"><div class="srow-label">목욕</div><div class="srow-val">오후 예정</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">예정</div></div>',
+      activity:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--amber),#D97706)"><iconify-icon icon="fluent:walk-24-filled"></iconify-icon></div><div><div class="sheet-ttl">활동 상세</div><div class="sheet-sub">오전 활동 완료</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:walk-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오전 산책</div><div class="srow-val">정원 2바퀴 · 15분</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="ph:barbell-fill" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">재활 체조</div><div class="srow-val">스트레칭 + 근력 · 10분</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>',
+      schedule:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="fluent:calendar-24-filled"></iconify-icon></div><div><div class="sheet-ttl">오늘 일정</div><div class="sheet-sub">4건 · 2건 완료</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">08:00</div><div class="srow-val">아침 식사</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:brain-circuit-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">15:30</div><div class="srow-val">인지 훈련</div></div><div class="srow-badge" style="color:var(--blue);background:rgba(44,122,252,.1)">진행중</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--t3)"></iconify-icon></div><div class="srow-text"><div class="srow-label">18:00</div><div class="srow-val">저녁 식사</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">예정</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="tabler:pill-filled" style="color:var(--t3)"></iconify-icon></div><div class="srow-text"><div class="srow-label">18:30</div><div class="srow-val">저녁 투약</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">예정</div></div>',
+      sos:'<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#EF4444,#B91C1C)"><iconify-icon icon="fluent:alert-24-filled"></iconify-icon></div><div><div class="sheet-ttl">긴급 알림</div><div class="sheet-sub">302호 · 2분 전</div></div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:alert-24-filled" style="color:var(--red)"></iconify-icon></div><div class="srow-text"><div class="srow-label">상황</div><div class="srow-val">화장실 이동 중 낙상 감지</div></div><div class="srow-badge" style="color:#B91C1C;background:rgba(239,68,68,.1)">긴급</div></div><div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:person-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">대응</div><div class="srow-val">김서연 간호사 현장 확인 중</div></div><div class="srow-badge" style="color:var(--amber);background:rgba(245,158,11,.1)">확인중</div></div><div style="display:flex;gap:8px;margin-top:16px"><a href="tel:010-1234-5678" style="flex:1;padding:14px;border-radius:14px;background:var(--blue);color:#fff;text-align:center;font-size:14px;font-weight:700;text-decoration:none">담당 간호사 전화</a><a href="tel:119" style="flex:1;padding:14px;border-radius:14px;background:var(--red);color:#fff;text-align:center;font-size:14px;font-weight:700;text-decoration:none">119 연결</a></div>'
+    };
+    function jwOpenSheet(t){document.getElementById('jwSheetContent').innerHTML=JW_SHEETS[t];document.getElementById('jwOverlay').classList.add('show');}
+    function jwCloseSheet(){document.getElementById('jwOverlay').classList.remove('show');}
+    function toast(msg){var t=document.getElementById('toastEl');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+
+    /* 활동 바 차트 — 24칸 중 58% (14칸) */
+    (function(){var el=document.getElementById('activityBars');if(!el)return;var total=24,filled=14,html='';for(var i=0;i<total;i++){html+='<div style="flex:1;height:22px;border-radius:3px;background:'+(i<filled?'var(--amber)':'rgba(0,0,0,.06)')+'"></div>';}el.innerHTML=html;})();
+
+    /* 기분 점 — 최근 28일 점수에 따른 블루 농도 */
+    (function(){var el=document.getElementById('moodDots');if(!el)return;
+      var scores=[65,70,72,55,60,40,45, 85,80,75,70,58,45,35, 92,90,82,72,62,50,40, 95,95,88,80,68,45,25];
+      var color=function(s){return s>=90?'#1D6AF2':s>=80?'#2C7AFC':s>=70?'#3B82F6':s>=60?'#60A5FA':s>=50?'#93C5FD':s>=40?'#BFDBFE':s>=30?'#DBEAFE':'#EFF6FF';};
+      var html='';for(var i=0;i<scores.length;i++){html+='<div class="d" style="background:'+color(scores[i])+'"></div>';}el.innerHTML=html;
+    })();
+
+    /* 수면 타임라인 — 22시~08시, 20바(30분 단위), 레퍼런스 스타일 */
+    (function(){var el=document.getElementById('sleepBars');if(!el)return;
+      /* 산(山) 형태 — 하나의 피크 중심으로 완만하게 상승·하강 */
+      var heights=[4,8,14,22,34,50,66,80,90,98,100,94,84,72,58,42,28,18,10,5];
+      var minH=4,maxH=100;
+      /* 블루 모노 팔레트 — 연한 블루(짧은 바) → 진한 블루(높은 바), hue 217 고정 */
+      function colorFor(h){
+        var t=(h-minH)/(maxH-minH);
+        var lgt=88-38*t;      /* 88% → 50% */
+        var sat=85+10*t;      /* 85% → 95% */
+        return 'hsl(217,'+sat.toFixed(0)+'%,'+lgt.toFixed(0)+'%)';
+      }
+      var html='';for(var i=0;i<heights.length;i++){html+='<div class="sb" style="height:'+heights[i]+'px;background:'+colorFor(heights[i])+'"></div>';}
+      el.innerHTML=html;
+    })();
+    /* 맥박 위젯은 타이포 전용 — JS/canvas 불필요 */
+
+    /* 수면 틱 — 20개, 매 4번째(2시간마다) major */
+    (function(){var el=document.getElementById('sleepTicks');if(!el)return;
+      var html='';for(var i=0;i<20;i++){html+='<div class="tk'+(i%4===0?' major':'')+'"></div>';}
+      el.innerHTML=html;
+    })();
+
+    /* 투약 파도 */
+    (function(){var c=document.getElementById('pillWave');if(!c)return;var ctx=c.getContext('2d');var cw=0,ch=0;function resize(){cw=c.offsetWidth;ch=c.offsetHeight;c.width=cw;c.height=ch;}resize();window.addEventListener('resize',resize);var t=0,visible=false,last=0,rafId=0;var io=new IntersectionObserver(function(es){visible=es[0].isIntersecting;if(visible&&!rafId)rafId=requestAnimationFrame(draw);},{threshold:0.01});io.observe(c);function draw(now){rafId=0;if(!visible)return;if(now-last<66){rafId=requestAnimationFrame(draw);return;}last=now;t+=0.04;ctx.clearRect(0,0,cw,ch);ctx.beginPath();ctx.moveTo(0,ch);for(var x=0;x<=cw;x+=6){var y=Math.sin(x*0.03+t*1.8+3)*8+Math.sin(x*0.06+t*0.6)*4+34;ctx.lineTo(x,y);}ctx.lineTo(cw,ch);ctx.closePath();ctx.fillStyle='#6EE7B7';ctx.fill();rafId=requestAnimationFrame(draw);}})();
+  </script>
+</body>
+</html>

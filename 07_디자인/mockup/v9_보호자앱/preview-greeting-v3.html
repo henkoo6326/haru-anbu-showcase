@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>홈 인사말 v3 · 애플 날씨 수준 밤하늘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#6FA9FF;--t1:#1C1C1E}
+  body{font-family:'Pretendard Variable',-apple-system,sans-serif;background:#0a0a12;min-height:100vh;display:grid;place-items:center;padding:30px;overflow-x:hidden}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .title{font-size:14px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.5px}
+  .phone{width:390px;height:820px;border-radius:46px;overflow:hidden;position:relative;box-shadow:0 40px 120px rgba(80,100,200,.25),0 0 0 2px rgba(255,255,255,.06);isolation:isolate}
+
+  /* ===== 0. 하늘 그라디언트 (깊은 밤 + 수평선 라이트폴루션) ===== */
+  .sky{position:absolute;inset:0;background:
+    radial-gradient(ellipse 100% 60% at 50% 120%,#6d5a8e 0%,#4a3d6b 18%,transparent 40%),
+    radial-gradient(ellipse 80% 40% at 75% 90%,rgba(210,140,90,.25) 0%,transparent 50%),
+    linear-gradient(180deg,#060818 0%,#0b1030 15%,#131b45 35%,#1e2856 55%,#332d5c 75%,#3d2d52 90%,#2a1e3e 100%);
+  }
+
+  /* ===== 1. 오로라 힌트 (아주 은은) ===== */
+  .aurora{position:absolute;top:-50px;left:-20%;right:-20%;height:280px;pointer-events:none;opacity:.35}
+  .aurora::before,.aurora::after{content:'';position:absolute;inset:0;border-radius:50%;filter:blur(60px)}
+  .aurora::before{background:radial-gradient(ellipse,rgba(100,220,190,.5) 0%,transparent 60%);transform:translateX(-10%);animation:auroraA 20s ease-in-out infinite}
+  .aurora::after{background:radial-gradient(ellipse,rgba(140,100,220,.45) 0%,transparent 60%);transform:translateX(15%);animation:auroraB 24s ease-in-out infinite}
+  @keyframes auroraA{0%,100%{transform:translateX(-15%) scaleY(1)}50%{transform:translateX(5%) scaleY(1.15)}}
+  @keyframes auroraB{0%,100%{transform:translateX(15%) scaleY(1)}50%{transform:translateX(-5%) scaleY(1.2)}}
+
+  /* ===== 2. 별 레이어 (3 depths) ===== */
+  .starfield{position:absolute;inset:0;pointer-events:none}
+  .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle linear infinite}
+  .star.xs{width:1px;height:1px;opacity:.55}
+  .star.sm{width:1.5px;height:1.5px;opacity:.75;box-shadow:0 0 2px rgba(255,255,255,.6)}
+  .star.md{width:2px;height:2px;opacity:.9;box-shadow:0 0 3px rgba(200,220,255,.9),0 0 6px rgba(200,220,255,.4)}
+  .star.lg{width:2.5px;height:2.5px;opacity:1;box-shadow:0 0 4px #fff,0 0 10px rgba(180,210,255,.6),0 0 18px rgba(180,210,255,.3)}
+  @keyframes twinkle{0%,100%{opacity:var(--op,1);transform:scale(1)}50%{opacity:calc(var(--op,1) * .35);transform:scale(.85)}}
+
+  /* 스파클 플레어 (큰 별 몇 개만) */
+  .star.lg::before,.star.lg::after{content:'';position:absolute;top:50%;left:50%;background:linear-gradient(to right,transparent,rgba(255,255,255,.9),transparent);transform:translate(-50%,-50%)}
+  .star.lg::before{width:14px;height:.8px}
+  .star.lg::after{width:.8px;height:14px}
+
+  /* ===== 3. 슈팅스타 ===== */
+  .shooting{position:absolute;top:15%;left:-10%;width:120px;height:1.5px;background:linear-gradient(to right,transparent,rgba(255,255,255,.95),rgba(180,210,255,.5));transform:rotate(20deg);opacity:0;animation:shoot 18s linear infinite;animation-delay:4s;border-radius:50%;filter:drop-shadow(0 0 4px rgba(255,255,255,.8))}
+  @keyframes shoot{0%,88%{opacity:0;transform:translate(0,0) rotate(20deg)}90%{opacity:1}100%{opacity:0;transform:translate(520px,200px) rotate(20deg)}}
+  .shooting.b{top:30%;animation-delay:11s;animation-duration:22s}
+
+  /* ===== 4. 구름 (3 레이어 패럴럭스) ===== */
+  .clouds{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .cloud{position:absolute;border-radius:50%;filter:blur(18px);opacity:.16;background:radial-gradient(ellipse,#b8c8e8 0%,rgba(180,200,230,.7) 40%,transparent 80%)}
+  .cloud.back{width:260px;height:80px;top:18%;animation:driftBack 140s linear infinite}
+  .cloud.back.b{top:8%;animation-delay:-70s;opacity:.1}
+  .cloud.mid{width:200px;height:65px;top:32%;opacity:.19;filter:blur(14px);animation:driftMid 90s linear infinite}
+  .cloud.mid.b{top:48%;animation-delay:-45s}
+  .cloud.front{width:180px;height:55px;top:62%;opacity:.22;filter:blur(12px);animation:driftFront 60s linear infinite}
+  @keyframes driftBack{0%{transform:translateX(-30%)}100%{transform:translateX(160%)}}
+  @keyframes driftMid{0%{transform:translateX(160%)}100%{transform:translateX(-30%)}}
+  @keyframes driftFront{0%{transform:translateX(-30%)}100%{transform:translateX(160%)}}
+
+  /* ===== 5. 달 (실사 그라디언트 + 할로 + 크레이터) ===== */
+  .moon-wrap{position:absolute;top:92px;right:54px;width:78px;height:78px;animation:moonFloat 16s ease-in-out infinite}
+  @keyframes moonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .moon-halo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(255,230,180,.35) 0%,rgba(255,210,140,.15) 25%,rgba(255,200,120,.05) 50%,transparent 70%);pointer-events:none;animation:haloPulse 6s ease-in-out infinite}
+  @keyframes haloPulse{0%,100%{opacity:.9}50%{opacity:1.1}}
+  .moon{position:absolute;inset:0;border-radius:50%;background:
+    radial-gradient(circle at 30% 28%,#fffaed 0%,#fff4d9 22%,#f5dfa8 55%,#d9b875 90%,#a88a4e 100%);
+    box-shadow:
+      inset -6px -5px 12px rgba(100,70,20,.35),
+      inset 4px 3px 8px rgba(255,255,220,.5),
+      0 0 20px rgba(255,220,150,.4),
+      0 0 40px rgba(255,210,130,.2);
+    overflow:hidden}
+  .crater{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(100,70,20,.22),rgba(120,90,40,.1))}
+  .crater.a{width:14px;height:14px;top:52%;left:30%}
+  .crater.b{width:8px;height:8px;top:28%;left:60%}
+  .crater.c{width:10px;height:10px;top:68%;left:62%}
+  .crater.d{width:5px;height:5px;top:20%;left:35%}
+  .crater.e{width:6px;height:6px;top:42%;left:72%}
+
+  /* ===== 6. 안개 레이어 (아주 옅게) ===== */
+  .mist{position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(180,180,220,.08) 0%,transparent 100%);pointer-events:none}
+
+  /* ===== 7. 수평선 글로우 (도시 불빛) ===== */
+  .horizon-glow{position:absolute;bottom:0;left:0;right:0;height:180px;background:
+    radial-gradient(ellipse 60% 100% at 70% 100%,rgba(255,180,120,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 100% at 20% 100%,rgba(120,150,220,.15) 0%,transparent 70%);
+    pointer-events:none;mix-blend-mode:screen}
+
+  /* ===== 8. 노이즈 텍스처 ===== */
+  .noise{position:absolute;inset:0;pointer-events:none;opacity:.04;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+
+  /* ========================= UI 레이어 ========================= */
+  .topbar{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:22px 22px 0}
+  .logo{display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:15px;letter-spacing:-.3px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+  .logo-mark{width:22px;height:22px;background:linear-gradient(135deg,#6FA9FF,#2C7AFC);border-radius:6px;display:grid;place-items:center;box-shadow:0 4px 12px rgba(44,122,252,.4)}
+  .logo-mark::before{content:'';width:10px;height:10px;border:2px solid #fff;border-radius:3px;transform:rotate(45deg)}
+  .icons{display:flex;gap:8px}
+  .nav-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:rgba(255,255,255,.85);position:relative;cursor:pointer;transition:transform .15s}
+  .nav-btn:active{transform:scale(.94)}
+  .dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:#FF5555;box-shadow:0 0 8px rgba(255,90,90,.8);border:1.5px solid rgba(10,14,40,.7)}
+
+  .greet-wrap{position:relative;z-index:10;padding:36px 24px 0;color:#fff}
+  .greet-eye{font-size:12px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .greet-eye::before{content:'';width:24px;height:1px;background:rgba(255,255,255,.4)}
+  .greet-main{font-size:30px;font-weight:800;line-height:1.2;letter-spacing:-1px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+  .greet-accent{background:linear-gradient(135deg,#ffd89b 0%,#ffb56b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,200,140,.3))}
+  .greet-sub{font-size:14px;color:rgba(255,255,255,.68);margin-top:10px;line-height:1.5;font-weight:400;max-width:280px}
+
+  .snap{position:absolute;bottom:28px;left:20px;right:20px;z-index:10;display:flex;flex-direction:column;gap:10px}
+  .snap-item{display:flex;align-items:center;gap:13px;padding:14px 16px;background:rgba(255,255,255,.1);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .15s}
+  .snap-item:active{transform:scale(.985)}
+  .snap-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.12);color:#fff}
+  .snap-ic.morning{background:linear-gradient(135deg,rgba(255,210,140,.3),rgba(255,170,90,.2));color:#ffd89b}
+  .snap-ic.meal{background:linear-gradient(135deg,rgba(140,230,180,.3),rgba(80,200,150,.2));color:#9be5c3}
+  .snap-ic.night{background:linear-gradient(135deg,rgba(160,180,255,.3),rgba(110,150,250,.2));color:#c3d4ff}
+  .snap-body{flex:1;min-width:0;color:#fff}
+  .snap-head{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+  .snap-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
+  .snap-val{font-size:13px;font-weight:700;color:#ffd89b;margin-left:auto}
+  .snap-val.good{color:#9be5c3}
+  .snap-val.ok{color:#c3d4ff}
+  .snap-note{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.35}
+
+  .caption{font-size:11.5px;color:rgba(255,255,255,.5);max-width:380px;text-align:center;line-height:1.55}
+
+  @media (prefers-reduced-motion: reduce){
+    .star,.cloud,.moon-wrap,.aurora::before,.aurora::after,.shooting,.moon-halo{animation:none}
+  }
+</style></head><body>
+<div class="stage">
+  <div class="title">홈 인사말 · 방향 1 극한 버전 · 애플 날씨 스타일 밤하늘</div>
+  <div class="phone">
+    <!-- 배경 레이어 -->
+    <div class="sky"></div>
+    <div class="aurora"></div>
+    <div class="starfield" id="stars"></div>
+    <div class="shooting"></div>
+    <div class="shooting b"></div>
+    <div class="clouds">
+      <div class="cloud back"></div>
+      <div class="cloud back b"></div>
+      <div class="cloud mid"></div>
+      <div class="cloud mid b"></div>
+      <div class="cloud front"></div>
+    </div>
+    <div class="moon-wrap">
+      <div class="moon-halo"></div>
+      <div class="moon">
+        <div class="crater a"></div>
+        <div class="crater b"></div>
+        <div class="crater c"></div>
+        <div class="crater d"></div>
+        <div class="crater e"></div>
+      </div>
+    </div>
+    <div class="horizon-glow"></div>
+    <div class="mist"></div>
+    <div class="noise"></div>
+
+    <!-- UI 레이어 -->
+    <div class="topbar">
+      <div class="logo"><span class="logo-mark"></span>하루안부</div>
+      <div class="icons">
+        <div class="nav-btn"><span class="iconify" data-icon="fluent:alert-24-regular" style="font-size:19px"></span><span class="dot"></span></div>
+        <div class="nav-btn"><span class="iconify" data-icon="fluent:person-24-filled" style="font-size:19px"></span></div>
+      </div>
+    </div>
+
+    <div class="greet-wrap">
+      <div class="greet-eye">04.17 · FRI · 22:14</div>
+      <h1 class="greet-main">편안한 밤이에요,<br><span class="greet-accent">예찬님</span>.</h1>
+      <p class="greet-sub">정희님은 저녁 투약까지 모두 마치시고,<br>지금은 편히 주무시고 계세요.</p>
+    </div>
+
+    <div class="snap">
+      <div class="snap-item">
+        <div class="snap-ic morning"><span class="iconify" data-icon="fluent:weather-sunny-24-filled" style="font-size:20px"></span></div>
+        <div class="snap-body">
+          <div class="snap-head"><span class="snap-title">오전 산책</span><span class="snap-val">15분</span></div>
+          <div class="snap-note">햇빛이 좋아 오래 머무셨어요</div>
+        </div>
+      </div>
+      <div class="snap-item">
+        <div class="snap-ic meal"><span class="iconify" data-icon="fluent:food-24-filled" style="font-size:20px"></span></div>
+        <div class="snap-body">
+          <div class="snap-head"><span class="snap-title">저녁 식사</span><span class="snap-val good">90%</span></div>
+          <div class="snap-note">평소보다 잘 드셨어요</div>
+        </div>
+      </div>
+      <div class="snap-item">
+        <div class="snap-ic night"><span class="iconify" data-icon="fluent:pill-24-filled" style="font-size:20px"></span></div>
+        <div class="snap-body">
+          <div class="snap-head"><span class="snap-title">저녁 투약</span><span class="snap-val ok">완료</span></div>
+          <div class="snap-note">편히 주무시고 계세요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">별 120개 · 큰별 스파클 · 달 실사 그라디언트 + 할로 · 구름 3레이어 패럴럭스 · 오로라 힌트 · 슈팅스타 · 수평선 도시 불빛 · 노이즈 그레인 · 안개 레이어 · 글래스 스냅샷 카드</div>
+</div>
+
+<script>
+  // 별 랜덤 배치
+  (function(){
+    var field = document.getElementById('stars');
+    var sizes = ['xs','xs','xs','xs','xs','xs','xs','sm','sm','sm','md'];
+    var total = 120;
+    for(var i=0;i<total;i++){
+      var s = document.createElement('div');
+      var size = sizes[Math.floor(Math.random()*sizes.length)];
+      s.className = 'star ' + size;
+      s.style.top = (Math.random()*88) + '%';
+      s.style.left = (Math.random()*100) + '%';
+      var op = 0.45 + Math.random()*0.55;
+      s.style.setProperty('--op', op);
+      s.style.animationDuration = (2 + Math.random()*5) + 's';
+      s.style.animationDelay = (Math.random()*6) + 's';
+      field.appendChild(s);
+    }
+    // 밝은 별 4개 (스파클)
+    for(var j=0;j<4;j++){
+      var lg = document.createElement('div');
+      lg.className = 'star lg';
+      lg.style.top = (5 + Math.random()*55) + '%';
+      lg.style.left = (8 + Math.random()*84) + '%';
+      lg.style.animationDuration = (3 + Math.random()*3) + 's';
+      lg.style.animationDelay = (Math.random()*4) + 's';
+      field.appendChild(lg);
+    }
+  })();
+</script>
+</body></html>

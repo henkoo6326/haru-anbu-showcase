@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#EEF3FB">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 채팅</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --red:#EF4444;--red-d:#DC2626;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --glass:rgba(255,255,255,.75);--glass-b:rgba(0,0,0,.05);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#EEF3FB;overflow:hidden}
+    .app{max-width:430px;height:100%;margin:0 auto;display:flex;flex-direction:column;position:relative}
+
+    /* ═══ 배경 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+
+    /* ═══ 헤더 — 표준(대화 특화) ═══ */
+    .header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .btn-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;color:var(--t1);transition:transform .1s}
+    .btn-back:active{transform:scale(.93)}
+    .ai-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2C7AFC,#1D6AF2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(44,122,252,.25)}
+    .ai-info{flex:1}
+    .ai-name{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
+    .ai-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+    .ai-sub{font-size:11px;color:var(--t3);margin-top:1px}
+    .header-actions{display:flex;gap:6px}
+    .header-btn,.nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .header-btn:active,.nav-btn:active{transform:scale(.93)}
+    .header-btn iconify-icon,.nav-btn iconify-icon{font-size:18px;color:var(--blue)}
+
+    /* ═══ 모드 칩 바 ═══ */
+    .mode-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;flex-shrink:0;position:relative;z-index:1;scrollbar-width:none;-ms-overflow-style:none}
+    .mode-bar::-webkit-scrollbar{display:none}
+    .chip{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:all .15s;border:1px solid var(--glass-b)}
+    .chip:active{transform:scale(.95)}
+    .chip-off{background:var(--glass);color:var(--t1)}
+    .chip-on{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 10px rgba(44,122,252,.3)}
+    .chip-danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:var(--red-d)}
+    .chip iconify-icon{font-size:14px}
+
+    /* ═══ 메시지 영역 ═══ */
+    .messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;position:relative;z-index:1;padding-bottom:160px}
+    .messages::-webkit-scrollbar{display:none}
+
+    .date-divider{text-align:center;font-size:11px;color:var(--t3);padding:4px 0}
+
+    .msg{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px;max-width:85%}
+    .msg.in{align-self:flex-start}
+    .msg.out{align-self:flex-end;flex-direction:row-reverse}
+
+    .msg-sender{font-size:11px;color:var(--t3);margin-bottom:2px;padding-left:2px;width:100%;display:flex;align-items:center;gap:5px}
+    .sender-icon{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#2C7AFC,#1D6AF2);display:flex;align-items:center;justify-content:center}
+
+    .bubble{padding:12px 16px;font-size:15px;line-height:1.5;word-break:break-word;max-width:100%}
+    .msg.in .bubble{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px 18px 18px 4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .msg.out .bubble{background:var(--blue);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:0 2px 8px rgba(44,122,252,.2)}
+    .msg-time{font-size:10px;color:var(--t3);align-self:flex-end;flex-shrink:0;padding-bottom:4px}
+    .msg-read{font-size:10px;color:var(--blue);width:100%;text-align:right}
+
+    /* 모드 태그 */
+    .mode-tag{font-size:10px;font-weight:700;color:var(--blue);background:rgba(44,122,252,.08);border-radius:999px;padding:2px 10px;width:fit-content;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+    .mode-tag iconify-icon{font-size:12px}
+
+    /* 액션 카드 */
+    .action-card{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px;padding:14px;max-width:85%;align-self:flex-start;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .action-title{font-size:13px;font-weight:700;margin-bottom:10px}
+    .action-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 16px;border-radius:14px;border:none;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:transform .12s;text-decoration:none}
+    .action-btn:active{transform:scale(.96)}
+    .action-btn-primary{background:var(--blue);color:#fff;margin-bottom:8px;box-shadow:0 2px 8px rgba(44,122,252,.25)}
+    .action-btn-danger{background:rgba(239,68,68,.08);color:var(--red-d);border:1px solid rgba(239,68,68,.15)}
+    .action-btn iconify-icon{font-size:16px}
+
+    /* ═══ 빠른 질문 ═══ */
+    .quick-q{display:flex;gap:6px;flex-wrap:wrap;max-width:85%;align-self:flex-start;margin-top:-4px}
+    .qq{padding:8px 14px;border-radius:14px;font-size:12px;font-weight:500;background:var(--glass);border:1px solid rgba(44,122,252,.12);color:var(--blue-d);cursor:pointer;transition:all .15s}
+    .qq:active{transform:scale(.96);background:rgba(44,122,252,.08)}
+
+    /* ═══ 입력바 — 홈 채팅바와 동일 ═══ */
+    .input-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:370px;z-index:41;display:flex;align-items:center;gap:4px;padding:8px 10px 8px 22px;border-radius:999px;background:#fff;border:0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .input-field{flex:1;height:38px;border:none;font-family:var(--font);font-size:15px;outline:none;background:transparent;color:var(--t1);padding:0}
+    .input-field::placeholder{color:rgba(28,28,30,.4)}
+    .input-mic{width:38px;height:38px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:transform .12s}
+    .input-mic:active{transform:scale(.9)}
+    .input-mic iconify-icon{font-size:22px;color:var(--t2)}
+  </style>
+</head>
+<body>
+
+  <!-- 배경 -->
+  <div class="bg">
+    <svg class="bg-logo" viewBox="0 0 2526 2526" fill="none">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+      <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/>
+    </svg>
+  </div>
+
+  <div class="app">
+
+    <!-- ═══ 헤더 ═══ -->
+    <div class="header">
+      <a href="g03-sotong.html" class="btn-back" aria-label="뒤로">
+        <iconify-icon icon="fluent:chevron-left-24-filled" style="font-size:18px"></iconify-icon>
+      </a>
+      <div class="ai-avatar">
+        <svg width="18" height="18" viewBox="0 0 2526 2526" fill="white">
+          <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+          <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/>
+        </svg>
+      </div>
+      <div class="ai-info">
+        <div class="ai-name">하루 AI <span class="ai-dot"></span></div>
+        <div class="ai-sub">케어 전문 AI · 항상 대기 중</div>
+      </div>
+      <div class="header-actions">
+        <div class="header-btn"><iconify-icon icon="fluent:call-24-filled"></iconify-icon></div>
+        <div class="header-btn"><iconify-icon icon="fluent:settings-24-filled"></iconify-icon></div>
+      </div>
+    </div>
+
+    <!-- ═══ 모드 칩 바 ═══ -->
+    <div class="mode-bar">
+      <div class="chip chip-on">
+        <iconify-icon icon="fluent:book-information-24-filled"></iconify-icon>
+        케어 정보
+      </div>
+      <div class="chip chip-off">
+        <iconify-icon icon="fluent:heart-24-filled"></iconify-icon>
+        감정 지원
+      </div>
+      <div class="chip chip-off">
+        <iconify-icon icon="fluent:building-24-filled"></iconify-icon>
+        요양원 찾기
+      </div>
+      <div class="chip chip-off">
+        <iconify-icon icon="fluent:calculator-24-filled"></iconify-icon>
+        비용 계산
+      </div>
+      <div class="chip chip-danger">
+        <iconify-icon icon="fluent:person-call-24-filled"></iconify-icon>
+        의료진 연결
+      </div>
+    </div>
+
+    <!-- ═══ 메시지 ═══ -->
+    <div class="messages" id="messages">
+      <div class="date-divider">오늘</div>
+
+      <!-- AI 인삿말 -->
+      <div class="msg in">
+        <span class="msg-sender">
+          <span class="sender-icon">
+            <svg width="9" height="9" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+          </span>
+          하루 AI
+        </span>
+        <div class="bubble">안녕하세요 예찬님 저는 하루안부 AI 케어 어시스턴트예요. 어머니 케어에 관한 질문이라면 뭐든 도와드릴게요.<br><br>아래 모드를 선택하거나, 자유롭게 질문해 주세요!</div>
+        <span class="msg-time">오전 9:00</span>
+      </div>
+
+      <!-- 빠른 질문 -->
+      <div class="quick-q">
+        <div class="qq">오늘 어머니 컨디션은?</div>
+        <div class="qq">투약 현황 알려줘</div>
+        <div class="qq">이번 주 식사량은?</div>
+      </div>
+
+      <!-- 사용자 질문 -->
+      <div class="msg out">
+        <div class="bubble">요양원에서 낙상 예방은 어떻게 하나요?</div>
+        <span class="msg-time">오전 9:05</span>
+        <span class="msg-read">읽음</span>
+      </div>
+
+      <!-- AI 케어 정보 응답 -->
+      <div class="msg in">
+        <span class="msg-sender">
+          <span class="sender-icon">
+            <svg width="9" height="9" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+          </span>
+          하루 AI
+        </span>
+        <div class="mode-tag">
+          <iconify-icon icon="fluent:book-information-24-filled"></iconify-icon>
+          케어 정보
+        </div>
+        <div class="bubble">요양원의 낙상 예방은 환경적·신체적 두 가지 측면에서 관리돼요.<br><br><b>환경적 조치</b><br>• 미끄럼 방지 매트 설치<br>• 침대 높이 조절<br>• 야간 조명 확보<br><br><b>신체적 관리</b><br>• 규칙적인 근력 운동<br>• 비타민 D 보충<br>• 약물 부작용 모니터링<br><br>어머니의 구체적인 상태에 맞는 추가 정보가 필요하시면 말씀해 주세요.</div>
+        <span class="msg-time">오전 9:05</span>
+      </div>
+
+      <!-- 사용자 감정 표현 -->
+      <div class="msg out">
+        <div class="bubble">요즘 어머니 걱정이 너무 많이 돼서 힘드네요...</div>
+        <span class="msg-time">오전 9:10</span>
+        <span class="msg-read">읽음</span>
+      </div>
+
+      <!-- AI 감정 지원 자동 전환 -->
+      <div class="msg in">
+        <span class="msg-sender">
+          <span class="sender-icon">
+            <svg width="9" height="9" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+          </span>
+          하루 AI
+        </span>
+        <div class="mode-tag">
+          <iconify-icon icon="fluent:heart-24-filled"></iconify-icon>
+          감정 지원
+        </div>
+        <div class="bubble">예찬님, 많이 힘드시겠어요. 멀리서 어머니를 걱정하는 마음이 얼마나 클지 충분히 이해돼요.<br><br>요양원에 계신 분들을 돌보는 가족분들은 이런 감정을 느끼는 게 자연스러운 일이에요. 지금 제일 걱정되시는 게 무엇인지 얘기해 주시면, 같이 생각해 볼게요.</div>
+        <span class="msg-time">오전 9:10</span>
+      </div>
+
+      <!-- 액션 카드 -->
+      <div class="action-card">
+        <div class="action-title">더 자세한 도움이 필요하신가요?</div>
+        <a href="g03-chat-nurse.html" class="action-btn action-btn-primary">
+          <iconify-icon icon="fluent:stethoscope-24-filled"></iconify-icon>
+          담당 간호사에게 연결
+        </a>
+        <button class="action-btn action-btn-danger">
+          <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>
+          긴급 상황 알리기
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ═══ 입력바 — 홈 채팅바 스타일 ═══ -->
+    <div class="input-bar">
+      <input class="input-field" type="text" placeholder="하루 AI에게 질문하기...">
+      <button class="input-mic" aria-label="음성 입력">
+        <iconify-icon icon="material-symbols:mic-rounded"></iconify-icon>
+      </button>
+    </div>
+
+
+  </div>
+
+
+  <script>
+    // 스크롤 하단 고정
+    var m=document.getElementById('messages');
+    if(m) m.scrollTop=m.scrollHeight;
+
+    // 모드칩 토글
+    document.querySelectorAll('.chip').forEach(function(c){
+      c.addEventListener('click',function(){
+        if(c.classList.contains('chip-danger')) return;
+        document.querySelectorAll('.chip').forEach(function(x){
+          if(!x.classList.contains('chip-danger')){
+            x.classList.remove('chip-on');
+            x.classList.add('chip-off');
+          }
+        });
+        c.classList.remove('chip-off');
+        c.classList.add('chip-on');
+      });
+    });
+
+    // 전송 기능
+    var input=document.querySelector('.input-field');
+    var sendBtn=document.querySelector('.input-send');
+    function sendMsg(){
+      var txt=input.value.trim();
+      if(!txt) return;
+      var now=new Date();
+      var h=now.getHours();var mi=now.getMinutes();
+      var ampm=h<12?'오전':'오후';
+      if(h>12)h-=12;if(h===0)h=12;
+      var ts=ampm+' '+h+':'+(mi<10?'0':'')+mi;
+
+      var div=document.createElement('div');
+      div.className='msg out';
+      div.innerHTML='<div class="bubble">'+txt.replace(/</g,'&lt;')+'</div><span class="msg-time">'+ts+'</span>';
+      m.appendChild(div);
+      input.value='';
+      m.scrollTop=m.scrollHeight;
+
+      // AI 응답 시뮬레이션
+      setTimeout(function(){
+        var ai=document.createElement('div');
+        ai.className='msg in';
+        ai.innerHTML='<span class="msg-sender"><span class="sender-icon"><svg width="9" height="9" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>하루 AI</span><div class="bubble">네, 말씀해 주셔서 감사해요. 더 자세히 알아볼게요.</div><span class="msg-time">'+ts+'</span>';
+        m.appendChild(ai);
+        m.scrollTop=m.scrollHeight;
+      },800);
+    }
+    if(sendBtn) sendBtn.addEventListener('click',sendMsg);
+    if(input) input.addEventListener('keydown',function(e){if(e.key==='Enter')sendMsg()});
+
+    // 빠른 질문 클릭
+    document.querySelectorAll('.qq').forEach(function(q){
+      q.addEventListener('click',function(){
+        input.value=q.textContent;
+        sendMsg();
+      });
+    });
+  </script>
+</body>
+</html>

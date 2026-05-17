@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 내 정보</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: transparent;
+      max-width: 430px;
+      padding-top: calc(max(env(safe-area-inset-top, 0px), 44px) + 20px);
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 16px);
+    }
+    .content { padding: 0 var(--space-lg); position: relative; z-index: 1; }
+
+    /* --- 프로필 + 케어 대상 통합 카드 --- */
+    .profile-card {
+      background: linear-gradient(145deg, #5BA4FF 0%, #2C7AFC 40%, #1A55D4 75%, #1240A8 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl) var(--space-xl);
+      color: white;
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-2xl);
+      box-shadow: 0 8px 28px rgba(44, 122, 252, 0.38);
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .profile-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: -20px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      position: relative;
+      z-index: 1;
+    }
+    .profile-avatar {
+      width: 60px; height: 60px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+    .profile-name {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      margin-bottom: 2px;
+    }
+    .profile-role {
+      font-size: var(--text-caption);
+      opacity: 0.8;
+    }
+
+    /* 케어 대상 정보 (카드 내부) */
+    .care-strip {
+      display: flex;
+      gap: var(--space-sm);
+      position: relative;
+      z-index: 1;
+    }
+    .care-chip {
+      flex: 1;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+    }
+    .care-chip-value {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+      margin-bottom: 2px;
+    }
+    .care-chip-label {
+      font-size: var(--text-mini);
+      opacity: 0.7;
+    }
+
+    /* --- 케어 대상 상세 카드 --- */
+    .care-detail {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-2xl);
+    }
+    .care-detail-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--divider);
+    }
+    .care-detail-avatar {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .care-detail-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .care-detail-sub {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .care-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+    .care-detail-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .care-detail-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .care-detail-text {}
+    .care-detail-label {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+    }
+    .care-detail-value {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* --- 메뉴 --- */
+    .menu-group {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-xl);
+    }
+    .menu-group-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      padding: var(--space-sm) var(--space-xs);
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      min-height: var(--row-height);
+    }
+    .menu-item + .menu-item {
+      border-top: 0.5px solid var(--divider);
+    }
+    .menu-item-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-item-icon--blue,
+    .menu-item-icon--green,
+    .menu-item-icon--orange,
+    .menu-item-icon--purple { background: var(--primary-light); color: var(--primary); }
+    .menu-item-text { flex: 1; }
+    .menu-item-label {
+      font-size: var(--text-headline);
+    }
+    .menu-item-desc {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .menu-item-chevron {
+      color: var(--text-tertiary);
+    }
+
+    .logout-btn {
+      display: block;
+      width: 100%;
+      padding: var(--space-md);
+      text-align: center;
+      font-size: var(--text-callout);
+      color: var(--critical);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-xl);
+    }
+
+    /* ═══ 홈화면 통일 디자인 ═══ */
+    html { background: #EEF5FF; }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.55)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.48)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.42)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.38)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+    }
+    /* 플로팅 필 탭바 */
+    .tabbar {
+      position: fixed !important;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px) !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: calc(100% - 32px) !important; max-width: 398px !important;
+      height: 68px !important; padding: 0 2px !important; padding-bottom: 0 !important;
+      border-top: none !important; border-radius: 999px !important;
+      background: rgba(255,255,255,0.07) !important;
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      border: 0.5px solid rgba(255,255,255,0.55) !important;
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.25) inset, 0 4px 16px rgba(0,0,0,0.08) !important;
+      align-items: stretch !important; right: auto !important; gap: 0 !important; z-index: 40 !important;
+    }
+    .tab {
+      flex-direction: column !important; gap: 2px !important;
+      padding: 8px 4px !important; border-radius: 999px !important;
+      font-size: 0.75rem !important; font-weight: 500 !important;
+      color: rgba(28,28,30,0.45) !important;
+    }
+    .tab.active { background: rgba(255,255,255,0.22) !important; color: #1C1C1E !important; }
+    /* 글라스 카드 */
+    .care-detail, .menu-group, .logout-btn {
+      background: rgba(255,255,255,0.26) !important;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    .menu-item + .menu-item { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    .care-detail-header { border-bottom: 0.5px solid rgba(255,255,255,0.28) !important; }
+
+    /* ═══ 카드 shimmer ═══ */
+    .care-detail, .menu-group {
+      position: relative; overflow: hidden;
+      transition: box-shadow 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    .care-detail::before, .menu-group::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    /* ═══ 메뉴 아이템 터치 반응 ═══ */
+    .menu-item { transition: background 0.18s ease; }
+    .menu-item:active { background: rgba(255,255,255,0.22); }
+    /* ═══ 로그아웃 red glass ═══ */
+    .logout-btn {
+      background: rgba(239,68,68,0.06) !important;
+      border: 0.5px solid rgba(239,68,68,0.20) !important;
+      color: #EF4444 !important;
+      transition: background 0.18s ease;
+    }
+    .logout-btn:active { background: rgba(239,68,68,0.12) !important; }
+  </style>
+</head>
+<body>  <div class="content">
+
+    <h2 style="font-size:var(--text-title); font-weight:var(--weight-bold); padding:var(--space-xs) 0;">내 정보</h2>
+
+    <!-- 프로필 카드 -->
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="profile-avatar"><i data-lucide="user" style="width:28px;height:28px;color:white;"></i></div>
+        <div>
+          <h1 class="profile-name">손예찬</h1>
+          <p class="profile-role">보호자 · 어머님(손정희) 담당</p>
+        </div>
+      </div>
+      <div class="care-strip">
+        <div class="care-chip">
+          <div class="care-chip-value">302호</div>
+          <div class="care-chip-label">호실</div>
+        </div>
+        <div class="care-chip">
+          <div class="care-chip-value">김미영</div>
+          <div class="care-chip-label">담당 간호사</div>
+        </div>
+        <div class="care-chip">
+          <div class="care-chip-value">200일</div>
+          <div class="care-chip-label">입소 경과</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 케어 대상 상세 -->
+    <div class="care-detail">
+      <div class="care-detail-header">
+        <div class="care-detail-avatar"><i data-lucide="heart" style="width:24px;height:24px;color:var(--primary)"></i></div>
+        <div>
+          <div class="care-detail-name">손정희</div>
+          <div class="care-detail-sub">케어 대상 정보</div>
+        </div>
+      </div>
+      <div class="care-detail-grid">
+        <div class="care-detail-item">
+          <div class="care-detail-icon"><i data-lucide="cake" style="width:20px;height:20px;color:var(--primary)"></i></div>
+          <div class="care-detail-text">
+            <div class="care-detail-label">나이</div>
+            <div class="care-detail-value">78세</div>
+          </div>
+        </div>
+        <div class="care-detail-item">
+          <div class="care-detail-icon"><i data-lucide="door-open" style="width:20px;height:20px;color:var(--primary)"></i></div>
+          <div class="care-detail-text">
+            <div class="care-detail-label">호실</div>
+            <div class="care-detail-value">302호</div>
+          </div>
+        </div>
+        <div class="care-detail-item">
+          <div class="care-detail-icon"><i data-lucide="stethoscope" style="width:20px;height:20px;color:var(--primary)"></i></div>
+          <div class="care-detail-text">
+            <div class="care-detail-label">담당 간호사</div>
+            <div class="care-detail-value">김미영</div>
+          </div>
+        </div>
+        <div class="care-detail-item">
+          <div class="care-detail-icon"><i data-lucide="calendar-check" style="width:20px;height:20px;color:var(--primary)"></i></div>
+          <div class="care-detail-text">
+            <div class="care-detail-label">입소일</div>
+            <div class="care-detail-value">2025.09.15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메뉴: 계정 -->
+    <div class="menu-group-title">계정</div>
+    <div class="menu-group">
+      <div class="menu-item">
+        <div class="menu-item-icon menu-item-icon--blue"><i data-lucide="user-cog" style="width:18px;height:18px;"></i></div>
+        <div class="menu-item-text">
+          <div class="menu-item-label">프로필 수정</div>
+        </div>
+        <span class="menu-item-chevron"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></span>
+      </div>
+      <a href="g07-settings.html" class="menu-item" style="outline:none;">
+        <div class="menu-item-icon menu-item-icon--green"><i data-lucide="bell" style="width:18px;height:18px;"></i></div>
+        <div class="menu-item-text">
+          <div class="menu-item-label">알림 설정</div>
+          <div class="menu-item-desc">긴급 알림, 일일 리포트, 바로 연락하기</div>
+        </div>
+        <span class="menu-item-chevron"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></span>
+      </a>
+      <div class="menu-item">
+        <div class="menu-item-icon menu-item-icon--purple"><i data-lucide="shield" style="width:18px;height:18px;"></i></div>
+        <div class="menu-item-text">
+          <div class="menu-item-label">개인정보 보호</div>
+        </div>
+        <span class="menu-item-chevron"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></span>
+      </div>
+    </div>
+
+    <!-- 메뉴: 기타 -->
+    <div class="menu-group-title">기타</div>
+    <div class="menu-group">
+      <div class="menu-item">
+        <div class="menu-item-icon menu-item-icon--blue"><i data-lucide="help-circle" style="width:18px;height:18px;"></i></div>
+        <div class="menu-item-text">
+          <div class="menu-item-label">도움말 / 고객센터</div>
+        </div>
+        <span class="menu-item-chevron"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-icon menu-item-icon--blue"><i data-lucide="info" style="width:18px;height:18px;"></i></div>
+        <div class="menu-item-text">
+          <div class="menu-item-label">앱 정보</div>
+          <div class="menu-item-desc">버전 1.0.0</div>
+        </div>
+        <span class="menu-item-chevron"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></span>
+      </div>
+    </div>
+
+    <a href="#" class="logout-btn">로그아웃</a>
+  </div>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션">
+    <a href="../../v7_홈화면시안/g-guardian-live.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home" style="width:20px;height:20px;"></i></span>
+      <span>홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><i data-lucide="message-circle" style="width:20px;height:20px;"></i></span>
+      <span>채팅</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><i data-lucide="clipboard-list" style="width:20px;height:20px;"></i></span>
+      <span>기록</span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></span>
+      <span>결제</span>
+    </a>
+    <a href="g05-mypage.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="user" style="width:20px;height:20px;"></i></span>
+      <span>마이</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

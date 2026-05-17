@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 의료 타임라인</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --bg:transparent;--surface:rgba(255,255,255,.88);
+      --primary:#2C7AFC;--primary-light:rgba(44,122,252,.08);
+      --critical:#EF4444;--success:#34D399;--guardian:#0891B2;
+      --divider:rgba(0,0,0,.05);
+      --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:20px;--space-2xl:28px;
+      --radius-xs:4px;--radius-sm:10px;--radius-md:14px;--radius-lg:16px;--radius-xl:20px;--radius-full:999px;
+      --text-mini:10px;--text-caption:11px;--text-callout:13px;--text-body:15px;--text-headline:16px;--text-title:20px;--text-display:28px;
+      --weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+      --line-height-normal:1.4;--line-height-relaxed:1.6;
+      --text-primary:#111827;--text-secondary:rgba(0,0,0,.5);--text-tertiary:rgba(0,0,0,.35);
+      --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.1);
+      --font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+      --transition-normal:.2s ease;--row-height:52px;
+    }
+    html{height:100%}
+    body{font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased}
+    body { max-width:430px; margin:0 auto; min-height:100vh; padding-bottom:120px; }
+    .content { padding:0 var(--space-lg); }
+    .page-sub { font-size:var(--text-callout); color:var(--text-secondary); margin-bottom:var(--space-xl); margin-top:var(--space-md); }
+
+    /* 필터 칩 */
+    .filter-row { display:flex; gap:var(--space-sm); overflow-x:auto; padding-bottom:var(--space-lg); scrollbar-width:none; }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .filter-chip {
+      padding:7px 14px; border-radius:var(--radius-full);
+      background:var(--surface); border:1.5px solid var(--divider);
+      font-size:var(--text-caption); font-weight:var(--weight-semibold);
+      white-space:nowrap; cursor:pointer; transition:all 0.2s;
+    }
+    .filter-chip.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+    /* 타임라인 */
+    .tl { position:relative; padding-left:24px; }
+    .tl::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--divider); }
+    .tl-month { font-size:var(--text-caption); font-weight:var(--weight-bold); color:var(--text-secondary); margin-bottom:var(--space-md); margin-top:var(--space-lg); }
+    .tl-item { position:relative; margin-bottom:var(--space-lg); }
+    .tl-dot {
+      position:absolute; left:-20px; top:12px; width:12px; height:12px;
+      border-radius:50%; border:2.5px solid var(--divider); background:var(--surface); z-index:1;
+    }
+    .tl-dot--diagnosis { border-color:#0891B2; background:#0891B2; }
+    .tl-dot--prescription { border-color:#C62828; background:#C62828; }
+    .tl-dot--exam { border-color:#1565C0; background:#1565C0; }
+    .tl-dot--sos { border-color:var(--critical); background:var(--critical); }
+    .tl-dot--milestone { border-color:var(--success); background:var(--success); }
+    .tl-card {
+      background:var(--surface); border-radius:var(--radius-md); padding:var(--space-lg);
+      box-shadow:var(--shadow-sm);
+    }
+    .tl-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .tl-type { font-size:var(--text-mini); font-weight:var(--weight-semibold); padding:2px 8px; border-radius:var(--radius-full); }
+    .tl-type--diagnosis { background:#D9F0F7; color:#0891B2; }
+    .tl-type--prescription { background:#FCE4EC; color:#C62828; }
+    .tl-type--exam { background:#E3F2FD; color:#1565C0; }
+    .tl-type--sos { background:#FFEBEE; color:var(--critical); }
+    .tl-type--milestone { background:#E8F8ED; color:var(--success); }
+    .tl-date { font-size:var(--text-mini); color:var(--text-tertiary); }
+    .tl-title { font-size:var(--text-headline); font-weight:var(--weight-semibold); margin-bottom:4px; }
+    .tl-desc { font-size:var(--text-caption); color:var(--text-secondary); line-height:1.5; }
+
+    /* ═══ Liquid Glass 통일 ═══ */
+        html { background: #EEF3FB; }
+    /* 배경 애니메이션 블롭 */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.18)0%,transparent 65%);filter:blur(30px);animation:ga 8s ease-in-out infinite alternate}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.25)0%,transparent 65%);filter:blur(40px);animation:gb 10s ease-in-out infinite alternate}
+    .bg .g3{position:absolute;width:700px;height:500px;left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(44,122,252,.08)0%,transparent 70%);filter:blur(35px);animation:gc 12s ease-in-out infinite alternate}
+    @keyframes ga{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.08)translateY(12px)}}
+    @keyframes gb{0%{transform:translate(-50%,-50%)scale(1)}100%{transform:translate(-52%,-48%)scale(1.05)}}
+    @keyframes gc{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.06)translateY(-8px)}}
+    /* 헤더 — 표준 */
+    .header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--t1,#111827)}
+    .header-left,.header-right{width:36px;display:flex;align-items:center}
+    .header-right{justify-content:flex-end}
+    .nav-btn,.btn-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s;color:var(--t1,#111827)}
+    .nav-btn:active,.btn-icon:active{transform:scale(.93)}
+    .nav-btn iconify-icon,.btn-icon iconify-icon{font-size:18px;color:var(--blue,#2C7AFC)}
+    /* 글라스 카드 */
+    .tl-card {
+      background: rgba(255,255,255,0.26) !important; position: relative; overflow: hidden;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    .tl-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%); pointer-events: none; z-index: 0;
+    }
+    .filter-chip {
+      background: rgba(255,255,255,0.26) !important; border: 0.5px solid rgba(255,255,255,0.55) !important;
+      backdrop-filter: blur(40px) !important;
+    }
+    .filter-chip.active { background: rgba(8,145,178,0.85) !important; border-color: rgba(8,145,178,0.6) !important; }
+    /* Tabbar override */
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+
+  <!-- 배경 애니메이션 블롭 -->
+  <div class="bg"><svg class="bg-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
+  <div class="header" id="header">
+    <div class="header-left"><a href="g05-mypage.html" class="btn-icon" aria-label="뒤로 가기"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon></a></div>
+    <span class="header-title">의료 타임라인</span>
+    <div class="header-right"></div>
+  </div>
+  <div class="content">
+    <p class="page-sub">어머니 손정희님의 의료 이력</p>
+
+    <div class="filter-row">
+      <div class="filter-chip active">전체</div>
+      <div class="filter-chip">진료</div>
+      <div class="filter-chip">처방 변경</div>
+      <div class="filter-chip">검사</div>
+      <div class="filter-chip">SOS</div>
+    </div>
+
+    <div class="tl">
+      <div class="tl-month">2026년 4월</div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--prescription"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--prescription">처방 변경</span><span class="tl-date">4월 1일</span></div>
+          <div class="tl-title">도네페질 용량 조정</div>
+          <div class="tl-desc">5mg → 10mg 증량. 인지기능 평가 결과 반영. 부작용 모니터링 예정.</div>
+        </div>
+      </div>
+
+      <div class="tl-month">2026년 3월</div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--sos"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--sos">긴급</span><span class="tl-date">3월 28일</span></div>
+          <div class="tl-title">낙상 사고 발생</div>
+          <div class="tl-desc">화장실 이동 중 미끄러짐. X-ray 촬영 결과 골절 없음. 이후 보행 보조기 사용 권장.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--exam"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--exam">검사</span><span class="tl-date">3월 20일</span></div>
+          <div class="tl-title">정기 혈액검사</div>
+          <div class="tl-desc">CBC, 간기능, 신기능 정상 범위. HbA1c 6.1% (정상). 콜레스테롤 경계수치.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--diagnosis"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--diagnosis">진료</span><span class="tl-date">3월 14일</span></div>
+          <div class="tl-title">정기 진료</div>
+          <div class="tl-desc">전반적 상태 양호. MMSE 22점 (경도 인지장애). 재활운동 주 3회 유지 권고.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--prescription"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--prescription">처방 변경</span><span class="tl-date">3월 12일</span></div>
+          <div class="tl-title">혈압약 용량 조정</div>
+          <div class="tl-desc">암로디핀 2.5mg → 5mg. 최근 혈압 측정값 상승 추세 반영.</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot tl-dot--milestone"></div>
+        <div class="tl-card">
+          <div class="tl-card-head"><span class="tl-type tl-type--milestone">마일스톤</span><span class="tl-date">3월 1일</span></div>
+          <div class="tl-title">입소 6개월</div>
+          <div class="tl-desc">시설 적응 완료. 일상생활 자립도 개선. 사회활동 참여도 증가.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab active"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <script>
+    document.querySelectorAll('.filter-chip').forEach(c => c.addEventListener('click', () => {
+      document.querySelector('.filter-chip.active').classList.remove('active');
+      c.classList.add('active');
+    }));
+  </script>
+</body>
+</html>

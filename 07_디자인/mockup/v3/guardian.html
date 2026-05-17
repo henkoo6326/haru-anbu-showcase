@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 보호자 v3</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:390px;min-height:844px;background:#F2F2F7;font-family:'Pretendard',-apple-system,'SF Pro Display',sans-serif;color:#000;-webkit-font-smoothing:antialiased}
+
+/* iOS Status Bar */
+.sb{height:54px;padding:14px 16px 0;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600}
+
+/* Gradient header — Apple Health Medical ID style */
+.grad-header{background:linear-gradient(180deg,#D4E4F7 0%,#F2F2F7 100%);padding:0 0 8px}
+
+/* Large Title — Apple HIG */
+.lt{padding:8px 20px 12px}
+.lt h1{font-size:34px;font-weight:800;letter-spacing:-0.7px;line-height:1.2}
+.lt h1 em{font-style:normal;color:#4A7FBF}
+.lt-sub{font-size:15px;color:#3C3C43;opacity:0.6;margin-top:4px}
+.lt-right{float:right;margin-top:-40px}
+.avatar{width:44px;height:44px;border-radius:50%;background:#4A7FBF;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
+
+/* Scroll content */
+.sc{padding:0 16px 100px}
+
+/* Grouped Table — Apple Settings/Health style */
+.gt{background:#fff;border-radius:12px;margin-bottom:16px;overflow:hidden}
+.gt-head{padding:6px 16px 0;display:flex;justify-content:space-between;align-items:center}
+.gt-label{font-size:13px;font-weight:400;color:#3C3C43;opacity:0.6;text-transform:uppercase;letter-spacing:0.3px;padding:8px 0}
+.gt-link{font-size:15px;color:#007AFF;font-weight:400}
+
+/* List row — Apple standard */
+.lr{display:flex;align-items:center;padding:11px 16px;min-height:44px;border-bottom:0.33px solid rgba(60,60,67,0.12);gap:12px}
+.lr:last-child{border:none}
+.lr-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lr-body{flex:1;min-width:0}
+.lr-title{font-size:17px;font-weight:400;letter-spacing:-0.4px}
+.lr-desc{font-size:13px;color:#3C3C43;opacity:0.6;margin-top:1px}
+.lr-right{display:flex;align-items:center;gap:4px}
+.lr-value{font-size:17px;color:#3C3C43;opacity:0.6}
+.lr-value.blue{color:#007AFF;opacity:1;font-weight:600}
+.lr-value.green{color:#34C759;opacity:1;font-weight:600}
+.lr-value.orange{color:#FF9500;opacity:1;font-weight:600}
+.chev{font-size:14px;color:#C7C7CC}
+
+/* Pinned — Apple Health Summary style */
+.pinned{padding:12px 16px}
+.pinned-cat{font-size:13px;color:#FF3B30;font-weight:600;display:flex;align-items:center;gap:4px}
+.pinned-date{font-size:13px;color:#3C3C43;opacity:0.6;margin-left:auto}
+.pinned-val{font-size:34px;font-weight:700;letter-spacing:-1px;margin-top:4px}
+.pinned-unit{font-size:22px;font-weight:400;color:#3C3C43;opacity:0.6}
+.mini-bars{display:flex;gap:2px;align-items:flex-end;height:44px;margin-top:4px;float:right;margin-right:0}
+.mini-bar{width:8px;border-radius:2px;background:#D1D1D6}
+.mini-bar.active{background:#4A7FBF}
+
+/* Highlight card — Apple Health style */
+.hl{padding:16px;border-top:0.33px solid rgba(60,60,67,0.12)}
+.hl-title{font-size:22px;font-weight:700;letter-spacing:-0.3px;margin-bottom:12px}
+.hl-cat{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.hl-text{font-size:15px;color:#3C3C43;line-height:1.5}
+.hl-compare{display:flex;gap:24px;margin-top:12px}
+.hl-stat{display:flex;flex-direction:column}
+.hl-stat-label{font-size:13px;color:#3C3C43;opacity:0.6;display:flex;align-items:center;gap:4px}
+.hl-stat-label .dot{width:8px;height:8px;border-radius:50%}
+.hl-stat-value{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-top:2px}
+
+/* Weekly chart — Apple Health Steps style */
+.chart-wrap{padding:16px}
+.chart-period{display:flex;background:#E5E5EA;border-radius:8px;padding:2px;margin-bottom:12px}
+.chart-tab{flex:1;text-align:center;font-size:13px;font-weight:600;padding:6px;border-radius:7px;color:#3C3C43}
+.chart-tab.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.chart-info{margin-bottom:8px}
+.chart-avg-label{font-size:13px;color:#3C3C43;opacity:0.6;text-transform:uppercase}
+.chart-avg-val{font-size:34px;font-weight:700;letter-spacing:-1px}
+.chart-avg-unit{font-size:17px;font-weight:400;color:#3C3C43;opacity:0.6}
+.chart-avg-date{font-size:13px;color:#3C3C43;opacity:0.6}
+.bars{display:flex;gap:4px;align-items:flex-end;height:120px;padding:0 8px}
+.bar-w{flex:1;display:flex;flex-direction:column;align-items:center}
+.bar{width:100%;border-radius:3px;background:#4A7FBF}
+.bar-label{font-size:11px;color:#3C3C43;opacity:0.6;margin-top:6px}
+
+/* AI Report — Article style from Apple Health */
+.ai-report{padding:16px}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#007AFF;margin-bottom:8px}
+.ai-time{font-size:12px;color:#3C3C43;opacity:0.6;float:right}
+.ai-text{font-size:15px;line-height:1.65;color:#000}
+.ai-text b{color:#4A7FBF}
+.ai-footer{font-size:13px;color:#3C3C43;opacity:0.6;margin-top:8px}
+
+/* Quick actions — Apple Favorites/Pinned grid style */
+.qg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.qi{background:#fff;border-radius:12px;padding:14px 4px;text-align:center}
+.qi-icon{font-size:28px;margin-bottom:4px}
+.qi-label{font-size:11px;font-weight:500;color:#3C3C43}
+
+/* Get More — Apple Health suggestion cards */
+.suggest{padding:16px;display:flex;gap:12px;align-items:flex-start}
+.suggest-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.suggest-body{flex:1}
+.suggest-title{font-size:15px;font-weight:600}
+.suggest-desc{font-size:13px;color:#3C3C43;opacity:0.6;margin-top:2px;line-height:1.4}
+.suggest-btn{display:inline-block;margin-top:8px;font-size:15px;font-weight:600;color:#007AFF;background:#F0F7FF;padding:6px 16px;border-radius:20px}
+.suggest-x{font-size:16px;color:#C7C7CC;align-self:flex-start}
+
+/* Tab bar — Apple Health native */
+.tb{position:fixed;bottom:0;left:0;width:390px;height:83px;background:rgba(249,249,249,0.94);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:0.33px solid rgba(60,60,67,0.15);display:flex;padding:6px 0 28px}
+.t{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:500;color:#999;border:none;background:none}
+.t.active{color:#007AFF}
+.t-i{font-size:24px;height:28px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="grad-header">
+<div class="sb"><span>9:41</span><span style="font-size:12px">●●● ▶ 🔋</span></div>
+<div class="lt">
+  <h1>하루<em>안부</em></h1>
+  <div class="lt-sub">김순자 어르신 · 101호</div>
+  <div class="lt-right"><div class="avatar">👵</div></div>
+</div>
+</div>
+
+<div class="sc">
+
+<!-- Pinned — Apple Health Summary Pinned style -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">Pinned</span><span class="gt-link">Edit</span></div>
+  <div class="pinned">
+    <div style="display:flex;align-items:center">
+      <span class="pinned-cat">❤️ 케어 완료율</span>
+      <span class="pinned-date">오늘</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <div><span class="pinned-val">85</span><span class="pinned-unit">%</span></div>
+      <div class="mini-bars">
+        <div class="mini-bar active" style="height:30px"></div>
+        <div class="mini-bar active" style="height:26px"></div>
+        <div class="mini-bar active" style="height:34px"></div>
+        <div class="mini-bar active" style="height:28px"></div>
+        <div class="mini-bar active" style="height:38px"></div>
+        <div class="mini-bar" style="height:20px"></div>
+        <div class="mini-bar" style="height:16px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="qg">
+  <div class="qi"><div class="qi-icon">🤖</div><div class="qi-label">AI 가이드</div></div>
+  <div class="qi"><div class="qi-icon">💬</div><div class="qi-label">채팅</div></div>
+  <div class="qi"><div class="qi-icon">💊</div><div class="qi-label">처방전</div></div>
+  <div class="qi"><div class="qi-icon">📅</div><div class="qi-label">일과표</div></div>
+</div>
+
+<!-- Today's care — Apple grouped table -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">오늘 케어 현황</span><span class="gt-link">전체보기</span></div>
+  <div class="lr"><div class="lr-icon" style="background:#34C75920">🍚</div><div class="lr-body"><div class="lr-title">식사</div><div class="lr-desc">아침 80% · 점심 85%</div></div><div class="lr-right"><span class="lr-value green">80%</span><span class="chev">›</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#007AFF20">💊</div><div class="lr-body"><div class="lr-title">투약</div><div class="lr-desc">오전 · 오후 · 취침 전</div></div><div class="lr-right"><span class="lr-value blue">3/3</span><span class="chev">›</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#FF950020">🛁</div><div class="lr-body"><div class="lr-title">위생</div><div class="lr-desc">오후 진행 예정</div></div><div class="lr-right"><span class="lr-value orange">50%</span><span class="chev">›</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#AF52DE20">🚶</div><div class="lr-body"><div class="lr-title">활동</div><div class="lr-desc">재활 30분 + 산책 20분</div></div><div class="lr-right"><span class="lr-value green">완료</span><span class="chev">›</span></div></div>
+</div>
+
+<!-- Weekly chart — Apple Health Steps chart style -->
+<div class="gt">
+  <div class="chart-wrap">
+    <div class="chart-period">
+      <div class="chart-tab">일</div><div class="chart-tab active">주</div><div class="chart-tab">월</div><div class="chart-tab">6개월</div><div class="chart-tab">년</div>
+    </div>
+    <div class="chart-info">
+      <div class="chart-avg-label">AVERAGE</div>
+      <div><span class="chart-avg-val">82</span><span class="chart-avg-unit"> %</span></div>
+      <div class="chart-avg-date">3월 17일 ~ 3월 23일</div>
+    </div>
+    <div class="bars">
+      <div class="bar-w"><div class="bar" style="height:84px"></div><div class="bar-label">월</div></div>
+      <div class="bar-w"><div class="bar" style="height:72px"></div><div class="bar-label">화</div></div>
+      <div class="bar-w"><div class="bar" style="height:90px"></div><div class="bar-label">수</div></div>
+      <div class="bar-w"><div class="bar" style="height:78px"></div><div class="bar-label">목</div></div>
+      <div class="bar-w"><div class="bar" style="height:96px"></div><div class="bar-label">금</div></div>
+      <div class="bar-w"><div class="bar" style="height:60px;background:#D1D1D6"></div><div class="bar-label">토</div></div>
+      <div class="bar-w"><div class="bar" style="height:42px;background:#D1D1D6"></div><div class="bar-label">일</div></div>
+    </div>
+  </div>
+  <!-- Highlights — Apple Health style -->
+  <div class="hl">
+    <div class="hl-title">Highlights</div>
+    <div class="hl-cat" style="color:#4A7FBF">❤️ 케어 완료율</div>
+    <div class="hl-text">이번 주 어머님의 케어 완료율은 평균 82%로, 지난 주 대비 <b>5% 상승</b>했습니다.</div>
+    <div class="hl-compare">
+      <div class="hl-stat"><div class="hl-stat-label"><div class="dot" style="background:#4A7FBF"></div>이번 주</div><div class="hl-stat-value" style="color:#4A7FBF">82%</div></div>
+      <div class="hl-stat"><div class="hl-stat-label"><div class="dot" style="background:#D1D1D6"></div>지난 주</div><div class="hl-stat-value">77%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Daily Report — Article card style -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">AI 일일 리포트</span></div>
+  <div class="ai-report">
+    <div><span class="ai-badge">🤖 AI 자동 생성</span><span class="ai-time">오늘 19:00</span></div>
+    <div class="ai-text">
+      오늘 어머님은 전반적으로 <b>양호한 컨디션</b>을 보이셨습니다.<br><br>
+      🍚 아침 80%, 점심 85% 섭취<br>
+      💊 투약 3회 모두 완료<br>
+      🚶 재활 30분 + 산책 20분<br>
+    </div>
+    <div class="ai-footer">오늘 하루도, 안녕하셨습니다 ☺️</div>
+  </div>
+</div>
+
+<!-- Timeline — Apple Health list style -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">오늘 타임라인</span></div>
+  <div class="lr"><div class="lr-icon" style="background:#34C75920">✅</div><div class="lr-body"><div class="lr-title">오전 투약 완료</div></div><div class="lr-right"><span class="lr-value" style="opacity:0.4">09:00</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#007AFF20">🚶</div><div class="lr-body"><div class="lr-title">재활운동 30분</div></div><div class="lr-right"><span class="lr-value" style="opacity:0.4">10:00</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#34C75920">🍚</div><div class="lr-body"><div class="lr-title">점심 식사 85%</div></div><div class="lr-right"><span class="lr-value" style="opacity:0.4">12:30</span></div></div>
+  <div class="lr"><div class="lr-icon" style="background:#FF950020">⏳</div><div class="lr-body"><div class="lr-title" style="color:#FF9500">오후 투약 예정</div></div><div class="lr-right"><span class="lr-value orange">14:00</span></div></div>
+</div>
+
+<!-- Get More — Apple Health suggestion cards -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">추천</span></div>
+  <div class="suggest">
+    <div class="suggest-icon" style="background:#007AFF15">🧮</div>
+    <div class="suggest-body">
+      <div class="suggest-title">요양비 계산</div>
+      <div class="suggest-desc">등급별 본인부담금과 시설 vs 재가 비용을 비교해보세요.</div>
+      <span class="suggest-btn">시작하기</span>
+    </div>
+    <span class="suggest-x">✕</span>
+  </div>
+  <div class="suggest" style="border-top:0.33px solid rgba(60,60,67,0.12)">
+    <div class="suggest-icon" style="background:#FF3B3015">🏥</div>
+    <div class="suggest-body">
+      <div class="suggest-title">요양원 찾기</div>
+      <div class="suggest-desc">AI가 조건에 맞는 요양원을 찾아드립니다.</div>
+      <span class="suggest-btn">시작하기</span>
+    </div>
+    <span class="suggest-x">✕</span>
+  </div>
+</div>
+
+</div>
+
+<!-- Tab bar — Apple Health native style -->
+<div class="tb">
+  <div class="t active"><div class="t-i">❤️</div>요약</div>
+  <div class="t"><div class="t-i">💬</div>채팅</div>
+  <div class="t"><div class="t-i">🤖</div>AI</div>
+  <div class="t"><div class="t-i">📋</div>리포트</div>
+  <div class="t"><div class="t-i">🔍</div>탐색</div>
+</div>
+
+</body></html>

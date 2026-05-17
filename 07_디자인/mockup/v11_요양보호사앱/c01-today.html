@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="caregiver" data-platform="mobile">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#DCFCE7">
+  <title>하루안부 · 요양보호사 · 오늘</title>
+  <link rel="stylesheet" href="../07_디자인/tokens/tokens.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ============================================================
+       c01 · 오늘 (요양보호사 홈)
+       v3.0 · 2026-04-19 · 역할 분리 + 뷰포트 압축
+       - c01 = "지금 이 순간 + 근무 상황" (담당 환자 목록은 c02 담당)
+       - 구조: 헤더 → 근무 스트립 → 주의 배너 → 히어로(지금) → AI 인수인계
+       - 본문 18px · 터치 48px (현장 사용성)
+       ============================================================ */
+    :root {
+      /* caregiver 전용 본문 상향 — 고령 보호사 배려 */
+      --text-body: 18px;
+      --size-touch-target: 48px;
+
+      /* 로컬 시맨틱 숏컷 */
+      --accent:        var(--color-accent);
+      --accent-soft:   var(--color-accent-soft);
+      --accent-strong: var(--color-accent-strong);
+      --danger:        var(--color-danger);
+      --danger-soft:   var(--color-danger-soft);
+      --warn:          var(--color-warning);
+      --warn-soft:     var(--color-warning-soft);
+      --t1:            var(--color-text-primary);
+      --t2:            var(--color-text-secondary);
+      --t3:            var(--color-text-tertiary);
+
+      /* 레이아웃 */
+      --safe-t: max(env(safe-area-inset-top, 0px), 52px);
+      --safe-b: max(env(safe-area-inset-bottom, 0px), 20px);
+      --tab-h:  64px;
+      --tab-bot: 12px;
+      --page-pad: 16px;
+    }
+
+    html { height: 100%; background: var(--brand-green-100); font-size: 16px; }
+    body { height: 100%; color: var(--t1); overflow-x: hidden; font-size: var(--text-body); }
+
+    /* ---- 배경 (역할 그라디언트 + 은은한 orb) ---- */
+    .bg {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+      background:
+        radial-gradient(520px 420px at 50% -6%, rgba(34,197,94,.14), transparent 65%),
+        radial-gradient(620px 500px at 50% 32%, rgba(74,222,128,.10), transparent 65%),
+        linear-gradient(180deg, #D9F4E1 0%, #E8F6EE 28%, #F0F8F3 62%, #F4FAF6 100%);
+    }
+
+    .app {
+      max-width: 430px; margin: 0 auto; min-height: 100%;
+      position: relative; padding-bottom: calc(var(--safe-b) + var(--tab-h) + var(--tab-bot) + 32px);
+    }
+
+    /* ============ 헤더 · 컴팩트 ============ */
+    .header {
+      position: sticky; top: 0; z-index: 10;
+      padding: calc(var(--safe-t) + 4px) var(--page-pad) 10px;
+      background: linear-gradient(180deg, rgba(232,246,238,.96) 0%, rgba(232,246,238,.82) 70%, rgba(232,246,238,0) 100%);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+    }
+    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .logo { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+    .logo svg { width: 24px; height: 24px; }
+    .logo-name { font-size: 17px; font-weight: 800; letter-spacing: -.4px; }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.7);
+      border: .5px solid rgba(255,255,255,.9);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 8px rgba(0,0,0,.04);
+      position: relative; transition: transform .1s;
+    }
+    .icon-btn:active { transform: scale(.93); }
+    .icon-btn iconify-icon { font-size: 19px; color: var(--accent-strong); }
+    .notif-dot {
+      position: absolute; top: 8px; right: 8px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--danger); border: 1.5px solid #fff;
+    }
+
+    /* ============ 근무 상태 스트립 (슬림) ============ */
+    .shift {
+      margin: 12px var(--page-pad) 0;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      position: relative; z-index: 1;
+    }
+    .shift-ring { width: 44px; height: 44px; position: relative; flex-shrink: 0; }
+    .shift-ring svg { transform: rotate(-90deg); }
+    .shift-ring-val {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--accent-strong); letter-spacing: -.2px;
+    }
+    .shift-meta { flex: 1; min-width: 0; line-height: 1.35; }
+    .shift-main {
+      font-size: 14px; font-weight: 800; color: var(--t1); letter-spacing: -.2px;
+    }
+    .shift-sub {
+      font-size: 12px; font-weight: 600; color: var(--t2); margin-top: 2px;
+    }
+    .shift-sub b { color: var(--accent-strong); font-weight: 800; }
+
+    /* ============ 히어로 · 지금 할 것 ============ */
+    .hero-wrap { padding: 0 var(--page-pad); margin-top: 14px; position: relative; z-index: 1; }
+    .hero {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      position: relative;
+    }
+    .hero-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .hero-time { font-size: 13px; font-weight: 700; color: var(--t2); letter-spacing: -.2px; }
+    .hero-next {
+      margin-left: auto; font-size: 12px; font-weight: 600; color: var(--t3);
+    }
+    .hero-next b { color: var(--t2); font-weight: 700; }
+    .hero-more {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(0,0,0,.04); border: 0; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--t2); flex-shrink: 0;
+      transition: transform .1s;
+    }
+    .hero-more:active { transform: scale(.92); }
+    .hero-more iconify-icon { font-size: 15px; }
+
+    .hero-title {
+      margin: 0;
+      font-size: 22px; font-weight: 800; letter-spacing: -.5px;
+      color: var(--t1); line-height: 1.2;
+    }
+    .hero-title b { color: var(--accent-strong); }
+    .hero-sub {
+      margin: 2px 0 0;
+      font-size: 14px; font-weight: 600; color: var(--t2);
+      line-height: 1.35;
+    }
+    .hero-ok-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      font-size: 13px; font-weight: 600; color: var(--t3);
+    }
+    .hero-ok-pill iconify-icon { font-size: 15px; color: var(--accent-strong); flex-shrink: 0; }
+    .hero-ok-pill b { font-weight: 800; color: var(--t1); }
+
+    .hero-actions { margin-top: 16px; }
+    .btn {
+      height: 52px; border-radius: 14px; border: 0; font-family: inherit;
+      font-size: 15px; font-weight: 800; letter-spacing: -.2px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: transform .1s; cursor: pointer;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn iconify-icon { font-size: 18px; }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--brand-green-400), var(--accent));
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(34,197,94,.22);
+    }
+
+    /* ============ AI 인수인계 · 접힘 카드 ============ */
+    .handover-wrap {
+      margin: 20px var(--page-pad) 0;
+      position: relative; z-index: 1;
+    }
+    .handover {
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      cursor: pointer;
+    }
+    .handover-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .handover-label {
+      font-size: 11px; font-weight: 800; color: var(--t2);
+      letter-spacing: .5px; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .handover-label iconify-icon { font-size: 13px; color: var(--accent-strong); }
+    .handover-time {
+      font-size: 11px; font-weight: 700; color: var(--t3);
+    }
+    .handover-body {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .handover-toggle {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent-soft);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--accent-strong);
+      transition: transform .2s;
+    }
+    .handover.open .handover-toggle { transform: rotate(180deg); }
+    .handover-toggle iconify-icon { font-size: 14px; }
+
+    .handover-preview {
+      flex: 1; min-width: 0;
+      font-size: 13px; font-weight: 500; color: var(--t2); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .handover-preview b { color: var(--t1); font-weight: 700; }
+    .handover-preview .warn { color: var(--palette-amber-700); font-weight: 700; }
+    .handover.open .handover-preview {
+      display: block; -webkit-line-clamp: unset; overflow: visible;
+    }
+    .handover-full {
+      display: none; margin-top: 10px; padding-top: 10px;
+      border-top: .5px dashed rgba(0,0,0,.08);
+      font-size: 14px; color: var(--t2); line-height: 1.55;
+    }
+    .handover.open .handover-full { display: block; }
+    .handover-items { display: flex; flex-direction: column; gap: 8px; }
+    .handover-item { display: flex; gap: 8px; align-items: flex-start; }
+    .handover-item .nm {
+      flex-shrink: 0; font-size: 12px; font-weight: 800; color: var(--accent-strong);
+      background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; height: 22px;
+      display: inline-flex; align-items: center;
+    }
+    .handover-item .tx { font-size: 14px; color: var(--t1); line-height: 1.5; }
+
+    /* ============ 관찰 카드 (보조 · 좌측 4px 악센트) ============ */
+    .obs-card {
+      margin: 12px var(--page-pad) 0;
+      padding: 11px 14px 10px;
+      display: flex; flex-direction: column; gap: 9px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      position: relative; z-index: 1;
+      cursor: pointer;
+    }
+    .obs-card:active { transform: scale(.995); }
+
+    /* 헤더 */
+    .obs-head {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .obs-ic {
+      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(245, 158, 11, .14);
+      color: var(--palette-amber-700);
+    }
+    .obs-ic iconify-icon { font-size: 15px; }
+    .obs-title { flex: 1; min-width: 0; line-height: 1.35; }
+    .obs-name {
+      font-size: 13px; font-weight: 800; color: var(--t1);
+      letter-spacing: -.2px;
+    }
+    .obs-name b { color: var(--palette-amber-700); font-weight: 800; }
+    .obs-meta {
+      font-size: 11px; font-weight: 600; color: var(--t3); margin-top: 2px;
+    }
+    .obs-call-mini {
+      flex-shrink: 0; height: 28px; padding: 0 11px;
+      border: 0; border-radius: 999px;
+      background: rgba(245, 158, 11, .14);
+      color: var(--palette-amber-700);
+      font-family: inherit; font-size: 12px; font-weight: 800;
+      display: inline-flex; align-items: center; gap: 4px;
+      cursor: pointer; transition: transform .1s;
+    }
+    .obs-call-mini:active { transform: scale(.94); }
+    .obs-call-mini iconify-icon { font-size: 13px; }
+
+    /* 바이탈 박스 */
+    .obs-vitals {
+      display: grid; grid-template-columns: 1.35fr 1fr;
+      gap: 10px;
+      padding: 8px 11px;
+      background: rgba(245, 158, 11, .05);
+      border-radius: 10px;
+      align-items: stretch;
+    }
+    .obs-vital {
+      display: flex; flex-direction: column;
+      min-width: 0;
+    }
+    .ov-l {
+      font-size: 10px; font-weight: 800; color: var(--t3);
+      letter-spacing: .3px; text-transform: uppercase;
+    }
+    .ov-v {
+      font-size: 17px; font-weight: 800; color: var(--palette-amber-700);
+      letter-spacing: -.3px; margin-top: 2px;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+      display: flex; align-items: baseline; gap: 3px;
+    }
+    .ov-v .u {
+      font-size: 10px; font-weight: 700; color: var(--palette-amber-700);
+      letter-spacing: 0;
+    }
+    .ov-spark {
+      width: 100%; height: 20px; margin-top: 4px;
+      display: block;
+    }
+    .ov-spark polyline {
+      fill: none; stroke: var(--palette-amber-600);
+      stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round;
+    }
+    .ov-spark circle.dot-last {
+      fill: var(--palette-amber-600);
+    }
+    .ov-spark .base {
+      stroke: rgba(245, 158, 11, .22); stroke-width: 1;
+      stroke-dasharray: 2 3;
+    }
+
+
+    /* ============ 담당 4명 상태 스트립 (보호자앱 .pill-timeline 톤) ============
+       - 각 행: 아바타 + (이름 + 4개 오늘 체크 도트) + 다음 할 일 한 줄
+       - 그린 단일 원천: done 도트만 --accent, 나머지는 중성/amber
+       - c02와 동일 환자 4명(박·최·김·이) 유지 */
+    .roster-wrap {
+      margin: 18px var(--page-pad) 0;
+      position: relative; z-index: 1;
+    }
+    .roster-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 8px; padding: 0 2px;
+    }
+    .roster-t {
+      font-size: 13px; font-weight: 800; color: var(--t1); letter-spacing: -.2px;
+    }
+    .roster-sub {
+      font-size: 11px; font-weight: 700; color: var(--t3);
+    }
+    .roster-list {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      overflow: hidden;
+    }
+    .roster-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-bottom: .5px solid rgba(0,0,0,.05);
+      text-decoration: none; color: inherit;
+      cursor: pointer; transition: background .12s;
+    }
+    .roster-row:last-child { border-bottom: 0; }
+    .roster-row:active { background: rgba(0,0,0,.02); }
+    .rs-av {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(0,0,0,.05);
+      color: var(--t2);
+      font-size: 12px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      letter-spacing: -.2px;
+    }
+    .rs-av.warn { background: rgba(245,158,11,.14); color: var(--palette-amber-700); }
+    .roster-body { flex: 1; min-width: 0; }
+    .roster-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      line-height: 1.25;
+    }
+    .rs-nm {
+      font-size: 13px; font-weight: 800; color: var(--t1); letter-spacing: -.2px;
+    }
+    .rs-nm .rm {
+      font-size: 11px; font-weight: 600; color: var(--t3); margin-left: 4px;
+    }
+    .rs-dots { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
+    .rd {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(0,0,0,.14);
+    }
+    .rd.done { background: var(--accent-strong); }
+    .rd.now {
+      background: var(--accent); box-shadow: 0 0 0 3px rgba(34,197,94,.22);
+    }
+    .rd.warn { background: var(--palette-amber-500); }
+    .rs-next {
+      margin-top: 3px;
+      font-size: 11px; font-weight: 600; color: var(--t3);
+      letter-spacing: -.1px; line-height: 1.35;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .rs-next iconify-icon { font-size: 11px; color: var(--t3); }
+    .rs-next b { color: var(--t2); font-weight: 700; }
+    .roster-row.warn .rs-next { color: var(--palette-amber-700); }
+    .roster-row.warn .rs-next iconify-icon { color: var(--palette-amber-700); }
+    .roster-row.warn .rs-next b { color: var(--palette-amber-700); font-weight: 800; }
+    .roster-row.now .rs-next b { color: var(--accent-strong); font-weight: 800; }
+    .rs-chev {
+      flex-shrink: 0; font-size: 15px; color: var(--t3);
+    }
+
+
+    /* ============ 탭바 + SOS ============ */
+    .tab-wrap {
+      position: fixed; bottom: calc(var(--safe-b) + var(--tab-bot));
+      left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      width: calc(100% - 32px); max-width: 398px; z-index: 40;
+    }
+    .tabbar {
+      flex: 1; min-width: 0; height: var(--tab-h);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 999px;
+      box-shadow: 0 6px 22px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.5);
+      display: flex; align-items: stretch; justify-content: space-around; padding: 0 6px;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; text-decoration: none; color: var(--t3); border-radius: 999px; padding: 0 4px;
+      transition: color .15s;
+    }
+    .tab iconify-icon { font-size: 24px; }
+    .tab.active { color: var(--accent-strong); }
+    .tab.active iconify-icon {
+      filter: drop-shadow(0 2px 6px rgba(34,197,94,.28));
+    }
+
+    .sos {
+      position: relative;
+      width: var(--tab-h); height: var(--tab-h); flex-shrink: 0; border-radius: 50%;
+      background: linear-gradient(135deg, #F87171, var(--palette-red-600));
+      border: 0;
+      box-shadow: 0 8px 22px rgba(220,38,38,.38), inset 0 1px 0 rgba(255,255,255,.32);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform .1s;
+    }
+    .sos:active { transform: scale(.92); }
+    .sos iconify-icon { font-size: 26px; color: #fff; }
+    .sos-ring {
+      position: absolute; inset: 2px; pointer-events: none;
+    }
+    .sos-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .sos-ring circle {
+      fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round;
+      stroke-dasharray: 172; stroke-dashoffset: 172;
+      transition: stroke-dashoffset .1s linear;
+    }
+    .sos.holding .sos-ring circle { transition: stroke-dashoffset 0s linear; }
+
+    /* ============ 오버레이 + 시트 ============ */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.36);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: none; align-items: flex-end; justify-content: center; z-index: 200;
+    }
+    .overlay.show { display: flex; }
+    .sheet {
+      background: rgba(250,253,251,.94);
+      backdrop-filter: blur(60px) saturate(140%);
+      -webkit-backdrop-filter: blur(60px) saturate(140%);
+      border-top: .5px solid rgba(255,255,255,.8);
+      border-radius: 26px 26px 0 0;
+      padding: 18px 22px calc(28px + env(safe-area-inset-bottom,0px));
+      width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto;
+    }
+    .sheet-handle {
+      width: 36px; height: 4px; background: rgba(0,0,0,.12); border-radius: 2px; margin: 0 auto 16px;
+    }
+    .sheet-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .sheet-ico {
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center; color: #fff;
+    }
+    .sheet-ico iconify-icon { font-size: 22px; }
+    .sheet-ttl { font-size: 20px; font-weight: 800; letter-spacing: -.4px; color: var(--t1); }
+    .sheet-sub { font-size: 13px; font-weight: 500; color: var(--t2); margin-top: 2px; }
+
+    .sheet-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      background: rgba(0,0,0,.028);
+      margin-bottom: 7px;
+    }
+    .sheet-row-ico {
+      width: 34px; height: 34px; border-radius: 10px; background: #fff;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sheet-row-ico iconify-icon { font-size: 17px; }
+    .sheet-row-text { flex: 1; min-width: 0; }
+    .sheet-row-label { font-size: 12px; font-weight: 600; color: var(--t3); }
+    .sheet-row-val { font-size: 14px; font-weight: 700; color: var(--t1); margin-top: 1px; }
+    .sheet-row-badge {
+      flex-shrink: 0; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+    }
+
+    .sheet-cta {
+      display: flex; gap: 8px; margin-top: 14px;
+    }
+
+    .sos-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;
+    }
+    .sos-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      padding: 18px 10px; background: rgba(239,68,68,.06);
+      border: 1px solid rgba(239,68,68,.22);
+      border-radius: 16px; cursor: pointer; transition: transform .1s;
+      font-family: inherit;
+    }
+    .sos-card:active { transform: scale(.96); }
+    .sos-card iconify-icon { font-size: 30px; color: var(--palette-red-700); }
+    .sos-card-t { font-size: 15px; font-weight: 800; color: var(--palette-red-700); letter-spacing: -.2px; }
+    .sos-hint {
+      font-size: 13px; font-weight: 600; color: var(--palette-red-700);
+      background: rgba(239,68,68,.08);
+      padding: 10px 14px; border-radius: 12px; text-align: center;
+      margin-top: 12px; line-height: 1.45;
+    }
+    .sos-hint b { font-weight: 800; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 72px; left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(28,28,30,.9); color: #fff;
+      padding: 12px 20px; border-radius: 999px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,.22);
+      z-index: 300; opacity: 0; pointer-events: none;
+      transition: opacity .22s, transform .22s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 등장 애니 */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .shift, .obs-card, .hero-wrap, .handover-wrap, .roster-wrap { animation: fadeUp .4s ease both; }
+    .roster-wrap  { animation-delay: .16s; }
+    .obs-card      { animation-delay: .04s; }
+    .hero-wrap     { animation-delay: .08s; }
+    .handover-wrap { animation-delay: .12s; }
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+
+  <div class="app">
+
+    <!-- ============ 헤더 ============ -->
+    <header class="header">
+      <div class="header-row">
+        <a class="logo" href="#" aria-label="하루안부">
+          <svg viewBox="0 0 512 512" fill="none">
+            <g transform="translate(50,50) scale(0.163)">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="currentColor" style="color:var(--accent-strong)"/>
+              <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="currentColor" style="color:var(--accent-strong)"/>
+            </g>
+          </svg>
+        </a>
+        <div class="header-actions">
+          <a href="#" class="icon-btn" aria-label="알림" onclick="toast('알림 3건');return false">
+            <iconify-icon icon="fluent:alert-24-filled"></iconify-icon>
+            <span class="notif-dot"></span>
+          </a>
+          <a href="c04-mypage.html" class="icon-btn" aria-label="마이페이지">
+            <iconify-icon icon="fluent:person-24-filled"></iconify-icon>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ 근무 상태 스트립 (슬림) ============ -->
+    <section class="shift">
+      <div class="shift-ring" aria-label="오전 케어 5건 중 5건 완료">
+        <svg width="44" height="44">
+          <circle cx="22" cy="22" r="17" stroke="rgba(34,197,94,.14)" stroke-width="5" fill="none"/>
+          <circle cx="22" cy="22" r="17" stroke="var(--accent)" stroke-width="5" fill="none"
+            stroke-linecap="round" stroke-dasharray="107" stroke-dashoffset="47"/>
+        </svg>
+        <div class="shift-ring-val" style="font-size:10px">5/9</div>
+      </div>
+      <div class="shift-meta">
+        <div class="shift-main">오전 근무 · 07:00→15:00</div>
+        <div class="shift-sub">완료 <b>5</b> · 남은 <b>4</b> · 담당 <b>9</b>명 · 피크 08-10</div>
+      </div>
+    </section>
+
+    <!-- ============ 관찰 카드 (보조 · 4px 악센트) ============ -->
+    <section class="obs-card" onclick="toast('이정숙 어르신 상세 보기')" aria-label="이정숙 어르신 미열 관찰">
+      <div class="obs-head">
+        <span class="obs-ic"><iconify-icon icon="fluent:warning-24-filled"></iconify-icon></span>
+        <div class="obs-title">
+          <div class="obs-name"><b>이정숙</b> 어르신 · 미열 관찰</div>
+          <div class="obs-meta">2층 B-2호 · 마지막 체크 06:40</div>
+        </div>
+        <button class="obs-call-mini" onclick="event.stopPropagation();toast('간호사 호출 · 김영미 선생님')">
+          <iconify-icon icon="fluent:call-24-filled"></iconify-icon>호출
+        </button>
+      </div>
+      <div class="obs-vitals">
+        <div class="obs-vital">
+          <div class="ov-l">체온 · 최근 4회</div>
+          <div class="ov-v">37.4<span class="u">°C</span></div>
+          <svg class="ov-spark" viewBox="0 0 120 20" preserveAspectRatio="none" aria-hidden="true">
+            <line class="base" x1="0" y1="13" x2="120" y2="13"/>
+            <polyline points="10,14 43,13 77,11 110,5"/>
+            <circle class="dot-last" cx="110" cy="5" r="2.4"/>
+          </svg>
+        </div>
+        <div class="obs-vital">
+          <div class="ov-l">기침</div>
+          <div class="ov-v">3<span class="u">회 · 오전</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 히어로 · 지금 할 것 ============ -->
+    <div class="hero-wrap">
+      <article class="hero">
+        <div class="hero-top">
+          <span class="hero-time">10:15</span>
+          <span class="hero-next">다음까지 <b>46분</b></span>
+          <button class="hero-more" onclick="openHeroMenu()" aria-label="더보기">
+            <iconify-icon icon="fluent:more-horizontal-24-filled"></iconify-icon>
+          </button>
+        </div>
+        <h2 class="hero-title"><b>박영자</b> 어르신 · 혈압 측정</h2>
+        <p class="hero-sub">2층 A-3호</p>
+        <span class="hero-ok-pill">
+          <iconify-icon icon="fluent:checkmark-circle-24-filled"></iconify-icon>
+          <b>측정 가능</b> · 혈압약 08:00 복용 후 2시간 경과
+        </span>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="location.href='c02-checklist.html'">
+            <iconify-icon icon="fluent:pen-24-filled"></iconify-icon>지금 기록 시작
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============ AI 인수인계 (근무 시작시 요약, 컴팩트) ============ -->
+    <div class="handover-wrap">
+      <section class="handover" id="handover" onclick="toggleHandover()">
+        <div class="handover-head">
+          <span class="handover-label">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>AI 인수인계 · 야간 → 주간
+          </span>
+          <span class="handover-time">06:45</span>
+        </div>
+        <div class="handover-body">
+          <div class="handover-preview">
+            <b>박영자</b> 새벽 수면 불안 1회 · <span class="warn">이정숙 기침 증상 오전 확인</span> · 최명자 둔부 발적 관찰 — 체위 변경 2h 유지
+          </div>
+          <span class="handover-toggle" aria-label="펼치기"><iconify-icon icon="fluent:chevron-down-24-filled"></iconify-icon></span>
+        </div>
+        <div class="handover-full">
+          <div class="handover-items">
+            <div class="handover-item">
+              <span class="nm">박</span>
+              <span class="tx">새벽 2시 수면 불안 1회 있었으나 안정. 혈압·맥박 정상. 아침 혈압약 복용 확인.</span>
+            </div>
+            <div class="handover-item">
+              <span class="nm">이</span>
+              <span class="tx"><b style="color:var(--palette-amber-700)">마른 기침 3회 관찰</b>. 체온 36.9℃ 미열. 오전 중 상태 변화 시 간호사 호출.</span>
+            </div>
+            <div class="handover-item">
+              <span class="nm">최</span>
+              <span class="tx">오른쪽 둔부 발적 지속. 체위 변경 <b>2시간 주기 유지</b> · 피부 상태 사진 1회 필요.</span>
+            </div>
+            <div class="handover-item">
+              <span class="nm">김</span>
+              <span class="tx">이상 없음. 숙면 · 오전 산책 컨디션 양호.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ 담당 4명 오늘 상태 ============ -->
+    <div class="roster-wrap">
+      <div class="roster-head">
+        <span class="roster-t">담당 4명 · 오늘</span>
+        <span class="roster-sub">5 완료 · 4 남음</span>
+      </div>
+      <div class="roster-list">
+        <a class="roster-row now" href="c02-checklist.html?pt=park">
+          <span class="rs-av">박</span>
+          <div class="roster-body">
+            <div class="roster-top">
+              <span class="rs-nm">박영자<span class="rm">A-3</span></span>
+              <span class="rs-dots">
+                <span class="rd done"></span>
+                <span class="rd done"></span>
+                <span class="rd now"></span>
+                <span class="rd"></span>
+              </span>
+            </div>
+            <div class="rs-next">
+              <iconify-icon icon="fluent:clock-24-regular"></iconify-icon>
+              지금 · <b>혈압 측정</b> · 10:15
+            </div>
+          </div>
+          <iconify-icon icon="fluent:chevron-right-24-filled" class="rs-chev"></iconify-icon>
+        </a>
+        <a class="roster-row" href="c02-checklist.html?pt=choi">
+          <span class="rs-av">최</span>
+          <div class="roster-body">
+            <div class="roster-top">
+              <span class="rs-nm">최명자<span class="rm">B-1</span></span>
+              <span class="rs-dots">
+                <span class="rd done"></span>
+                <span class="rd done"></span>
+                <span class="rd"></span>
+                <span class="rd"></span>
+              </span>
+            </div>
+            <div class="rs-next">
+              <iconify-icon icon="fluent:clock-24-regular"></iconify-icon>
+              다음 · <b>체위 변경</b> · 11:00
+            </div>
+          </div>
+          <iconify-icon icon="fluent:chevron-right-24-filled" class="rs-chev"></iconify-icon>
+        </a>
+        <a class="roster-row" href="c02-checklist.html?pt=kim">
+          <span class="rs-av">김</span>
+          <div class="roster-body">
+            <div class="roster-top">
+              <span class="rs-nm">김순자<span class="rm">B-2</span></span>
+              <span class="rs-dots">
+                <span class="rd done"></span>
+                <span class="rd"></span>
+                <span class="rd"></span>
+                <span class="rd"></span>
+              </span>
+            </div>
+            <div class="rs-next">
+              <iconify-icon icon="fluent:clock-24-regular"></iconify-icon>
+              다음 · <b>복약</b> · 11:00
+            </div>
+          </div>
+          <iconify-icon icon="fluent:chevron-right-24-filled" class="rs-chev"></iconify-icon>
+        </a>
+        <a class="roster-row warn" href="c02-checklist.html?pt=lee">
+          <span class="rs-av warn">이</span>
+          <div class="roster-body">
+            <div class="roster-top">
+              <span class="rs-nm">이정숙<span class="rm">B-2</span></span>
+              <span class="rs-dots">
+                <span class="rd warn"></span>
+                <span class="rd"></span>
+                <span class="rd"></span>
+                <span class="rd"></span>
+              </span>
+            </div>
+            <div class="rs-next">
+              <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>
+              체온 재측정 대기 · <b>미열 관찰</b>
+            </div>
+          </div>
+          <iconify-icon icon="fluent:chevron-right-24-filled" class="rs-chev"></iconify-icon>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ 하단 바 ============ -->
+  <div class="tab-wrap">
+    <nav class="tabbar" role="tablist">
+      <a href="c01-today.html" class="tab active" aria-label="홈"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></a>
+      <a href="c02-checklist.html" class="tab" aria-label="기록"><iconify-icon icon="fluent:clipboard-task-list-ltr-24-filled"></iconify-icon></a>
+      <a href="c03-sotong.html" class="tab" aria-label="소통"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></a>
+      <a href="c04-mypage.html" class="tab" aria-label="마이"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></a>
+    </nav>
+    <button class="sos" id="sosBtn" aria-label="긴급 SOS (3초 누르면 즉시 발신)">
+      <span class="sos-ring" aria-hidden="true">
+        <svg viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="27"/>
+        </svg>
+      </span>
+      <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- ============ 오버레이 ============ -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div id="sheetContent"></div>
+    </div>
+  </div>
+  <div class="toast" id="toastEl"></div>
+
+  <script>
+
+    /* ---- 인수인계 접힘 ---- */
+    function toggleHandover() {
+      document.getElementById('handover').classList.toggle('open');
+    }
+
+    /* ---- 히어로 더보기 (완료 · 연기 · 상세) ---- */
+    function openHeroMenu() {
+      document.getElementById('sheetContent').innerHTML = `
+        <div class="sheet-head">
+          <div class="sheet-ico" style="background:linear-gradient(135deg,var(--brand-green-400),var(--accent))">
+            <iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon>
+          </div>
+          <div>
+            <div class="sheet-ttl">박영자 어르신 · 혈압 측정</div>
+            <div class="sheet-sub">10:15 · 2층 A-3호</div>
+          </div>
+        </div>
+        <button class="sheet-row" style="width:100%;border:0;text-align:left;font-family:inherit" onclick="toast('박영자 · 혈압 측정 완료 처리');closeSheet()">
+          <span class="sheet-row-ico" style="color:var(--accent-strong)"><iconify-icon icon="fluent:checkmark-24-filled"></iconify-icon></span>
+          <span class="sheet-row-text">
+            <span class="sheet-row-label" style="display:block">완료 처리</span>
+            <span class="sheet-row-val" style="display:block">따로 측정 없이 완료로 표시</span>
+          </span>
+        </button>
+        <button class="sheet-row" style="width:100%;border:0;text-align:left;font-family:inherit" onclick="toast('10:30으로 연기');closeSheet()">
+          <span class="sheet-row-ico" style="color:var(--t2)"><iconify-icon icon="fluent:clock-24-filled"></iconify-icon></span>
+          <span class="sheet-row-text">
+            <span class="sheet-row-label" style="display:block">10:30으로 연기</span>
+            <span class="sheet-row-val" style="display:block">다음 측정 슬롯으로 미룸</span>
+          </span>
+        </button>
+        <button class="sheet-row" style="width:100%;border:0;text-align:left;font-family:inherit" onclick="toast('박영자 어르신 상세');closeSheet()">
+          <span class="sheet-row-ico" style="color:var(--t2)"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span>
+          <span class="sheet-row-text">
+            <span class="sheet-row-label" style="display:block">어르신 상세</span>
+            <span class="sheet-row-val" style="display:block">복약 · 식사 · 기록 보기</span>
+          </span>
+        </button>`;
+      document.getElementById('overlay').classList.add('show');
+    }
+
+    /* ---- SOS · 탭=시트, 롱프레스 3초=즉시 음성 발신 ---- */
+    (function(){
+      const btn = document.getElementById('sosBtn');
+      const ring = btn.querySelector('.sos-ring circle');
+      const CIRC = 172;          // ≈ 2πr (r=27)
+      const HOLD_MS = 3000;
+      let holdStart = 0, holdRAF = 0, holdFired = false, tapTimer = 0;
+
+      function resetRing() { ring.style.strokeDashoffset = CIRC; btn.classList.remove('holding'); }
+      function animRing(ts) {
+        const elapsed = ts - holdStart;
+        const p = Math.min(elapsed / HOLD_MS, 1);
+        ring.style.strokeDashoffset = CIRC - CIRC * p;
+        if (p < 1 && !holdFired) {
+          holdRAF = requestAnimationFrame(animRing);
+        } else if (p >= 1 && !holdFired) {
+          holdFired = true;
+          navigator.vibrate && navigator.vibrate([30, 60, 120]);
+          toast('SOS 즉시 발신 · 음성 녹음 시작');
+          setTimeout(resetRing, 500);
+        }
+      }
+      function start(e) {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        e.preventDefault();
+        holdFired = false; btn.classList.add('holding');
+        holdStart = performance.now();
+        holdRAF = requestAnimationFrame(animRing);
+      }
+      function end(e) {
+        cancelAnimationFrame(holdRAF);
+        const held = performance.now() - holdStart;
+        if (holdFired) { resetRing(); return; }
+        resetRing();
+        if (held < 400) {
+          openSosSheet();
+        }
+      }
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('touchstart', start, { passive: false });
+      btn.addEventListener('mouseup', end);
+      btn.addEventListener('mouseleave', end);
+      btn.addEventListener('touchend', end);
+      btn.addEventListener('touchcancel', end);
+    })();
+
+    function openSosSheet() {
+      document.getElementById('sheetContent').innerHTML = `
+        <div class="sheet-head">
+          <div class="sheet-ico" style="background:linear-gradient(135deg,#F87171,var(--palette-red-700))">
+            <iconify-icon icon="fluent:warning-24-filled"></iconify-icon>
+          </div>
+          <div>
+            <div class="sheet-ttl" style="color:var(--palette-red-700)">긴급 상황 알리기</div>
+            <div class="sheet-sub">상황을 선택하면 간호사·보호자에게 즉시 전송됩니다</div>
+          </div>
+        </div>
+        <div class="sos-grid">
+          <button class="sos-card" onclick="sosSend('낙상')">
+            <iconify-icon icon="fluent:person-arrow-back-24-filled"></iconify-icon>
+            <span class="sos-card-t">낙상</span>
+          </button>
+          <button class="sos-card" onclick="sosSend('의식 저하')">
+            <iconify-icon icon="fluent:brain-circuit-24-filled"></iconify-icon>
+            <span class="sos-card-t">의식 저하</span>
+          </button>
+          <button class="sos-card" onclick="sosSend('호흡 곤란')">
+            <iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon>
+            <span class="sos-card-t">호흡 곤란</span>
+          </button>
+          <button class="sos-card" onclick="sosSend('기타 · 음성')">
+            <iconify-icon icon="fluent:mic-24-filled"></iconify-icon>
+            <span class="sos-card-t">기타 · 음성</span>
+          </button>
+        </div>
+        <div class="sos-hint">
+          버튼을 <b>3초 길게 누르면</b> 즉시 음성 SOS가 발신됩니다 (오발신 방지)
+        </div>`;
+      document.getElementById('overlay').classList.add('show');
+    }
+
+    function sosSend(type) { closeSheet(); toast(`SOS [${type}] 발송됨 · 간호사·보호자 통지`); }
+    function closeSheet()  { document.getElementById('overlay').classList.remove('show'); }
+    function toast(m) {
+      const t = document.getElementById('toastEl');
+      t.textContent = m; t.classList.add('show');
+      clearTimeout(t._x); t._x = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+  </script>
+</body>
+</html>

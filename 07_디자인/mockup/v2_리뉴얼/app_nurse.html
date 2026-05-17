@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 의료진 앱 v2</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 390px; min-height: 844px; background: #F2F2F7; font-family: 'Pretendard', -apple-system, sans-serif; color: #1C1C1E; -webkit-font-smoothing: antialiased; }
+.status-bar { height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; }
+.large-title { padding: 8px 20px 4px; }
+.large-title h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
+.large-title h1 span { color: #5BAE8C; }
+.large-title .sub { font-size: 15px; color: #8E8E93; margin-top: 2px; }
+.content { padding: 0 20px 100px; }
+.grouped-card { background: #fff; border-radius: 16px; margin-bottom: 16px; overflow: hidden; }
+.grouped-card-header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+.grouped-card-title { font-size: 13px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.5px; }
+.grouped-card-action { font-size: 15px; color: #5BAE8C; font-weight: 600; }
+.list-row { display: flex; align-items: center; padding: 14px 20px; border-bottom: 0.5px solid rgba(60,60,67,0.1); gap: 14px; }
+.list-row:last-child { border: none; }
+.list-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.list-content { flex: 1; }
+.list-title { font-size: 16px; font-weight: 500; }
+.list-sub { font-size: 13px; color: #8E8E93; margin-top: 1px; }
+.list-right { text-align: right; }
+.list-value { font-size: 17px; font-weight: 600; }
+
+/* SOS */
+.sos-btn { width: 100%; background: #FF3B30; color: #fff; border: none; border-radius: 16px; padding: 18px; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; }
+
+/* Shift card */
+.shift-card { background: linear-gradient(145deg, #5BAE8C, #4A9A7C); border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px; }
+.shift-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.shift-label { font-size: 13px; opacity: 0.8; }
+.shift-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+.shift-metrics { display: flex; gap: 10px; }
+.shift-metric { flex: 1; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px; text-align: center; }
+.shift-metric-value { font-size: 22px; font-weight: 800; }
+.shift-metric-label { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+
+/* Patient status badge */
+.p-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+.p-status.good { background: #E8F5E9; color: #34C759; }
+.p-status.warn { background: #FFF3E0; color: #FF9500; }
+.p-status.alert { background: #FFEBEE; color: #FF3B30; }
+
+/* Checklist (Apple Health checklist style) */
+.check-row { display: flex; align-items: center; padding: 14px 20px; border-bottom: 0.5px solid rgba(60,60,67,0.1); gap: 14px; }
+.check-row:last-child { border: none; }
+.check-circle { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #D1D1D6; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.check-circle.done { background: #5BAE8C; border-color: #5BAE8C; color: #fff; }
+.check-label { flex: 1; font-size: 16px; }
+.check-label.done-l { color: #8E8E93; text-decoration: line-through; }
+.check-time { font-size: 13px; color: #8E8E93; }
+
+/* Handoff (Apple Health highlight style) */
+.handoff-item { padding: 14px 20px; border-bottom: 0.5px solid rgba(60,60,67,0.1); }
+.handoff-item:last-child { border: none; }
+.handoff-tag { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.handoff-text { font-size: 15px; line-height: 1.5; }
+
+/* Tab bar */
+.tab-bar { position: fixed; bottom: 0; left: 0; width: 390px; height: 83px; background: rgba(249,249,249,0.94); backdrop-filter: blur(20px); border-top: 0.5px solid rgba(60,60,67,0.15); display: flex; padding: 6px 0 28px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 500; color: #8E8E93; border: none; background: none; }
+.tab.active { color: #5BAE8C; }
+.tab-icon { font-size: 24px; }
+</style>
+</head>
+<body>
+<div class="status-bar"><span>9:41</span><span style="display:flex;gap:6px;font-size:12px">📶 📡 🔋</span></div>
+
+<div class="large-title">
+  <h1>하루<span>안부</span></h1>
+  <div class="sub">박지현 간호사 · 주간근무</div>
+</div>
+
+<div class="content">
+
+  <button class="sos-btn">🚨 SOS 긴급 알림 발송</button>
+
+  <div class="shift-card">
+    <div class="shift-top">
+      <div><div class="shift-label">오늘 근무</div><div class="shift-value">주간 07:00 ~ 17:00</div></div>
+      <div style="font-size:28px">🩺</div>
+    </div>
+    <div class="shift-metrics">
+      <div class="shift-metric"><div class="shift-metric-value">15</div><div class="shift-metric-label">담당 환자</div></div>
+      <div class="shift-metric"><div class="shift-metric-value">73%</div><div class="shift-metric-label">완료율</div></div>
+      <div class="shift-metric"><div class="shift-metric-value">3</div><div class="shift-metric-label">미완료</div></div>
+    </div>
+  </div>
+
+  <!-- Patient list -->
+  <div class="grouped-card">
+    <div class="grouped-card-header"><span class="grouped-card-title">담당 환자</span><span class="grouped-card-action">전체 15명</span></div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#F2F2F7">👵</div>
+      <div class="list-content"><div class="list-title">김순자</div><div class="list-sub">101호 · 3등급 · 4/6 완료</div></div>
+      <span class="p-status good">양호</span>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#F2F2F7">👴</div>
+      <div class="list-content"><div class="list-title">이영수</div><div class="list-sub">102호 · 2등급 · 2/5 진행 중</div></div>
+      <span class="p-status warn">주의</span>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#F2F2F7">👴</div>
+      <div class="list-content"><div class="list-title">최만호</div><div class="list-sub">105호 · 2등급 · 혈압 높음</div></div>
+      <span class="p-status alert">긴급</span>
+    </div>
+  </div>
+
+  <!-- Checklist (Apple Health checklist style) -->
+  <div class="grouped-card">
+    <div class="grouped-card-header"><span class="grouped-card-title">체크리스트 · 김순자</span><span class="grouped-card-action">환자 변경</span></div>
+    <div class="check-row"><div class="check-circle done">✓</div><div class="check-label done-l">오전 투약 완료</div><div class="check-time">09:00</div></div>
+    <div class="check-row"><div class="check-circle done">✓</div><div class="check-label done-l">혈압 측정 120/80</div><div class="check-time">09:30</div></div>
+    <div class="check-row"><div class="check-circle done">✓</div><div class="check-label done-l">재활운동 30분</div><div class="check-time">10:00</div></div>
+    <div class="check-row"><div class="check-circle done">✓</div><div class="check-label done-l">점심 식사 85%</div><div class="check-time">12:30</div></div>
+    <div class="check-row"><div class="check-circle"></div><div class="check-label">오후 투약</div><div class="check-time">14:00</div></div>
+    <div class="check-row"><div class="check-circle"></div><div class="check-label">위생 케어</div><div class="check-time">15:00</div></div>
+  </div>
+
+  <!-- Handoff (AI auto) -->
+  <div class="grouped-card">
+    <div class="grouped-card-header"><span class="grouped-card-title">🔄 인수인계 리포트</span><span class="grouped-card-action">AI 자동</span></div>
+    <div class="handoff-item"><div class="handoff-tag" style="color:#FF3B30">⚠️ 주의 환자</div><div class="handoff-text">최만호 (105호) — 오전 혈압 160/95, 야간 모니터링 필요</div></div>
+    <div class="handoff-item"><div class="handoff-tag" style="color:#FF9500">📋 미완료</div><div class="handoff-text">이영수 오후 투약 · 김순자 위생 케어</div></div>
+    <div class="handoff-item"><div class="handoff-tag" style="color:#5BAE8C">💬 보호자 요청</div><div class="handoff-text">김미영 — 채팅 회신 필요</div></div>
+  </div>
+
+  <!-- Chat -->
+  <div class="grouped-card">
+    <div class="grouped-card-header"><span class="grouped-card-title">최근 채팅</span><span class="grouped-card-action">전체보기</span></div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#4A7FBF;color:#fff;font-size:14px;font-weight:700;border-radius:50%">김</div>
+      <div class="list-content"><div class="list-title">김미영 (김순자 보호자)</div><div class="list-sub">어머니 오늘 기분은 어떠셨나요?</div></div>
+      <div class="list-right"><div style="font-size:11px;color:#8E8E93">10:32</div><div style="width:20px;height:20px;background:#5BAE8C;color:#fff;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto">1</div></div>
+    </div>
+    <div class="list-row">
+      <div class="list-icon" style="background:#5BAE8C;color:#fff;font-size:14px;font-weight:700;border-radius:50%">이</div>
+      <div class="list-content"><div class="list-title">이수연 (이영수 보호자)</div><div class="list-sub">약 바뀐 거 확인했습니다</div></div>
+      <div class="list-right"><div style="font-size:11px;color:#8E8E93">09:15</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <div class="tab active"><span class="tab-icon">🏠</span>홈</div>
+  <div class="tab"><span class="tab-icon">✅</span>체크</div>
+  <div class="tab"><span class="tab-icon">🚨</span>SOS</div>
+  <div class="tab"><span class="tab-icon">💬</span>채팅</div>
+  <div class="tab"><span class="tab-icon">☰</span>더보기</div>
+</div>
+</body></html>

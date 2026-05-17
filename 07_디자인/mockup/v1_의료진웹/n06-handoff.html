@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 인수인계 — 하루안부 의료진</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ── Handoff Page Specific ── */
+    .handoff-header-card {
+      background: linear-gradient(135deg, var(--nurse-deeper) 0%, var(--nurse-dark) 50%, var(--nurse) 100%);
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 32px rgba(5,150,105,.28);
+      position: relative;
+      overflow: hidden;
+    }
+    .handoff-header-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.07);
+    }
+    .handoff-header-card::after {
+      content: '';
+      position: absolute;
+      bottom: -70px; left: 35%;
+      width: 350px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .handoff-header-left { position: relative; z-index: 1; }
+    .handoff-title { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .handoff-title-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: rgba(255,255,255,.18);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .handoff-meta { display: flex; gap: 20px; }
+    .handoff-meta-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: rgba(255,255,255,.82); font-weight: 600;
+    }
+    .handoff-arrow-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px; padding: 10px 18px;
+      position: relative; z-index: 1;
+    }
+    .handoff-nurse { text-align: center; }
+    .handoff-nurse-name { font-size: 14px; font-weight: 800; color: #fff; }
+    .handoff-nurse-role { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 2px; }
+    .handoff-arrow-icon { font-size: 22px; color: rgba(255,255,255,.70); }
+
+    /* AI Report Card */
+    .ai-report-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .ai-report-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(148deg, rgba(255,255,255,.38) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    .ai-report-card > * { position: relative; z-index: 1; }
+
+    .ai-report-header {
+      padding: 16px 20px;
+      border-bottom: 0.5px solid rgba(0,0,0,.07);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, var(--nurse-deeper), var(--nurse));
+      color: #fff; font-size: 11px; font-weight: 800;
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .ai-generated-label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
+    .ai-report-date { margin-left: auto; font-size: 12px; color: var(--slate-400); }
+
+    /* Section Items */
+    .report-section { padding: 16px 20px; border-bottom: 0.5px solid rgba(0,0,0,.06); }
+    .report-section:last-child { border-bottom: none; }
+    .report-section-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .7px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .report-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      border-left: 3px solid transparent;
+      margin-bottom: 8px;
+    }
+    .report-item:last-child { margin-bottom: 0; }
+    .report-item.critical {
+      background: rgba(239,68,68,.06);
+      border-left-color: var(--red-500);
+    }
+    .report-item.warning {
+      background: rgba(249,115,22,.06);
+      border-left-color: var(--orange-500);
+    }
+    .report-item.ok {
+      background: rgba(5,150,105,.06);
+      border-left-color: var(--nurse);
+    }
+    .report-item.info {
+      background: rgba(59,130,246,.06);
+      border-left-color: var(--blue-500);
+    }
+    .report-item-emoji { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .report-item-body { flex: 1; }
+    .report-item-patient { font-size: 13px; font-weight: 700; color: var(--slate-800); margin-bottom: 3px; }
+    .report-item-desc { font-size: 12px; color: var(--slate-600); line-height: 1.55; }
+    .report-item-tag {
+      display: inline-flex; align-items: center;
+      margin-top: 5px; font-size: 10px; font-weight: 700;
+      padding: 2px 9px; border-radius: 999px;
+    }
+    .report-item.critical .report-item-tag { background: rgba(239,68,68,.12); color: var(--red-600); }
+    .report-item.warning  .report-item-tag { background: rgba(249,115,22,.12); color: var(--orange-500); }
+    .report-item.ok       .report-item-tag { background: rgba(5,150,105,.12);  color: var(--nurse-dark); }
+    .report-item.info     .report-item-tag { background: rgba(59,130,246,.12); color: var(--blue-600); }
+
+    /* Expandable section */
+    .expandable-section {
+      background: rgba(0,0,0,.03); border-radius: 12px;
+      overflow: hidden; cursor: pointer;
+    }
+    .expandable-header {
+      padding: 13px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; font-weight: 700; color: var(--slate-700);
+      user-select: none;
+    }
+    .expandable-header:hover { background: rgba(0,0,0,.03); }
+    .expandable-header iconify-icon { font-size: 16px; color: var(--slate-400); transition: transform .2s; }
+    .expandable-header.open iconify-icon { transform: rotate(180deg); }
+    .expandable-body {
+      display: none; padding: 0 16px 14px;
+    }
+    .expandable-body.open { display: block; }
+    .pt-summary-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,.05);
+      font-size: 12px; color: var(--slate-700);
+    }
+    .pt-summary-row:last-child { border-bottom: none; }
+    .pt-room { font-weight: 700; color: var(--slate-800); width: 50px; flex-shrink: 0; }
+    .pt-summary-badge {
+      padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; flex-shrink: 0;
+    }
+    .pt-summary-badge.normal  { background: var(--nurse-50);  color: var(--nurse-dark); }
+    .pt-summary-badge.caution { background: #FEF3C7; color: #92400E; }
+    .pt-summary-badge.critical { background: #FEE2E2; color: var(--red-600); }
+
+    /* Memo Section */
+    .memo-section {
+      padding: 14px 20px;
+      border-top: 0.5px solid rgba(0,0,0,.07);
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .memo-input-inline {
+      flex: 1; border: none; background: transparent;
+      font-size: 13px; font-family: var(--font); color: var(--slate-600);
+      outline: none; padding: 6px 10px;
+      border-radius: 8px; resize: none;
+      border: 0.5px dashed rgba(0,0,0,.12);
+      transition: all .14s; min-height: 48px;
+    }
+    .memo-input-inline:focus { border-color: var(--nurse); background: rgba(5,150,105,.04); }
+    .memo-input-inline::placeholder { color: var(--slate-400); }
+    .memo-add-btn {
+      padding: 8px 14px; border-radius: 10px;
+      background: rgba(5,150,105,.10); color: var(--nurse);
+      border: 0.5px solid rgba(5,150,105,.20);
+      font-size: 12px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; white-space: nowrap; transition: background .14s; flex-shrink: 0;
+    }
+    .memo-add-btn:hover { background: rgba(5,150,105,.18); }
+
+    /* Bottom Action */
+    .handoff-bottom {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 20px;
+      padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .handoff-send-btn {
+      flex: 1; padding: 15px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--nurse-deeper), var(--nurse));
+      color: #fff; border: none;
+      font-size: 15px; font-weight: 800; font-family: var(--font);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 18px rgba(5,150,105,.30);
+      transition: transform .14s, box-shadow .14s;
+    }
+    .handoff-send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(5,150,105,.40); }
+    .handoff-status {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 18px;
+      background: rgba(5,150,105,.08); border: 0.5px solid rgba(5,150,105,.20);
+      border-radius: 12px;
+    }
+    .handoff-status-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--nurse); flex-shrink: 0;
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0%,100% { box-shadow: 0 0 0 0 rgba(5,150,105,.5); }
+      50%      { box-shadow: 0 0 0 5px rgba(5,150,105,0); }
+    }
+    .handoff-status-text { font-size: 12px; font-weight: 700; color: var(--nurse-dark); }
+    .handoff-status-sub { font-size: 11px; color: var(--slate-500); margin-top: 1px; }
+  </style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg">
+  <div class="bg-g1"></div>
+  <div class="bg-g2"></div>
+  <div class="bg-g3"></div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heart-pulse-bold" style="font-size:20px;color:#fff;"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">Care Intelligence Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <span class="facility-name">햇살요양원 · 2병동</span>
+  </div>
+
+  <div class="nav-section-label">메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:house-bold" class="nav-icon"></iconify-icon>
+        대시보드
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:users-bold" class="nav-icon"></iconify-icon>
+        환자 관리
+        <span class="nav-badge yellow">3</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clipboard-text-bold" class="nav-icon"></iconify-icon>
+        케어 체크리스트
+        <span class="nav-badge">2</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#">
+        <iconify-icon icon="ph:arrows-clockwise-bold" class="nav-icon"></iconify-icon>
+        AI 인수인계
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:siren-bold" class="nav-icon"></iconify-icon>
+        SOS 센터
+        <span class="nav-badge">1</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:chats-bold" class="nav-icon"></iconify-icon>
+        보호자 채팅
+        <span class="nav-badge green">5</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:calendar-bold" class="nav-icon"></iconify-icon>
+        시간표 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:pill-bold" class="nav-icon"></iconify-icon>
+        처방전 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clock-countdown-bold" class="nav-icon"></iconify-icon>
+        의료 타임라인
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">AI 인수인계 리포트</span>
+      <span class="page-date">2026.04.16 목요일</span>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" title="알림">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" title="다운로드">
+        <iconify-icon icon="ph:download-bold"></iconify-icon>
+      </button>
+      <button class="sos-btn">
+        <iconify-icon icon="ph:siren-bold" style="font-size:14px;"></iconify-icon>
+        SOS
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" style="max-width:900px; margin:0 auto; width:100%;">
+
+    <!-- Header Card -->
+    <div class="handoff-header-card">
+      <div class="handoff-header-left">
+        <div class="handoff-title">
+          <div class="handoff-title-icon">
+            <iconify-icon icon="ph:arrows-clockwise-bold" style="font-size:24px;color:#fff;"></iconify-icon>
+          </div>
+          AI 인수인계 리포트
+        </div>
+        <div class="handoff-meta">
+          <div class="handoff-meta-item">
+            <iconify-icon icon="ph:calendar-bold" style="font-size:14px;"></iconify-icon>
+            2026.04.16
+          </div>
+          <div class="handoff-meta-item">
+            <iconify-icon icon="ph:sun-bold" style="font-size:14px;"></iconify-icon>
+            주간 → 야간 교대
+          </div>
+          <div class="handoff-meta-item">
+            <iconify-icon icon="ph:robot-bold" style="font-size:14px;"></iconify-icon>
+            Claude API 자동 생성
+          </div>
+        </div>
+      </div>
+      <div class="handoff-arrow-chip">
+        <div class="handoff-nurse">
+          <div class="handoff-nurse-name">박지현</div>
+          <div class="handoff-nurse-role">주간 수간호사</div>
+        </div>
+        <iconify-icon icon="ph:arrow-right-bold" class="handoff-arrow-icon"></iconify-icon>
+        <div class="handoff-nurse">
+          <div class="handoff-nurse-name">이상훈</div>
+          <div class="handoff-nurse-role">야간 간호사</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Report Card -->
+    <div class="ai-report-card">
+
+      <!-- Report Header -->
+      <div class="ai-report-header">
+        <div class="ai-badge">
+          <iconify-icon icon="ph:robot-bold" style="font-size:12px;"></iconify-icon>
+          AI 생성
+        </div>
+        <span class="ai-generated-label">Claude API 자동 생성 · 2026.04.16 19:45</span>
+        <span class="ai-report-date">2병동 전체 12명</span>
+      </div>
+
+      <!-- 즉시 처리 필요 -->
+      <div class="report-section">
+        <div class="report-section-label" style="color:var(--red-600);">
+          <iconify-icon icon="ph:warning-octagon-bold" style="font-size:14px;"></iconify-icon>
+          즉시 처리 필요
+        </div>
+        <div class="report-item critical">
+          <div class="report-item-emoji">🚨</div>
+          <div class="report-item-body">
+            <div class="report-item-patient">201호 김순자 (여, 82세)</div>
+            <div class="report-item-desc">오늘 14:23 낙상 감지 SOS 발생. 현재 처리 미완료 상태. 야간 교대 즉시 상태 확인 및 보호자 연락 필요. 혈압 140/92 — 기준 초과.</div>
+            <span class="report-item-tag">즉시 확인 필요</span>
+          </div>
+        </div>
+        <div class="report-item critical">
+          <div class="report-item-emoji">💊</div>
+          <div class="report-item-body">
+            <div class="report-item-patient">203호 이철수 (남, 78세)</div>
+            <div class="report-item-desc">오후 투약 체크리스트 미완료. 고혈압 약(암로디핀 5mg) 석식 후 투여 필요. 야간조 인수 즉시 확인 요망.</div>
+            <span class="report-item-tag">투약 미완료</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 모니터링 필요 -->
+      <div class="report-section">
+        <div class="report-section-label" style="color:var(--orange-500);">
+          <iconify-icon icon="ph:eye-bold" style="font-size:14px;"></iconify-icon>
+          모니터링 필요
+        </div>
+        <div class="report-item warning">
+          <div class="report-item-emoji">⚠️</div>
+          <div class="report-item-body">
+            <div class="report-item-patient">205호 박복순 (여, 75세)</div>
+            <div class="report-item-desc">식욕저하 3일 지속. 오늘 저녁 식사 30% 섭취. 체중 감소 추이 지켜볼 필요. 내일 오전 담당 의사 보고 예정.</div>
+            <span class="report-item-tag">3일 연속 식욕저하</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 정상 -->
+      <div class="report-section">
+        <div class="report-section-label" style="color:var(--nurse-dark);">
+          <iconify-icon icon="ph:check-circle-bold" style="font-size:14px;"></iconify-icon>
+          정상
+        </div>
+        <div class="report-item ok">
+          <div class="report-item-emoji">✅</div>
+          <div class="report-item-body">
+            <div class="report-item-patient">9명 특이사항 없음</div>
+            <div class="report-item-desc">207호 정만수, 208호 최영자, 210호 강병철, 211호 류은숙, 212호 오태식 외 4명 — 활력징후 정상, 투약 완료, 케어 체크리스트 100% 이행.</div>
+            <span class="report-item-tag">정상 관리 중</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 보호자 요청사항 -->
+      <div class="report-section">
+        <div class="report-section-label" style="color:var(--blue-600);">
+          <iconify-icon icon="ph:chats-bold" style="font-size:14px;"></iconify-icon>
+          보호자 요청사항
+        </div>
+        <div class="report-item info">
+          <div class="report-item-emoji">💬</div>
+          <div class="report-item-body">
+            <div class="report-item-patient">이민준 (김순자 보호자)</div>
+            <div class="report-item-desc">오늘 오후 어머니 상태 확인 요청 메시지 전송. 낙상 SOS 발생으로 보호자 우려 높음. 야간 교대 후 상태 업데이트 메시지 발송 필요.</div>
+            <span class="report-item-tag">회신 필요</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 전체 환자 케어 요약 (expandable) -->
+      <div class="report-section">
+        <div class="expandable-section">
+          <div class="expandable-header" id="expandBtn" onclick="toggleExpand()">
+            <span style="display:flex;align-items:center;gap:7px;">
+              <iconify-icon icon="ph:list-bullets-bold" style="font-size:15px;color:var(--nurse);"></iconify-icon>
+              전체 환자 케어 요약 (12명)
+            </span>
+            <iconify-icon icon="ph:caret-down-bold"></iconify-icon>
+          </div>
+          <div class="expandable-body" id="expandBody">
+            <div class="pt-summary-row">
+              <span class="pt-room">201호</span>
+              <span>김순자</span>
+              <span class="pt-summary-badge critical">위험</span>
+              <span style="color:var(--slate-500);font-size:12px;">낙상 SOS, 혈압 140/92</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">203호</span>
+              <span>이철수</span>
+              <span class="pt-summary-badge caution">주의</span>
+              <span style="color:var(--slate-500);font-size:12px;">투약 미완, 혈압관리중</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">205호</span>
+              <span>박복순</span>
+              <span class="pt-summary-badge caution">주의</span>
+              <span style="color:var(--slate-500);font-size:12px;">식욕저하 3일 지속</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">207호</span>
+              <span>정만수</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">활력징후 정상</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">208호</span>
+              <span>최영자</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">재활 참여, 상태 양호</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">210호</span>
+              <span>강병철</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">투약 완료</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">211호</span>
+              <span>류은숙</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">수면 良, 특이사항 없음</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">212호</span>
+              <span>오태식</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">혈당 정상</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">214호</span>
+              <span>황미순</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">물리치료 참여</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">215호</span>
+              <span>임종석</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">투약 완료, 양호</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">217호</span>
+              <span>신갑순</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">식사 良, 활발</span>
+            </div>
+            <div class="pt-summary-row">
+              <span class="pt-room">218호</span>
+              <span>권두식</span>
+              <span class="pt-summary-badge normal">정상</span>
+              <span style="color:var(--slate-500);font-size:12px;">특이사항 없음</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수동 메모 -->
+      <div class="memo-section">
+        <iconify-icon icon="ph:pencil-simple-bold" style="font-size:16px;color:var(--slate-400);margin-top:8px;flex-shrink:0;"></iconify-icon>
+        <textarea class="memo-input-inline" placeholder="야간조에 전달할 추가 메모를 입력하세요..."></textarea>
+        <button class="memo-add-btn">메모 추가</button>
+      </div>
+
+    </div>
+
+    <!-- Bottom Action -->
+    <div class="handoff-bottom">
+      <button class="handoff-send-btn">
+        <iconify-icon icon="ph:paper-plane-tilt-bold" style="font-size:18px;"></iconify-icon>
+        인수인계 전달
+      </button>
+      <div class="handoff-status">
+        <div class="handoff-status-dot"></div>
+        <div>
+          <div class="handoff-status-text">야간 이상훈 간호사에게 전달됨</div>
+          <div class="handoff-status-sub">오늘 19:45 자동 전달 예약 완료</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleExpand() {
+  const btn = document.getElementById('expandBtn');
+  const body = document.getElementById('expandBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

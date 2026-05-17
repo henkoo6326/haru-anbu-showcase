@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 스플래시</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.95)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.78)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      max-width: 430px; left: 50%; transform: translateX(-50%);
+    }
+
+    body {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: fadeIn 1s ease both;
+    }
+    .splash-icon {
+      width: 96px; height: 96px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 28px rgba(44,122,252,0.18);
+      animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .splash-icon span {
+      font-size: 48px;
+    }
+    .splash-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1C1C1E;
+      letter-spacing: -1px;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .splash-tagline {
+      font-size: 15px;
+      color: rgba(28,28,30,0.55);
+      font-weight: 500;
+      animation: fadeIn 0.8s ease 0.5s both;
+    }
+    .splash-loader {
+      margin-top: 48px;
+      width: 32px; height: 32px;
+      border: 3px solid rgba(44,122,252,0.2);
+      border-top-color: #2C7AFC;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite, fadeIn 0.5s ease 0.8s both;
+    }
+    .splash-bottom {
+      position: fixed;
+      bottom: 48px;
+      font-size: 12px;
+      color: rgba(28,28,30,0.3);
+      animation: fadeIn 0.8s ease 1s both;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="splash">
+    <div class="splash-icon">
+      <svg width="56" height="56" viewBox="0 0 2526 2526" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/>
+      </svg>
+    </div>
+    <div class="splash-name">하루안부</div>
+    <div class="splash-tagline">오늘 하루도, 안녕하셨습니다</div>
+    <div class="splash-loader"></div>
+  </div>
+  <div class="splash-bottom">© 2026 하루안부 Team</div>
+
+  <script>
+    setTimeout(() => { window.location.href = 'ob02-start.html'; }, 2500);
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하루안부 — Brand System</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --blue: #2C7AFC; --dark: #1E2A3A; --gray: #8C939A; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:#08090C; color:#E0E4EC; padding:48px; }
+  h1 { font-family:'Noto Sans KR'; font-weight:900; font-size:48px; text-align:center; margin-bottom:8px; }
+  .sub { text-align:center; color:rgba(255,255,255,0.3); font-size:14px; margin-bottom:64px; }
+  .section { margin-bottom:64px; }
+  .label { font-size:10px; font-weight:700; letter-spacing:5px; color:var(--blue); margin-bottom:12px; }
+  .title { font-size:28px; font-weight:800; margin-bottom:24px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; }
+  .card {
+    border-radius:24px; padding:40px; display:flex; align-items:center; justify-content:center;
+    min-height:280px; position:relative; overflow:hidden;
+  }
+  .card img, .card object { max-width:100%; max-height:200px; }
+  .card-label {
+    position:absolute; bottom:16px; left:20px;
+    font-size:11px; font-weight:600; letter-spacing:1px; color:rgba(255,255,255,0.35);
+  }
+  .bg-white { background:#fff; }
+  .bg-white .card-label { color:var(--gray); }
+  .bg-warm { background:#FAFAF7; }
+  .bg-warm .card-label { color:var(--gray); }
+  .bg-dark { background:var(--dark); }
+  .bg-blue { background:var(--blue); }
+  .bg-black { background:#000; }
+
+  .wide-card { border-radius:24px; padding:32px 48px; display:flex; align-items:center; justify-content:center; min-height:180px; }
+  .tall-card { border-radius:24px; padding:48px; display:flex; align-items:center; justify-content:center; min-height:400px; }
+
+  /* 앱 아이콘 시뮬 */
+  .icon-row { display:flex; gap:32px; align-items:flex-end; justify-content:center; }
+  .icon-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .app-icon {
+    background:var(--blue); border-radius:22%; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 32px rgba(44,122,252,0.35);
+  }
+  .app-icon img { width:58%; height:58%; filter:brightness(10); }
+  .i1 { width:128px; height:128px; }
+  .i2 { width:96px; height:96px; }
+  .i3 { width:64px; height:64px; }
+  .i4 { width:48px; height:48px; }
+  .icon-sz { font-size:11px; color:rgba(255,255,255,0.25); }
+</style>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<h1>하루안부</h1>
+<p class="sub">Brand Logo System — 5 Variants</p>
+
+<!-- 01 심볼 단독 -->
+<div class="section">
+  <div class="label">01 — SYMBOL</div>
+  <div class="title">심볼 단독</div>
+  <div class="grid3">
+    <div class="card bg-white"><img src="01_심볼단독.svg"><span class="card-label">White</span></div>
+    <div class="card bg-dark"><img src="01_심볼단독.svg"><span class="card-label">Dark</span></div>
+    <div class="card bg-blue"><img src="05_단색버전.svg" style="filter:brightness(10)"><span class="card-label">Reversed</span></div>
+  </div>
+</div>
+
+<!-- 02 워드마크 -->
+<div class="section">
+  <div class="label">02 — WORDMARK</div>
+  <div class="title">워드마크 단독</div>
+  <div class="grid2">
+    <div class="wide-card bg-white"><img src="02_워드마크단독.svg" style="height:48px;"><span class="card-label" style="bottom:12px;left:16px;">White</span></div>
+    <div class="wide-card bg-dark"><img src="02_워드마크단독.svg" style="height:48px;"><span class="card-label" style="bottom:12px;left:16px;">Dark</span></div>
+  </div>
+</div>
+
+<!-- 03 콤비네이션 가로 -->
+<div class="section">
+  <div class="label">03 — COMBINATION HORIZONTAL</div>
+  <div class="title">콤비네이션 가로</div>
+  <div class="wide-card bg-white" style="margin-bottom:16px;"><img src="03_콤비네이션_가로.svg" style="height:100px;"></div>
+  <div class="wide-card bg-dark"><img src="03_콤비네이션_가로.svg" style="height:100px;"></div>
+</div>
+
+<!-- 04 콤비네이션 세로 -->
+<div class="section">
+  <div class="label">04 — COMBINATION VERTICAL</div>
+  <div class="title">콤비네이션 세로</div>
+  <div class="grid2">
+    <div class="tall-card bg-white"><img src="04_콤비네이션_세로.svg" style="height:300px;"></div>
+    <div class="tall-card bg-dark"><img src="04_콤비네이션_세로.svg" style="height:300px;"></div>
+  </div>
+</div>
+
+<!-- 05 단색 -->
+<div class="section">
+  <div class="label">05 — MONOCHROME</div>
+  <div class="title">단색 버전</div>
+  <div class="grid3">
+    <div class="card bg-white"><img src="05_단색버전.svg" style="height:140px;"><span class="card-label">Dark on White</span></div>
+    <div class="card bg-black"><img src="05_단색버전.svg" style="height:140px;filter:brightness(10);"><span class="card-label">White on Black</span></div>
+    <div class="card bg-warm"><img src="05_단색버전.svg" style="height:140px;opacity:0.15;"><span class="card-label">Watermark</span></div>
+  </div>
+</div>
+
+<!-- 앱 아이콘 시뮬 -->
+<div class="section">
+  <div class="label">APP ICON SIMULATION</div>
+  <div class="title">앱 아이콘</div>
+  <div class="icon-row">
+    <div class="icon-wrap"><div class="app-icon i1"><img src="01_심볼단독.svg"></div><span class="icon-sz">128</span></div>
+    <div class="icon-wrap"><div class="app-icon i2"><img src="01_심볼단독.svg"></div><span class="icon-sz">96</span></div>
+    <div class="icon-wrap"><div class="app-icon i3"><img src="01_심볼단독.svg"></div><span class="icon-sz">64</span></div>
+    <div class="icon-wrap"><div class="app-icon i4"><img src="01_심볼단독.svg"></div><span class="icon-sz">48</span></div>
+  </div>
+</div>
+
+</body>
+</html>

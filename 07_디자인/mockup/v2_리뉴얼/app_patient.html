@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 환자 앱 v2</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 390px; min-height: 844px; background: #F2F2F7; font-family: 'Pretendard', -apple-system, sans-serif; color: #1C1C1E; -webkit-font-smoothing: antialiased; }
+.status-bar { height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 600; }
+.content { padding: 0 20px 110px; }
+.grouped-card { background: #fff; border-radius: 16px; margin-bottom: 16px; overflow: hidden; }
+
+/* Large greeting (환자용 큰 글자) */
+.greeting { padding: 12px 20px 8px; }
+.greeting h1 { font-size: 32px; font-weight: 800; line-height: 1.3; }
+.greeting h1 span { color: #D4A574; }
+.greeting .date { font-size: 18px; color: #8E8E93; margin-top: 4px; }
+
+/* Medication alert (Apple Health Blood Pressure Log style) */
+.med-alert { background: linear-gradient(145deg, #34C759, #30B350); border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; }
+.med-alert-icon { font-size: 40px; }
+.med-alert-info { flex: 1; }
+.med-alert-title { font-size: 20px; font-weight: 700; }
+.med-alert-sub { font-size: 15px; opacity: 0.85; margin-top: 2px; }
+.med-alert-btn { background: rgba(255,255,255,0.25); color: #fff; border: none; border-radius: 12px; padding: 12px 20px; font-size: 17px; font-weight: 700; }
+
+/* Next schedule (highlight style) */
+.next-card { background: linear-gradient(145deg, #D4A574, #C4956A); border-radius: 16px; padding: 22px; color: #fff; margin-bottom: 16px; text-align: center; }
+.next-label { font-size: 15px; opacity: 0.8; }
+.next-time { font-size: 48px; font-weight: 800; margin-top: 4px; }
+.next-what { font-size: 22px; font-weight: 600; margin-top: 4px; }
+.next-countdown { font-size: 15px; opacity: 0.7; margin-top: 8px; }
+
+/* Schedule list (Apple Health checklist style) */
+.sched-row { display: flex; align-items: center; padding: 16px 20px; border-bottom: 0.5px solid rgba(60,60,67,0.1); gap: 14px; }
+.sched-row:last-child { border: none; }
+.sched-time { font-size: 18px; font-weight: 600; color: #8E8E93; width: 60px; }
+.sched-badge { padding: 8px 18px; border-radius: 12px; font-size: 16px; font-weight: 600; color: #fff; }
+.sched-done { opacity: 0.4; }
+.sched-check { font-size: 18px; margin-left: auto; }
+
+/* Family card (Apple sharing style) */
+.family-msg { padding: 20px; }
+.family-from { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.family-avatar { width: 40px; height: 40px; border-radius: 50%; background: #4A7FBF; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; }
+.family-name { font-size: 16px; font-weight: 600; }
+.family-time-label { font-size: 13px; color: #8E8E93; }
+.family-text { font-size: 18px; line-height: 1.6; }
+.family-photo { width: 100%; height: 160px; background: #F2F2F7; border-radius: 12px; margin-top: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #8E8E93; }
+
+/* Help buttons (큰 터치 영역 — Apple Emergency SOS 참고) */
+.help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.help-btn { background: #fff; border-radius: 16px; padding: 28px 16px; text-align: center; }
+.help-emoji { font-size: 44px; margin-bottom: 8px; }
+.help-label { font-size: 18px; font-weight: 600; }
+
+/* Emotion check (Apple Health mood logging style) */
+.emotion-card { padding: 20px; }
+.emotion-q { font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+.emotion-options { display: flex; gap: 12px; justify-content: center; }
+.emotion-opt { width: 60px; text-align: center; }
+.emotion-face { font-size: 36px; padding: 8px; border-radius: 16px; background: #F2F2F7; }
+.emotion-face.selected { background: #FFF0E0; }
+.emotion-text { font-size: 12px; color: #8E8E93; margin-top: 4px; }
+
+/* Tab bar - 큰 아이콘 + 큰 글자 */
+.tab-bar { position: fixed; bottom: 0; left: 0; width: 390px; height: 90px; background: rgba(249,249,249,0.94); backdrop-filter: blur(20px); border-top: 0.5px solid rgba(60,60,67,0.15); display: flex; padding: 8px 0 30px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: #8E8E93; border: none; background: none; }
+.tab.active { color: #D4A574; }
+.tab-icon { font-size: 28px; }
+</style>
+</head>
+<body>
+<div class="status-bar"><span>9:41</span><span style="display:flex;gap:6px;font-size:14px">📶 📡 🔋</span></div>
+
+<div class="greeting">
+  <h1>안녕하세요,<br><span>순자</span> 어르신 😊</h1>
+  <div class="date">2026년 3월 23일 일요일</div>
+</div>
+
+<div class="content">
+
+  <!-- Medication alert -->
+  <div class="med-alert">
+    <div class="med-alert-icon">💊</div>
+    <div class="med-alert-info">
+      <div class="med-alert-title">약 드실 시간이에요</div>
+      <div class="med-alert-sub">오후 투약 · 14:00</div>
+    </div>
+    <button class="med-alert-btn">확인</button>
+  </div>
+
+  <!-- Next schedule -->
+  <div class="next-card">
+    <div class="next-label">다음 일정</div>
+    <div class="next-time">14:00</div>
+    <div class="next-what">💊 오후 투약</div>
+    <div class="next-countdown">30분 후</div>
+  </div>
+
+  <!-- Today schedule (Checklist style) -->
+  <div class="grouped-card">
+    <div style="padding:16px 20px 8px;font-size:20px;font-weight:700">📅 오늘 일과</div>
+    <div class="sched-row sched-done"><div class="sched-time">07:00</div><div class="sched-badge" style="background:#FF9500">🍚 조식</div><div class="sched-check">✅</div></div>
+    <div class="sched-row sched-done"><div class="sched-time">09:00</div><div class="sched-badge" style="background:#34C759">💊 오전 투약</div><div class="sched-check">✅</div></div>
+    <div class="sched-row sched-done"><div class="sched-time">10:00</div><div class="sched-badge" style="background:#007AFF">🚶 재활 30분</div><div class="sched-check">✅</div></div>
+    <div class="sched-row sched-done"><div class="sched-time">12:00</div><div class="sched-badge" style="background:#FF9500">🍚 점심</div><div class="sched-check">✅</div></div>
+    <div class="sched-row"><div class="sched-time" style="color:#D4A574;font-weight:700">14:00</div><div class="sched-badge" style="background:#34C759">💊 오후 투약</div></div>
+    <div class="sched-row"><div class="sched-time">15:00</div><div class="sched-badge" style="background:#8E8E93">🚿 위생</div></div>
+    <div class="sched-row"><div class="sched-time">17:00</div><div class="sched-badge" style="background:#FF9500">🍚 석식</div></div>
+  </div>
+
+  <!-- Emotion check (Apple Health mood style) -->
+  <div class="grouped-card">
+    <div class="emotion-card">
+      <div class="emotion-q">오늘 기분이 어떠세요?</div>
+      <div class="emotion-options">
+        <div class="emotion-opt"><div class="emotion-face">😢</div><div class="emotion-text">안좋아요</div></div>
+        <div class="emotion-opt"><div class="emotion-face">😐</div><div class="emotion-text">보통</div></div>
+        <div class="emotion-opt"><div class="emotion-face selected">😊</div><div class="emotion-text">좋아요</div></div>
+        <div class="emotion-opt"><div class="emotion-face">😄</div><div class="emotion-text">아주좋아요</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Family -->
+  <div class="grouped-card">
+    <div class="family-msg">
+      <div class="family-from">
+        <div class="family-avatar">미</div>
+        <div><div class="family-name">딸 미영이</div><div class="family-time-label">오늘 08:30</div></div>
+      </div>
+      <div class="family-text">엄마~ 오늘도 건강하게 보내세요!<br>손녀가 엄마 보고 싶대요 ❤️</div>
+      <div class="family-photo">📸 손녀 사진 [탭하면 크게 보기]</div>
+    </div>
+  </div>
+
+  <!-- Help buttons -->
+  <div style="font-size:20px;font-weight:700;margin-bottom:12px;padding:0 4px">🆘 도움이 필요해요</div>
+  <div class="help-grid">
+    <div class="help-btn"><div class="help-emoji">💧</div><div class="help-label">물 주세요</div></div>
+    <div class="help-btn"><div class="help-emoji">🥶</div><div class="help-label">추워요</div></div>
+    <div class="help-btn"><div class="help-emoji">🤕</div><div class="help-label">아파요</div></div>
+    <div class="help-btn"><div class="help-emoji">🔔</div><div class="help-label">도움 요청</div></div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <div class="tab active"><span class="tab-icon">🏠</span>홈</div>
+  <div class="tab"><span class="tab-icon">👨‍👩‍👧</span>가족</div>
+  <div class="tab"><span class="tab-icon">🆘</span>도움</div>
+</div>
+</body></html>

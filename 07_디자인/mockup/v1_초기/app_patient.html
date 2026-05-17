@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 환자 앱</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 390px; min-height: 844px; background: #FDF8F3; font-family: 'Pretendard', -apple-system, sans-serif; color: #1E2A3A; }
+.status-bar { height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 600; }
+
+/* Header - 큰 글자 */
+.header { padding: 16px 24px 12px; }
+.greeting { font-size: 28px; font-weight: 800; line-height: 1.4; }
+.greeting span { color: #D4A574; }
+.date { font-size: 18px; color: #8C939A; margin-top: 6px; }
+
+.content { padding: 0 24px 120px; }
+
+/* Today schedule */
+.schedule-card { background: #fff; border-radius: 24px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+.schedule-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.schedule-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #F5F0EB; }
+.schedule-item:last-child { border: none; }
+.s-time { font-size: 18px; font-weight: 700; color: #8C939A; width: 70px; }
+.s-badge { padding: 8px 18px; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff; }
+.s-done { text-decoration: line-through; opacity: 0.5; }
+
+/* Next up card */
+.next-card { background: linear-gradient(135deg, #D4A574, #E8C9A0); border-radius: 24px; padding: 28px; color: #fff; margin-bottom: 24px; }
+.next-label { font-size: 16px; opacity: 0.8; }
+.next-time { font-size: 36px; font-weight: 800; margin-top: 8px; }
+.next-what { font-size: 22px; font-weight: 700; margin-top: 4px; }
+.next-countdown { font-size: 16px; opacity: 0.8; margin-top: 12px; }
+
+/* Family section */
+.family-card { background: #fff; border-radius: 24px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+.family-title { font-size: 22px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.family-msg { background: #FDF8F3; border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+.family-from { font-size: 16px; font-weight: 700; color: #D4A574; }
+.family-text { font-size: 18px; margin-top: 8px; line-height: 1.6; }
+.family-time { font-size: 14px; color: #8C939A; margin-top: 6px; }
+.family-photo { width: 100%; height: 180px; background: #F0E8E0; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #C0B0A0; }
+
+/* Help buttons - 매우 큰 터치 영역 */
+.help-section { margin-bottom: 24px; }
+.help-title { font-size: 22px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.help-btn { background: #fff; border: 2px solid #F0E8E0; border-radius: 20px; padding: 28px 16px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.help-btn:active { background: #FDF8F3; border-color: #D4A574; }
+.help-emoji { font-size: 42px; margin-bottom: 10px; }
+.help-label { font-size: 20px; font-weight: 700; }
+
+/* Medication reminder */
+.med-card { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: 24px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.med-icon { font-size: 40px; }
+.med-info { flex: 1; }
+.med-title { font-size: 20px; font-weight: 700; color: #2E7D32; }
+.med-detail { font-size: 16px; color: #4CAF50; margin-top: 4px; }
+.med-btn { background: #4CAF50; color: #fff; border: none; border-radius: 14px; padding: 14px 24px; font-size: 18px; font-weight: 700; cursor: pointer; }
+
+/* Tab bar - 큰 아이콘 */
+.tab-bar { position: fixed; bottom: 0; left: 0; width: 390px; height: 90px; background: #fff; border-top: 1px solid #F0E8E0; display: flex; padding: 8px 0 28px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #C0B0A0; border: none; background: none; }
+.tab.active { color: #D4A574; }
+.tab-icon { font-size: 28px; }
+</style>
+</head>
+<body>
+<div class="status-bar"><span>9:41</span><span style="display:flex;gap:6px;font-size:14px">📶 📡 🔋</span></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="greeting">안녕하세요,<br><span>순자</span> 어르신 😊</div>
+  <div class="date">2026년 3월 23일 일요일</div>
+</div>
+
+<div class="content">
+
+  <!-- Medication reminder -->
+  <div class="med-card">
+    <div class="med-icon">💊</div>
+    <div class="med-info">
+      <div class="med-title">약 드실 시간이에요</div>
+      <div class="med-detail">오후 투약 · 14:00</div>
+    </div>
+    <button class="med-btn">확인</button>
+  </div>
+
+  <!-- Next up -->
+  <div class="next-card">
+    <div class="next-label">다음 일정</div>
+    <div class="next-time">14:00</div>
+    <div class="next-what">오후 투약</div>
+    <div class="next-countdown">30분 후</div>
+  </div>
+
+  <!-- Today schedule -->
+  <div class="schedule-card">
+    <div class="schedule-title">📅 오늘 일과</div>
+    <div class="schedule-item s-done">
+      <div class="s-time">07:00</div>
+      <div class="s-badge" style="background:#FFB74D">🍚 조식</div>
+    </div>
+    <div class="schedule-item s-done">
+      <div class="s-time">09:00</div>
+      <div class="s-badge" style="background:#4CAF50">💊 오전 투약</div>
+    </div>
+    <div class="schedule-item s-done">
+      <div class="s-time">10:00</div>
+      <div class="s-badge" style="background:#4A7FBF">🚶 재활 30분</div>
+    </div>
+    <div class="schedule-item s-done">
+      <div class="s-time">12:00</div>
+      <div class="s-badge" style="background:#FFB74D">🍚 점심</div>
+    </div>
+    <div class="schedule-item">
+      <div class="s-time" style="color:#D4A574">14:00</div>
+      <div class="s-badge" style="background:#4CAF50">💊 오후 투약</div>
+    </div>
+    <div class="schedule-item">
+      <div class="s-time">15:00</div>
+      <div class="s-badge" style="background:#8C939A">🚿 위생</div>
+    </div>
+    <div class="schedule-item">
+      <div class="s-time">17:00</div>
+      <div class="s-badge" style="background:#FFB74D">🍚 석식</div>
+    </div>
+  </div>
+
+  <!-- Family -->
+  <div class="family-card">
+    <div class="family-title">👨‍👩‍👧 가족 소식</div>
+    <div class="family-msg">
+      <div class="family-from">딸 미영이</div>
+      <div class="family-text">엄마~ 오늘도 건강하게 보내세요!<br>손녀가 엄마 보고 싶대요 ❤️</div>
+      <div class="family-time">오늘 08:30</div>
+    </div>
+    <div class="family-photo">📸 손녀 사진 [탭하면 크게 보기]</div>
+  </div>
+
+  <!-- Help buttons -->
+  <div class="help-section">
+    <div class="help-title">🆘 도움이 필요해요</div>
+    <div class="help-grid">
+      <div class="help-btn">
+        <div class="help-emoji">💧</div>
+        <div class="help-label">물 주세요</div>
+      </div>
+      <div class="help-btn">
+        <div class="help-emoji">🥶</div>
+        <div class="help-label">추워요</div>
+      </div>
+      <div class="help-btn">
+        <div class="help-emoji">🤕</div>
+        <div class="help-label">아파요</div>
+      </div>
+      <div class="help-btn">
+        <div class="help-emoji">🔔</div>
+        <div class="help-label">도움 요청</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <div class="tab active"><span class="tab-icon">🏠</span>홈</div>
+  <div class="tab"><span class="tab-icon">👨‍👩‍👧</span>가족</div>
+  <div class="tab"><span class="tab-icon">🆘</span>도움</div>
+</div>
+</body></html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-s:#5B9BFF;
+      --mint:#34D399;--amber:#FBBF24;
+      --t1:#fff;--t2:rgba(255,255,255,.6);--t3:rgba(255,255,255,.35);
+      --glass:rgba(255,255,255,.08);
+      --glass-b:rgba(255,255,255,.12);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html,body{height:100%;overflow-x:hidden}
+    body{font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#020818}
+    .wrap{max-width:430px;margin:0 auto;position:relative;min-height:100%;padding-bottom:100px}
+
+    /* ═══ 배경 — 레퍼런스 이미지 재현 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden}
+
+    /* 상단: 밝은 블루 코어 */
+    .bg .top-glow{
+      position:absolute;width:500px;height:500px;
+      left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;
+      background:radial-gradient(circle,
+        rgba(60,140,255,.7) 0%,
+        rgba(44,122,252,.5) 25%,
+        rgba(30,80,220,.3) 45%,
+        transparent 65%
+      );
+      filter:blur(30px);
+      animation:tg 8s ease-in-out infinite alternate;
+    }
+    @keyframes tg{
+      0%{transform:translateX(-50%)scale(1)translateY(0)}
+      100%{transform:translateX(-48%)scale(1.08)translateY(15px)}
+    }
+
+    /* 중간: 다크 네이비 존 — 깊은 그림자 */
+    .bg .mid-dark{
+      position:absolute;width:600px;height:400px;
+      left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;
+      background:radial-gradient(ellipse 100% 80%,
+        rgba(5,15,50,.9) 0%,
+        rgba(10,20,60,.5) 40%,
+        transparent 70%
+      );
+      filter:blur(40px);
+      animation:md 10s ease-in-out infinite alternate;
+    }
+    @keyframes md{
+      0%{transform:translate(-50%,-50%)scale(1)}
+      100%{transform:translate(-52%,-48%)scale(1.05)}
+    }
+
+    /* 하단: 밝은 시안/스카이블루 */
+    .bg .bot-cyan{
+      position:absolute;width:700px;height:500px;
+      left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;
+      background:radial-gradient(ellipse 100% 70%,
+        rgba(80,190,255,.4) 0%,
+        rgba(60,170,255,.25) 30%,
+        rgba(44,122,252,.1) 55%,
+        transparent 75%
+      );
+      filter:blur(35px);
+      animation:bc 12s ease-in-out infinite alternate;
+    }
+    @keyframes bc{
+      0%{transform:translateX(-50%)scale(1)}
+      100%{transform:translateX(-48%)scale(1.06)translateY(-10px)}
+    }
+
+    /* 좌측 블루 액센트 */
+    .bg .side-l{
+      position:absolute;width:250px;height:350px;
+      left:-8%;top:20%;border-radius:50%;
+      background:radial-gradient(ellipse,rgba(44,122,252,.25) 0%,transparent 60%);
+      filter:blur(45px);animation:sl 14s ease-in-out infinite alternate;
+    }
+    @keyframes sl{0%{transform:translate(0,0)}100%{transform:translate(12px,25px)}}
+
+    /* 우측 시안 액센트 */
+    .bg .side-r{
+      position:absolute;width:220px;height:300px;
+      right:-5%;top:55%;border-radius:50%;
+      background:radial-gradient(ellipse,rgba(80,190,255,.2) 0%,transparent 55%);
+      filter:blur(40px);animation:sr 16s ease-in-out infinite alternate;
+    }
+    @keyframes sr{0%{transform:translate(0,0)}100%{transform:translate(-15px,-20px)}}
+
+    /* 미세한 노이즈 오버레이 */
+    .bg::after{
+      content:'';position:absolute;inset:0;
+      opacity:.015;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:128px;
+    }
+
+    /* ═══ 상단바 ═══ */
+    .top{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:54px 20px 0}
+    .tl{display:flex;align-items:center;gap:8px}
+    .logo{width:22px;height:22px}
+    .ln{font-size:16px;font-weight:700;letter-spacing:-.3px}
+    .tr{display:flex;align-items:center;gap:8px}
+    .ib{
+      width:34px;height:34px;border-radius:50%;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;
+    }
+    .nd{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--amber);border:1.5px solid rgba(0,0,0,.3)}
+    .av{
+      width:34px;height:34px;border-radius:50%;
+      background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+      font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    }
+
+    /* ═══ 환자 ═══ */
+    .pt{position:relative;z-index:10;display:flex;align-items:center;gap:6px;padding:12px 20px 0}
+    .pd{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint);animation:pda 2.4s ease-in-out infinite}
+    @keyframes pda{0%,100%{opacity:1}50%{opacity:.3}}
+    .pn{font-size:12px;font-weight:500;color:var(--t2)}
+
+    /* ═══ 오브 ═══ */
+    .orb-area{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:320px}
+    .orb-frame{position:relative;width:180px;height:180px;cursor:pointer}
+    .orb-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.05)}
+    .or1{inset:-22%;animation:rr 5s ease-in-out infinite}
+    .or2{inset:-44%;border-color:rgba(255,255,255,.025);animation:rr 6s ease-in-out infinite .8s}
+    @keyframes rr{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.02);opacity:.8}}
+    .orb-svg{
+      width:100%;height:100%;
+      filter:blur(18px)drop-shadow(0 0 35px rgba(44,122,252,.5))drop-shadow(0 0 70px rgba(44,122,252,.2));
+      animation:ob 4.5s ease-in-out infinite;opacity:.75;
+    }
+    .op-r{animation:pr 4.5s ease-in-out infinite;transform-origin:62% 50%}
+    .op-l{animation:pl 4.5s ease-in-out infinite;transform-origin:38% 50%}
+    @keyframes ob{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.05);opacity:.9}}
+    @keyframes pr{0%,100%{transform:translateX(0)scaleX(1)}50%{transform:translateX(8px)scaleX(1.02)}}
+    @keyframes pl{0%,100%{transform:translateX(0)scaleX(1)}50%{transform:translateX(-8px)scaleX(1.02)}}
+    .orb-frame.sp .orb-svg{animation:obs 3s cubic-bezier(.4,0,.6,1) infinite;filter:blur(12px)drop-shadow(0 0 50px rgba(44,122,252,.85))drop-shadow(0 0 90px rgba(91,155,255,.35));opacity:1}
+    .orb-frame.sp .op-r{animation:prs 3s cubic-bezier(.4,0,.6,1) infinite}
+    .orb-frame.sp .op-l{animation:pls 3s cubic-bezier(.4,0,.6,1) infinite}
+    @keyframes obs{0%,100%{transform:scale(1);opacity:.88}30%{transform:scale(1.06)rotate(.8deg);opacity:.95}60%{transform:scale(.97)rotate(-.5deg);opacity:1}}
+    @keyframes prs{0%,100%{transform:translateX(2px)scaleX(1)}30%{transform:translateX(14px)scaleX(1.04)scaleY(.98)}60%{transform:translateX(6px)scaleX(.98)}}
+    @keyframes pls{0%,100%{transform:translateX(-2px)scaleX(1)}30%{transform:translateX(-12px)scaleX(1.03)scaleY(.98)}60%{transform:translateX(-6px)scaleX(.98)}}
+    .orb-frame.ripple .orb-svg{animation:rip .8s cubic-bezier(.25,.1,.25,1) forwards!important}
+    @keyframes rip{0%{transform:scale(1.08)rotate(2deg)}40%{transform:scale(.94)rotate(-.6deg)}70%{transform:scale(1.02)}100%{transform:scale(1)}}
+    .orb-frame.sp .or1{border-color:rgba(255,255,255,.12);animation-duration:2.5s}
+    .orb-frame.sp .or2{border-color:rgba(255,255,255,.06);animation-duration:3s}
+
+    /* ═══ AI 텍스트 ═══ */
+    .ai-text{position:relative;z-index:10;text-align:center;padding:0 32px 12px}
+    .ai-tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--blue-s);margin-bottom:6px}
+    .ai-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--blue)}
+    .ai-tag-dot.on{animation:td .8s ease infinite alternate}
+    @keyframes td{from{background:var(--blue)}to{background:#fff;box-shadow:0 0 6px #fff}}
+    .ai-body{font-size:14px;line-height:1.6;color:var(--t2);min-height:22px}
+    .ai-idle{color:var(--t3);font-size:13px}
+    .cur{display:inline-block;width:1.5px;height:14px;background:#fff;margin-left:2px;vertical-align:text-bottom;animation:cb .9s step-end infinite}
+    @keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
+    .play{position:relative;z-index:10;display:flex;justify-content:center;padding-bottom:16px}
+    .pbtn{width:44px;height:44px;border-radius:50%;background:none;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.4;transition:opacity .3s}
+    .pbtn:hover{opacity:.7}
+    .pbtn.on{opacity:1}
+
+    /* ═══ 대시보드 ═══ */
+    .dash{position:relative;z-index:1;padding:20px 16px 0}
+    .sec-t{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:14px;padding:0 4px}
+
+    /* 글래스 카드 — 아이콘 없이 텍스트만 */
+    .gc{
+      background:var(--glass);
+      backdrop-filter:blur(28px)saturate(1.4);
+      -webkit-backdrop-filter:blur(28px)saturate(1.4);
+      border:1px solid var(--glass-b);
+      border-radius:16px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 20px rgba(0,0,0,.15);
+      transition:all .2s;
+    }
+    .gc:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.16)}
+
+    /* 메인 카드 */
+    .main-card{padding:24px;margin-bottom:12px}
+    .mc-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+    .mc-score{font-size:56px;font-weight:800;letter-spacing:-3px;line-height:1}
+    .mc-score span{font-size:24px;font-weight:500;color:var(--t2);letter-spacing:0}
+    .mc-label{font-size:13px;color:var(--t3);margin-top:4px}
+    .mc-time{font-size:11px;color:var(--t3);align-self:flex-end;margin-bottom:8px}
+
+    /* 항목 row — 아이콘 없음 */
+    .rows{display:flex;flex-direction:column;gap:0}
+    .row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 0;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+    .row:first-child{border-top:none;padding-top:0}
+    .row-left{display:flex;flex-direction:column;gap:2px}
+    .row-name{font-size:15px;font-weight:600}
+    .row-desc{font-size:11px;color:var(--t3)}
+    .row-val{font-size:18px;font-weight:700;letter-spacing:-.3px}
+    .row-val.done{color:var(--mint)}
+    .row-val.ing{color:var(--blue-s)}
+
+    /* 2열 그리드 카드 */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .g2-card{padding:18px}
+    .g2-label{font-size:12px;color:var(--t3);margin-bottom:6px}
+    .g2-val{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+    .g2-val span{font-size:13px;font-weight:500;color:var(--t2)}
+    .g2-sub{font-size:11px;color:var(--t3);margin-top:4px}
+
+    /* 특이사항 */
+    .alert-card{
+      padding:16px 18px;margin-bottom:12px;
+      background:rgba(251,191,36,.06);
+      border-color:rgba(251,191,36,.12);
+      display:flex;align-items:center;justify-content:space-between;
+      cursor:pointer;
+    }
+    .alert-left{display:flex;flex-direction:column;gap:2px}
+    .alert-t{font-size:14px;font-weight:700;color:var(--amber)}
+    .alert-s{font-size:11px;color:rgba(251,191,36,.5)}
+
+    /* AI 질문 카드 */
+    .ai-cta{
+      padding:18px;margin-bottom:12px;
+      display:flex;align-items:center;justify-content:space-between;
+      cursor:pointer;
+    }
+    .ai-cta-left{display:flex;flex-direction:column;gap:2px}
+    .ai-cta-t{font-size:15px;font-weight:700}
+    .ai-cta-s{font-size:12px;color:var(--t3)}
+
+    /* 탭바 */
+    .tabbar{
+      position:fixed;bottom:16px;left:50%;width:calc(100% - 32px);max-width:398px;
+      background:rgba(255,255,255,.08);
+      backdrop-filter:blur(32px)saturate(1.6);
+      -webkit-backdrop-filter:blur(32px)saturate(1.6);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 8px 32px rgba(0,0,0,.2);
+      border-radius:22px;display:flex;padding:10px 6px 12px;z-index:100;
+      transform:translateX(-50%);
+    }
+    .tab{
+      flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+      text-decoration:none;padding:4px 0;border-radius:12px;transition:all .15s;
+    }
+    .tab:hover{background:rgba(255,255,255,.06)}
+    .tab-label{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.2px}
+    .tab.on .tab-label{color:#fff}
+    .tab-dot{width:4px;height:4px;border-radius:50%;background:transparent}
+    .tab.on .tab-dot{background:#fff}
+  </style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="top-glow"></div>
+  <div class="mid-dark"></div>
+  <div class="bot-cyan"></div>
+  <div class="side-l"></div>
+  <div class="side-r"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- 상단바 -->
+  <div class="top">
+    <div class="tl">
+      <svg class="logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#fff"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#fff"/></svg>
+      <span class="ln">하루안부</span>
+    </div>
+    <div class="tr">
+      <div class="ib"><div class="nd"></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <div class="av">김</div>
+    </div>
+  </div>
+
+  <!-- 환자 -->
+  <div class="pt"><span class="pd"></span><span class="pn">이순자 어르신 · 실버케어 302호</span></div>
+
+  <!-- 오브 -->
+  <div class="orb-area">
+    <div class="orb-frame" id="orb">
+      <div class="orb-ring or1"></div><div class="orb-ring or2"></div>
+      <svg class="orb-svg" viewBox="0 0 2526 2526" fill="none">
+        <path class="op-r" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path class="op-l" d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- AI 텍스트 -->
+  <div class="ai-text">
+    <div class="ai-tag"><span class="ai-tag-dot" id="tagDot"></span> 하루 AI</div>
+    <div class="ai-body" id="spTxt"><span class="ai-idle">오늘의 케어 리포트가 준비됐어요</span></div>
+  </div>
+  <div class="play"><div class="pbtn" id="pbtn"><svg id="iP" width="28" height="28" viewBox="0 0 24 24" fill="rgba(255,255,255,.5)"><polygon points="6 3 20 12 6 21"/></svg><svg id="iS" width="22" height="22" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)" style="display:none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></div></div>
+
+  <!-- 대시보드 -->
+  <div class="dash">
+    <div class="sec-t">오늘의 케어</div>
+
+    <!-- 메인 카드 -->
+    <div class="gc main-card">
+      <div class="mc-top">
+        <div>
+          <div class="mc-score">73<span>%</span></div>
+          <div class="mc-label">케어 완료율</div>
+        </div>
+        <span class="mc-time">오후 5시 기준</span>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div class="row-left"><div class="row-name">투약</div><div class="row-desc">아침 · 점심 · 오후 완료</div></div>
+          <div class="row-val done">3/3</div>
+        </div>
+        <div class="row">
+          <div class="row-left"><div class="row-name">식사</div><div class="row-desc">저녁 18:00 예정</div></div>
+          <div class="row-val">2/3</div>
+        </div>
+        <div class="row">
+          <div class="row-left"><div class="row-name">위생</div><div class="row-desc">취침 전 세면 예정</div></div>
+          <div class="row-val">1/2</div>
+        </div>
+        <div class="row">
+          <div class="row-left"><div class="row-name" style="color:var(--blue-s)">활동</div><div class="row-desc">오후 산책 진행 중</div></div>
+          <div class="row-val ing">진행</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2열 -->
+    <div class="grid2">
+      <div class="gc g2-card">
+        <div class="g2-label">이번 주 투약</div>
+        <div class="g2-val">6<span>/7일</span></div>
+        <div class="g2-sub">어제 대비 동일</div>
+      </div>
+      <div class="gc g2-card">
+        <div class="g2-label">이번 주 식사</div>
+        <div class="g2-val">18<span>/21끼</span></div>
+        <div class="g2-sub">평균 85% 섭취</div>
+      </div>
+    </div>
+
+    <!-- 특이사항 -->
+    <div class="gc alert-card">
+      <div class="alert-left">
+        <div class="alert-t">특이사항 1건</div>
+        <div class="alert-s">점심 식사량 감소 · 경과 관찰 중</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- AI 질문 -->
+    <div class="gc ai-cta">
+      <div class="ai-cta-left">
+        <div class="ai-cta-t">하루 AI에게 물어보기</div>
+        <div class="ai-cta-s">어르신 건강에 대해 질문해 보세요</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a class="tab on" href="#"><div class="tab-dot"></div><span class="tab-label">홈</span></a>
+    <a class="tab" href="#"><div class="tab-dot"></div><span class="tab-label">리포트</span></a>
+    <a class="tab" href="#"><div class="tab-dot"></div><span class="tab-label">AI</span></a>
+    <a class="tab" href="#"><div class="tab-dot"></div><span class="tab-label">채팅</span></a>
+    <a class="tab" href="#"><div class="tab-dot"></div><span class="tab-label">마이</span></a>
+  </nav>
+</div>
+
+<script>
+const orb=document.getElementById('orb'),tagDot=document.getElementById('tagDot'),
+  txt=document.getElementById('spTxt'),btn=document.getElementById('pbtn'),
+  iP=document.getElementById('iP'),iS=document.getElementById('iS');
+
+const lines=["안녕하세요, 보호자님.","오늘 이순자 어르신의 케어 리포트 전해드릴게요.","투약은 아침, 점심, 오후 3회 모두 완료됐어요.","식사는 아침을 잘 드셨고, 점심은 평소보다 소폭 적게 드셨어요.","특이사항으로 점심 식사량이 감소했는데, 컨디션은 이상 없어요.","저녁 식사 경과를 함께 지켜볼게요. 오늘도 잘 돌봐드리고 있어요."];
+let li=0,ci=0,on=false,tm=null;
+function type(){if(li>=lines.length){stop();return}const l=lines[li];if(ci<l.length){const c=document.createElement('span');c.className='cur';txt.textContent=l.substring(0,ci+1);txt.appendChild(c);ci++;tm=setTimeout(type,l[ci-1]==='.'||l[ci-1]===','?300:28)}else{ci=0;li++;tm=setTimeout(()=>{txt.textContent='';type()},950)}}
+function play(){on=true;li=0;ci=0;iP.style.display='none';iS.style.display='';btn.classList.add('on');orb.classList.add('sp');tagDot.classList.add('on');txt.textContent='';type()}
+function stop(){on=false;clearTimeout(tm);iP.style.display='';iS.style.display='none';btn.classList.remove('on');orb.classList.remove('sp');tagDot.classList.remove('on');txt.innerHTML=li>=lines.length?'<span style="color:var(--t2)">오늘도 안녕히 지내고 계세요.</span>':'<span class="ai-idle">오늘의 케어 리포트가 준비됐어요</span>'}
+btn.addEventListener('click',()=>on?stop():play());
+
+/* 오브 터치 */
+const os=orb.querySelector('.orb-svg');let dr=false;
+function ot(x,y){const r=orb.getBoundingClientRect();const dx=(x-r.left-r.width/2)/r.width;const dy=(y-r.top-r.height/2)/r.height;os.style.transition='transform .25s cubic-bezier(.4,0,.2,1)';os.style.transform=`scale(${1+Math.abs(dx)*.12})rotate(${dx*5}deg)skewX(${dx*3}deg)skewY(${dy*2}deg)`}
+function orel(){orb.classList.add('ripple');os.style.transition='';os.style.transform='';setTimeout(()=>orb.classList.remove('ripple'),800)}
+orb.addEventListener('mousedown',e=>{dr=true;ot(e.clientX,e.clientY)});
+orb.addEventListener('mousemove',e=>{if(dr)ot(e.clientX,e.clientY)});
+orb.addEventListener('mouseup',()=>{dr=false;orel()});
+orb.addEventListener('mouseleave',()=>{if(dr){dr=false;orel()}});
+orb.addEventListener('touchstart',e=>{dr=true;ot(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+orb.addEventListener('touchmove',e=>{if(dr)ot(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+orb.addEventListener('touchend',()=>{dr=false;orel()});
+
+/* 배경 parallax */
+const bbs=document.querySelectorAll('.bg>div');
+bbs.forEach(b=>b.style.transition='transform 1.2s cubic-bezier(.4,0,.2,1)');
+document.addEventListener('mousemove',e=>{const x=(e.clientX/window.innerWidth-.5)*10;const y=(e.clientY/window.innerHeight-.5)*10;bbs.forEach((b,i)=>{const f=(i+1)*.25;b.style.transform+=''/*preserve anim*/})});
+
+/* 카드 틸트 */
+document.querySelectorAll('.gc').forEach(c=>{
+  c.style.transition='transform .5s cubic-bezier(.4,0,.2,1)';
+  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(800px)rotateY(${x*4}deg)rotateX(${-y*3}deg)scale(1.01)`});
+  c.addEventListener('mouseleave',()=>{c.style.transform=''});
+});
+</script>
+</body>
+</html>

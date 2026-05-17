@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>하루안부 · 연결 구조도</title>
+  <link rel="preload" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #06101E;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    .page {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .hdr {
+      flex-shrink: 0;
+      padding: 28px 44px 0;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .hdr-left { display: flex; flex-direction: column; gap: 3px; }
+    .hdr-brand {
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
+      color: #22C55E; text-transform: uppercase;
+    }
+    .hdr-title {
+      font-size: 24px; font-weight: 900; letter-spacing: -.04em; color: #fff;
+    }
+    .hdr-right {
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,.22); letter-spacing: -.01em;
+      padding-bottom: 4px;
+    }
+
+    /* ── Diagram ── */
+    .diagram {
+      flex: 1; position: relative; min-height: 0;
+    }
+
+    /* SVG layer — paths & particles */
+    .conn-svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; overflow: visible;
+    }
+
+    /* Dormant path base */
+    .cpath {
+      fill: none;
+      stroke: rgba(255,255,255,.07);
+      stroke-width: 1.5;
+      transition: stroke .5s, stroke-width .5s, opacity .5s;
+    }
+
+    /* ── Nodes ── */
+    .node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 11px;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .node-orb {
+      width: 84px; height: 84px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      transition: box-shadow .5s;
+    }
+
+    /* Outer ring */
+    .node-orb::after {
+      content: '';
+      position: absolute; inset: -5px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.06);
+      transition: border-color .5s;
+    }
+
+    .node[data-id="patient"]   .node-orb { background: linear-gradient(145deg,#F87171,#DC2626); }
+    .node[data-id="caregiver"] .node-orb { background: linear-gradient(145deg,#A78BFA,#7C3AED); }
+    .node[data-id="medical"]   .node-orb { background: linear-gradient(145deg,#4ADE80,#16A34A); }
+    .node[data-id="guardian"]  .node-orb { background: linear-gradient(145deg,#60A5FA,#2563EB); }
+
+    /* Active source glow */
+    .node.lit[data-id="patient"]   .node-orb { box-shadow: 0 0 0 10px rgba(220,38,38,.18), 0 0 36px rgba(220,38,38,.22); }
+    .node.lit[data-id="caregiver"] .node-orb { box-shadow: 0 0 0 10px rgba(124,58,237,.18), 0 0 36px rgba(124,58,237,.22); }
+    .node.lit[data-id="medical"]   .node-orb { box-shadow: 0 0 0 10px rgba(22,163,74,.18),  0 0 36px rgba(22,163,74,.22); }
+    .node.lit[data-id="guardian"]  .node-orb { box-shadow: 0 0 0 10px rgba(37,99,235,.18),  0 0 36px rgba(37,99,235,.22); }
+
+    .node.lit { transform: translate(-50%, -50%) scale(1.07); }
+
+    .node-label {
+      font-size: 15px; font-weight: 800;
+      color: #fff; letter-spacing: -.025em;
+    }
+    .node-sub {
+      font-size: 11px; font-weight: 500;
+      color: rgba(255,255,255,.32); letter-spacing: -.01em;
+      margin-top: -7px;
+    }
+
+    /* ── Step message ── */
+    .step-bar {
+      flex-shrink: 0; height: 60px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 100px;
+      padding: 9px 22px;
+      transition: border-color .4s;
+    }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      transition: background .4s;
+    }
+    .step-text {
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.7); letter-spacing: -.015em;
+      white-space: nowrap;
+    }
+
+    /* ── Flow step counter ── */
+    .step-counter {
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,.25); letter-spacing: .02em;
+      margin-left: 4px;
+    }
+
+    /* ── Tab bar ── */
+    .tabs {
+      flex-shrink: 0;
+      padding: 0 44px 28px;
+      display: flex; gap: 10px; justify-content: center;
+    }
+    .tab {
+      border: 0; cursor: pointer; border-radius: 100px;
+      padding: 10px 24px;
+      font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: -.015em;
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.42);
+      border: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; gap: 8px;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .tab:hover { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); }
+    .tab .td { width: 7px; height: 7px; border-radius: 50%; }
+
+    .tab[data-flow="sos"]        .td { background: #EF4444; }
+    .tab[data-flow="medication"] .td { background: #22C55E; }
+    .tab[data-flow="checkin"]    .td { background: #3B82F6; }
+    .tab[data-flow="care"]       .td { background: #A78BFA; }
+
+    .tab.on[data-flow="sos"]        { background:rgba(239,68,68,.15);  border-color:rgba(239,68,68,.35);  color:#fff; }
+    .tab.on[data-flow="medication"] { background:rgba(34,197,94,.15);  border-color:rgba(34,197,94,.35);  color:#fff; }
+    .tab.on[data-flow="checkin"]    { background:rgba(59,130,246,.15); border-color:rgba(59,130,246,.35); color:#fff; }
+    .tab.on[data-flow="care"]       { background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.35);color:#fff; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-brand">하루안부</div>
+      <div class="hdr-title">연결 구조도</div>
+    </div>
+    <div class="hdr-right">4개 역할 · 실시간 데이터 흐름</div>
+  </header>
+
+  <div class="diagram" id="diagram">
+
+    <!-- SVG: paths + particles -->
+    <svg class="conn-svg" id="cSvg">
+      <defs>
+        <pattern id="dot-grid" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,.045)"/>
+        </pattern>
+        <filter id="p-glow" x="-150%" y="-150%" width="400%" height="400%">
+          <feGaussianBlur stdDeviation="3.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect id="bg-rect" width="100%" height="100%" fill="url(#dot-grid)"/>
+
+      <!-- Connection paths — d set by JS -->
+      <path id="cp-patient-caregiver" class="cpath"/>
+      <path id="cp-patient-medical"   class="cpath"/>
+      <path id="cp-patient-guardian"  class="cpath"/>
+      <path id="cp-caregiver-medical" class="cpath"/>
+      <path id="cp-medical-guardian"  class="cpath"/>
+    </svg>
+
+    <!-- Nodes -->
+    <div class="node" id="node-patient"   data-id="patient"   style="left:50%;top:13%">
+      <div class="node-orb"><iconify-icon icon="fluent:person-24-filled"        width="34" style="color:#fff"></iconify-icon></div>
+      <div class="node-label">환자</div>
+      <div class="node-sub">iPad 앱</div>
+    </div>
+
+    <div class="node" id="node-caregiver" data-id="caregiver" style="left:14%;top:67%">
+      <div class="node-orb"><iconify-icon icon="fluent:person-heart-24-filled"  width="34" style="color:#fff"></iconify-icon></div>
+      <div class="node-label">요양보호사</div>
+      <div class="node-sub">모바일 앱</div>
+    </div>
+
+    <div class="node" id="node-medical"   data-id="medical"   style="left:50%;top:83%">
+      <div class="node-orb"><iconify-icon icon="fluent:stethoscope-24-filled"   width="34" style="color:#fff"></iconify-icon></div>
+      <div class="node-label">의료진</div>
+      <div class="node-sub">웹 대시보드</div>
+    </div>
+
+    <div class="node" id="node-guardian"  data-id="guardian"  style="left:86%;top:67%">
+      <div class="node-orb"><iconify-icon icon="fluent:people-24-filled"        width="34" style="color:#fff"></iconify-icon></div>
+      <div class="node-label">보호자</div>
+      <div class="node-sub">모바일 앱</div>
+    </div>
+
+  </div>
+
+  <div class="step-bar">
+    <div class="step-pill" id="stepPill">
+      <div class="step-dot" id="stepDot"></div>
+      <span class="step-text" id="stepText">플로우를 선택하거나 기다리세요</span>
+      <span class="step-counter" id="stepCounter"></span>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-flow="sos">       <div class="td"></div>SOS 긴급 요청</button>
+    <button class="tab"    data-flow="medication"><div class="td"></div>복약 확인</button>
+    <button class="tab"    data-flow="checkin">   <div class="td"></div>일상 안부</button>
+    <button class="tab"    data-flow="care">      <div class="td"></div>방문 케어 보고</button>
+  </nav>
+
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ─────────────────────────────────────────
+   DATA
+───────────────────────────────────────── */
+const CONNS = [
+  { id: 'patient-caregiver', a: 'patient',   b: 'caregiver' },
+  { id: 'patient-medical',   a: 'patient',   b: 'medical'   },
+  { id: 'patient-guardian',  a: 'patient',   b: 'guardian'  },
+  { id: 'caregiver-medical', a: 'caregiver', b: 'medical'   },
+  { id: 'medical-guardian',  a: 'medical',   b: 'guardian'  },
+];
+
+const FLOWS = {
+  sos: {
+    color: '#EF4444',
+    loop: 4200,
+    steps: [
+      { conns: ['patient-medical',  'patient-guardian'],
+        msg: 'SOS 신호 + 실시간 위치가 의료진과 보호자에게 동시 전송',
+        nodes: ['patient','medical','guardian'], delay: 0 },
+    ]
+  },
+  medication: {
+    color: '#22C55E',
+    loop: 6800,
+    steps: [
+      { conns: ['patient-caregiver'],
+        msg: '복약 완료 알림이 요양보호사에게 전송',
+        nodes: ['patient','caregiver'], delay: 0 },
+      { conns: ['caregiver-medical'],
+        msg: '요양보호사가 직접 확인 후 의료진에게 체크 전달',
+        nodes: ['caregiver','medical'], delay: 1900 },
+      { conns: ['medical-guardian'],
+        msg: '의료진이 검토한 일일리포트가 보호자에게 공유',
+        nodes: ['medical','guardian'], delay: 3800 },
+    ]
+  },
+  checkin: {
+    color: '#3B82F6',
+    loop: 5000,
+    steps: [
+      { conns: ['patient-medical'],
+        msg: '안부 체크 데이터가 AI 분석을 거쳐 의료진에게 전송',
+        nodes: ['patient','medical'], delay: 0 },
+      { conns: ['medical-guardian'],
+        msg: 'AI 분석 요약과 이상 징후 알림이 보호자에게 공유',
+        nodes: ['medical','guardian'], delay: 2000 },
+    ]
+  },
+  care: {
+    color: '#A78BFA',
+    loop: 5000,
+    steps: [
+      { conns: ['caregiver-medical'],
+        msg: '방문 케어 기록이 의료진 웹 대시보드로 제출',
+        nodes: ['caregiver','medical'], delay: 0 },
+      { conns: ['medical-guardian'],
+        msg: '의료진 검토 완료 후 케어 리포트가 보호자에게 전달',
+        nodes: ['medical','guardian'], delay: 2000 },
+    ]
+  }
+};
+
+/* ─────────────────────────────────────────
+   PATH GEOMETRY
+───────────────────────────────────────── */
+const svg    = document.getElementById('cSvg');
+const diag   = document.getElementById('diagram');
+
+function nodeCenter(id) {
+  const el = document.getElementById('node-' + id);
+  const nr = el.getBoundingClientRect();
+  const sr = svg.getBoundingClientRect();
+  return { x: nr.left + nr.width/2 - sr.left, y: nr.top + nr.height/2 - sr.top };
+}
+
+function arcPath(aId, bId) {
+  const A = nodeCenter(aId), B = nodeCenter(bId);
+  const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+  const dx = B.x - A.x, dy = B.y - A.y;
+  const len = Math.hypot(dx, dy);
+
+  /* bend toward diagram center */
+  const cx = diag.clientWidth / 2, cy = diag.clientHeight / 2;
+  const tcx = cx - mx, tcy = cy - my;
+  const tl  = Math.hypot(tcx, tcy) || 1;
+  const bend = Math.min(len * 0.14, 55);
+  const bx = tcx / tl * bend, by = tcy / tl * bend;
+
+  const c1x = mx - dx * 0.18 + bx, c1y = my - dy * 0.18 + by;
+  const c2x = mx + dx * 0.18 + bx, c2y = my + dy * 0.18 + by;
+
+  const f = n => n.toFixed(2);
+  return `M${f(A.x)},${f(A.y)} C${f(c1x)},${f(c1y)} ${f(c2x)},${f(c2y)} ${f(B.x)},${f(B.y)}`;
+}
+
+function rebuildPaths() {
+  CONNS.forEach(c => {
+    document.getElementById('cp-' + c.id).setAttribute('d', arcPath(c.a, c.b));
+  });
+}
+
+/* ─────────────────────────────────────────
+   PARTICLE SYSTEM
+───────────────────────────────────────── */
+const PARTICLE_SPEED = 0.0048; // fraction/frame @ 60fps → ~3.5s full path
+const PARTICLE_N     = 5;
+const PARTICLE_GAP   = 0.14;   // spacing between particles (fraction)
+
+let particles = [];
+
+class Particle {
+  constructor(connId, color) {
+    const pathEl = document.getElementById('cp-' + connId);
+    this.pathEl = pathEl;
+    this.len    = pathEl.getTotalLength();
+    this.color  = color;
+    this.t      = 0;
+    this.dead   = false;
+
+    this.dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    this.dot.setAttribute('r', '5');
+    this.dot.setAttribute('fill', color);
+    this.dot.setAttribute('filter', 'url(#p-glow)');
+
+    this.halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    this.halo.setAttribute('r', '9');
+    this.halo.setAttribute('fill', color);
+    this.halo.setAttribute('opacity', '0');
+
+    svg.appendChild(this.halo);
+    svg.appendChild(this.dot);
+  }
+
+  update() {
+    if (this.t < 0) { this.t += PARTICLE_SPEED; this.dot.setAttribute('opacity','0'); this.halo.setAttribute('opacity','0'); return; }
+    this.t += PARTICLE_SPEED;
+    if (this.t >= 1.05) { this.destroy(); return; }
+
+    const frac  = Math.min(this.t, 1);
+    const pt    = this.pathEl.getPointAtLength(frac * this.len);
+    const alpha = this.t > 0.82 ? Math.max(0,(1 - this.t) / 0.18) : 1;
+
+    this.dot.setAttribute('cx', pt.x);
+    this.dot.setAttribute('cy', pt.y);
+    this.dot.setAttribute('opacity', alpha.toFixed(3));
+
+    this.halo.setAttribute('cx', pt.x);
+    this.halo.setAttribute('cy', pt.y);
+    this.halo.setAttribute('opacity', (alpha * 0.14).toFixed(3));
+  }
+
+  destroy() {
+    this.dead = true;
+    this.dot.remove();
+    this.halo.remove();
+  }
+}
+
+function burst(connId, color) {
+  for (let i = 0; i < PARTICLE_N; i++) {
+    const p = new Particle(connId, color);
+    p.t = -PARTICLE_GAP * i;
+    particles.push(p);
+  }
+}
+
+function tick() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    if (particles[i].dead) particles.splice(i, 1);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ─────────────────────────────────────────
+   FLOW CONTROL
+───────────────────────────────────────── */
+let timers = [];
+let curFlow = null;
+
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+function highlightNodes(ids) {
+  document.querySelectorAll('.node').forEach(n => {
+    n.classList.toggle('lit', ids.includes(n.dataset.id));
+  });
+}
+
+function highlightPaths(connIds, color) {
+  CONNS.forEach(c => {
+    const el = document.getElementById('cp-' + c.id);
+    if (connIds.includes(c.id)) {
+      el.style.stroke       = color;
+      el.style.strokeWidth  = '2.2';
+      el.style.opacity      = '0.75';
+    } else {
+      el.style.stroke       = 'rgba(255,255,255,.07)';
+      el.style.strokeWidth  = '1.5';
+      el.style.opacity      = '1';
+    }
+  });
+}
+
+function setMsg(msg, color, idx, total) {
+  document.getElementById('stepDot').style.background     = color;
+  document.getElementById('stepText').textContent          = msg;
+  document.getElementById('stepCounter').textContent       = total > 1 ? `${idx+1}/${total}` : '';
+  document.getElementById('stepPill').style.borderColor    = color + '44';
+}
+
+function runFlow(flowId) {
+  clearTimers();
+  curFlow = flowId;
+
+  const flow = FLOWS[flowId];
+
+  /* update tabs */
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('on', t.dataset.flow === flowId));
+
+  /* collect all conns in this flow for initial path highlight */
+  const allConns = [...new Set(flow.steps.flatMap(s => s.conns))];
+  highlightPaths(allConns, flow.color);
+
+  /* schedule each step */
+  flow.steps.forEach((step, i) => {
+    const t = setTimeout(() => {
+      step.conns.forEach(cid => burst(cid, flow.color));
+      highlightNodes(step.nodes);
+      setMsg(step.msg, flow.color, i, flow.steps.length);
+    }, step.delay);
+    timers.push(t);
+  });
+
+  /* loop */
+  const loopT = setTimeout(() => runFlow(flowId), flow.loop);
+  timers.push(loopT);
+}
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+function init() {
+  rebuildPaths();
+  requestAnimationFrame(tick);
+
+  document.querySelectorAll('.tab').forEach(tab =>
+    tab.addEventListener('click', () => runFlow(tab.dataset.flow)));
+
+  window.addEventListener('resize', rebuildPaths);
+
+  setTimeout(() => runFlow('sos'), 400);
+}
+
+/* Wait for icon fonts + layout */
+requestAnimationFrame(() => requestAnimationFrame(init));
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>하루안부 — 보호자</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lucide-static@0.263.1/font/lucide.min.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --primary:#4A7FBF;--primary-hover:#3D6FA8;--primary-light:#E8F0FA;--primary-50:rgba(74,127,191,.06);
+  --secondary:#5BAE8C;--secondary-light:#EAF6F0;
+  --accent:#D4A574;--accent-light:#FDF5ED;
+  --bg:#FAFAF7;--surface:#FFFFFF;--surface-raised:#FFFFFF;
+  --text:#1E2A3A;--text-2:#5A6472;--text-3:#8C939A;--text-4:#B8BFC6;
+  --border:rgba(30,42,58,.06);--border-2:rgba(30,42,58,.1);
+  --positive:#2E9E5A;--positive-bg:#EEFBF3;
+  --warning:#E08A00;--warning-bg:#FFF7EB;
+  --danger:#D93025;--danger-bg:#FEF0EF;
+  --info:#42A5F5;
+  --radius-sm:10px;--radius:16px;--radius-lg:20px;--radius-xl:28px;
+  --shadow-xs:0 1px 2px rgba(30,42,58,.04);
+  --shadow-sm:0 1px 3px rgba(30,42,58,.06),0 1px 2px rgba(30,42,58,.04);
+  --shadow:0 4px 12px rgba(30,42,58,.06),0 1px 3px rgba(30,42,58,.04);
+  --shadow-md:0 8px 24px rgba(30,42,58,.08),0 2px 6px rgba(30,42,58,.04);
+  --shadow-lg:0 16px 48px rgba(30,42,58,.1),0 4px 12px rgba(30,42,58,.04);
+  --transition:180ms cubic-bezier(.4,0,.2,1);
+}
+
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:#E4EBF2;color:var(--text);line-height:1.5;
+  display:flex;justify-content:center;gap:32px;padding:32px 16px;
+  flex-wrap:wrap;min-height:100vh;align-items:flex-start;
+}
+
+/* === PHONE FRAME === */
+.frame-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.frame-label{font-size:13px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.phone{
+  width:393px;height:852px;background:var(--bg);border-radius:54px;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08),var(--shadow-lg),0 0 80px rgba(0,0,0,.06);
+}
+.phone::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;background:#0a0a0a;border-radius:0 0 24px 24px;z-index:200;
+}
+.phone::after{
+  content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:12px;height:12px;background:#1a1a2a;border-radius:50%;z-index:201;
+  box-shadow:inset 0 0 4px rgba(50,50,120,.4);
+}
+
+/* status bar */
+.sbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 32px 0;position:relative;z-index:100;height:54px;
+}
+.sbar .time{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.sbar .icons{display:flex;gap:5px;align-items:center}
+.sbar .icons svg{width:16px;height:16px}
+.sbar-dark .time,.sbar-dark .icons{color:#fff}
+
+/* scrollable */
+.scroll{
+  height:calc(100% - 54px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;padding-bottom:92px;
+}
+.scroll::-webkit-scrollbar{display:none}
+
+/* home indicator */
+.home-ind{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;background:rgba(0,0,0,.2);border-radius:3px;z-index:200;
+}
+
+/* === HEADER === */
+.header{
+  background:linear-gradient(135deg,#4A7FBF 0%,#5B93D1 40%,#6BA3D6 100%);
+  padding:8px 24px 32px;color:#fff;position:relative;overflow:hidden;
+}
+.header::after{
+  content:'';position:absolute;bottom:-60px;right:-40px;
+  width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%;
+}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.header-logo{font-size:15px;font-weight:700;letter-spacing:-.02em;opacity:.9}
+.header-actions{display:flex;gap:8px}
+.header-btn{
+  width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:background var(--transition);position:relative;
+}
+.header-btn:hover{background:rgba(255,255,255,.25)}
+.header-btn .badge{
+  position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;
+  background:#D93025;border-radius:9px;font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid #4A7FBF;padding:0 4px;
+}
+.greeting{font-size:14px;font-weight:400;opacity:.8;margin-bottom:2px}
+.patient-name{font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1.2}
+.patient-sub{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;opacity:.7;margin-top:6px;
+  background:rgba(255,255,255,.1);padding:4px 12px;border-radius:20px;
+  backdrop-filter:blur(4px);
+}
+
+/* === STATUS CARDS === */
+.status-row{
+  display:flex;gap:8px;padding:0 20px;margin-top:-18px;position:relative;z-index:10;
+}
+.s-card{
+  flex:1;background:var(--surface);border-radius:var(--radius);
+  padding:16px 12px;text-align:center;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  transition:transform var(--transition),box-shadow var(--transition);
+}
+.s-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.s-card .label{font-size:11px;font-weight:500;color:var(--text-3);margin-bottom:6px}
+.s-card .value{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--text)}
+.s-card .unit{font-size:13px;font-weight:400;color:var(--text-3)}
+.s-card.good .value{color:var(--positive)}
+
+/* === QUICK ACTIONS === */
+.quick{display:flex;gap:8px;padding:16px 20px 0}
+.q-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 8px;background:var(--surface);border-radius:var(--radius);
+  border:1px solid var(--border);cursor:pointer;
+  transition:all var(--transition);min-height:44px;
+}
+.q-btn:hover{border-color:var(--primary);background:var(--primary-light)}
+.q-btn:active{transform:scale(.97)}
+.q-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.q-btn span{font-size:12px;font-weight:600;color:var(--text)}
+
+/* === SECTIONS === */
+.section{padding:20px 20px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sec-title{font-size:17px;font-weight:700;letter-spacing:-.03em}
+.sec-more{font-size:13px;font-weight:500;color:var(--primary);cursor:pointer}
+
+/* === AI REPORT === */
+.ai-card{
+  background:linear-gradient(135deg,#F5F8FC 0%,#FBF8F4 100%);
+  border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;
+  border:1px solid rgba(74,127,191,.08);
+}
+.ai-card::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:100px;height:100px;
+  background:radial-gradient(circle,rgba(74,127,191,.08),transparent 70%);border-radius:50%;
+}
+.ai-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--primary);color:#fff;font-size:11px;font-weight:700;
+  padding:4px 12px;border-radius:20px;margin-bottom:12px;letter-spacing:.02em;
+}
+.ai-text{font-size:15px;line-height:1.75;color:var(--text-2)}
+.ai-text strong{color:var(--primary);font-weight:600}
+.ai-time{font-size:12px;color:var(--text-3);margin-top:10px}
+
+/* === CARE STATUS === */
+.care-card{
+  background:var(--surface);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;
+}
+.care-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  transition:background var(--transition);
+}
+.care-row:last-child{border-bottom:none}
+.care-row:hover{background:var(--primary-50)}
+.care-left{display:flex;align-items:center;gap:12px}
+.care-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.care-name{font-size:15px;font-weight:600;color:var(--text)}
+.care-sub{font-size:12px;color:var(--text-3);margin-top:1px}
+.badge-pill{
+  font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;
+  white-space:nowrap;
+}
+.badge-done{background:var(--positive-bg);color:var(--positive)}
+.badge-progress{background:var(--warning-bg);color:var(--warning)}
+.badge-pending{background:var(--bg);color:var(--text-3)}
+
+/* === TIMELINE === */
+.tl{position:relative;padding-left:24px}
+.tl::before{
+  content:'';position:absolute;left:8px;top:4px;bottom:4px;
+  width:2px;background:linear-gradient(to bottom,var(--primary-light),var(--border));border-radius:1px;
+}
+.tl-item{position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{
+  content:'';position:absolute;left:-20px;top:5px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--primary);border:2.5px solid var(--primary-light);
+  z-index:1;
+}
+.tl-item.done::before{background:var(--positive);border-color:var(--positive-bg)}
+.tl-item.future::before{background:var(--text-4);border-color:var(--bg)}
+.tl-time{font-size:12px;font-weight:600;color:var(--text-3)}
+.tl-text{font-size:14px;color:var(--text);margin-top:1px}
+
+/* === TAB BAR === */
+.tabbar{
+  position:absolute;bottom:0;left:0;right:0;height:88px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;align-items:flex-start;
+  padding-top:8px;z-index:150;border-radius:0 0 54px 54px;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:10px;font-weight:500;color:var(--text-3);
+  cursor:pointer;padding:4px 16px;border-radius:12px;
+  transition:color var(--transition);min-width:56px;
+}
+.tab.active{color:var(--primary)}
+.tab svg{width:24px;height:24px;stroke-width:1.8}
+.tab.active svg{stroke-width:2.2}
+
+/* === SOS SCREEN === */
+.sos-wrap{padding:16px 20px 0}
+.sos-banner{
+  background:linear-gradient(135deg,#D93025 0%,#C62828 100%);
+  border-radius:var(--radius-lg);padding:24px;color:#fff;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(217,48,37,.25);
+  animation:sosPulse 2.5s ease-in-out infinite;
+}
+@keyframes sosPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(217,48,37,.25)}
+  50%{box-shadow:0 4px 20px rgba(217,48,37,.25),0 0 0 8px rgba(217,48,37,.08)}
+}
+.sos-banner .icon{font-size:28px;margin-bottom:8px}
+.sos-banner h3{font-size:18px;font-weight:700;line-height:1.3}
+.sos-banner p{font-size:14px;opacity:.85;margin-top:4px;color:#fff}
+.sos-banner .stamp{font-size:12px;opacity:.6;margin-top:8px;color:#fff}
+
+.sos-btns{display:flex;gap:8px;padding:12px 20px 0}
+.sos-btns button{
+  flex:1;padding:16px;border-radius:var(--radius);font-size:15px;font-weight:700;
+  border:none;cursor:pointer;font-family:inherit;transition:all var(--transition);
+}
+.sos-btns .call{background:var(--danger);color:#fff}
+.sos-btns .call:hover{background:#C62828}
+.sos-btns .confirm{background:var(--surface);color:var(--text);border:1px solid var(--border-2)}
+.sos-btns .confirm:hover{background:var(--bg)}
+
+.info-card{
+  background:var(--surface);border-radius:var(--radius);margin:12px 20px 0;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;
+}
+.info-row{
+  display:flex;justify-content:space-between;padding:12px 18px;
+  border-bottom:1px solid var(--border);font-size:14px;
+}
+.info-row:last-child{border-bottom:none}
+.info-row .k{color:var(--text-3)}
+.info-row .v{color:var(--text);font-weight:600}
+
+/* === CHAT === */
+.chat-top{
+  background:var(--surface);padding:8px 20px 12px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.chat-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--secondary-light);display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.chat-name{font-size:16px;font-weight:700;color:var(--text)}
+.chat-role{font-size:12px;color:var(--text-3)}
+.chat-body{padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.chat-date{
+  text-align:center;font-size:12px;color:var(--text-3);
+  padding:8px 0;
+}
+.bubble{
+  max-width:72%;padding:12px 16px;border-radius:18px;
+  font-size:14px;line-height:1.6;position:relative;
+  animation:bubbleIn .3s ease-out;
+}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bubble.in{
+  background:var(--surface);border:1px solid var(--border);
+  align-self:flex-start;border-bottom-left-radius:6px;color:var(--text);
+}
+.bubble.out{
+  background:var(--primary);color:#fff;
+  align-self:flex-end;border-bottom-right-radius:6px;
+}
+.bubble .ts{font-size:11px;opacity:.5;margin-top:4px}
+.bubble.out .ts{color:#fff}
+.bubble .photo{
+  width:100%;height:120px;border-radius:12px;margin-top:8px;
+  background:var(--bg);display:flex;align-items:center;justify-content:center;
+  font-size:28px;overflow:hidden;
+}
+.chat-bottom{
+  position:absolute;bottom:34px;left:0;right:0;
+  padding:8px 16px;background:rgba(255,255,255,.95);
+  backdrop-filter:blur(16px);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.chat-bottom .attach{
+  width:36px;height:36px;border-radius:50%;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--text-3);flex-shrink:0;cursor:pointer;
+}
+.chat-bottom .field{
+  flex:1;background:var(--bg);border:1px solid var(--border);
+  border-radius:22px;padding:10px 16px;font-size:14px;color:var(--text-3);
+}
+.chat-bottom .send{
+  width:36px;height:36px;border-radius:50%;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:16px;flex-shrink:0;cursor:pointer;
+  transition:background var(--transition);
+}
+.chat-bottom .send:hover{background:var(--primary-hover)}
+
+/* === REPORT DETAIL === */
+.rpt-head{padding:8px 24px 20px}
+.rpt-head h2{font-size:22px;font-weight:800;letter-spacing:-.04em;margin-top:12px}
+.rpt-head .date{font-size:14px;color:var(--text-3);margin-top:2px}
+.rpt-card{
+  background:var(--surface);border-radius:var(--radius);
+  margin:0 20px 10px;padding:18px;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+}
+.rpt-card .rc-label{
+  font-size:13px;font-weight:700;color:var(--text-3);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.rpt-card .rc-body{font-size:14px;line-height:1.8;color:var(--text-2)}
+.highlight{
+  background:var(--primary-light);color:var(--primary);
+  padding:1px 7px;border-radius:6px;font-weight:700;font-size:13px;
+}
+.emotion-row{display:flex;gap:8px;margin-top:12px}
+.emo-chip{
+  flex:1;text-align:center;padding:12px 8px;
+  background:var(--bg);border-radius:14px;
+}
+.emo-chip .emoji{font-size:24px}
+.emo-chip .el{font-size:11px;color:var(--text-3);margin-top:4px}
+.emo-chip .ev{font-size:15px;font-weight:700;color:var(--text);margin-top:2px}
+.rpt-card.ai{
+  background:linear-gradient(135deg,var(--primary-light),#FBF8F4);
+  border:1px solid rgba(74,127,191,.12);
+}
+
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:15px;font-weight:500;color:var(--text-2);cursor:pointer;
+  padding:4px 0;
+}
+
+.spacer{height:20px}
+
+/* SVG icons inline */
+.ic{display:inline-flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<!-- ===== 1. 홈 대시보드 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">홈 대시보드</div>
+<div class="phone">
+<div class="sbar sbar-dark"><span class="time">9:41</span><div class="icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 1l4 4m14-4l-4 4M5.64 5.64A9 9 0 1019.36 19.36 9 9 0 005.64 5.64z"/></svg></div></div>
+<div class="scroll">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-logo">하루안부</div>
+      <div class="header-actions">
+        <div class="header-btn">🔍</div>
+        <div class="header-btn">🔔<span class="badge">2</span></div>
+      </div>
+    </div>
+    <div class="greeting">안녕하세요, 민서님</div>
+    <div class="patient-name">김순자 어르신</div>
+    <div class="patient-sub">🏥 하나요양원 · 3등급 · 입소 6개월</div>
+  </div>
+
+  <div class="status-row">
+    <div class="s-card good"><div class="label">오늘 상태</div><div class="value">양호</div></div>
+    <div class="s-card"><div class="label">케어 완료</div><div class="value">85<span class="unit">%</span></div></div>
+    <div class="s-card"><div class="label">투약</div><div class="value">3<span class="unit">/3</span></div></div>
+  </div>
+
+  <div class="quick">
+    <div class="q-btn"><div class="q-icon" style="background:var(--primary-light)">💬</div><span>메시지</span></div>
+    <div class="q-btn"><div class="q-icon" style="background:var(--secondary-light)">🤖</div><span>AI 가이드</span></div>
+    <div class="q-btn"><div class="q-icon" style="background:var(--danger-bg)">🚨</div><span>SOS</span></div>
+    <div class="q-btn"><div class="q-icon" style="background:var(--accent-light)">📋</div><span>케어일지</span></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">오늘의 AI 리포트</div>
+      <div class="sec-more">자세히 →</div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-badge">✨ AI 리포트</div>
+      <div class="ai-text">
+        오늘 어머님은 <strong>아침 식사를 잘 드시고</strong>, 오전에 산책도 하셨어요.
+        오후 투약까지 모두 완료되었고, 전반적으로 <strong>컨디션이 좋은 하루</strong>였습니다.
+      </div>
+      <div class="ai-time">오후 5:00 자동 생성</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">오늘 케어 현황</div>
+      <div class="sec-more">전체보기</div>
+    </div>
+    <div class="care-card">
+      <div class="care-row">
+        <div class="care-left">
+          <div class="care-icon" style="background:var(--primary-light)">🍚</div>
+          <div><div class="care-name">식사</div><div class="care-sub">아침 80% · 점심 85%</div></div>
+        </div>
+        <div class="badge-pill badge-done">완료 ✓</div>
+      </div>
+      <div class="care-row">
+        <div class="care-left">
+          <div class="care-icon" style="background:var(--secondary-light)">💊</div>
+          <div><div class="care-name">투약</div><div class="care-sub">오전 · 오후 · 취침 전</div></div>
+        </div>
+        <div class="badge-pill badge-done">3/3 ✓</div>
+      </div>
+      <div class="care-row">
+        <div class="care-left">
+          <div class="care-icon" style="background:var(--warning-bg)">🧼</div>
+          <div><div class="care-name">위생</div><div class="care-sub">오후 진행 예정</div></div>
+        </div>
+        <div class="badge-pill badge-progress">진행중</div>
+      </div>
+      <div class="care-row">
+        <div class="care-left">
+          <div class="care-icon" style="background:var(--accent-light)">🚶</div>
+          <div><div class="care-name">활동</div><div class="care-sub">오전 산책 30분</div></div>
+        </div>
+        <div class="badge-pill badge-done">완료 ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head"><div class="sec-title">오늘 타임라인</div></div>
+    <div class="tl">
+      <div class="tl-item done"><div class="tl-time">07:00</div><div class="tl-text">기상 · 아침 투약 완료</div></div>
+      <div class="tl-item done"><div class="tl-time">08:00</div><div class="tl-text">아침 식사 (죽, 반찬 3종) 80%</div></div>
+      <div class="tl-item done"><div class="tl-time">10:00</div><div class="tl-text">오전 산책 30분 ☀️</div></div>
+      <div class="tl-item done"><div class="tl-time">12:00</div><div class="tl-text">점심 식사 85%</div></div>
+      <div class="tl-item future"><div class="tl-time">14:00</div><div class="tl-text">오후 투약 예정</div></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="tabbar">
+  <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>홈</div>
+  <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>메시지</div>
+  <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>리포트</div>
+  <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>더보기</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 2. AI 리포트 상세 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">AI 데일리 리포트</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div class="icons"></div></div>
+<div class="scroll">
+  <div class="rpt-head">
+    <div class="back-btn">← 뒤로</div>
+    <h2>오늘의 리포트</h2>
+    <div class="date">2026년 3월 30일 일요일</div>
+  </div>
+
+  <div class="rpt-card">
+    <div class="rc-label">🍚 식사</div>
+    <div class="rc-body">아침 죽을 <span class="highlight">80%</span> 드시고, 점심은 밥과 국, 반찬을 <span class="highlight">85%</span> 드셨어요. 식욕이 안정적인 하루였습니다.</div>
+  </div>
+
+  <div class="rpt-card">
+    <div class="rc-label">💊 투약</div>
+    <div class="rc-body">오전·오후·취침 전 투약 <span class="highlight">3/3 완료</span>. 특이사항 없이 잘 복용하셨습니다.</div>
+  </div>
+
+  <div class="rpt-card">
+    <div class="rc-label">🚶 활동 & 정서</div>
+    <div class="rc-body">오전에 30분 산책을 하셨고, 기분이 좋으셨다고 해요. 다른 어르신들과 대화도 나누셨어요.</div>
+    <div class="emotion-row">
+      <div class="emo-chip"><div class="emoji">😊</div><div class="el">기분</div><div class="ev">좋음</div></div>
+      <div class="emo-chip"><div class="emoji">💪</div><div class="el">컨디션</div><div class="ev">양호</div></div>
+      <div class="emo-chip"><div class="emoji">😴</div><div class="el">수면</div><div class="ev">7시간</div></div>
+    </div>
+  </div>
+
+  <div class="rpt-card">
+    <div class="rc-label">📋 간호사 메모</div>
+    <div class="rc-body">
+      오늘 전반적으로 컨디션 좋으셨습니다. 오후 간식 시간에 요구르트 드심. 특이사항 없음.
+      <br><br><span style="color:var(--text-3);font-size:13px">— 박지현 간호사 · 주간근무</span>
+    </div>
+  </div>
+
+  <div class="rpt-card ai">
+    <div class="rc-label">✨ AI 종합 의견</div>
+    <div class="rc-body">
+      김순자 어르신은 최근 1주간 식사량이 안정적이고, 활동량도 꾸준합니다.
+      특별한 주의사항은 없으며, <strong style="color:var(--primary)">건강한 루틴이 잘 유지</strong>되고 있어요.
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 3. SOS 긴급알림 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">SOS 긴급 알림</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div class="icons"></div></div>
+<div class="scroll">
+  <div class="rpt-head">
+    <div class="back-btn">← 뒤로</div>
+    <h2 style="color:var(--danger)">긴급 알림</h2>
+    <div class="date">방금 도착한 알림</div>
+  </div>
+
+  <div class="sos-wrap">
+    <div class="sos-banner">
+      <div class="icon">🚨</div>
+      <h3>어머님 관련 긴급 알림이<br>도착했어요</h3>
+      <p>김순자 어르신 — 하나요양원 201호</p>
+      <div class="stamp">2026.03.30 오후 2:35</div>
+    </div>
+  </div>
+
+  <div class="sos-btns">
+    <button class="call">📞 요양원 전화</button>
+    <button class="confirm">확인했어요</button>
+  </div>
+
+  <div class="info-card">
+    <div class="info-row"><span class="k">발송자</span><span class="v">박지현 간호사</span></div>
+    <div class="info-row"><span class="k">상황</span><span class="v" style="color:var(--warning)">낙상 주의 상황</span></div>
+    <div class="info-row"><span class="k">위치</span><span class="v">201호 복도</span></div>
+    <div class="info-row"><span class="k">현재 조치</span><span class="v">간호사 확인 중</span></div>
+  </div>
+
+  <div class="section" style="padding-top:8px">
+    <div class="sec-head"><div class="sec-title">📋 상황 업데이트</div></div>
+    <div style="background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--border)">
+      <div class="tl">
+        <div class="tl-item done"><div class="tl-time">14:35</div><div class="tl-text">SOS 알림 발송</div></div>
+        <div class="tl-item done"><div class="tl-time">14:36</div><div class="tl-text">박지현 간호사 현장 도착</div></div>
+        <div class="tl-item future"><div class="tl-time">14:37</div><div class="tl-text">상태 확인 중…</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 4. 1:1 채팅 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">1:1 메시지</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div class="icons"></div></div>
+<div class="scroll">
+  <div class="chat-top">
+    <div class="back-btn" style="margin-right:4px">←</div>
+    <div class="chat-avatar">👩‍⚕️</div>
+    <div><div class="chat-name">박지현 간호사</div><div class="chat-role">담당 간호사 · 주간근무</div></div>
+  </div>
+  <div class="chat-body">
+    <div class="chat-date">2026년 3월 30일</div>
+    <div class="bubble in">안녕하세요 민서님 😊 오늘 어머님 컨디션 좋으세요!<div class="ts">오전 10:32</div></div>
+    <div class="bubble in">아침 산책도 잘 다녀오셨어요<div class="photo">🌳🚶‍♀️</div><div class="ts">오전 10:33</div></div>
+    <div class="bubble out">감사합니다 간호사님! 산책 사진 보니 안심이 되네요 ☺️<div class="ts">오전 11:05</div></div>
+    <div class="bubble out">혹시 점심 식사는 잘 하셨나요?<div class="ts">오후 1:20</div></div>
+    <div class="bubble in">네! 점심 85% 정도 잘 드셨어요. 오늘 반찬을 좋아하셨나봐요 😊<div class="ts">오후 1:45</div></div>
+    <div class="bubble out">다행이에요~ 저녁에 영상통화 가능할까요?<div class="ts">오후 2:10</div></div>
+    <div class="bubble in">네 저녁 6시 이후에 가능합니다! 시간 맞춰서 연결해드릴게요 📱<div class="ts">오후 2:15</div></div>
+  </div>
+</div>
+<div class="chat-bottom">
+  <div class="attach">📷</div>
+  <div class="field">메시지를 입력하세요</div>
+  <div class="send">↑</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+</body>
+</html>

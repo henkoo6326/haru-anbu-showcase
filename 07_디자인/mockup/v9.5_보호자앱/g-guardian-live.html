@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <title>하루안부 — 보호자 홈</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    html { background: #EEF3FB; font-size: 17px; }
+
+    :root {
+      --safe-t: max(env(safe-area-inset-top, 0px), 52px);
+      --safe-b: max(env(safe-area-inset-bottom, 0px), 20px);
+      --tab-h: 56px;
+      --tab-bot: 12px;
+      --tab-zone: calc(var(--safe-b) + var(--tab-bot) + var(--tab-h));
+      --peek: 512px;
+      --sheet-h: calc(100dvh - var(--tab-zone));
+      --sheet-collapsed-y: calc(var(--sheet-h) - var(--peek));
+    }
+
+    /* ─── 배경 ─── */
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(180deg, #d4e4ff 0%, #e8f0fe 40%, #f2f6ff 70%, #EEF3FB 100%); overflow: hidden; }
+    .bg .g1 { position: absolute; width: 500px; height: 500px; left: 50%; top: -5%;
+      transform: translateX(-50%); border-radius: 50%;
+      background: radial-gradient(circle, rgba(44,122,252,.16) 0%, transparent 65%); filter: blur(30px); }
+    .bg .g2 { position: absolute; width: 600px; height: 400px; left: 50%; top: 35%;
+      transform: translate(-50%,-50%); border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(200,220,255,.22) 0%, transparent 65%); filter: blur(40px); }
+
+    body { font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: transparent; }
+
+    /* ─── Liquid Glass ─── */
+    .lq {
+      background: rgba(255,255,255,0.45);
+      backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.58);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 16px rgba(0,0,0,0.06);
+      position: relative; overflow: hidden;
+    }
+    .lq::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+      background: linear-gradient(148deg, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.10) 28%, transparent 55%); }
+    .lq > * { position: relative; z-index: 1; }
+
+    /* ════════════════════════════════════
+       홈 화면
+    ════════════════════════════════════ */
+    .sec-home {
+      position: fixed; inset: 0; z-index: 1;
+      display: flex; flex-direction: column;
+      max-width: 430px; margin: 0 auto;
+    }
+
+    .hero { padding: calc(var(--safe-t) + 14px) 22px 0; flex-shrink: 0; }
+    .top-nav { display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-name { font-size: 1.06rem; font-weight: 800; letter-spacing: -0.4px; color: #1C1C1E; }
+    .top-nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #2C7AFC; position: relative; text-decoration: none; cursor: pointer; transition: transform 0.1s; }
+    .nav-btn:active { transform: scale(0.93); }
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%;
+      background: #FF3B30; border: 1.5px solid rgba(255,255,255,0.8); z-index: 2; }
+
+    .greeting-zone { padding: 28px 22px 0; flex-shrink: 0; }
+    .greeting-main { font-size: 1.72rem; font-weight: 800; line-height: 1.18; letter-spacing: -0.8px; color: #1C1C1E; margin-bottom: 10px; }
+    .greeting-sub { font-size: 1rem; color: rgba(28,28,30,0.52); line-height: 1.4; }
+
+    .sos-greeting { display: none; margin: 28px 22px 0; padding: 20px; border-radius: 20px;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 20px rgba(239,68,68,0.08);
+      cursor: pointer; transition: transform 0.12s; flex-shrink: 0; }
+    .sos-greeting:active { transform: scale(0.98); }
+    .sos-greeting.show { display: block; }
+    .sos-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sos-pulse { width: 10px; height: 10px; border-radius: 50%; background: #EF4444; flex-shrink: 0; animation: sosPulse 1.5s ease-in-out infinite; }
+    @keyframes sosPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
+    .sos-label { font-size: 0.82rem; font-weight: 800; color: #B91C1C; letter-spacing: 0.3px; flex: 1; }
+    .sos-time-badge { font-size: 0.76rem; color: rgba(185,28,28,0.55); font-weight: 600; }
+    .sos-title { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.8px; color: #B91C1C; line-height: 1.18; margin-bottom: 6px; }
+    .sos-desc { font-size: 0.94rem; color: rgba(185,28,28,0.65); line-height: 1.4; }
+    .sos-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 9px 16px; border-radius: 10px;
+      background: #EF4444; color: white; font-size: 0.88rem; font-weight: 700; border: none; cursor: pointer; }
+
+    .chat-spacer { flex: 1; }
+
+    .home-bottom { padding: 0 0 calc(var(--tab-zone) + var(--peek) + 6px); flex-shrink: 0; }
+    .ai-prompts-zone {
+      padding: 36px 22px 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .ai-prompts-zone.show { opacity: 1; pointer-events: auto; }
+    .ai-prompt-item { display: block; width: 100%; font-family: inherit; text-align: left;
+      cursor: pointer; background: none; border: none; padding: 6px 0;
+      font-size: 1.1rem; font-weight: 600; color: rgba(28,28,30,0.46);
+      letter-spacing: -0.3px; line-height: 1.2; transition: color 0.5s ease; }
+    .ai-prompt-item:active { color: rgba(28,28,30,0.8); }
+
+    /* ════════════════════════════════════
+       리포트 바텀시트
+       — 기본: peek만 탭바 위에 노출
+       — 확장: 전체 화면 (safe-t ~ tab-zone)
+    ════════════════════════════════════ */
+    .report-sheet {
+      position: fixed;
+      left: 50%; transform: translateX(-50%) translateY(var(--sheet-collapsed-y));
+      bottom: var(--tab-zone);
+      width: 100%; max-width: 430px;
+      height: var(--sheet-h);
+      border-radius: 22px 22px 0 0;
+      background: rgba(248,251,255,0.90);
+      backdrop-filter: blur(32px) saturate(150%) brightness(1.02);
+      -webkit-backdrop-filter: blur(32px) saturate(150%) brightness(1.02);
+      border-top: 0.5px solid rgba(255,255,255,0.88);
+      border-left: 0.5px solid rgba(255,255,255,0.72);
+      border-right: 0.5px solid rgba(255,255,255,0.72);
+      box-shadow: 0 -6px 32px rgba(0,0,0,0.08), 0 -1px 0 rgba(255,255,255,0.6);
+      z-index: 20;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.40s cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
+    }
+    .report-sheet.expanded {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── peek 핸들 ── */
+    .sheet-peek {
+      flex-shrink: 0; padding: 10px 20px 14px; cursor: pointer;
+    }
+    .drag-pill { width: 36px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.11); margin: 0 auto 11px; }
+    .peek-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .peek-title { font-size: 1.02rem; font-weight: 800; color: #1C1C1E; letter-spacing: -0.35px; }
+    .peek-date  { font-size: 0.80rem; color: rgba(28,28,30,0.38); font-weight: 500; }
+    .peek-metrics { display: flex; align-items: center; }
+    .peek-metric { display: flex; flex-direction: column; align-items: center; gap: 1px; padding-right: 14px; }
+    .peek-metric-val { font-size: 1.04rem; font-weight: 800; letter-spacing: -0.4px; color: #1C1C1E; }
+    .peek-metric--warn .peek-metric-val { color: #D97706; }
+    .peek-metric-lbl { font-size: 0.72rem; font-weight: 500; color: rgba(28,28,30,0.40); }
+    .peek-divider { width: 1px; height: 28px; background: rgba(0,0,0,0.08); margin-right: 14px; flex-shrink: 0; }
+    .peek-score { margin-left: auto; flex-shrink: 0; font-size: 0.78rem; font-weight: 800;
+      padding: 4px 12px; border-radius: 999px; background: rgba(44,122,252,0.10); color: #2C7AFC; }
+
+    /* ── 리포트 스크롤 영역 ── */
+    .sheet-scroll {
+      flex: 1; overflow-y: hidden;
+      padding: 4px 20px 20px;
+    }
+    .report-sheet.expanded .sheet-scroll {
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .report-sheet.expanded .sheet-scroll::-webkit-scrollbar { display: none; }
+
+    /* 리포트 내용 */
+    .report-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .report-title { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; color: #1C1C1E; }
+    .report-date  { font-size: 0.82rem; color: rgba(28,28,30,0.4); font-weight: 500; }
+
+    .ai-summary-card { border-radius: 18px; padding: 18px; margin-bottom: 12px;
+      background: rgba(44,122,252,0.06); border: 1px solid rgba(44,122,252,0.14); box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset; }
+    .ai-summary-top { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    .ai-summary-icon { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #22D3EE, #2C7AFC); display: flex; align-items: center; justify-content: center; }
+    .ai-summary-label { font-size: 0.76rem; font-weight: 800; color: #2C7AFC; letter-spacing: 0.3px; flex: 1; }
+    .ai-summary-score { font-size: 0.82rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+      background: rgba(44,122,252,0.10); color: #2C7AFC; }
+    .ai-summary-text { font-size: 0.94rem; line-height: 1.65; color: #1C1C1E; }
+    .ai-summary-text b { color: #2C7AFC; font-weight: 700; }
+    .ai-summary-text .warn { color: #E09000; font-weight: 700; }
+
+    .key-metrics { display: flex; gap: 10px; margin-bottom: 16px; }
+    .km-card { flex: 1; border-radius: 16px; padding: 14px 12px; background: rgba(255,255,255,0.80);
+      border: 0.5px solid rgba(255,255,255,0.88); box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 16px rgba(0,0,0,0.04);
+      display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: transform 0.12s; }
+    .km-card:active { transform: scale(0.96); }
+    .km-icon { font-size: 1.06rem; line-height: 1; }
+    .km-val { font-size: 1.47rem; font-weight: 800; letter-spacing: -0.6px; line-height: 1; }
+    .km-val--good { color: #1C1C1E; }
+    .km-val--warn { color: #E09000; }
+    .km-label { font-size: 0.72rem; color: rgba(28,28,30,0.42); font-weight: 500; }
+    .km-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; margin-top: 2px; }
+    .km-badge--good { background: rgba(5,150,105,0.10); color: #059669; }
+    .km-badge--warn { background: rgba(245,158,11,0.12); color: #92400E; }
+
+    .sec-label { font-size: 0.82rem; font-weight: 700; color: rgba(28,28,30,0.38);
+      letter-spacing: 0.3px; text-transform: uppercase; padding: 4px 2px 10px; }
+
+    .care-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .care-item { display: flex; align-items: center; gap: 14px; padding: 15px 16px; border-radius: 16px;
+      background: rgba(255,255,255,0.80); border: 0.5px solid rgba(255,255,255,0.88);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 2px 10px rgba(0,0,0,0.04);
+      cursor: pointer; transition: transform 0.12s; }
+    .care-item:active { transform: scale(0.98); }
+    .care-item-icon { width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .ci-blue  { background: rgba(44,122,252,0.12); }
+    .ci-green { background: rgba(5,150,105,0.12); }
+    .ci-amber { background: rgba(245,158,11,0.12); }
+    .care-item-body { flex: 1; min-width: 0; }
+    .care-item-title { font-size: 0.94rem; font-weight: 700; color: #1C1C1E; margin-bottom: 2px; }
+    .care-item-sub { font-size: 0.82rem; color: rgba(28,28,30,0.48); line-height: 1.3; }
+    .care-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .care-item-val { font-size: 1.18rem; font-weight: 800; letter-spacing: -0.4px; color: #1C1C1E; line-height: 1; }
+    .care-item-val--warn { color: #E09000; }
+    .care-badge { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .cb-good { background: rgba(5,150,105,0.10); color: #059669; border: 0.5px solid rgba(5,150,105,0.18); }
+    .cb-warn { background: rgba(245,158,11,0.12); color: #92400E; border: 0.5px solid rgba(245,158,11,0.25); }
+    .cb-blue { background: rgba(44,122,252,0.10); color: #1D6AF2; border: 0.5px solid rgba(44,122,252,0.20); }
+
+    .pill-timeline { display: flex; gap: 6px; margin-top: 10px; }
+    .pt-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 8px 6px; border-radius: 10px; background: rgba(255,255,255,0.55); border: 0.5px solid rgba(255,255,255,0.6); }
+    .pt-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .pt-dot--done { background: #059669; } .pt-dot--warn { background: #F59E0B; } .pt-dot--empty { background: rgba(0,0,0,0.15); }
+    .pt-label { font-size: 0.72rem; font-weight: 600; color: rgba(28,28,30,0.5); }
+    .pt-time  { font-size: 0.68rem; color: rgba(28,28,30,0.35); }
+
+    .meal-bars { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .meal-row { display: flex; align-items: center; gap: 8px; }
+    .meal-name { font-size: 0.76rem; font-weight: 600; color: rgba(28,28,30,0.5); width: 24px; }
+    .meal-track { flex: 1; height: 5px; background: rgba(0,0,0,0.06); border-radius: 99px; overflow: hidden; }
+    .meal-fill { height: 100%; border-radius: 99px; }
+    .mf-full { background: #34D399; width: 100%; } .mf-mid { background: #F59E0B; width: 55%; } .mf-high { background: #34D399; width: 90%; }
+    .meal-food { font-size: 0.72rem; color: rgba(28,28,30,0.38); }
+
+    .insight-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .insight-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 16px;
+      background: rgba(255,255,255,0.80); border: 0.5px solid rgba(255,255,255,0.88);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 2px 10px rgba(0,0,0,0.04); }
+    .insight-icon { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .insight-body { flex: 1; }
+    .insight-title { font-size: 0.88rem; font-weight: 700; color: #1C1C1E; margin-bottom: 3px; }
+    .insight-desc { font-size: 0.82rem; color: rgba(28,28,30,0.52); line-height: 1.45; }
+
+    .schedule-list { display: flex; flex-direction: column; margin-bottom: 16px; background: rgba(255,255,255,0.80); border-radius: 16px;
+      border: 0.5px solid rgba(255,255,255,0.88); box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 2px 10px rgba(0,0,0,0.04); overflow: hidden; }
+    .sch-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.05); }
+    .sch-row:last-child { border-bottom: none; }
+    .sch-time { font-size: 0.78rem; font-weight: 700; width: 42px; flex-shrink: 0; color: rgba(28,28,30,0.38); }
+    .sch-time--now { color: #2C7AFC; }
+    .sch-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: rgba(0,0,0,0.12); }
+    .sch-dot--done { background: #34D399; } .sch-dot--now { background: #2C7AFC; box-shadow: 0 0 0 3px rgba(44,122,252,0.18); }
+    .sch-name { font-size: 0.88rem; font-weight: 600; flex: 1; color: #1C1C1E; }
+    .sch-name--done { color: rgba(28,28,30,0.35); text-decoration: line-through; }
+    .sch-tag { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+    .st-done { background: rgba(52,211,153,0.12); color: #059669; }
+    .st-now  { background: rgba(44,122,252,0.10); color: #2C7AFC; }
+    .st-next { background: rgba(0,0,0,0.04); color: rgba(28,28,30,0.4); }
+
+    /* ════════════════════════════════════
+       바텀바 — 탭바 + AI FAB 묶음
+    ════════════════════════════════════ */
+    .bottom-bar {
+      position: fixed;
+      bottom: calc(var(--safe-b) + var(--tab-bot));
+      left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      width: calc(100% - 48px); max-width: 382px;
+      z-index: 40;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .bottom-bar.hide { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px); }
+
+    .tabbar {
+      flex: 1; min-width: 0; height: var(--tab-h);
+      background: rgba(210,225,250,.55);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.50);
+      border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.40);
+      display: flex; align-items: stretch; justify-content: space-around;
+      padding: 0 8px;
+    }
+    .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      flex: 1; padding: 8px 4px; border-radius: 999px; font-size: 0.72rem; font-weight: 500;
+      color: rgba(28,28,30,0.42); text-decoration: none; transition: all 0.18s; white-space: nowrap; }
+    .tab.active { color: #2C7AFC; }
+
+    .ai-fab {
+      width: var(--tab-h); height: var(--tab-h); flex-shrink: 0;
+      border-radius: 50%;
+      background: rgba(210,225,250,.55);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.50);
+      box-shadow: 0 4px 20px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.40);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform .12s;
+    }
+    .ai-fab:active { transform: scale(.92); }
+
+    /* ════════════════════════════════════
+       채팅바 — 리포트 dismiss 시 탭바 자리에서 슬라이드 업
+    ════════════════════════════════════ */
+    .chat-bar {
+      position: fixed;
+      bottom: calc(var(--safe-b) + var(--tab-bot));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      width: calc(100% - 32px); max-width: 398px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      z-index: 40;
+    }
+    .chat-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+
+    /* ── 리포트 복원 pill (chat mode에서만 보임) ── */
+    .report-restore {
+      position: fixed;
+      bottom: calc(var(--safe-b) + var(--tab-bot) + var(--tab-h) + 10px);
+      left: 50%; transform: translateX(-50%) translateY(10px);
+      opacity: 0; pointer-events: none;
+      z-index: 41;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .report-restore.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .report-restore-inner {
+      display: flex; align-items: center; gap: 7px; padding: 8px 16px 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.70);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      border: 0.5px solid rgba(255,255,255,0.80);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      font-size: 0.84rem; font-weight: 700; color: #1C1C1E;
+      cursor: pointer; white-space: nowrap;
+    }
+    .report-restore-inner iconify-icon { font-size: 14px; color: #2C7AFC; }
+    .chat-bar-inner {
+      border-radius: 999px; height: var(--tab-h);
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      background: rgba(255,255,255,0.62);
+      backdrop-filter: blur(28px) saturate(150%) brightness(1.04);
+      -webkit-backdrop-filter: blur(28px) saturate(150%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.75);
+      box-shadow: 0 2px 2px rgba(255,255,255,0.7) inset, 0 8px 32px rgba(0,0,0,0.10);
+    }
+    .cb-dot { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #C084FC, #818CF8);
+      display: flex; align-items: center; justify-content: center; }
+    .cb-placeholder { flex: 1; font-size: 0.97rem; color: rgba(28,28,30,0.36); font-family: inherit; }
+    .cb-actions { display: flex; align-items: center; gap: 6px; }
+    .cb-mic { width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.35); border: 0.5px solid rgba(255,255,255,0.7);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.75) inset;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s; flex-shrink: 0; }
+    .cb-mic:active { transform: scale(0.92); }
+    .cb-send { width: 34px; height: 34px; border-radius: 50%; background: #2C7AFC;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: transform 0.1s; border: none; flex-shrink: 0; }
+    .cb-send:active { transform: scale(0.92); }
+
+    /* ════════════════════════════════════
+       바텀시트 / 토스트
+    ════════════════════════════════════ */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: flex-end; justify-content: center; z-index: 200; }
+    .overlay.show { display: flex; }
+    .sheet { background: rgba(250,250,255,0.88); backdrop-filter: blur(60px) saturate(140%); -webkit-backdrop-filter: blur(60px) saturate(140%); border-top: 0.5px solid rgba(255,255,255,0.75); border-radius: 26px 26px 0 0; padding: 18px 22px calc(28px + env(safe-area-inset-bottom,0px)); width: 100%; max-width: 430px; }
+    .sheet-handle { width: 36px; height: 4px; background: rgba(0,0,0,0.10); border-radius: 2px; margin: 0 auto 20px; }
+    .sheet-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .sheet-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .sheet-icon iconify-icon { font-size: 20px; color: #fff; }
+    .sheet-ttl { font-size: 1.18rem; font-weight: 800; }
+    .sheet-sub { font-size: 0.76rem; color: rgba(28,28,30,0.42); margin-top: 1px; }
+    .srow { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 12px; background: rgba(0,0,0,0.025); margin-bottom: 7px; }
+    .srow-icon { width: 34px; height: 34px; border-radius: 9px; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .srow-icon iconify-icon { font-size: 16px; }
+    .srow-text { flex: 1; }
+    .srow-label { font-size: 0.72rem; color: rgba(28,28,30,0.42); }
+    .srow-val { font-size: 0.94rem; font-weight: 600; margin-top: 1px; }
+    .srow-badge { padding: 2px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; }
+    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-8px); background: rgba(28,28,30,0.80); color: white; padding: 11px 22px; border-radius: 999px; font-size: 0.94rem; font-weight: 500; font-family: inherit; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 300; opacity: 0; transition: opacity 0.22s, transform 0.22s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"><div class="g1"></div><div class="g2"></div></div>
+
+  <!-- ══ 홈 ══ -->
+  <div class="sec-home">
+    <div class="hero">
+      <nav class="top-nav">
+        <div class="logo">
+          <svg width="26" height="26" viewBox="0 0 512 512" fill="none">
+            <g transform="translate(50,50) scale(0.163)">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+              <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+            </g>
+          </svg>
+          <span class="logo-name">하루안부</span>
+        </div>
+        <div class="top-nav-right">
+          <a href="g06-alert.html" class="nav-btn lq" aria-label="알림">
+            <iconify-icon icon="fluent:alert-24-filled" style="font-size:19px;color:#2C7AFC;"></iconify-icon>
+            <span class="notif-dot"></span>
+          </a>
+          <a href="g05-mypage.html" class="nav-btn lq" aria-label="마이페이지">
+            <iconify-icon icon="fluent:person-24-filled" style="font-size:19px;color:#2C7AFC;"></iconify-icon>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="greeting-zone" id="greetingZone">
+      <h1 class="greeting-main" id="greetingMain">오늘도 수고하셨어요,<br>정희님 잘 있어요</h1>
+      <p class="greeting-sub" id="greetingSub">저녁 일과도 잘 되고 있어요.</p>
+    </div>
+
+    <div class="ai-prompts-zone" id="aiPromptsZone">
+      <button class="ai-prompt-item">정희님 오늘 어떠셨어요?</button>
+      <button class="ai-prompt-item">이번 주 케어 내용 요약해줘</button>
+      <button class="ai-prompt-item">간호사한테 메시지 남겨줘</button>
+    </div>
+
+    <div class="sos-greeting" id="sosGreeting" onclick="openSheet('sos')">
+      <div class="sos-top"><div class="sos-pulse"></div><span class="sos-label">긴급 알림</span><span class="sos-time-badge">2분 전</span></div>
+      <div class="sos-title">낙상 감지됐어요,<br>302호 정희님</div>
+      <div class="sos-desc">담당 간호사가 현장을 확인하고 있어요.</div>
+      <button class="sos-cta"><iconify-icon icon="fluent:arrow-right-24-filled" style="font-size:14px;"></iconify-icon>상황 확인하기</button>
+    </div>
+
+    <div class="chat-spacer"></div>
+    <div class="home-bottom"></div>
+  </div>
+
+  <!-- ══ 리포트 바텀시트 ══ -->
+  <div class="report-sheet" id="reportSheet">
+
+    <!-- peek 핸들 (드래그 영역) -->
+    <div class="sheet-peek" id="sheetPeek">
+      <div class="drag-pill"></div>
+      <div class="peek-row">
+        <span class="peek-title">일일 리포트</span>
+        <span class="peek-date" id="peekDate"></span>
+      </div>
+      <div class="peek-metrics">
+        <div class="peek-metric"><span class="peek-metric-val">3끼</span><span class="peek-metric-lbl">식사</span></div>
+        <div class="peek-divider"></div>
+        <div class="peek-metric peek-metric--warn"><span class="peek-metric-val">33%</span><span class="peek-metric-lbl">투약</span></div>
+        <div class="peek-divider"></div>
+        <div class="peek-metric"><span class="peek-metric-val">87점</span><span class="peek-metric-lbl">기분</span></div>
+        <div class="peek-score">오늘 75점</div>
+      </div>
+    </div>
+
+    <!-- 리포트 내용 -->
+    <div class="sheet-scroll" id="sheetScroll">
+
+      <div class="ai-summary-card">
+        <div class="ai-summary-top">
+          <div class="ai-summary-icon"><iconify-icon icon="ph:sparkle-fill" style="font-size:13px;color:white;"></iconify-icon></div>
+          <span class="ai-summary-label">AI 요약</span>
+          <span class="ai-summary-score">오늘 75점</span>
+        </div>
+        <div class="ai-summary-text">
+          식사 3끼 모두 잘 드셨고 <b>오전 산책 25분</b>도 완료했어요.
+          다만 <span class="warn">저녁 투약 확인</span>이 필요하고, 점심 섭취량이 조금 줄었으니 내일도 지켜봐 주세요.
+        </div>
+      </div>
+
+      <div class="sec-label">케어 상세</div>
+      <div class="care-list">
+        <div class="care-item" onclick="openSheet('pill')">
+          <div class="care-item-icon ci-amber"><iconify-icon icon="tabler:pill-filled" style="font-size:18px;color:#D97706;"></iconify-icon></div>
+          <div class="care-item-body">
+            <div class="care-item-title">투약</div>
+            <div class="care-item-sub">1/3 완료 · 저녁 18:00 대기 중</div>
+            <div class="pill-timeline">
+              <div class="pt-item"><div class="pt-dot pt-dot--done"></div><div class="pt-label">아침</div><div class="pt-time">08:20</div></div>
+              <div class="pt-item"><div class="pt-dot pt-dot--empty"></div><div class="pt-label">점심</div><div class="pt-time">12:30</div></div>
+              <div class="pt-item"><div class="pt-dot pt-dot--warn"></div><div class="pt-label">저녁</div><div class="pt-time">18:00</div></div>
+            </div>
+          </div>
+          <div class="care-item-right"><span class="care-item-val care-item-val--warn">33%</span><span class="care-badge cb-warn">확인 필요</span></div>
+        </div>
+        <div class="care-item" onclick="openSheet('food')">
+          <div class="care-item-icon ci-green"><iconify-icon icon="fluent:food-24-filled" style="font-size:18px;color:#059669;"></iconify-icon></div>
+          <div class="care-item-body">
+            <div class="care-item-title">식사</div>
+            <div class="care-item-sub">3끼 완료 · 점심 섭취량 주의</div>
+            <div class="meal-bars">
+              <div class="meal-row"><span class="meal-name">아침</span><div class="meal-track"><div class="meal-fill mf-full"></div></div><span class="meal-food">죽</span></div>
+              <div class="meal-row"><span class="meal-name">점심</span><div class="meal-track"><div class="meal-fill mf-mid"></div></div><span class="meal-food">밥</span></div>
+              <div class="meal-row"><span class="meal-name">저녁</span><div class="meal-track"><div class="meal-fill mf-high"></div></div><span class="meal-food">찌개</span></div>
+            </div>
+          </div>
+          <div class="care-item-right"><span class="care-item-val">3끼</span><span class="care-badge cb-good">양호</span></div>
+        </div>
+        <div class="care-item" onclick="openSheet('activity')">
+          <div class="care-item-icon ci-blue"><iconify-icon icon="fluent:walk-24-filled" style="font-size:18px;color:#2C7AFC;"></iconify-icon></div>
+          <div class="care-item-body"><div class="care-item-title">활동</div><div class="care-item-sub">오전 산책 15분 + 체조 10분</div></div>
+          <div class="care-item-right"><span class="care-item-val">25분</span><span class="care-badge cb-good">완료</span></div>
+        </div>
+        <div class="care-item" onclick="openSheet('hygiene')">
+          <div class="care-item-icon ci-blue"><iconify-icon icon="fluent:drop-24-filled" style="font-size:18px;color:#2C7AFC;"></iconify-icon></div>
+          <div class="care-item-body"><div class="care-item-title">위생</div><div class="care-item-sub">세면 · 구강 완료 / 목욕 예정</div></div>
+          <div class="care-item-right"><span class="care-item-val" style="font-size:0.94rem;">3/5</span><span class="care-badge cb-blue">진행중</span></div>
+        </div>
+        <div class="care-item" onclick="openSheet('nurse')">
+          <div class="care-item-icon ci-green"><iconify-icon icon="fluent:person-24-filled" style="font-size:20px;color:#059669;"></iconify-icon></div>
+          <div class="care-item-body"><div class="care-item-title">담당 간호사</div><div class="care-item-sub">김서연 · 실버케어 3층</div></div>
+          <div class="care-item-right">
+            <span class="care-badge cb-good" style="font-size:0.76rem;padding:4px 10px;">근무중</span>
+            <button onclick="event.stopPropagation();window.location.href='g03-chat-nurse.html'" style="font-size:0.72rem;font-weight:700;color:#2C7AFC;background:rgba(44,122,252,0.10);border:none;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;">채팅</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-label">AI 인사이트</div>
+      <div class="insight-list">
+        <div class="insight-item">
+          <div class="insight-icon" style="background:rgba(245,158,11,0.12);"><iconify-icon icon="fluent:warning-24-filled" style="font-size:18px;color:#D97706;"></iconify-icon></div>
+          <div class="insight-body"><div class="insight-title">점심 섭취량 감소 패턴</div><div class="insight-desc">이번 주 3일 연속 점심 섭취량이 평소보다 낮아요. 식욕 변화를 간호사에게 전달해 보세요.</div></div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-icon" style="background:rgba(44,122,252,0.10);"><iconify-icon icon="ph:sparkle-fill" style="font-size:18px;color:#2C7AFC;"></iconify-icon></div>
+          <div class="insight-body"><div class="insight-title">활동량 이번 주 최고</div><div class="insight-desc">오늘 활동 25분은 이번 주 중 가장 높아요. 꾸준한 산책이 도움이 되고 있어요.</div></div>
+        </div>
+      </div>
+
+      <div class="sec-label">오늘 일정</div>
+      <div class="schedule-list">
+        <div class="sch-row"><span class="sch-time">07:30</span><div class="sch-dot sch-dot--done"></div><span class="sch-name sch-name--done">기상 · 세면</span><span class="sch-tag st-done">완료</span></div>
+        <div class="sch-row"><span class="sch-time">08:00</span><div class="sch-dot sch-dot--done"></div><span class="sch-name sch-name--done">아침 식사</span><span class="sch-tag st-done">완료</span></div>
+        <div class="sch-row"><span class="sch-time">09:30</span><div class="sch-dot sch-dot--done"></div><span class="sch-name sch-name--done">오전 산책</span><span class="sch-tag st-done">완료</span></div>
+        <div class="sch-row"><span class="sch-time sch-time--now">15:30</span><div class="sch-dot sch-dot--now"></div><span class="sch-name">인지 훈련</span><span class="sch-tag st-now">진행중</span></div>
+        <div class="sch-row"><span class="sch-time">18:00</span><div class="sch-dot"></div><span class="sch-name">저녁 식사 · 투약</span><span class="sch-tag st-next">예정</span></div>
+        <div class="sch-row"><span class="sch-time">21:00</span><div class="sch-dot"></div><span class="sch-name">취침 준비</span><span class="sch-tag st-next">예정</span></div>
+      </div>
+
+    </div><!-- /sheet-scroll -->
+  </div><!-- /report-sheet -->
+
+  <!-- 바텀바: AI FAB + 탭바 -->
+  <div class="bottom-bar" id="bottomBar">
+    <nav class="tabbar" id="tabbar">
+      <a href="g-guardian-live.html" class="tab active">
+        <span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:24px"></iconify-icon></span>
+        
+      </a>
+      <a href="g02-ai-guide.html" class="tab">
+        <span class="tab-icon"><iconify-icon icon="fluent:shield-checkmark-24-filled" style="font-size:24px"></iconify-icon></span>
+        
+      </a>
+      <a href="g03-sotong.html" class="tab">
+        <span class="tab-icon"><iconify-icon icon="fluent:chat-24-filled" style="font-size:24px"></iconify-icon></span>
+        
+      </a>
+      <a href="g05-records.html" class="tab">
+        <span class="tab-icon"><iconify-icon icon="fluent:document-text-24-filled" style="font-size:24px"></iconify-icon></span>
+        
+      </a>
+      <a href="g05-mypage.html" class="tab">
+        <span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:24px"></iconify-icon></span>
+        
+      </a>
+    </nav>
+    <div class="ai-fab" onclick="setState('dismissed')" title="AI 채팅">
+      <svg width="20" height="20" viewBox="0 0 2526 2526" fill="#2C7AFC">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+        <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 리포트 복원 pill (chat mode에서만 보임) -->
+  <div class="report-restore" id="reportRestore" onclick="setState('peek')">
+    <div class="report-restore-inner">
+      <iconify-icon icon="fluent:arrow-up-24-filled"></iconify-icon>
+      일일 리포트 보기
+    </div>
+  </div>
+
+  <!-- 채팅바 (리포트 dismiss 시 탭바 자리에서 등장) -->
+  <div class="chat-bar" id="chatBar">
+    <div class="chat-bar-inner">
+      <span class="cb-placeholder">리포트에 대해 물어보세요...</span>
+      <div class="cb-actions">
+        <button class="cb-mic"><iconify-icon icon="fluent:mic-24-filled" style="font-size:16px;color:#2C7AFC;"></iconify-icon></button>
+        <button class="cb-send"><iconify-icon icon="fluent:send-24-filled" style="font-size:14px;color:white;"></iconify-icon></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 디테일 바텀시트 -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet"><div class="sheet-handle"></div><div id="sheetContent"></div></div>
+  </div>
+  <div class="toast" id="toastEl"></div>
+
+  <script>
+    /* 날짜 */
+    (function(){
+      const now = new Date(), days=['일','월','화','수','목','금','토'];
+      const str = `${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+      ['reportDate','peekDate'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=str; });
+    })();
+
+    /* 인삿말 */
+    (function(){
+      const hasSOS = false;
+      if (hasSOS) { document.getElementById('greetingZone').style.display='none'; document.getElementById('sosGreeting').classList.add('show'); }
+      else {
+        const h=new Date().getHours(), m=document.getElementById('greetingMain'), s=document.getElementById('greetingSub');
+        if      (h>=5  && h<11) { m.innerHTML='정희님 아침도<br>잘 챙기고 있어요'; s.textContent='아침 식사 잘 드셨어요, 안심하세요.'; }
+        else if (h>=11 && h<14) { m.innerHTML='점심 잘 챙겨드렸어요,<br>안심하세요'; s.textContent='오후 투약도 간호사님이 챙기고 있어요.'; }
+        else if (h>=14 && h<18) { m.innerHTML='정희님 옆에서<br>꼼꼼히 챙기고 있어요'; s.textContent='걱정 없이 맡겨두세요.'; }
+        else if (h>=18 && h<22) { m.innerHTML='오늘도 수고하셨어요,<br>정희님 잘 있어요'; s.textContent='저녁 일과도 잘 되고 있어요.'; }
+        else                    { m.innerHTML='편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요'; s.textContent='오늘 일과 모두 잘 마무리됐어요.'; }
+      }
+    })();
+
+    /* ══════════════════════════════════
+       바텀시트 스크롤 제스처 로직
+       ─ peek      : 기본 (탭바 O, 채팅바 X)
+       ─ expanded  : 전체 펼침 (탭바 O, 채팅바 X)
+       ─ dismissed : 완전히 내림 (탭바 X, 채팅바 O)
+    ══════════════════════════════════ */
+    const sheet       = document.getElementById('reportSheet');
+    const peek        = document.getElementById('sheetPeek');
+    const scroll      = document.getElementById('sheetScroll');
+    const tabbar      = document.getElementById('bottomBar');
+    const chatBar     = document.getElementById('chatBar');
+    const restoreBtn  = document.getElementById('reportRestore');
+    const promptsZone = document.getElementById('aiPromptsZone');
+    const homeEl      = document.querySelector('.sec-home');
+
+    let state = 'peek';
+
+    function getPeekY()      { return sheet.offsetHeight - 512; }
+    function getDismissedY() { return window.innerHeight; }
+
+    function setState(newState, animated = true) {
+      state = newState;
+      if (!animated) sheet.style.transition = 'none';
+      else           sheet.style.transition = '';
+
+      const ty = newState === 'expanded' ? 0
+               : newState === 'dismissed' ? getDismissedY()
+               : getPeekY();
+      sheet.style.transform = `translateX(-50%) translateY(${ty}px)`;
+
+      const dismissed = newState === 'dismissed';
+      sheet.classList.toggle('expanded', newState === 'expanded');
+      if (newState !== 'expanded') scroll.scrollTop = 0;
+      tabbar.classList.toggle('hide', dismissed);
+      chatBar.classList.toggle('show', dismissed);
+      if (restoreBtn)  restoreBtn.classList.toggle('show', dismissed);
+      if (promptsZone) promptsZone.classList.toggle('show', dismissed);
+
+      if (!animated) requestAnimationFrame(() => { sheet.style.transition = ''; });
+    }
+
+    peek.addEventListener('click', () => {
+      setState(state === 'expanded' ? 'peek' : 'expanded');
+    });
+
+    const headerEl = document.querySelector('.hero');
+    let trackStartY  = 0;
+    let trackStartTy = 0;
+    let isTracking   = false;
+
+    function getCurrentTy() {
+      if (state === 'expanded')  return 0;
+      if (state === 'peek')      return getPeekY();
+      return getDismissedY();
+    }
+
+    function updateCrossfade(ty) {
+      const pY = getPeekY(), dY = getDismissedY();
+      if (ty <= pY) {
+        tabbar.style.opacity = '1';
+        chatBar.style.opacity = '0';
+        chatBar.style.transform = 'translateX(-50%) translateY(20px)';
+        if (restoreBtn) restoreBtn.style.opacity = '0';
+      } else {
+        const p = Math.min(1, (ty - pY) / (dY - pY));
+        tabbar.style.opacity  = String(1 - p);
+        chatBar.style.opacity = String(p);
+        chatBar.style.transform = `translateX(-50%) translateY(${(1-p)*20}px)`;
+        if (restoreBtn) restoreBtn.style.opacity = String(p);
+      }
+    }
+
+    document.addEventListener('touchstart', e => {
+      if (headerEl && headerEl.contains(e.target)) return;
+      if (state === 'expanded' && scroll.contains(e.target) && scroll.scrollTop > 0) return;
+      trackStartY  = e.touches[0].clientY;
+      trackStartTy = getCurrentTy();
+      isTracking   = true;
+      sheet.style.transition = 'none';
+    }, { passive: true });
+
+    document.addEventListener('touchmove', e => {
+      if (!isTracking) return;
+      if (state === 'expanded' && scroll.contains(e.target) && scroll.scrollTop > 0) {
+        isTracking = false; sheet.style.transition = ''; return;
+      }
+      const dy = e.touches[0].clientY - trackStartY;
+      const newTy = Math.max(0, Math.min(getDismissedY(), trackStartTy - dy));
+      sheet.style.transform = `translateX(-50%) translateY(${newTy}px)`;
+      updateCrossfade(newTy);
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      if (!isTracking) return;
+      isTracking = false;
+      sheet.style.transition = '';
+      tabbar.style.opacity = '';
+      chatBar.style.opacity = '';
+      chatBar.style.transform = '';
+      if (restoreBtn) restoreBtn.style.opacity = '';
+
+      const dy  = e.changedTouches[0].clientY - trackStartY;
+      if (Math.abs(dy) < 5) return;
+
+      const curTy  = Math.max(0, Math.min(getDismissedY(), trackStartTy + dy));
+      const pY     = getPeekY();
+      const dY     = getDismissedY();
+
+      if (dy > 20) {
+        if (state === 'dismissed') setState('peek');
+        else                       setState('expanded');
+      } else if (dy < -20) {
+        if (state === 'expanded') setState('peek');
+        else                      setState('dismissed');
+      } else {
+        if      (curTy < pY * 0.5)              setState('expanded');
+        else if (curTy < pY + (dY - pY) * 0.5) setState('peek');
+        else                                     setState('dismissed');
+      }
+    }, { passive: true });
+
+    /* 데스크탑 휠 (테스트용) */
+    let wheelLock = false;
+    window.addEventListener('wheel', e => {
+      if (wheelLock) return;
+      if (e.deltaY > 15) {
+        if (state === 'dismissed') setState('peek');
+        else setState('expanded');
+        wheelLock = true; setTimeout(() => wheelLock = false, 700);
+      } else if (e.deltaY < -15) {
+        if (state === 'expanded') setState('peek');
+        else setState('dismissed');
+        wheelLock = true; setTimeout(() => wheelLock = false, 700);
+      }
+    }, { passive: true });
+
+    /* 프롬프트 순차 강조 */
+    (function(){
+      const items = document.querySelectorAll('.ai-prompt-item');
+      if (!items.length) return;
+      const base='rgba(28,28,30,0.46)', hi='#1C1C1E'; let idx=0;
+      function step() { items.forEach(el=>el.style.color=base); items[idx].style.color=hi; idx=(idx+1)%items.length; setTimeout(step,2200); }
+      setTimeout(step,600);
+    })();
+
+    /* 바텀시트 데이터 */
+    const SHEETS = {
+      pill:     { icon:'tabler:pill-filled',     color:'#F59E0B', bg:'linear-gradient(135deg,#FBBF24,#F59E0B)', title:'투약 상세',    sub:'3회 중 1회 완료',      rows:[{icon:'fluent:syringe-24-filled',ic:'#059669',label:'아침 투약',val:'혈압약 · 당뇨약 — 08:20',badge:'완료',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'material-symbols:medical-services-rounded',ic:'rgba(0,0,0,.3)',label:'점심 투약',val:'소화제 — 12:30',badge:'예정',bc:'color:rgba(0,0,0,.4);background:rgba(0,0,0,.04)'},{icon:'ph:heartbeat-fill',ic:'#F59E0B',label:'저녁 투약',val:'관절약 · 영양제 — 18:00',badge:'확인 필요',bc:'color:#92400E;background:rgba(245,158,11,.12)'}]},
+      food:     { icon:'fluent:food-24-filled',   color:'#34D399', bg:'linear-gradient(135deg,#34D399,#059669)', title:'식사 상세',    sub:'3끼 완료',             rows:[{icon:'fluent:food-24-filled',ic:'#059669',label:'아침 08:10',val:'죽 + 반찬 2종',badge:'양호',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:food-24-filled',ic:'#059669',label:'점심 12:05',val:'밥 + 국 — 80%',badge:'양호',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:food-24-filled',ic:'#059669',label:'저녁 18:30',val:'밥 + 된장찌개',badge:'양호',bc:'color:#059669;background:rgba(52,211,153,.12)'}]},
+      mood:     { icon:'ph:smiley-fill',          color:'#60A5FA', bg:'linear-gradient(135deg,#60A5FA,#2C7AFC)', title:'기분 상세',    sub:'전반적으로 밝은 상태', rows:[{icon:'ph:smiley-fill',ic:'#34D399',label:'오전',val:'밝고 활기찬 상태',badge:'좋음',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'ph:smiley-meh-fill',ic:'#60A5FA',label:'오후',val:'점심 후 안정적',badge:'보통',bc:'color:#1D6AF2;background:rgba(44,122,252,.1)'},{icon:'ph:smiley-wink-fill',ic:'#2C7AFC',label:'저녁',val:'편안한 상태',badge:'편안',bc:'color:#1D6AF2;background:rgba(44,122,252,.1)'}]},
+      activity: { icon:'fluent:walk-24-filled',   color:'#60A5FA', bg:'linear-gradient(135deg,#60A5FA,#2C7AFC)', title:'활동 상세',    sub:'오늘 총 25분',         rows:[{icon:'fluent:walk-24-filled',ic:'#2C7AFC',label:'오전 산책',val:'09:30 · 15분 완료',badge:'완료',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:sport-24-filled',ic:'#2C7AFC',label:'재활 체조',val:'10:00 · 10분 완료',badge:'완료',bc:'color:#059669;background:rgba(52,211,153,.12)'}]},
+      hygiene:  { icon:'fluent:drop-24-filled',   color:'#60A5FA', bg:'linear-gradient(135deg,#60A5FA,#2C7AFC)', title:'위생 상세',    sub:'3건 완료 · 2건 예정', rows:[{icon:'fluent:drop-24-filled',ic:'#2C7AFC',label:'세면',val:'아침 07:30 완료',badge:'완료',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:drop-24-filled',ic:'#2C7AFC',label:'구강 케어',val:'아침 07:40 완료',badge:'완료',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:drop-24-filled',ic:'rgba(44,122,252,.3)',label:'목욕',val:'오후 예정',badge:'예정',bc:'color:rgba(0,0,0,.4);background:rgba(0,0,0,.04)'}]},
+      nurse:    { icon:'fluent:person-24-filled', color:'#34D399', bg:'linear-gradient(135deg,#34D399,#059669)', title:'김서연 간호사', sub:'실버케어 3층 · 5년차', rows:[{icon:'fluent:clock-24-filled',ic:'#2C7AFC',label:'근무 시간',val:'07:00 ~ 15:00 (주간)',badge:'근무중',bc:'color:#059669;background:rgba(52,211,153,.12)'},{icon:'fluent:chat-24-filled',ic:'#2C7AFC',label:'최근 메시지',val:'어르신 오전 산책 잘 다녀오셨어요',badge:'',bc:''}]},
+      sos:      { icon:'fluent:alert-24-filled',  color:'#EF4444', bg:'linear-gradient(135deg,#EF4444,#B91C1C)', title:'긴급 알림',    sub:'302호 · 2분 전 발생', rows:[{icon:'fluent:alert-24-filled',ic:'#EF4444',label:'상황',val:'화장실 이동 중 낙상 감지',badge:'긴급',bc:'color:#B91C1C;background:rgba(239,68,68,.1)'},{icon:'fluent:person-24-filled',ic:'#2C7AFC',label:'대응',val:'김서연 간호사 현장 확인 중',badge:'확인중',bc:'color:#D97706;background:rgba(245,158,11,.1)'}]},
+    };
+
+    function openSheet(key) {
+      const d=SHEETS[key]; if(!d) return;
+      const rows=d.rows.map(r=>`<div class="srow"><div class="srow-icon"><iconify-icon icon="${r.icon}" style="color:${r.ic};font-size:16px;"></iconify-icon></div><div class="srow-text"><div class="srow-label">${r.label}</div><div class="srow-val">${r.val}</div></div>${r.badge?`<span class="srow-badge" style="${r.bc}">${r.badge}</span>`:''}</div>`).join('');
+      document.getElementById('sheetContent').innerHTML=`<div class="sheet-head"><div class="sheet-icon" style="background:${d.bg}"><iconify-icon icon="${d.icon}"></iconify-icon></div><div><div class="sheet-ttl">${d.title}</div><div class="sheet-sub">${d.sub}</div></div></div>${rows}`;
+      document.getElementById('overlay').classList.add('show');
+    }
+    function closeSheet() { document.getElementById('overlay').classList.remove('show'); }
+    function toast(msg) { const t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+  </script>
+</body>
+</html>

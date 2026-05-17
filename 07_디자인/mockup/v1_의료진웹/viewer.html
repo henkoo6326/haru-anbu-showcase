@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — 의료진 웹 목업 뷰어</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+      background: #0a0f1a;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    .nav {
+      position: sticky; top: 0; z-index: 999;
+      background: rgba(10,15,26,.92);
+      backdrop-filter: blur(16px);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-logo {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #059669, #065F46);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .nav-title { font-size: 14px; font-weight: 700; letter-spacing: -.3px; }
+    .nav-sub { font-size: 11px; color: rgba(255,255,255,.40); }
+    .nav-pills { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+    .nav-pill {
+      padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      border: 0.5px solid rgba(255,255,255,.15); color: rgba(255,255,255,.55);
+      cursor: pointer; transition: all .14s; text-decoration: none;
+    }
+    .nav-pill:hover, .nav-pill.active {
+      background: rgba(5,150,105,.25); border-color: rgba(5,150,105,.5);
+      color: #6EE7B7;
+    }
+
+    /* Gallery */
+    .gallery {
+      padding: 40px 32px 80px;
+      display: flex; flex-direction: column; gap: 80px;
+      max-width: 1600px; margin: 0 auto;
+    }
+
+    .screen-item { display: flex; flex-direction: column; gap: 16px; }
+
+    .screen-label {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .screen-num {
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      background: rgba(5,150,105,.20); color: #6EE7B7; letter-spacing: .4px;
+    }
+    .screen-name { font-size: 15px; font-weight: 700; color: rgba(255,255,255,.85); }
+    .screen-desc { font-size: 12px; color: rgba(255,255,255,.35); margin-left: auto; }
+
+    .browser-frame {
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 24px 80px rgba(0,0,0,.5);
+      background: #1a2332;
+    }
+    .browser-bar {
+      height: 36px; background: #1e2b3a;
+      display: flex; align-items: center; gap: 8px; padding: 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .browser-dot.red    { background: #FF5F57; }
+    .browser-dot.yellow { background: #FEBC2E; }
+    .browser-dot.green  { background: #28C840; }
+    .browser-url {
+      flex: 1; margin: 0 12px; height: 22px;
+      background: rgba(0,0,0,.25); border-radius: 5px;
+      display: flex; align-items: center; padding: 0 10px;
+      font-size: 11px; color: rgba(255,255,255,.30);
+    }
+    .browser-iframe {
+      width: 100%; height: 900px; border: none; display: block;
+      background: #fff;
+    }
+
+    /* divider */
+    .divider {
+      height: 1px; background: rgba(255,255,255,.06);
+      margin: 0 -32px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">💚</div>
+  <div>
+    <div class="nav-title">하루안부 의료진 웹 v1</div>
+    <div class="nav-sub">10 screens · Nurse Web Dashboard</div>
+  </div>
+  <div class="nav-pills">
+    <a class="nav-pill" href="#n01">대시보드</a>
+    <a class="nav-pill" href="#n02">환자관리</a>
+    <a class="nav-pill" href="#n03">체크리스트</a>
+    <a class="nav-pill" href="#n04">내정보</a>
+    <a class="nav-pill" href="#n05">SOS</a>
+    <a class="nav-pill" href="#n06">인수인계</a>
+    <a class="nav-pill" href="#n07">채팅</a>
+    <a class="nav-pill" href="#n08">시간표</a>
+    <a class="nav-pill" href="#n09">처방전</a>
+    <a class="nav-pill" href="#n10">타임라인</a>
+  </div>
+</nav>
+
+<div class="gallery">
+
+  <div class="screen-item" id="n01">
+    <div class="screen-label">
+      <span class="screen-num">N01</span>
+      <span class="screen-name">대시보드 — 오늘 케어 현황 한눈에 보기</span>
+      <span class="screen-desc">담당 환자 12명 / 알림 / AI 인수인계 패널</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/dashboard</div>
+      </div>
+      <iframe class="browser-iframe" src="n01-dashboard.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n02">
+    <div class="screen-label">
+      <span class="screen-num">N02</span>
+      <span class="screen-name">환자 관리 — 담당 환자 전체 목록 + 상세 패널</span>
+      <span class="screen-desc">상태별 필터 / 환자 카드 / 우측 상세 패널</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/patients</div>
+      </div>
+      <iframe class="browser-iframe" src="n02-patients.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n03">
+    <div class="screen-label">
+      <span class="screen-num">N03</span>
+      <span class="screen-name">케어 체크리스트 — 환자별 식사/투약/위생/활동 기록</span>
+      <span class="screen-desc">환자 선택 사이드바 / 카테고리 탭 / 저장 및 알림 발송</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/checklist</div>
+      </div>
+      <iframe class="browser-iframe" src="n03-checklist.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n04">
+    <div class="screen-label">
+      <span class="screen-num">N04</span>
+      <span class="screen-name">내 정보 — 프로필 / 근무 정보 / 알림 설정</span>
+      <span class="screen-desc">수간호사 박지현 / 근무일수 / iOS-style 토글</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/mypage</div>
+      </div>
+      <iframe class="browser-iframe" src="n04-mypage.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n05">
+    <div class="screen-label">
+      <span class="screen-num">N05</span>
+      <span class="screen-name">SOS 알림 센터 — 긴급 상황 수신 + 수동 발송</span>
+      <span class="screen-desc">활성 SOS 카드 / 처리 이력 / SOS 발송 폼</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/sos</div>
+      </div>
+      <iframe class="browser-iframe" src="n05-sos.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n06">
+    <div class="screen-label">
+      <span class="screen-num">N06</span>
+      <span class="screen-name">AI 인수인계 리포트 — Claude API 자동 생성</span>
+      <span class="screen-desc">주간→야간 교대 / 환자별 AI 요약 / 전달 버튼</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/handoff</div>
+      </div>
+      <iframe class="browser-iframe" src="n06-handoff.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n07">
+    <div class="screen-label">
+      <span class="screen-num">N07</span>
+      <span class="screen-name">보호자 채팅 — 담당 보호자 1:1 채팅</span>
+      <span class="screen-desc">채팅 목록 / 대화방 / 미읽음 뱃지</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/chat</div>
+      </div>
+      <iframe class="browser-iframe" src="n07-chat.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n08">
+    <div class="screen-label">
+      <span class="screen-num">N08</span>
+      <span class="screen-name">시간표 관리 — 환자 일과표 편집 + 내 스케줄</span>
+      <span class="screen-desc">환자 선택 / 주간 시간표 / 케어 상태 칩</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/schedule</div>
+      </div>
+      <iframe class="browser-iframe" src="n08-schedule.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n09">
+    <div class="screen-label">
+      <span class="screen-num">N09</span>
+      <span class="screen-name">처방전 관리 — 환자 처방 입력 / 수정 / 이력</span>
+      <span class="screen-desc">처방약 카드 / 변경 이력 타임라인 / 추가 폼</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/prescription</div>
+      </div>
+      <iframe class="browser-iframe" src="n09-prescription.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="screen-item" id="n10">
+    <div class="screen-label">
+      <span class="screen-num">N10</span>
+      <span class="screen-name">의료 타임라인 — 진료/처방/검사 전체 이력</span>
+      <span class="screen-desc">타입 필터 / 세로 타임라인 / 기록 추가</span>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dots"><span class="browser-dot red"></span><span class="browser-dot yellow"></span><span class="browser-dot green"></span></div>
+        <div class="browser-url">haru-anbu.vercel.app/nurse/timeline</div>
+      </div>
+      <iframe class="browser-iframe" src="n10-timeline.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Highlight active nav pill on scroll
+  const sections = document.querySelectorAll('.screen-item');
+  const pills = document.querySelectorAll('.nav-pill');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        pills.forEach(p => {
+          p.classList.toggle('active', p.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

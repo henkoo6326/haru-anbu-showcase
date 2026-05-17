@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 프로필 — 하루안부 의료진</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ── Page-specific ── */
+    .profile-hero {
+      background: linear-gradient(135deg, var(--nurse-deeper) 0%, var(--nurse) 55%, #10b981 100%);
+      border-radius: 20px;
+      padding: 32px 36px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(5,150,105,.28);
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+    .profile-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: 80px;
+      width: 280px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+    .hero-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.20);
+      border: 3px solid rgba(255,255,255,.45);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800; color: #fff;
+      flex-shrink: 0; position: relative; z-index: 1;
+    }
+    .hero-info { position: relative; z-index: 1; }
+    .hero-name { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -.5px; margin-bottom: 4px; }
+    .hero-license {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.30);
+      border-radius: 999px; padding: 4px 14px;
+      font-size: 12px; color: rgba(255,255,255,.90); font-weight: 600; margin-bottom: 8px;
+    }
+    .hero-meta { display: flex; gap: 16px; }
+    .hero-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: rgba(255,255,255,.78); }
+
+    .stat-boxes {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 14px; margin-bottom: 20px;
+    }
+    .stat-box {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 16px;
+      padding: 20px 18px;
+      text-align: center;
+    }
+    .stat-box-val { font-size: 30px; font-weight: 800; color: var(--nurse); letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+    .stat-box-label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
+
+    .section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 13px; font-weight: 800; color: var(--slate-700);
+      letter-spacing: -.2px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .section-title iconify-icon { font-size: 16px; color: var(--nurse); }
+
+    .info-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 0.5px solid rgba(0,0,0,.06);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row-left { display: flex; align-items: center; gap: 10px; }
+    .info-row-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(5,150,105,.10); color: var(--nurse);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .info-row-icon.blue { background: rgba(59,130,246,.10); color: var(--blue-500); }
+    .info-row-icon.orange { background: rgba(249,115,22,.10); color: var(--orange-500); }
+    .info-label { font-size: 13px; font-weight: 600; color: var(--slate-700); }
+    .info-sub { font-size: 11px; color: var(--slate-400); margin-top: 1px; }
+    .info-value { font-size: 13px; font-weight: 700; color: var(--slate-800); }
+
+    /* iOS-style toggle */
+    .toggle-wrap {
+      position: relative;
+      width: 46px; height: 26px;
+      flex-shrink: 0;
+    }
+    .toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.14); border-radius: 999px;
+      cursor: pointer; transition: background .22s;
+    }
+    .toggle-input:checked + .toggle-track { background: var(--nurse); }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.22);
+      transition: transform .22s cubic-bezier(.34,1.3,.64,1);
+    }
+    .toggle-input:checked + .toggle-track::after { transform: translateX(20px); }
+
+    .btn-account {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 18px;
+      cursor: pointer; transition: background .12s;
+      border-bottom: 0.5px solid rgba(0,0,0,.06);
+      text-decoration: none;
+      color: inherit;
+    }
+    .btn-account:last-child { border-bottom: none; }
+    .btn-account:hover { background: rgba(255,255,255,.40); }
+    .btn-account-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .btn-account-icon.gray { background: rgba(0,0,0,.07); color: var(--slate-500); }
+    .btn-account-icon.red  { background: rgba(239,68,68,.10); color: var(--red-500); }
+    .btn-account-label { font-size: 13px; font-weight: 600; color: var(--slate-700); }
+    .btn-account-label.danger { color: var(--red-500); }
+    .btn-account-arrow { margin-left: auto; color: var(--slate-400); }
+
+    /* sidebar footer nav item */
+    .nav-divider {
+      height: 0.5px;
+      background: rgba(255,255,255,.07);
+      margin: 6px 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg">
+  <div class="bg-g1"></div>
+  <div class="bg-g2"></div>
+  <div class="bg-g3"></div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heart-pulse-bold" style="font-size:20px;color:#fff;"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">Care Intelligence Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <span class="facility-name">햇살요양원 · 2병동</span>
+  </div>
+
+  <div class="nav-section-label">메뉴</div>
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:house-bold" class="nav-icon"></iconify-icon>
+        대시보드
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:users-bold" class="nav-icon"></iconify-icon>
+        환자 관리
+        <span class="nav-badge yellow">3</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clipboard-text-bold" class="nav-icon"></iconify-icon>
+        케어 체크리스트
+        <span class="nav-badge">2</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:arrows-clockwise-bold" class="nav-icon"></iconify-icon>
+        AI 인수인계
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:siren-bold" class="nav-icon"></iconify-icon>
+        SOS 센터
+        <span class="nav-badge">1</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:chats-bold" class="nav-icon"></iconify-icon>
+        보호자 채팅
+        <span class="nav-badge green">5</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:calendar-bold" class="nav-icon"></iconify-icon>
+        시간표 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:pill-bold" class="nav-icon"></iconify-icon>
+        처방전 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clock-countdown-bold" class="nav-icon"></iconify-icon>
+        의료 타임라인
+      </a>
+    </li>
+    <li class="nav-item">
+      <div class="nav-divider"></div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#">
+        <iconify-icon icon="ph:user-circle-bold" class="nav-icon"></iconify-icon>
+        내 프로필
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="page-title">내 프로필</span>
+      <span class="page-date">2026.04.16 목요일</span>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" title="알림">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" title="설정">
+        <iconify-icon icon="ph:gear-bold"></iconify-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" style="max-width:720px; margin:0 auto; width:100%;">
+
+    <!-- Profile Hero -->
+    <div class="profile-hero">
+      <div class="hero-avatar">박</div>
+      <div class="hero-info">
+        <div class="hero-name">박지현 수간호사</div>
+        <div class="hero-license">
+          <iconify-icon icon="ph:certificate-bold" style="font-size:13px;"></iconify-icon>
+          수간호사 면허 #KRN-2019-04821
+        </div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <iconify-icon icon="ph:building-bold" style="font-size:13px;"></iconify-icon>
+            햇살요양원 2병동
+          </div>
+          <div class="hero-meta-item">
+            <iconify-icon icon="ph:calendar-check-bold" style="font-size:13px;"></iconify-icon>
+            입사일 2019.09.01
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Boxes -->
+    <div class="stat-boxes">
+      <div class="stat-box">
+        <div class="stat-box-val">12명</div>
+        <div class="stat-box-label">담당환자</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val">1,672일</div>
+        <div class="stat-box-label">근무일수</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val" style="color:var(--nurse);">98%</div>
+        <div class="stat-box-label">이번달 체크</div>
+      </div>
+    </div>
+
+    <!-- 근무 정보 -->
+    <div class="section">
+      <div class="section-title">
+        <iconify-icon icon="ph:clock-bold"></iconify-icon>
+        근무 정보
+      </div>
+      <div class="info-card">
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon">
+              <iconify-icon icon="ph:sun-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">현재 시프트</div>
+              <div class="info-sub">주간 근무</div>
+            </div>
+          </div>
+          <div>
+            <div class="info-value">08:00 — 20:00</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon blue">
+              <iconify-icon icon="ph:moon-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">다음 교대</div>
+              <div class="info-sub">오늘 20:00 — 야간조</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="info-value">이상훈 간호사</div>
+            <div style="font-size:11px;color:var(--slate-400);margin-top:1px;">야간 담당</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 알림 설정 -->
+    <div class="section">
+      <div class="section-title">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        알림 설정
+      </div>
+      <div class="info-card">
+
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon" style="background:rgba(239,68,68,.10);color:var(--red-500);">
+              <iconify-icon icon="ph:siren-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">SOS 알림</div>
+              <div class="info-sub">긴급 상황 즉시 알림</div>
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon">
+              <iconify-icon icon="ph:clipboard-text-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">체크리스트 마감 알림</div>
+              <div class="info-sub">마감 30분 전 알림</div>
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon blue">
+              <iconify-icon icon="ph:chats-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">보호자 채팅 알림</div>
+              <div class="info-sub">새 메시지 알림</div>
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon orange">
+              <iconify-icon icon="ph:arrows-clockwise-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">인수인계 알림</div>
+              <div class="info-sub">교대 30분 전 리포트 알림</div>
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="info-row">
+          <div class="info-row-left">
+            <div class="info-row-icon" style="background:rgba(100,116,139,.10);color:var(--slate-500);">
+              <iconify-icon icon="ph:megaphone-bold" style="font-size:17px;"></iconify-icon>
+            </div>
+            <div>
+              <div class="info-label">공지사항 알림</div>
+              <div class="info-sub">병원 공지 및 업데이트</div>
+            </div>
+          </div>
+          <label class="toggle-wrap">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 계정 -->
+    <div class="section">
+      <div class="section-title">
+        <iconify-icon icon="ph:lock-bold"></iconify-icon>
+        계정
+      </div>
+      <div class="info-card">
+        <a class="btn-account" href="#">
+          <div class="btn-account-icon gray">
+            <iconify-icon icon="ph:lock-key-bold" style="font-size:17px;"></iconify-icon>
+          </div>
+          <span class="btn-account-label">비밀번호 변경</span>
+          <iconify-icon icon="ph:caret-right-bold" class="btn-account-arrow" style="font-size:15px;"></iconify-icon>
+        </a>
+        <a class="btn-account" href="#">
+          <div class="btn-account-icon red">
+            <iconify-icon icon="ph:sign-out-bold" style="font-size:17px;"></iconify-icon>
+          </div>
+          <span class="btn-account-label danger">로그아웃</span>
+          <iconify-icon icon="ph:caret-right-bold" class="btn-account-arrow" style="font-size:15px;color:var(--red-500);"></iconify-icon>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

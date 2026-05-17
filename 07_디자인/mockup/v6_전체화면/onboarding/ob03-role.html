@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 역할 선택</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg);
+      padding-bottom: 48px;
+    }
+    .content { padding: 0 var(--space-xl); }
+    .role-header {
+      padding: var(--space-3xl) 0 var(--space-xl);
+      text-align: center;
+    }
+    .role-header h1 {
+      font-size: 26px;
+      font-weight: var(--weight-bold);
+      line-height: 1.3;
+      margin-bottom: var(--space-sm);
+    }
+    .role-header p {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+    }
+    .role-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+    .role-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-xl);
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2.5px solid transparent;
+      text-decoration: none;
+      color: inherit;
+    }
+    .role-card:active { transform: scale(0.97); }
+    .role-card.selected { border-color: var(--info); box-shadow: var(--shadow-md); }
+    .role-icon {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+    .role-icon--guardian { background: #EEF2FD; }
+    .role-icon--nurse { background: #E6F8F1; }
+    .role-icon--patient { background: #FFF0EC; }
+    .role-info { flex: 1; }
+    .role-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+      margin-bottom: 4px;
+    }
+    .role-desc {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .role-check {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--divider);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .role-card.selected .role-check {
+      background: var(--info);
+      border-color: var(--info);
+    }
+    .btn-next {
+      display: block;
+      width: 100%;
+      height: 52px;
+      margin-top: var(--space-2xl);
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: var(--font-family);
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+      background: #4E78EB;
+      color: white;
+    }
+    .btn-next:disabled {
+      background: var(--divider);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+    .btn-next:not(:disabled):active { transform: scale(0.97); }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="role-header">
+      <h1>어떤 분이신가요?</h1>
+      <p>역할에 맞는 맞춤 화면을 제공합니다</p>
+    </div>
+
+    <div class="role-grid">
+      <div class="role-card" data-role="guardian" onclick="selectRole(this, '../guardian/g01-home.html')">
+        <div class="role-icon role-icon--guardian">👨‍👩‍👦</div>
+        <div class="role-info">
+          <div class="role-name">보호자</div>
+          <div class="role-desc">부모님의 케어 현황을 실시간으로 확인하고, AI 케어 가이드를 이용합니다</div>
+        </div>
+        <div class="role-check"></div>
+      </div>
+
+      <div class="role-card" data-role="nurse" onclick="selectRole(this, '../nurse/n01-dashboard.html')">
+        <div class="role-icon role-icon--nurse">🩺</div>
+        <div class="role-info">
+          <div class="role-name">의료진</div>
+          <div class="role-desc">환자 케어 체크리스트, 인수인계, 처방전을 관리합니다</div>
+        </div>
+        <div class="role-check"></div>
+      </div>
+
+      <div class="role-card" data-role="patient" onclick="selectRole(this, '../patient/p01-home.html')">
+        <div class="role-icon role-icon--patient">🧓</div>
+        <div class="role-info">
+          <div class="role-name">환자</div>
+          <div class="role-desc">오늘 일과를 확인하고, 가족 소식을 보고, 도움을 요청합니다</div>
+        </div>
+        <div class="role-check"></div>
+      </div>
+    </div>
+
+    <button class="btn-next" id="nextBtn" disabled onclick="goNext()">계속하기</button>
+  </div>
+
+  <script>
+    let targetUrl = '';
+    function selectRole(el, url) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      targetUrl = url;
+      document.getElementById('nextBtn').disabled = false;
+    }
+    function goNext() {
+      if (targetUrl) window.location.href = targetUrl;
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

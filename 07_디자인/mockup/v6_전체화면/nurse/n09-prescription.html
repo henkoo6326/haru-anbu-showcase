@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 처방전 관리</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:108px; }
+    .content { padding:0 var(--space-lg); }
+    .page-head { padding:var(--space-xl) 0 var(--space-md); }
+    .page-head h1 { font-size:var(--text-display); font-weight:var(--weight-bold); }
+    .page-head p { font-size:var(--text-callout); color:var(--text-secondary); margin-top:4px; }
+
+    /* 환자 선택 */
+    .patient-select {
+      display:flex; gap:var(--space-sm); overflow-x:auto; padding-bottom:var(--space-md);
+      -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .patient-select::-webkit-scrollbar { display:none; }
+    .patient-chip {
+      display:flex; align-items:center; gap:6px;
+      padding:8px 14px; border-radius:var(--radius-full);
+      background:var(--surface); border:1.5px solid var(--divider);
+      font-size:var(--text-caption); font-weight:var(--weight-semibold);
+      white-space:nowrap; cursor:pointer; transition:all 0.2s;
+    }
+    .patient-chip.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+    /* 처방 폼 */
+    .form-card { background:var(--surface); border-radius:var(--radius-xl); padding:var(--space-xl); box-shadow:var(--shadow-sm); margin-bottom:var(--space-lg); }
+    .form-title { font-size:var(--text-headline); font-weight:var(--weight-bold); margin-bottom:var(--space-lg); display:flex; align-items:center; gap:var(--space-sm); }
+    .form-group { margin-bottom:var(--space-lg); }
+    .form-label { font-size:var(--text-caption); font-weight:var(--weight-semibold); color:var(--text-secondary); margin-bottom:6px; display:block; }
+    .form-input {
+      width:100%; height:44px; padding:0 var(--space-md);
+      border:1.5px solid var(--divider); border-radius:var(--radius-sm);
+      font-size:var(--text-callout); font-family:var(--font-family);
+      background:var(--bg); outline:none; transition:border-color 0.2s;
+    }
+    .form-input:focus { border-color:var(--primary); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+    .form-textarea {
+      width:100%; height:80px; padding:var(--space-md);
+      border:1.5px solid var(--divider); border-radius:var(--radius-sm);
+      font-size:var(--text-callout); font-family:var(--font-family);
+      background:var(--bg); outline:none; resize:none; transition:border-color 0.2s;
+    }
+    .form-textarea:focus { border-color:var(--primary); }
+    .btn-submit {
+      width:100%; height:48px; border:none; border-radius:var(--radius-md);
+      background:var(--primary); color:white; font-size:var(--text-body);
+      font-weight:var(--weight-semibold); font-family:var(--font-family);
+      cursor:pointer; transition:opacity 0.15s;
+    }
+    .btn-submit:active { opacity:0.85; }
+
+    /* 현재 처방 리스트 */
+    .rx-list { margin-bottom:var(--space-lg); }
+    .rx-card {
+      background:var(--surface); border-radius:var(--radius-md); padding:var(--space-lg);
+      box-shadow:var(--shadow-sm); margin-bottom:var(--space-sm);
+      display:flex; align-items:flex-start; gap:var(--space-md);
+    }
+    .rx-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .rx-body { flex:1; }
+    .rx-name { font-size:var(--text-headline); font-weight:var(--weight-semibold); }
+    .rx-detail { font-size:var(--text-caption); color:var(--text-secondary); margin-top:3px; line-height:1.5; }
+    .rx-badge { font-size:var(--text-mini); padding:3px 8px; border-radius:var(--radius-full); font-weight:var(--weight-semibold); }
+    .rx-badge--active { background:#E8F8ED; color:var(--success); }
+  </style>
+</head>
+<body>  <div class="content">
+    <div class="page-head">
+      <h1>처방전</h1>
+      <p>처방 입력 및 현재 처방 관리</p>
+    </div>
+
+    <!-- 환자 선택 -->
+    <div class="patient-select">
+      <div class="patient-chip active">손정희 (302호)</div>
+      <div class="patient-chip" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active');">박영수 (305호)</div>
+      <div class="patient-chip" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active');">이순자 (310호)</div>
+    </div>
+
+    <!-- 현재 처방 리스트 -->
+    <div class="section-header" style="margin-bottom:var(--space-md);">
+      <h2 class="section-title" style="font-size:var(--text-title);">현재 처방</h2>
+    </div>
+    <div class="rx-list">
+      <div class="rx-card">
+        <div class="rx-icon" style="background:#FCE4EC;"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="rx-body">
+          <div class="rx-name">아스피린 100mg</div>
+          <div class="rx-detail">1일 1회 · 아침 식후 · 혈전 예방<br>처방일: 2026.03.01 ~ 계속</div>
+        </div>
+        <span class="rx-badge rx-badge--active">복용 중</span>
+      </div>
+      <div class="rx-card">
+        <div class="rx-icon" style="background:#FCE4EC;"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="rx-body">
+          <div class="rx-name">암로디핀 5mg</div>
+          <div class="rx-detail">1일 1회 · 아침 식전 · 혈압 조절<br>처방일: 2026.02.15 ~ 계속</div>
+        </div>
+        <span class="rx-badge rx-badge--active">복용 중</span>
+      </div>
+      <div class="rx-card">
+        <div class="rx-icon" style="background:#FCE4EC;"><i data-lucide="pill" style="width:20px;height:20px;color:#C62828;"></i></div>
+        <div class="rx-body">
+          <div class="rx-name">도네페질 10mg</div>
+          <div class="rx-detail">1일 1회 · 저녁 식후 · 인지기능 개선<br>처방일: 2026.01.10 ~ 계속</div>
+        </div>
+        <span class="rx-badge rx-badge--active">복용 중</span>
+      </div>
+    </div>
+
+    <!-- 신규 처방 입력 폼 -->
+    <div class="form-card">
+      <div class="form-title"><i data-lucide="plus-circle" style="width:20px;height:20px;color:var(--primary);"></i> 신규 처방 입력</div>
+      <div class="form-group">
+        <label class="form-label">약품명</label>
+        <input class="form-input" placeholder="약품명을 입력하세요">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">용량</label>
+          <input class="form-input" placeholder="예: 100mg">
+        </div>
+        <div class="form-group">
+          <label class="form-label">투여 횟수</label>
+          <input class="form-input" placeholder="예: 1일 2회">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">시작일</label>
+          <input class="form-input" type="date" value="2026-04-02">
+        </div>
+        <div class="form-group">
+          <label class="form-label">종료일</label>
+          <input class="form-input" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">복용 시간</label>
+        <input class="form-input" placeholder="예: 아침 식후, 저녁 식전">
+      </div>
+      <div class="form-group">
+        <label class="form-label">주의사항 · 메모</label>
+        <textarea class="form-textarea" placeholder="복용 시 주의사항을 입력하세요"></textarea>
+      </div>
+      <button class="btn-submit" onclick="this.textContent='✓ 처방이 등록되었습니다'; this.style.background='var(--success)'; setTimeout(()=>{this.textContent='처방 등록'; this.style.background='';}, 2000);">처방 등록</button>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;height:calc(50px + 44px + 8px);padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab"><span class="tab-icon"><i data-lucide="home"></i></span><span class="tab-label">홈</span></a>
+    <a href="n02-patients.html" class="tab"><span class="tab-icon"><i data-lucide="users"></i></span><span class="tab-label">환자</span></a>
+    <a href="n07-chat.html" class="tab"><span class="tab-icon"><i data-lucide="message-circle"></i></span><span class="tab-label">채팅</span></a>
+    <a href="n03-checklist.html" class="tab"><span class="tab-icon"><i data-lucide="list-checks"></i></span><span class="tab-label">체크리스트</span></a>
+    <a href="n04-mypage.html" class="tab"><span class="tab-icon"><i data-lucide="user"></i></span><span class="tab-label">내 정보</span></a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

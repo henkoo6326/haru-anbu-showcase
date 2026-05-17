@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 긴급 알림</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    /* 긴급 히어로 */
+    .alert-hero {
+      background: linear-gradient(135deg, #FF3B30, #c0392b);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      color: white;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(255, 59, 48, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .alert-hero::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .alert-hero-icon {
+      width: 64px; height: 64px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto var(--space-lg);
+      position: relative; z-index: 1;
+    }
+    .alert-hero-title {
+      font-size: var(--text-title);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-xs);
+      position: relative; z-index: 1;
+    }
+    .alert-hero-time {
+      font-size: var(--text-callout);
+      opacity: 0.85;
+      position: relative; z-index: 1;
+    }
+
+    /* 상황 설명 카드 */
+    .situation-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .situation-title {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-md);
+    }
+    .situation-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-sm) 0;
+      font-size: var(--text-callout);
+    }
+    .situation-row + .situation-row {
+      border-top: 1px solid var(--divider);
+    }
+    .situation-label { color: var(--text-secondary); }
+    .situation-value { font-weight: var(--weight-semibold); }
+
+    /* 대응 안내 */
+    .response-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .response-title {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-lg);
+    }
+    .response-step {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-sm) 0;
+    }
+    .response-step + .response-step {
+      border-top: 1px solid var(--divider);
+    }
+    .response-num {
+      width: 28px; height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-bold);
+      flex-shrink: 0;
+    }
+    .response-text {
+      font-size: var(--text-callout);
+      line-height: var(--line-height-relaxed);
+      color: var(--text-primary);
+      padding-top: 4px;
+    }
+
+    /* 경과 타임라인 */
+    .timeline-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .tl-list {
+      position: relative;
+      padding-left: 20px;
+    }
+    .tl-list::before {
+      content: '';
+      position: absolute;
+      left: 7px; top: 8px; bottom: 8px;
+      width: 2px;
+      background: var(--divider);
+    }
+    .tl-item {
+      position: relative;
+      padding: var(--space-sm) 0;
+    }
+    .tl-dot {
+      width: 14px; height: 14px;
+      border-radius: var(--radius-full);
+      position: absolute;
+      left: -20px; top: 12px;
+      z-index: 1;
+    }
+    .tl-dot--alert { background: var(--critical); }
+    .tl-dot--action { background: var(--primary); }
+    .tl-dot--done { background: var(--success); }
+    .tl-text {
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+      font-weight: var(--weight-medium);
+    }
+    .tl-time {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* CTA 버튼 */
+    .cta-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .cta-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      height: 52px;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-family);
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      outline: none;
+    }
+    .cta-btn--primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+    .cta-btn--secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .cta-btn--emergency {
+      background: var(--critical);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255, 59, 48, 0.3);
+    }
+
+    /* ═══ Liquid Glass 통일 ═══ */
+        html { background: #EEF3FB; }
+    /* 배경 애니메이션 블롭 */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.18)0%,transparent 65%);filter:blur(30px);animation:ga 8s ease-in-out infinite alternate}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.25)0%,transparent 65%);filter:blur(40px);animation:gb 10s ease-in-out infinite alternate}
+    .bg .g3{position:absolute;width:700px;height:500px;left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(44,122,252,.08)0%,transparent 70%);filter:blur(35px);animation:gc 12s ease-in-out infinite alternate}
+    @keyframes ga{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.08)translateY(12px)}}
+    @keyframes gb{0%{transform:translate(-50%,-50%)scale(1)}100%{transform:translate(-52%,-48%)scale(1.05)}}
+    @keyframes gc{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.06)translateY(-8px)}}
+    .header {
+      position: fixed !important; top: 0 !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: 100% !important; max-width: 430px !important; z-index: 10 !important; height: auto !important;
+      padding-top: max(env(safe-area-inset-top, 0px), 44px) !important; padding-bottom: 12px !important;
+      padding-left: 16px !important; padding-right: 16px !important;
+      display: flex !important; align-items: center !important; justify-content: space-between !important;
+      background: rgba(255,255,255,0.04) !important;
+      backdrop-filter: blur(40px) saturate(160%) !important; -webkit-backdrop-filter: blur(40px) saturate(160%) !important;
+      border-bottom: 0.5px solid rgba(255,255,255,0.18) !important; box-shadow: none !important;
+    }
+    .btn-icon {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.38); backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      -webkit-backdrop-filter: blur(24px) saturate(140%) brightness(1.04);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.18s ease; color: rgba(28,28,30,0.7); text-decoration: none; font-size: 22px; font-weight: 300;
+    }
+    .btn-icon:active { transform: scale(0.94); }
+    /* 글라스 카드 */
+    .situation-card, .response-card, .timeline-card {
+      background: rgba(255,255,255,0.26) !important; position: relative; overflow: hidden;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    .situation-card::before, .response-card::before, .timeline-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%); pointer-events: none; z-index: 0;
+    }
+    .situation-row + .situation-row { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    .response-step + .response-step { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    /* Tabbar override */
+    .tabbar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:#fff;border:.5px solid rgba(0,0,0,.07);border-radius:999px;box-shadow:0 2px 12px rgba(0,0,0,.10),0 .5px 2px rgba(0,0,0,.06);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+  </style>
+</head>
+<body>
+
+  <!-- 배경 애니메이션 블롭 -->
+  <div class="bg"><svg class="bg-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <a href="g-guardian-live.html" class="btn-icon" aria-label="뒤로 가기">‹</a>
+    </div>
+    <span class="header-title">긴급 알림</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- 긴급 히어로 -->
+    <div class="section">
+      <div class="alert-hero">
+        <div class="alert-hero-icon">
+          <iconify-icon icon="fluent:warning-24-filled" style="font-size:32px;"></iconify-icon>
+        </div>
+        <h1 class="alert-hero-title">긴급 알림이 도착했어요</h1>
+        <p class="alert-hero-time">10분 전 · 오후 2:30</p>
+      </div>
+    </div>
+
+    <!-- 상황 설명 -->
+    <div class="section">
+      <div class="situation-card">
+        <h2 class="situation-title">어떤 상황인가요?</h2>
+        <div class="situation-row">
+          <span class="situation-label">대상</span>
+          <span class="situation-value">손정희님 (어머님)</span>
+        </div>
+        <div class="situation-row">
+          <span class="situation-label">호실</span>
+          <span class="situation-value">302호</span>
+        </div>
+        <div class="situation-row">
+          <span class="situation-label">유형</span>
+          <span class="situation-value" style="color:var(--critical);">혈압 이상 감지</span>
+        </div>
+        <div class="situation-row">
+          <span class="situation-label">측정값</span>
+          <span class="situation-value" style="color:var(--critical);">150/95 mmHg</span>
+        </div>
+        <div class="situation-row">
+          <span class="situation-label">담당 간호사</span>
+          <span class="situation-value">김미영</span>
+        </div>
+        <div class="situation-row">
+          <span class="situation-label">현재 상태</span>
+          <span class="situation-value" style="color:var(--primary);">대응 중</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 대응 안내 -->
+    <div class="section">
+      <div class="response-card">
+        <h2 class="response-title">현재 대응 상황</h2>
+        <div class="response-step">
+          <div class="response-num">1</div>
+          <div class="response-text">담당 김미영 간호사가 확인 후 <strong>재측정을 진행</strong>하고 있어요.</div>
+        </div>
+        <div class="response-step">
+          <div class="response-num">2</div>
+          <div class="response-text">재측정 결과에 따라 <strong>당직의에게 보고</strong>될 예정이에요.</div>
+        </div>
+        <div class="response-step">
+          <div class="response-num">3</div>
+          <div class="response-text">추가 조치가 필요하면 <strong>바로 연락</strong>드릴게요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 경과 타임라인 -->
+    <div class="section">
+      <div class="timeline-card">
+        <div class="section-header" style="margin-bottom:var(--space-lg);">
+          <h2 class="section-title">경과 기록</h2>
+        </div>
+        <div class="tl-list">
+          <div class="tl-item">
+            <div class="tl-dot tl-dot--action"></div>
+            <div class="tl-text">김미영 간호사 혈압 재측정 중</div>
+            <div class="tl-time">오후 2:35 · 현재</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot--action"></div>
+            <div class="tl-text">김미영 간호사 302호 도착</div>
+            <div class="tl-time">오후 2:32</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot--alert"></div>
+            <div class="tl-text">혈압 이상 감지 — 150/95 mmHg</div>
+            <div class="tl-time">오후 2:30</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot tl-dot--done"></div>
+            <div class="tl-text">오전 혈압 정상 — 130/85 mmHg</div>
+            <div class="tl-time">오전 9:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="section">
+      <div class="cta-group">
+        <a href="g03-chat.html" class="cta-btn cta-btn--primary">
+          <iconify-icon icon="fluent:chat-24-filled" style="font-size:20px;"></iconify-icon> 담당 간호사에게 바로 연락하기
+        </a>
+        <a href="g03-chat.html" class="cta-btn cta-btn--secondary">
+          <iconify-icon icon="ph:sparkle-fill" style="font-size:20px;"></iconify-icon> AI에게 혈압 관련 질문하기
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g02-ai-guide.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 12h8v2H8v-2zm0 4h5v2H8v-2z"/></svg></span>
+    </a>
+    <a href="g03-sotong.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g05-records.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <script>
+</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

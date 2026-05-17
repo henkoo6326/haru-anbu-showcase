@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio — 구슬 리뉴얼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans KR',sans-serif;color:#fff;background:#0a0a0a;-webkit-font-smoothing:antialiased}
+
+/* ━━━ 1. HERO (라임 그린) ━━━ */
+.hero{
+  background:#9cffa6;  /* 원본의 라임/민트 초록 */
+  min-height:52vh;
+  padding:30px 56px 50px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+
+/* UI/UX 배지 — 우상단 */
+.badge-uiux{
+  position:absolute;
+  top:26px;right:56px;
+  font-size:10px;font-weight:700;
+  color:rgba(0,0,0,.5);letter-spacing:.08em;
+  border:1px solid rgba(0,0,0,.2);
+  border-radius:4px;
+  padding:3px 7px;
+}
+
+/* 좌상단 로고 */
+.logo{font-size:52px;font-weight:900;color:#000;letter-spacing:-.05em;line-height:1;margin-top:4px}
+
+/* 우측 콘텐츠 — 절대 위치 */
+.hero-right{
+  position:absolute;
+  right:56px;
+  top:68px; /* 로고 아래 */
+}
+.hero-eyebrow{
+  font-size:12.5px;font-weight:600;
+  color:rgba(0,0,0,.55);
+  letter-spacing:.02em;
+  margin-bottom:6px;
+}
+.hero-title{
+  font-size:60px;font-weight:900;
+  color:#000;letter-spacing:-.04em;
+  line-height:1.05;
+  font-family:'Noto Sans KR',sans-serif;
+  margin-bottom:20px;
+}
+.hero-desc{
+  font-size:13px;color:rgba(0,0,0,.58);
+  line-height:1.8;
+  max-width:320px;
+}
+.hero-meta{
+  margin-top:28px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:6px 14px;
+}
+.meta-key{font-size:12px;font-weight:700;color:#000}
+.meta-val{font-size:12px;color:rgba(0,0,0,.55)}
+
+/* ━━━ 2. OVERVIEW (다크) ━━━ */
+.overview{
+  background:#111;
+  padding:52px 56px;
+  position:relative;
+  overflow:hidden;
+}
+.ov-uiux{
+  position:absolute;top:52px;right:56px;
+  font-size:10px;font-weight:700;color:rgba(255,255,255,.28);
+  letter-spacing:.08em;border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;padding:3px 7px;
+}
+.ov-label{font-size:11px;color:rgba(255,255,255,.32);letter-spacing:.06em;margin-bottom:14px}
+/* 우상단 포토 블록 */
+.ov-photo{
+  position:absolute;
+  top:52px;right:56px;
+  width:200px;height:150px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#2a1a3a,#1a1a2a);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.15);font-size:12px;
+  overflow:hidden;
+}
+.ov-desc{
+  font-size:13px;color:rgba(255,255,255,.48);
+  line-height:1.9;max-width:380px;
+  margin-bottom:44px;
+}
+/* 키워드 행: 서클 + 화살표 + 키워드 모두 한 행 */
+.kw-row{
+  display:flex;
+  align-items:center;
+  gap:0;
+}
+/* 서클들 + 화살표 */
+.circles{display:flex;align-items:center;gap:0;flex-shrink:0}
+.circ{
+  width:110px;height:110px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:500;color:#fff;
+  margin-left:-16px;background:#111;
+  position:relative;z-index:var(--z);
+  flex-shrink:0;
+}
+.circ:first-child{margin-left:0}
+.arrow-sym{
+  font-size:30px;color:rgba(255,255,255,.5);
+  margin:0 16px;flex-shrink:0;
+}
+/* 오른쪽 키워드 */
+.kw-right{margin-left:16px}
+.kw-words{
+  font-size:50px;font-weight:900;
+  color:#fff;line-height:1.1;
+  letter-spacing:-.03em;
+  margin-bottom:12px;
+}
+.kw-desc{
+  font-size:12px;color:rgba(255,255,255,.38);
+  line-height:1.75;max-width:240px;
+}
+
+/* ━━━ 3. TYPEFACE (사진 배경) ━━━ */
+.typeface-section{
+  position:relative;
+  min-height:320px;
+  overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center;
+}
+/* 사진 배경: 옷걸이 이미지 대신 그라디언트로 표현 */
+.typeface-bg{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),
+    linear-gradient(120deg,#1a0033 0%,#330022 30%,#001a33 60%,#002211 100%);
+  /* 실제 사진 있으면: background-image: url(...) */
+}
+.typeface-content{
+  position:relative;z-index:2;
+  padding:48px 56px;
+}
+.tf-label{font-size:11px;color:rgba(255,255,255,.32);letter-spacing:.06em;margin-bottom:24px}
+.tf-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;
+  align-items:end;
+}
+.tf-big{
+  font-size:96px;font-weight:900;color:#fff;
+  letter-spacing:-.04em;line-height:1;
+  margin-bottom:10px;
+}
+.tf-kr{font-family:'Noto Sans KR',sans-serif}
+.tf-sublabel{font-size:11px;color:rgba(255,255,255,.38);margin-bottom:8px}
+.tf-subdesc{font-size:11.5px;color:rgba(255,255,255,.32);line-height:1.7;max-width:260px}
+
+/* ━━━ 4. DESIGN SYSTEM ━━━ */
+.ds{background:#0a0a0a;padding:56px 56px}
+.ds-label{font-size:11px;color:rgba(255,255,255,.32);letter-spacing:.06em;margin-bottom:36px}
+
+.ds-grid{
+  display:grid;
+  grid-template-columns:220px 280px 1fr;
+  gap:48px;
+  align-items:start;
+}
+
+/* 로고 */
+.ds-section-lbl{font-size:11px;color:rgba(255,255,255,.32);margin-bottom:14px}
+.app-icon{
+  width:88px;height:88px;
+  border-radius:22px;
+  background:linear-gradient(145deg,#ff3cac,#c026d3);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:22px;
+  overflow:hidden;
+}
+.app-icon svg{width:56px;height:56px}
+/* nav 아이콘들 */
+.nav-icons{display:flex;gap:8px;margin-top:4px}
+.nav-ico{
+  width:32px;height:32px;
+  border-radius:9px;
+  background:rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;
+}
+.nav-ico.active{background:#ff3cac}
+
+/* 라이브 카드 */
+.live-card-wrap{width:180px}
+.live-card{
+  background:#fff;border-radius:18px;
+  overflow:hidden;
+}
+.live-top{
+  padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.live-badge{
+  background:#ff3cac;border-radius:6px;
+  padding:3px 8px;font-size:10px;font-weight:700;color:#fff;
+  display:flex;align-items:center;gap:4px;
+}
+.live-body{padding:0 12px 12px}
+.live-avatar-placeholder{
+  width:60px;height:60px;border-radius:50%;
+  background:#e5e7eb;margin:0 auto 10px;
+}
+.live-line{height:7px;border-radius:4px;background:#e5e7eb;margin-bottom:6px}
+.live-btn{
+  width:100%;padding:10px;border:none;border-radius:10px;
+  background:#ff3cac;color:#fff;font-weight:700;font-size:13px;
+  font-family:inherit;cursor:pointer;
+}
+
+/* 컬러 팔레트 */
+.colors{}
+.color-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.swatch{width:22px;height:22px;border-radius:50%;flex-shrink:0}
+.hex{font-size:12px;color:rgba(255,255,255,.4);font-family:monospace}
+</style>
+</head>
+<body>
+
+<!-- ━━━ 1. HERO ━━━ -->
+<section class="hero">
+  <span class="badge-uiux">UI/UX</span>
+  <div class="logo">+)</div>
+
+  <div class="hero-right">
+    <p class="hero-eyebrow">빈티지 패션 라이브 커머스</p>
+    <h1 class="hero-title">구슬 리뉴얼</h1>
+    <p class="hero-desc">
+      옷장 속 입지 않는 옷을 팔고, 유니크한 빈티지 상품을 살 수 있게끔<br>
+      라이브방송을 통해 비대면 플리마켓을 열어주는 패션 거래 플랫폼.<br>
+      여들 '구슬'일 리뉴얼 한 작업.
+    </p>
+    <div class="hero-meta">
+      <span class="meta-key">Work</span>
+      <span class="meta-val">2023.03 - 2023.03 / 100%</span>
+      <span class="meta-key">Tool</span>
+      <span class="meta-val" style="font-size:16px">🎨</span>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 2. OVERVIEW ━━━ -->
+<section class="overview">
+  <span class="ov-uiux">UI/UX</span>
+  <p class="ov-label">Overview</p>
+  <p class="ov-desc">
+    매년 버려지는 옷 300억개!<br>
+    옷장 속 입지 않은 옷을 팔고, 유니크한 빈티지 상품을 살 수 있게 비대면 플리마켓을<br>
+    열어주는 빈티지 패션 거래 플랫폼 '구슬'<br>
+    라이브 방송을 통해 누구나 쉽게 옷창을 바꾸고, 새로운 옷으로 채울 수 있게 해줌.
+  </p>
+
+  <!-- 우상단 사진 블록 -->
+  <div class="ov-photo">photo</div>
+
+  <div class="kw-row">
+    <div class="circles">
+      <div class="circ" style="--z:3">10 · 20대</div>
+      <div class="circ" style="--z:2">플리마켓</div>
+      <div class="circ" style="--z:1">친환경</div>
+    </div>
+    <span class="arrow-sym">→</span>
+
+    <div class="kw-right">
+      <div class="kw-words">Trendy<br>Easy<br>Community</div>
+      <p class="kw-desc">새로운 옷을 사는 대신 중고 거래를 하면서 의류 생산과 폐기 과정에서 나오는 탄소를 줄일 수 있다는 점에서 지구를 위하는 친환경적인 활동이라는 것을 강조.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 3. TYPEFACE ━━━ -->
+<section class="typeface-section">
+  <div class="typeface-bg"></div>
+  <div class="typeface-content">
+    <p class="tf-label">Typeface</p>
+    <div class="tf-grid">
+      <div>
+        <div class="tf-big">Satoshi</div>
+        <p class="tf-sublabel">Stoshi M/B</p>
+        <p class="tf-subdesc">sed Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      </div>
+      <div>
+        <div class="tf-big tf-kr">가가</div>
+        <p class="tf-sublabel">Noto sans KR M/B</p>
+        <p class="tf-subdesc">한글 우리가 지는 날이 되기 전까지는, 친구는 음이 되지않는 날에는 나는 전 날에 나는 것에 그런 날에 그럼에도 의미있는 나의 것이다. 행동이 없이 꿈꾸는 것은 단지 몽상에 불과할 뿐이다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 4. DESIGN SYSTEM ━━━ -->
+<section class="ds">
+  <p class="ds-label">Design system</p>
+  <div class="ds-grid">
+
+    <!-- 로고 + 내비 -->
+    <div>
+      <p class="ds-section-lbl">Logo &nbsp; Gusl 의 첫자 'G'를 형상화</p>
+      <div class="app-icon">
+        <!-- G 형상화 아이콘 — 번개/화살 모양 -->
+        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 8L16 30h14l-6 18L42 26H28L32 8z" fill="white"/>
+        </svg>
+      </div>
+      <p class="ds-section-lbl">Navigation</p>
+      <div class="nav-icons">
+        <div class="nav-ico">🏠</div>
+        <div class="nav-ico active">📱</div>
+        <div class="nav-ico">🔔</div>
+        <div class="nav-ico">👤</div>
+      </div>
+    </div>
+
+    <!-- 라이브 카드 -->
+    <div>
+      <p class="ds-section-lbl">Live card</p>
+      <div class="live-card-wrap">
+        <div class="live-card">
+          <div class="live-top">
+            <div class="live-badge">📡 · 1,234</div>
+            <div style="font-size:16px;color:#ccc">⚡</div>
+          </div>
+          <div class="live-body">
+            <div class="live-avatar-placeholder"></div>
+            <div class="live-line" style="width:80%"></div>
+            <div class="live-line" style="width:55%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 컬러 -->
+    <div>
+      <p class="ds-section-lbl">Colors</p>
+      <div class="colors">
+        <div class="color-row">
+          <div class="swatch" style="background:#FC38C2"></div>
+          <span class="hex">#FC38C2</span>
+        </div>
+        <div class="color-row">
+          <div class="swatch" style="background:#96FFA0"></div>
+          <span class="hex">#96FFA0</span>
+        </div>
+        <div class="color-row">
+          <div class="swatch" style="background:#959595;border:1px solid rgba(255,255,255,.1)"></div>
+          <span class="hex">#959595</span>
+        </div>
+        <div class="color-row">
+          <div class="swatch" style="background:#FFFFFF;border:1px solid rgba(255,255,255,.15)"></div>
+          <span class="hex">#FFFFFF</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

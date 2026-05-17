@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>하루안부 — 의료진</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#5BAE8C;--primary-hover:#4D9A7A;--primary-light:#EAF6F0;--primary-50:rgba(91,174,140,.06);
+  --blue:#4A7FBF;--blue-light:#E8F0FA;
+  --accent:#D4A574;--accent-light:#FDF5ED;
+  --bg:#FAFAF7;--surface:#FFFFFF;
+  --text:#1E2A3A;--text-2:#5A6472;--text-3:#8C939A;--text-4:#B8BFC6;
+  --border:rgba(30,42,58,.06);--border-2:rgba(30,42,58,.1);
+  --positive:#2E9E5A;--positive-bg:#EEFBF3;
+  --warning:#E08A00;--warning-bg:#FFF7EB;
+  --danger:#D93025;--danger-bg:#FEF0EF;
+  --radius:16px;--radius-lg:20px;--radius-xl:28px;
+  --shadow-sm:0 1px 3px rgba(30,42,58,.06),0 1px 2px rgba(30,42,58,.04);
+  --shadow:0 4px 12px rgba(30,42,58,.06),0 1px 3px rgba(30,42,58,.04);
+  --shadow-md:0 8px 24px rgba(30,42,58,.08),0 2px 6px rgba(30,42,58,.04);
+  --shadow-lg:0 16px 48px rgba(30,42,58,.1),0 4px 12px rgba(30,42,58,.04);
+  --transition:180ms cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+  background:#DCE8E0;color:var(--text);line-height:1.5;
+  display:flex;justify-content:center;gap:32px;padding:32px 16px;
+  flex-wrap:wrap;min-height:100vh;align-items:flex-start;
+}
+.frame-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.frame-label{font-size:13px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.phone{
+  width:393px;height:852px;background:var(--bg);border-radius:54px;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08),var(--shadow-lg),0 0 80px rgba(0,0,0,.06);
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:37px;background:#0a0a0a;border-radius:0 0 24px 24px;z-index:200}
+.phone::after{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:12px;height:12px;background:#1a1a2a;border-radius:50%;z-index:201}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:16px 32px 0;height:54px;position:relative;z-index:100}
+.sbar .time{font-size:16px;font-weight:700}
+.sbar-dark .time{color:#fff}
+.scroll{height:calc(100% - 54px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:92px;scroll-behavior:smooth}
+.scroll::-webkit-scrollbar{display:none}
+.home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,.2);border-radius:3px;z-index:200}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#5BAE8C 0%,#6EC49E 40%,#7BC4A8 100%);
+  padding:8px 24px 28px;color:#fff;position:relative;overflow:hidden;
+}
+.header::after{content:'';position:absolute;bottom:-50px;right:-30px;width:180px;height:180px;background:rgba(255,255,255,.06);border-radius:50%}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.header-logo{font-size:15px;font-weight:700;opacity:.9}
+.greeting{font-size:14px;opacity:.8}
+.name{font-size:24px;font-weight:800;letter-spacing:-.04em;margin-top:2px}
+.shift-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;
+  font-size:13px;margin-top:8px;backdrop-filter:blur(6px);
+}
+.shift-dot{width:8px;height:8px;border-radius:50%;background:#7CFC00;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* SOS TRIGGER */
+.sos-trigger{
+  margin:-14px 20px 0;position:relative;z-index:10;
+  background:linear-gradient(135deg,#D93025,#C62828);color:#fff;
+  border-radius:var(--radius);padding:16px 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 16px rgba(217,48,37,.3);
+  transition:transform var(--transition);
+}
+.sos-trigger:hover{transform:scale(1.01)}
+.sos-trigger:active{transform:scale(.98)}
+
+/* SUMMARY */
+.summary{display:flex;gap:8px;padding:16px 20px 0}
+.sum-card{
+  flex:1;background:var(--surface);border-radius:var(--radius);
+  padding:16px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border);
+  transition:transform var(--transition);
+}
+.sum-card:hover{transform:translateY(-2px)}
+.sum-card .num{font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--text)}
+.sum-card .num.green{color:var(--primary)}
+.sum-card .lbl{font-size:12px;color:var(--text-3);margin-top:2px;font-weight:500}
+
+/* SECTION */
+.section{padding:20px 20px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sec-title{font-size:17px;font-weight:700;letter-spacing:-.03em}
+.sec-more{font-size:13px;font-weight:500;color:var(--primary);cursor:pointer}
+
+/* PATIENT LIST */
+.p-list{display:flex;flex-direction:column;gap:8px}
+.p-item{
+  background:var(--surface);border-radius:var(--radius);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  transition:all var(--transition);cursor:pointer;
+}
+.p-item:hover{border-color:var(--primary);background:var(--primary-50)}
+.p-left{display:flex;align-items:center;gap:12px}
+.p-avatar{
+  width:46px;height:46px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.p-name{font-size:15px;font-weight:700}
+.p-info{font-size:12px;color:var(--text-3);margin-top:1px}
+.p-badge{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;white-space:nowrap}
+.p-badge.good{background:var(--positive-bg);color:var(--positive)}
+.p-badge.warn{background:var(--warning-bg);color:var(--warning)}
+.p-badge.alert{background:var(--danger-bg);color:var(--danger)}
+
+/* SCHEDULE */
+.sch-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+.sch-row{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid var(--border);transition:background var(--transition);
+}
+.sch-row:last-child{border-bottom:none}
+.sch-row:hover{background:var(--primary-50)}
+.sch-time{font-size:13px;font-weight:600;color:var(--text-3);min-width:48px}
+.sch-bar{width:4px;height:28px;border-radius:2px;flex-shrink:0}
+.sch-text{font-size:14px;color:var(--text)}
+.sch-text.urgent{font-weight:700;color:var(--warning)}
+
+/* TABBAR */
+.tabbar{
+  position:absolute;bottom:0;left:0;right:0;height:88px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);display:flex;justify-content:space-around;
+  align-items:flex-start;padding-top:8px;z-index:150;border-radius:0 0 54px 54px;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:10px;font-weight:500;color:var(--text-3);cursor:pointer;
+  padding:4px 12px;min-width:48px;
+}
+.tab.active{color:var(--primary)}
+.tab svg{width:24px;height:24px;stroke-width:1.8;fill:none;stroke:currentColor}
+.tab.active svg{stroke-width:2.2}
+
+/* === CHECKLIST === */
+.chk-head{padding:8px 24px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.chk-head h2{font-size:20px;font-weight:800;margin-top:10px;letter-spacing:-.03em}
+.patient-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--primary-light);color:var(--primary);
+  padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-top:8px;
+}
+.progress-wrap{
+  margin:12px 20px;background:var(--surface);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);
+}
+.prog-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.prog-top .pl{color:var(--text-3)}
+.prog-top .pv{color:var(--primary);font-weight:700}
+.prog-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--primary),#7BC4A8);border-radius:3px;transition:width .6s ease}
+
+.chk-group{padding:12px 20px 0}
+.chk-cat{font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.chk-item{
+  background:var(--surface);border-radius:14px;padding:13px 16px;
+  display:flex;align-items:center;gap:12px;margin-bottom:6px;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  transition:all var(--transition);cursor:pointer;
+}
+.chk-item:hover{border-color:var(--primary)}
+.chk-item.done{background:var(--primary-light);border-color:rgba(91,174,140,.15)}
+.chk-box{
+  width:22px;height:22px;border:2px solid var(--border-2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;
+  transition:all var(--transition);
+}
+.chk-item.done .chk-box{background:var(--primary);border-color:var(--primary);color:#fff}
+.chk-text{font-size:14px;color:var(--text);flex:1}
+.chk-item.done .chk-text{color:var(--text-3);text-decoration:line-through}
+.chk-time{font-size:12px;color:var(--text-3);flex-shrink:0}
+
+/* === PATIENT DETAIL === */
+.det-head{padding:8px 24px 16px;display:flex;align-items:center;gap:14px}
+.det-avatar{width:56px;height:56px;background:var(--primary-light);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.det-name{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.det-info{font-size:13px;color:var(--text-3);margin-top:1px}
+
+.det-tabs{display:flex;padding:0 20px;gap:4px;border-bottom:1px solid var(--border)}
+.det-tab{
+  flex:1;text-align:center;padding:10px 0;font-size:14px;font-weight:500;
+  color:var(--text-3);border-bottom:2.5px solid transparent;cursor:pointer;
+  transition:all var(--transition);
+}
+.det-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
+
+.det-card{
+  background:var(--surface);border-radius:var(--radius);margin:10px 20px;
+  padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--border);
+}
+.dc-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+.vital-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vital{background:var(--bg);border-radius:14px;padding:14px;text-align:center}
+.vital .vl{font-size:12px;color:var(--text-3);font-weight:500}
+.vital .vv{font-size:22px;font-weight:800;color:var(--text);margin-top:4px;letter-spacing:-.02em}
+.vital .vu{font-size:12px;color:var(--text-3);font-weight:400}
+.vital.ok .vv{color:var(--positive)}
+.vital.caution .vv{color:var(--warning)}
+
+.med-tl{position:relative;padding-left:22px}
+.med-tl::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border);border-radius:1px}
+.med-item{position:relative;padding-bottom:14px}
+.med-item::before{content:'';position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--primary);border:2.5px solid var(--primary-light);z-index:1}
+.med-item.pending::before{background:var(--text-4);border-color:var(--bg)}
+.med-time{font-size:12px;font-weight:600;color:var(--text-3)}
+.med-name{font-size:14px;color:var(--text);margin-top:1px}
+.med-dose{font-size:12px;color:var(--text-3)}
+.att-badge{display:inline-flex;align-items:center;gap:4px;background:var(--warning-bg);color:var(--warning);padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-top:8px}
+
+/* === HANDOFF === */
+.ho-card{
+  background:var(--surface);border-radius:var(--radius);margin:0 20px 10px;
+  padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--border);
+}
+.ho-label{font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.02em}
+.ho-body{font-size:14px;line-height:1.7;color:var(--text-2)}
+.ho-card.summary{background:var(--primary-light);border-color:rgba(91,174,140,.12)}
+.ok-badge{display:inline-flex;align-items:center;gap:4px;background:var(--positive-bg);color:var(--positive);padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-top:8px}
+.ai-gen{display:inline-flex;align-items:center;gap:5px;background:var(--primary-light);color:var(--primary);padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-top:8px}
+
+.back-btn{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:500;color:var(--text-2);cursor:pointer;padding:4px 0}
+.spacer{height:20px}
+</style>
+</head>
+<body>
+
+<!-- ===== 1. 의료진 홈 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">홈 대시보드</div>
+<div class="phone">
+<div class="sbar sbar-dark"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="header">
+    <div class="header-top"><div class="header-logo">하루안부</div></div>
+    <div class="greeting">오늘도 고생 많으세요</div>
+    <div class="name">박지현 간호사</div>
+    <div class="shift-tag"><span class="shift-dot"></span>주간 07:00 – 17:00</div>
+  </div>
+  <div class="sos-trigger">🚨 SOS 긴급 알림 발송</div>
+  <div class="summary">
+    <div class="sum-card"><div class="num">15</div><div class="lbl">담당 환자</div></div>
+    <div class="sum-card"><div class="num green">73%</div><div class="lbl">체크리스트</div></div>
+    <div class="sum-card"><div class="num">3</div><div class="lbl">미완료</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-head"><div class="sec-title">담당 환자</div><div class="sec-more">전체 15명 →</div></div>
+    <div class="p-list">
+      <div class="p-item"><div class="p-left"><div class="p-avatar" style="background:var(--blue-light)">👵</div><div><div class="p-name">김순자</div><div class="p-info">101호 · 3등급 · 4시 투약</div></div></div><div class="p-badge good">양호</div></div>
+      <div class="p-item"><div class="p-left"><div class="p-avatar" style="background:var(--warning-bg)">👴</div><div><div class="p-name">이영수</div><div class="p-info">102호 · 2등급 · 간병 중</div></div></div><div class="p-badge warn">주의</div></div>
+      <div class="p-item"><div class="p-left"><div class="p-avatar" style="background:var(--primary-light)">👵</div><div><div class="p-name">최인호</div><div class="p-info">105호 · 2등급 · 투약 완료</div></div></div><div class="p-badge good">양호</div></div>
+      <div class="p-item"><div class="p-left"><div class="p-avatar" style="background:var(--danger-bg)">👴</div><div><div class="p-name">박영희</div><div class="p-info">103호 · 4등급 · SOS 이력</div></div></div><div class="p-badge alert">경고</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-head"><div class="sec-title">오늘 스케줄</div></div>
+    <div class="sch-card">
+      <div class="sch-row"><div class="sch-time">07:00</div><div class="sch-bar" style="background:var(--primary)"></div><div class="sch-text">근무 시작 · 인수인계</div></div>
+      <div class="sch-row"><div class="sch-time">08:00</div><div class="sch-bar" style="background:var(--blue)"></div><div class="sch-text">오전 투약 라운딩</div></div>
+      <div class="sch-row"><div class="sch-time">12:00</div><div class="sch-bar" style="background:var(--accent)"></div><div class="sch-text">점심 식사 보조</div></div>
+      <div class="sch-row"><div class="sch-time" style="color:var(--warning)">14:00</div><div class="sch-bar" style="background:var(--warning)"></div><div class="sch-text urgent">오후 투약 · 3명 미완료</div></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="tabbar">
+  <div class="tab active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>홈</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>체크</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>메시지</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>리포트</div>
+  <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>설정</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 2. 체크리스트 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">케어 체크리스트</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="chk-head">
+    <div class="back-btn">← 뒤로</div>
+    <h2>케어 체크리스트</h2>
+    <div class="patient-tag">👵 김순자 · 101호</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="prog-top"><span class="pl">오늘 완료율</span><span class="pv">7/10 (70%)</span></div>
+    <div class="prog-track"><div class="prog-fill" style="width:70%"></div></div>
+  </div>
+  <div class="chk-group">
+    <div class="chk-cat">🍚 식사</div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">아침 식사 보조</div><div class="chk-time">07:30</div></div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">점심 식사 보조</div><div class="chk-time">12:10</div></div>
+    <div class="chk-item"><div class="chk-box"></div><div class="chk-text">저녁 식사 보조</div><div class="chk-time">17:00</div></div>
+  </div>
+  <div class="chk-group">
+    <div class="chk-cat">💊 투약</div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">오전 투약 (혈압약, 당뇨약)</div><div class="chk-time">08:00</div></div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">오후 투약 (소화제)</div><div class="chk-time">14:00</div></div>
+    <div class="chk-item"><div class="chk-box"></div><div class="chk-text">취침 전 투약 (수면보조제)</div><div class="chk-time">21:00</div></div>
+  </div>
+  <div class="chk-group">
+    <div class="chk-cat">🧼 위생 & 활동</div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">세면 보조</div><div class="chk-time">07:00</div></div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">오전 산책 (30분)</div><div class="chk-time">10:00</div></div>
+    <div class="chk-item done"><div class="chk-box">✓</div><div class="chk-text">바이탈 체크</div><div class="chk-time">09:00</div></div>
+    <div class="chk-item"><div class="chk-box"></div><div class="chk-text">목욕 보조</div><div class="chk-time">15:00</div></div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 3. 환자 상세 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">환자 상세 정보</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="det-head">
+    <span class="back-btn">←</span>
+    <div class="det-avatar">👵</div>
+    <div><div class="det-name">김순자 어르신</div><div class="det-info">101호 · 3등급 · 입소 6개월</div></div>
+  </div>
+  <div class="det-tabs">
+    <div class="det-tab active">바이탈</div>
+    <div class="det-tab">투약</div>
+    <div class="det-tab">기록</div>
+    <div class="det-tab">보호자</div>
+  </div>
+  <div class="det-card">
+    <div class="dc-title">💓 오늘 바이탈</div>
+    <div class="vital-grid">
+      <div class="vital ok"><div class="vl">혈압</div><div class="vv">125<span class="vu">/80</span></div></div>
+      <div class="vital ok"><div class="vl">맥박</div><div class="vv">72<span class="vu"> bpm</span></div></div>
+      <div class="vital ok"><div class="vl">체온</div><div class="vv">36.5<span class="vu">°C</span></div></div>
+      <div class="vital caution"><div class="vl">혈당</div><div class="vv">145<span class="vu"> mg/dL</span></div></div>
+    </div>
+  </div>
+  <div class="det-card">
+    <div class="dc-title">💊 투약 스케줄</div>
+    <div class="med-tl">
+      <div class="med-item"><div class="med-time">08:00 ✓</div><div class="med-name">아침 투약</div><div class="med-dose">혈압약 1T, 당뇨약 1T</div></div>
+      <div class="med-item"><div class="med-time">14:00 ✓</div><div class="med-name">오후 투약</div><div class="med-dose">소화제 1T</div></div>
+      <div class="med-item pending"><div class="med-time">21:00</div><div class="med-name">취침 전 투약</div><div class="med-dose">수면보조제 0.5T</div></div>
+    </div>
+  </div>
+  <div class="det-card">
+    <div class="dc-title">📝 최근 메모</div>
+    <div style="font-size:14px;line-height:1.7;color:var(--text-2)">오전 산책 후 컨디션 좋음. 식사량 안정적. 혈당 소폭 상승 — 오후 간식 조절 필요.</div>
+    <div class="att-badge">⚠️ 혈당 모니터링</div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 4. 인수인계 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">인수인계 리포트</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div style="padding:8px 24px 16px">
+    <div class="back-btn">← 뒤로</div>
+    <h2 style="font-size:20px;font-weight:800;margin-top:10px;letter-spacing:-.03em">인수인계 리포트</h2>
+    <div style="font-size:14px;color:var(--text-3);margin-top:2px">주간 → 야간 · 2026.03.30 17:00</div>
+    <div class="ai-gen">✨ AI 자동 생성</div>
+  </div>
+  <div class="ho-card summary">
+    <div class="ho-label">📋 전체 요약</div>
+    <div class="ho-body">담당 환자 15명 중 <strong>13명 양호</strong>, <strong>1명 주의</strong>(이영수), <strong>1명 경고</strong>(박영희). 전체 체크리스트 완료율 <strong>92%</strong>. 특이사항 2건.</div>
+  </div>
+  <div class="ho-card">
+    <div class="ho-label">⚠️ 주의 환자</div>
+    <div class="ho-body"><strong>이영수</strong> (102호) — 오후 혈압 상승 (150/95). 안정 후 재측정 예정. 야간에 1회 추가 확인 필요.</div>
+    <div class="att-badge">⚠️ 야간 혈압 재측정</div>
+  </div>
+  <div class="ho-card">
+    <div class="ho-label">🚨 경고 환자</div>
+    <div class="ho-body"><strong>박영희</strong> (103호) — 오후 2:35 낙상 주의 SOS 발생. 현장 확인 완료, 외상 없음. 보호자 연락 완료. 야간 이동 시 보조 필수.</div>
+    <div class="att-badge">🚨 이동 시 보조 필수</div>
+  </div>
+  <div class="ho-card">
+    <div class="ho-label">✅ 정상 환자</div>
+    <div class="ho-body">김순자, 최인호 외 11명 — 전원 바이탈 정상, 투약 완료, 특이사항 없음.</div>
+    <div class="ok-badge">✅ 특이사항 없음</div>
+  </div>
+  <div class="ho-card">
+    <div class="ho-label">💊 미완료 항목</div>
+    <div class="ho-body">• 김순자 — 취침 전 투약 (21:00)<br>• 이영수 — 혈압 재측정 (22:00)<br>• 전체 — 야간 바이탈 체크 (00:00)</div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+</body>
+</html>

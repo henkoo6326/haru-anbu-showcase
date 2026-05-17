@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 김미영 간호사</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+    body {
+      background: transparent;
+      max-width: 430px; margin: 0 auto;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%, rgba(100,178,255,0.55) 0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%, rgba(56,189,248,0.48)  0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%, rgba(99,102,241,0.42)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%, rgba(44,122,252,0.38)  0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%, rgba(255,255,255,0.58) 0%, transparent 65%), #E4EEFC;
+      pointer-events: none;
+    }
+
+    /* ═══ MESSAGES ═══ */
+    .chat-messages {
+      flex: 1; overflow-y: auto;
+      padding: var(--space-lg);
+      padding-top: calc(max(env(safe-area-inset-top, 0px), 44px) + 64px + 16px);
+      padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 12px + 52px + 16px);
+      display: flex; flex-direction: column; gap: var(--space-md);
+      -webkit-overflow-scrolling: touch;
+    }
+    .chat-messages::-webkit-scrollbar { display: none; }
+    .chat-date-divider {
+      text-align: center; font-size: var(--text-mini);
+      color: var(--text-tertiary); padding: var(--space-sm) 0;
+    }
+    .msg {
+      display: flex; flex-wrap: wrap; align-items: flex-end;
+      gap: var(--space-xs); max-width: 85%;
+    }
+    .msg.in { align-self: flex-start; }
+    .msg.out { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-sender {
+      font-size: var(--text-mini); color: var(--text-secondary);
+      margin-bottom: 2px; padding-left: 2px; width: 100%;
+    }
+    .msg-bubble {
+      padding: var(--space-md) var(--space-lg);
+      font-size: var(--text-body); line-height: var(--line-height-normal);
+      word-break: break-word; max-width: 75%;
+      position: relative; overflow: hidden;
+    }
+    .msg-bubble::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .msg.in .msg-bubble {
+      background: rgba(255,255,255,0.26);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.70);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
+    }
+    .msg.out .msg-bubble {
+      background: var(--primary); color: #fff;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+    }
+    .msg-time { font-size: var(--text-mini); color: var(--text-tertiary); align-self: flex-end; flex-shrink: 0; padding-bottom: 4px; }
+    .msg-read { font-size: var(--text-mini); color: var(--primary); width: 100%; text-align: right; }
+
+    /* ═══ INPUT BAR ═══ */
+    .chat-input-bar {
+      display: flex; align-items: center; gap: 8px;
+      border-radius: 999px; padding: 8px 8px 8px 12px;
+      position: fixed;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 12px);
+      left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 398px; z-index: 41;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.2) inset, 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .chat-input-wrap {
+      flex: 1; display: flex; align-items: center;
+      height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.18); border: 0.5px solid rgba(255,255,255,0.5);
+      padding: 0 10px; transition: background .2s, border-color .2s;
+    }
+    .chat-input-wrap:focus-within { background: rgba(255,255,255,0.28); border-color: rgba(44,122,252,0.4); }
+    .chat-input {
+      flex: 1; height: 100%; padding: 0 var(--space-xs);
+      border: none; border-radius: 0; font-family: var(--font-family);
+      font-size: var(--text-callout); outline: none; background: transparent;
+    }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+    .chat-emoji-btn {
+      width: 44px; height: 44px; border: none; border-radius: var(--radius-full);
+      background: transparent; color: var(--text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .chat-attach-btn {
+      width: 36px; height: 36px; border: none; border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset;
+      color: rgba(28,28,30,0.55); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .chat-send {
+      width: 36px; height: 36px; border: none; border-radius: 999px;
+      background: var(--primary); color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+      transition: transform .1s;
+    }
+    .chat-send:active { transform: scale(.92); }
+
+    /* ═══ HEADER ═══ */
+    .sticky-header {
+      position: fixed; top: 0;
+      left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px; z-index: 10;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(32px) saturate(120%) brightness(1.10);
+      -webkit-backdrop-filter: blur(32px) saturate(120%) brightness(1.10);
+      border-bottom: 0.5px solid rgba(255,255,255,0.18);
+      padding-top: max(env(safe-area-inset-top, 0px), 44px);
+      padding-bottom: 10px; padding-left: 16px; padding-right: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .btn-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px; flex-shrink: 0;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.05);
+      color: rgba(28,28,30,0.7); text-decoration: none; font-size: 22px; font-weight: 300;
+      transition: transform 0.18s;
+    }
+    .btn-icon:active { transform: scale(0.94); }
+    .nurse-avatar {
+      width: 36px; height: 36px; border-radius: 999px; flex-shrink: 0;
+      background: linear-gradient(135deg, #2C7AFC 0%, #60A5FA 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; font-weight: 700; color: white;
+      position: relative;
+    }
+    .nurse-avatar::after {
+      content: ''; position: absolute; bottom: 0; right: 0;
+      width: 10px; height: 10px; border-radius: 999px;
+      background: #34D399; border: 2px solid rgba(255,255,255,0.9);
+    }
+    .header-info { flex: 1; }
+    .header-name { font-size: 0.90rem; font-weight: 700; color: #1C1C1E; }
+    .header-role { font-size: 0.68rem; color: rgba(28,28,30,0.45); }
+
+    /* ═══ TABBAR ═══ */
+    .tabbar {
+      position: fixed !important;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px) !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: calc(100% - 32px) !important; max-width: 398px !important;
+      height: 68px !important; padding: 0 2px !important;
+      border-top: none !important; border-radius: 999px !important;
+      background: rgba(255,255,255,0.07) !important;
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      border: 0.5px solid rgba(255,255,255,0.55) !important;
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.25) inset, 0 4px 16px rgba(0,0,0,0.08) !important;
+      display: flex !important; align-items: stretch !important;
+      right: auto !important; gap: 0 !important; z-index: 40 !important;
+    }
+    .tab {
+      display: flex !important; flex-direction: column !important;
+      align-items: center !important; justify-content: center !important;
+      gap: 2px !important; flex: 1 !important;
+      padding: 8px 4px !important; border-radius: 999px !important;
+      font-size: 0.75rem !important; font-weight: 500 !important;
+      color: rgba(28,28,30,0.45) !important;
+      text-decoration: none !important; transition: all 0.18s !important; white-space: nowrap !important;
+    }
+    .tab.active { background: rgba(255,255,255,0.22) !important; color: #1C1C1E !important; }
+    .tab-icon { display: flex; align-items: center; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="sticky-header">
+    <a href="g03-chat.html" class="btn-icon" aria-label="뒤로 가기">‹</a>
+    <div class="nurse-avatar">김</div>
+    <div class="header-info">
+      <div class="header-name">김미영 간호사</div>
+      <div class="header-role">정간호사 · 3층 담당 · 오전 근무 중</div>
+    </div>
+    <button class="btn-icon" style="border:none;">
+      <i data-lucide="phone" style="width:17px;height:17px;"></i>
+    </button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="chat-messages">
+    <div class="chat-date-divider">오늘</div>
+    <div class="msg in">
+      <span class="msg-sender">김미영 간호사</span>
+      <div class="msg-bubble">안녕하세요, 예찬님. 어머님 오전 투약 완료되었습니다.</div>
+      <span class="msg-time">오전 8:15</span>
+    </div>
+    <div class="msg out">
+      <div class="msg-bubble">감사합니다! 아침 식사는 잘 하셨나요?</div>
+      <span class="msg-time">오전 8:20</span>
+      <span class="msg-read">읽음</span>
+    </div>
+    <div class="msg in">
+      <span class="msg-sender">김미영 간호사</span>
+      <div class="msg-bubble">네, 죽이랑 반찬 두 가지 드셨어요. 평소보다 잘 드신 편이에요.</div>
+      <span class="msg-time">오전 8:22</span>
+    </div>
+    <div class="msg out">
+      <div class="msg-bubble">다행이네요. 점심때도 잘 부탁드릴게요</div>
+      <span class="msg-time">오전 8:25</span>
+      <span class="msg-read">읽음</span>
+    </div>
+    <div class="msg in">
+      <span class="msg-sender">김미영 간호사</span>
+      <div class="msg-bubble">네, 걱정 마세요. 점심 후에 또 말씀드릴게요!</div>
+      <span class="msg-time">오전 8:26</span>
+    </div>
+    <div class="msg in">
+      <span class="msg-sender">김미영 간호사</span>
+      <div class="msg-bubble">점심 식사 완료되었어요. 밥이랑 국, 반찬 3가지 드셨는데 80% 정도 드셨습니다. 오후에 산책 프로그램 참여하실 예정이에요.</div>
+      <span class="msg-time">오후 12:15</span>
+    </div>
+    <div class="msg out">
+      <div class="msg-bubble">네 감사합니다! 산책 다녀오시면 사진 한 장 부탁드려도 될까요?</div>
+      <span class="msg-time">오후 12:20</span>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="chat-input-bar">
+    <button class="chat-attach-btn" aria-label="사진/파일 첨부">
+      <i data-lucide="plus" style="width:18px;height:18px;"></i>
+    </button>
+    <div class="chat-input-wrap">
+      <input class="chat-input" type="text" placeholder="메시지 입력" aria-label="메시지 입력">
+      <button class="chat-emoji-btn" aria-label="이모지 선택">
+        <i data-lucide="smile" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+    <button class="chat-send" aria-label="메시지 보내기">
+      <i data-lucide="send-horizontal" style="width:18px;height:18px;"></i>
+    </button>
+  </div>
+
+  <!-- TABBAR -->
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션">
+    <a href="../../v7_홈화면시안/g-guardian-live.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home" style="width:20px;height:20px;"></i></span>
+      <span>홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="message-circle" style="width:20px;height:20px;"></i></span>
+      <span>채팅</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><i data-lucide="clipboard-list" style="width:20px;height:20px;"></i></span>
+      <span>기록</span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></span>
+      <span>결제</span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="user" style="width:20px;height:20px;"></i></span>
+      <span>마이</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이콘 라이브러리 피커</title>
+<!-- Iconify — 27만개 아이콘 통합 -->
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1c1c1e;padding:16px 16px 60px}
+  h1{text-align:center;font-size:18px;font-weight:800;margin-bottom:4px}
+  .sub{text-align:center;color:#888;font-size:12px;margin-bottom:24px}
+
+  .cat{font-size:14px;font-weight:800;margin:20px 0 10px;padding-left:2px}
+  .lib-label{font-size:11px;font-weight:700;color:#2C7AFC;margin:12px 0 6px;padding-left:2px}
+
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .c{
+    width:72px;background:#fff;border-radius:12px;padding:12px 4px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    border:1px solid rgba(0,0,0,.04);
+  }
+  .c iconify-icon{font-size:26px;color:#1c1c1e}
+  .c span{font-size:9px;color:#999;text-align:center;line-height:1.2}
+
+  hr{border:none;border-top:1px solid rgba(0,0,0,.06);margin:20px 0}
+
+  /* 네비바 프리뷰 */
+  .nav-box{
+    max-width:320px;margin:0 auto 20px;
+    background:rgba(255,255,255,.85);border:1px solid rgba(0,0,0,.06);
+    border-radius:22px;padding:10px 6px;
+    display:flex;justify-content:space-around;align-items:center;
+    box-shadow:0 4px 16px rgba(0,0,0,.05);
+  }
+  .ni{padding:8px 16px;border-radius:12px;color:rgba(0,0,0,.2)}
+  .ni.on{color:#2C7AFC}
+  .ni iconify-icon{font-size:22px}
+
+  .note{text-align:center;font-size:11px;color:#aaa;margin:16px 0}
+  .src{font-size:10px;color:#bbb;text-align:center;margin-top:4px}
+</style>
+</head>
+<body>
+
+<h1>실제 라이브러리 아이콘 비교</h1>
+<p class="sub">Iconify로 Phosphor · Fluent · Material · Solar · Tabler 등에서 직접 불러온 아이콘들이야</p>
+
+<!-- ════════════════════════ -->
+<!-- 투약 -->
+<!-- ════════════════════════ -->
+<div class="cat">투약 / 약</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:pill-fill"></iconify-icon><span>pill</span></div>
+  <div class="c"><iconify-icon icon="ph:first-aid-kit-fill"></iconify-icon><span>구급함</span></div>
+  <div class="c"><iconify-icon icon="ph:heartbeat-fill"></iconify-icon><span>심박</span></div>
+  <div class="c"><iconify-icon icon="ph:syringe-fill"></iconify-icon><span>주사기</span></div>
+  <div class="c"><iconify-icon icon="ph:prescription-fill"></iconify-icon><span>처방</span></div>
+</div>
+
+<div class="lib-label">Fluent Fill (Microsoft)</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="fluent:pill-24-filled"></iconify-icon><span>pill</span></div>
+  <div class="c"><iconify-icon icon="fluent:briefcase-medical-24-filled"></iconify-icon><span>의료</span></div>
+  <div class="c"><iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon><span>심박</span></div>
+  <div class="c"><iconify-icon icon="fluent:syringe-24-filled"></iconify-icon><span>주사기</span></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="solar:pill-bold"></iconify-icon><span>pill</span></div>
+  <div class="c"><iconify-icon icon="solar:heart-pulse-bold"></iconify-icon><span>심박</span></div>
+  <div class="c"><iconify-icon icon="solar:health-bold"></iconify-icon><span>건강</span></div>
+</div>
+
+<div class="lib-label">Material Symbols Rounded</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="material-symbols:medication-rounded"></iconify-icon><span>medication</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:medical-services-rounded"></iconify-icon><span>의료</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:vaccines-rounded"></iconify-icon><span>백신</span></div>
+</div>
+
+<div class="lib-label">Tabler Filled</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="tabler:pill-filled"></iconify-icon><span>pill</span></div>
+  <div class="c"><iconify-icon icon="tabler:first-aid-kit-filled"></iconify-icon><span>구급함</span></div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ -->
+<!-- 식사 -->
+<!-- ════════════════════════ -->
+<div class="cat">식사 / 음식</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:fork-knife-fill"></iconify-icon><span>포크나이프</span></div>
+  <div class="c"><iconify-icon icon="ph:bowl-food-fill"></iconify-icon><span>밥그릇</span></div>
+  <div class="c"><iconify-icon icon="ph:cooking-pot-fill"></iconify-icon><span>냄비</span></div>
+  <div class="c"><iconify-icon icon="ph:coffee-fill"></iconify-icon><span>커피</span></div>
+</div>
+
+<div class="lib-label">Fluent Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="fluent:food-24-filled"></iconify-icon><span>음식</span></div>
+  <div class="c"><iconify-icon icon="fluent:bowl-chopsticks-24-filled"></iconify-icon><span>젓가락</span></div>
+  <div class="c"><iconify-icon icon="fluent:drink-coffee-24-filled"></iconify-icon><span>커피</span></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="solar:cup-hot-bold"></iconify-icon><span>뜨거운컵</span></div>
+  <div class="c"><iconify-icon icon="solar:chef-hat-bold"></iconify-icon><span>요리</span></div>
+</div>
+
+<div class="lib-label">Material Symbols</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="material-symbols:restaurant-rounded"></iconify-icon><span>레스토랑</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:rice-bowl-rounded"></iconify-icon><span>밥</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:lunch-dining-rounded"></iconify-icon><span>식사</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:local-dining-rounded"></iconify-icon><span>다이닝</span></div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ -->
+<!-- 활동 -->
+<!-- ════════════════════════ -->
+<div class="cat">활동 / 운동</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:person-simple-walk-fill"></iconify-icon><span>걷기</span></div>
+  <div class="c"><iconify-icon icon="ph:person-simple-run-fill"></iconify-icon><span>달리기</span></div>
+  <div class="c"><iconify-icon icon="ph:barbell-fill"></iconify-icon><span>운동</span></div>
+  <div class="c"><iconify-icon icon="ph:sneaker-move-fill"></iconify-icon><span>신발</span></div>
+  <div class="c"><iconify-icon icon="ph:bicycle-fill"></iconify-icon><span>자전거</span></div>
+</div>
+
+<div class="lib-label">Fluent Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="fluent:walking-24-filled"></iconify-icon><span>걷기</span></div>
+  <div class="c"><iconify-icon icon="fluent:run-24-filled"></iconify-icon><span>달리기</span></div>
+  <div class="c"><iconify-icon icon="fluent:sport-24-filled"></iconify-icon><span>스포츠</span></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="solar:running-round-bold"></iconify-icon><span>달리기</span></div>
+  <div class="c"><iconify-icon icon="solar:streets-map-point-bold"></iconify-icon><span>산책</span></div>
+</div>
+
+<div class="lib-label">Material Symbols</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="material-symbols:directions-walk-rounded"></iconify-icon><span>걷기</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:directions-run-rounded"></iconify-icon><span>달리기</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:fitness-center-rounded"></iconify-icon><span>헬스</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:self-improvement-rounded"></iconify-icon><span>명상</span></div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ -->
+<!-- 기분 -->
+<!-- ════════════════════════ -->
+<div class="cat">기분 / 감정</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:smiley-fill"></iconify-icon><span>웃음</span></div>
+  <div class="c"><iconify-icon icon="ph:smiley-meh-fill"></iconify-icon><span>보통</span></div>
+  <div class="c"><iconify-icon icon="ph:smiley-sad-fill"></iconify-icon><span>슬픔</span></div>
+  <div class="c"><iconify-icon icon="ph:smiley-wink-fill"></iconify-icon><span>윙크</span></div>
+  <div class="c"><iconify-icon icon="ph:sun-fill"></iconify-icon><span>밝음</span></div>
+</div>
+
+<div class="lib-label">Fluent Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="fluent:emoji-laugh-24-filled"></iconify-icon><span>웃음</span></div>
+  <div class="c"><iconify-icon icon="fluent:emoji-meh-24-filled"></iconify-icon><span>보통</span></div>
+  <div class="c"><iconify-icon icon="fluent:emoji-sad-24-filled"></iconify-icon><span>슬픔</span></div>
+  <div class="c"><iconify-icon icon="fluent:emoji-smile-slight-24-filled"></iconify-icon><span>미소</span></div>
+  <div class="c"><iconify-icon icon="fluent:weather-sunny-24-filled"></iconify-icon><span>밝음</span></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="solar:emoji-funny-circle-bold"></iconify-icon><span>웃음</span></div>
+  <div class="c"><iconify-icon icon="solar:face-scan-circle-bold"></iconify-icon><span>얼굴</span></div>
+  <div class="c"><iconify-icon icon="solar:sun-bold"></iconify-icon><span>해</span></div>
+</div>
+
+<div class="lib-label">Material Symbols</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="material-symbols:mood-rounded"></iconify-icon><span>기분</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:sentiment-neutral-rounded"></iconify-icon><span>보통</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:sentiment-dissatisfied-rounded"></iconify-icon><span>불만</span></div>
+  <div class="c"><iconify-icon icon="material-symbols:sentiment-very-satisfied-rounded"></iconify-icon><span>매우좋음</span></div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ -->
+<!-- 기타 -->
+<!-- ════════════════════════ -->
+<div class="cat">기타 · UI</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:bell-fill"></iconify-icon><span>알림</span></div>
+  <div class="c"><iconify-icon icon="ph:gear-fill"></iconify-icon><span>설정</span></div>
+  <div class="c"><iconify-icon icon="ph:magnifying-glass-fill"></iconify-icon><span>검색</span></div>
+  <div class="c"><iconify-icon icon="ph:calendar-fill"></iconify-icon><span>캘린더</span></div>
+  <div class="c"><iconify-icon icon="ph:clock-fill"></iconify-icon><span>시간</span></div>
+</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="ph:chart-bar-fill"></iconify-icon><span>차트</span></div>
+  <div class="c"><iconify-icon icon="ph:shield-check-fill"></iconify-icon><span>보호</span></div>
+  <div class="c"><iconify-icon icon="ph:house-fill"></iconify-icon><span>홈</span></div>
+  <div class="c"><iconify-icon icon="ph:clipboard-text-fill"></iconify-icon><span>리포트</span></div>
+  <div class="c"><iconify-icon icon="ph:users-fill"></iconify-icon><span>팀</span></div>
+</div>
+
+<div class="lib-label">Fluent Fill</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="fluent:alert-24-filled"></iconify-icon><span>알림</span></div>
+  <div class="c"><iconify-icon icon="fluent:settings-24-filled"></iconify-icon><span>설정</span></div>
+  <div class="c"><iconify-icon icon="fluent:search-24-filled"></iconify-icon><span>검색</span></div>
+  <div class="c"><iconify-icon icon="fluent:calendar-24-filled"></iconify-icon><span>캘린더</span></div>
+  <div class="c"><iconify-icon icon="fluent:clock-24-filled"></iconify-icon><span>시간</span></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="row">
+  <div class="c"><iconify-icon icon="solar:bell-bold"></iconify-icon><span>알림</span></div>
+  <div class="c"><iconify-icon icon="solar:settings-bold"></iconify-icon><span>설정</span></div>
+  <div class="c"><iconify-icon icon="solar:magnifer-bold"></iconify-icon><span>검색</span></div>
+  <div class="c"><iconify-icon icon="solar:calendar-bold"></iconify-icon><span>캘린더</span></div>
+  <div class="c"><iconify-icon icon="solar:clock-circle-bold"></iconify-icon><span>시간</span></div>
+</div>
+
+<hr>
+
+<!-- 네비바 프리뷰 — 라이브러리별 -->
+<div class="cat">네비바 프리뷰 (라이브러리별)</div>
+
+<div class="lib-label">Phosphor Fill</div>
+<div class="nav-box">
+  <div class="ni"><iconify-icon icon="ph:chart-bar-fill"></iconify-icon></div>
+  <div class="ni on"><iconify-icon icon="ph:sparkle-fill"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="ph:chat-circle-fill"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="ph:user-fill"></iconify-icon></div>
+</div>
+
+<div class="lib-label">Fluent Fill</div>
+<div class="nav-box">
+  <div class="ni"><iconify-icon icon="fluent:data-histogram-24-filled"></iconify-icon></div>
+  <div class="ni on"><iconify-icon icon="fluent:sparkle-24-filled"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></div>
+</div>
+
+<div class="lib-label">Solar Bold</div>
+<div class="nav-box">
+  <div class="ni"><iconify-icon icon="solar:chart-2-bold"></iconify-icon></div>
+  <div class="ni on"><iconify-icon icon="solar:stars-bold"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="solar:chat-round-dots-bold"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="solar:user-rounded-bold"></iconify-icon></div>
+</div>
+
+<div class="lib-label">Material Symbols Rounded</div>
+<div class="nav-box">
+  <div class="ni"><iconify-icon icon="material-symbols:bar-chart-rounded"></iconify-icon></div>
+  <div class="ni on"><iconify-icon icon="material-symbols:auto-awesome-rounded"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="material-symbols:chat-bubble-rounded"></iconify-icon></div>
+  <div class="ni"><iconify-icon icon="material-symbols:person-rounded"></iconify-icon></div>
+</div>
+
+<div class="note">
+  전부 <b>Iconify CDN</b>으로 불러온 실제 라이브러리 아이콘이야<br>
+  카테고리별로 마음에 드는 거 골라줘 — 라이브러리 섞어서 조합해도 돼!
+</div>
+<div class="src">Phosphor · Fluent (Microsoft) · Solar · Material Symbols (Google) · Tabler — 전부 무료 MIT/Apache</div>
+
+</body>
+</html>

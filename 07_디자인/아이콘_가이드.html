@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하루안부 아이콘 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1c1c1e;padding:24px;max-width:600px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;margin-bottom:4px}
+  .sub{color:#888;font-size:13px;margin-bottom:32px}
+  h2{font-size:16px;font-weight:800;margin:28px 0 12px;padding-bottom:8px;border-bottom:2px solid #2C7AFC}
+  h3{font-size:13px;font-weight:700;color:#888;margin:16px 0 8px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:8px}
+  .item{background:#fff;border-radius:14px;padding:16px 12px;display:flex;align-items:center;gap:12px;border:1px solid rgba(0,0,0,.04)}
+  .item iconify-icon{font-size:24px;color:#2C7AFC;flex-shrink:0}
+  .item-info{display:flex;flex-direction:column;gap:2px}
+  .item-name{font-size:13px;font-weight:700}
+  .item-code{font-size:10px;color:#888;font-family:monospace;word-break:break-all}
+
+  .code-block{background:#1e293b;color:#e2e8f0;border-radius:12px;padding:16px;margin:12px 0;font-family:'SF Mono',monospace;font-size:12px;line-height:1.6;overflow-x:auto;white-space:pre}
+  .code-block .tag{color:#7dd3fc}
+  .code-block .attr{color:#fda4af}
+  .code-block .val{color:#86efac}
+  .code-block .cmt{color:#64748b}
+
+  .color-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .color-chip{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+
+  .note{background:rgba(44,122,252,.06);border:1px solid rgba(44,122,252,.1);border-radius:12px;padding:14px 16px;margin:16px 0;font-size:13px;line-height:1.6;color:#1D6AF2}
+
+  .nav-preview{display:flex;gap:4px;background:#fff;border-radius:20px;padding:10px 8px;justify-content:space-around;max-width:300px;margin:12px 0;border:1px solid rgba(0,0,0,.04)}
+  .nav-item{padding:8px 18px;border-radius:12px;color:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center}
+  .nav-item.on{color:#2C7AFC}
+  .nav-item svg{width:22px;height:22px}
+</style>
+</head>
+<body>
+
+<h1>하루안부 아이콘 가이드</h1>
+<p class="sub">프로젝트에서 사용하는 아이콘 목록 + 사용법 — 팀 공유용</p>
+
+<div class="note">
+  <b>Iconify CDN</b> 하나로 모든 아이콘을 불러옵니다.<br>
+  HTML에 아래 스크립트 한 줄만 추가하면 바로 사용 가능합니다.
+</div>
+
+<div class="code-block"><span class="cmt">&lt;!-- HTML &lt;head&gt;에 추가 --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="val">"https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="cmt">&lt;!-- 사용 예시 --&gt;</span>
+<span class="tag">&lt;iconify-icon</span> <span class="attr">icon</span>=<span class="val">"tabler:pill-filled"</span> <span class="attr">style</span>=<span class="val">"font-size:24px;color:#2C7AFC"</span><span class="tag">&gt;&lt;/iconify-icon&gt;</span></div>
+
+<!-- ═══════════════════════════ -->
+<h2>네비바 아이콘 (SVG 직접 사용)</h2>
+<p style="font-size:12px;color:#888;margin-bottom:12px">네비바는 Iconify 아닌 직접 SVG로 사용 — C 라운드 소프트 스타일</p>
+
+<div class="nav-preview">
+  <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="10" y="6" width="4" height="14" rx="2"/><rect x="16" y="9" width="4" height="11" rx="2"/></svg></div>
+  <div class="nav-item on"><svg viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></div>
+  <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></div>
+  <div class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></div>
+</div>
+
+<table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:8px">
+  <tr style="text-align:left;color:#888;border-bottom:1px solid rgba(0,0,0,.06)"><th style="padding:6px 0">탭</th><th>설명</th></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">리포트</td><td>막대 차트 (라운드 rx="2")</td></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">AI</td><td>하루안부 로고 SVG</td></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">채팅</td><td>라운드 메신저 버블</td></tr>
+  <tr><td style="padding:8px 0;font-weight:600">마이</td><td>라운드 프로필</td></tr>
+</table>
+
+<!-- ═══════════════════════════ -->
+<h2>케어 아이콘 (Iconify)</h2>
+
+<h3>투약</h3>
+<div class="grid">
+  <div class="item"><iconify-icon icon="tabler:pill-filled"></iconify-icon><div class="item-info"><div class="item-name">투약 (메인)</div><div class="item-code">tabler:pill-filled</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:syringe-24-filled"></iconify-icon><div class="item-info"><div class="item-name">주사기</div><div class="item-code">fluent:syringe-24-filled</div></div></div>
+  <div class="item"><iconify-icon icon="ph:heartbeat-fill"></iconify-icon><div class="item-info"><div class="item-name">심박</div><div class="item-code">ph:heartbeat-fill</div></div></div>
+  <div class="item"><iconify-icon icon="material-symbols:medical-services-rounded"></iconify-icon><div class="item-info"><div class="item-name">의료</div><div class="item-code">material-symbols:medical-services-rounded</div></div></div>
+</div>
+
+<h3>식사</h3>
+<div class="grid">
+  <div class="item"><iconify-icon icon="fluent:food-24-filled"></iconify-icon><div class="item-info"><div class="item-name">식사 (메인)</div><div class="item-code">fluent:food-24-filled</div></div></div>
+</div>
+
+<h3>활동</h3>
+<div class="grid">
+  <div class="item"><iconify-icon icon="ph:barbell-fill"></iconify-icon><div class="item-info"><div class="item-name">운동 (메인)</div><div class="item-code">ph:barbell-fill</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:walk-24-filled"></iconify-icon><div class="item-info"><div class="item-name">걷기</div><div class="item-code">fluent:walk-24-filled</div></div></div>
+</div>
+
+<h3>기분</h3>
+<div class="grid">
+  <div class="item"><iconify-icon icon="ph:smiley-fill"></iconify-icon><div class="item-info"><div class="item-name">웃음</div><div class="item-code">ph:smiley-fill</div></div></div>
+  <div class="item"><iconify-icon icon="ph:smiley-meh-fill"></iconify-icon><div class="item-info"><div class="item-name">보통</div><div class="item-code">ph:smiley-meh-fill</div></div></div>
+  <div class="item"><iconify-icon icon="ph:smiley-sad-fill"></iconify-icon><div class="item-info"><div class="item-name">슬픔</div><div class="item-code">ph:smiley-sad-fill</div></div></div>
+  <div class="item"><iconify-icon icon="ph:smiley-wink-fill"></iconify-icon><div class="item-info"><div class="item-name">윙크</div><div class="item-code">ph:smiley-wink-fill</div></div></div>
+</div>
+
+<!-- ═══════════════════════════ -->
+<h2>기타 UI 아이콘 (Fluent Fill)</h2>
+<div class="grid">
+  <div class="item"><iconify-icon icon="fluent:alert-24-filled"></iconify-icon><div class="item-info"><div class="item-name">알림</div><div class="item-code">fluent:alert-24-filled</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:settings-24-filled"></iconify-icon><div class="item-info"><div class="item-name">설정</div><div class="item-code">fluent:settings-24-filled</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:search-24-filled"></iconify-icon><div class="item-info"><div class="item-name">검색</div><div class="item-code">fluent:search-24-filled</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:calendar-24-filled"></iconify-icon><div class="item-info"><div class="item-name">캘린더</div><div class="item-code">fluent:calendar-24-filled</div></div></div>
+  <div class="item"><iconify-icon icon="fluent:clock-24-filled"></iconify-icon><div class="item-info"><div class="item-name">시간</div><div class="item-code">fluent:clock-24-filled</div></div></div>
+</div>
+
+<!-- ═══════════════════════════ -->
+<h2>색상 가이드</h2>
+<p style="font-size:12px;color:#888;margin-bottom:12px">전체 블루톤 통일 — 아이콘 색상은 아래 중 선택</p>
+<div class="color-row">
+  <div class="color-chip" style="background:#2C7AFC">메인</div>
+  <div class="color-chip" style="background:#4A8FFF">밝은</div>
+  <div class="color-chip" style="background:#5B9BFF">연한</div>
+  <div class="color-chip" style="background:#1D6AF2">진한</div>
+  <div class="color-chip" style="background:#1E5FD9">딥</div>
+</div>
+
+<div class="code-block"><span class="cmt">/* CSS 변수 */</span>
+--blue: #2C7AFC;     <span class="cmt">/* 메인 브랜드 */</span>
+--blue-l: #5B9BFF;   <span class="cmt">/* 밝은 */</span>
+--icon: #4A8FFF;     <span class="cmt">/* 아이콘 기본 */</span>
+--icon-s: rgba(44,122,252,.12); <span class="cmt">/* 아이콘 배경 */</span></div>
+
+<!-- ═══════════════════════════ -->
+<h2>라이브러리 출처</h2>
+<table style="width:100%;font-size:12px;border-collapse:collapse">
+  <tr style="text-align:left;color:#888;border-bottom:1px solid rgba(0,0,0,.06)"><th style="padding:6px 0">라이브러리</th><th>용도</th><th>라이선스</th></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">Tabler Filled</td><td>투약 pill</td><td>MIT</td></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">Fluent (Microsoft)</td><td>식사, 주사기, 걷기, 기타 UI 전체</td><td>MIT</td></tr>
+  <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:8px 0;font-weight:600">Phosphor Fill</td><td>심박, 운동, 기분 이모지</td><td>MIT</td></tr>
+  <tr><td style="padding:8px 0;font-weight:600">Material Symbols</td><td>의료</td><td>Apache 2.0</td></tr>
+</table>
+
+<div class="note" style="margin-top:24px">
+  전부 <b>MIT / Apache 라이선스</b>로 상업적 사용 가능합니다.<br>
+  Iconify CDN 스크립트 한 줄이면 위 아이콘 전부 사용할 수 있습니다.
+</div>
+
+</body>
+</html>

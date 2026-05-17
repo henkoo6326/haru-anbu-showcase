@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>하루안부 — 전체 슬라이드</title>
+<style>
+  :root {
+    /* Grid */
+    --canvas-w: 1920px; --canvas-h: 1080px;
+    --margin-lr: 88px; --margin-tb: 80px;
+    --gutter: 24px; --col-w: 86.5px;
+
+    /* Content Slide Colors */
+    --bg: #F5F5F5;
+    --text-primary: #161616; --text-secondary: #666666; --text-tertiary: #B3B3B3;
+    --primary: #4E78EB; --secondary: #58D0AC;
+    --border: #B9C1C2; --border-light: #DCDFE0;
+    --point-yellow: #F5D310; --point-red: #FF4A1F;
+
+    /* Dark/Brand Slide Colors */
+    --brand-bg: #4E78EB; --brand-text: #f5f5f5; --brand-dim: #E0E0E0;
+
+    --font: 'Pretendard', -apple-system, sans-serif;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #333; font-family: var(--font); }
+
+  .slides { display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 40px 0; }
+
+  .slide {
+    position: relative;
+    width: var(--canvas-w);
+    height: var(--canvas-h);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ============================
+     공통 컴포넌트
+     ============================ */
+
+  /* Content Slide Top Bar */
+  .topbar { position: absolute; top: var(--margin-tb); left: var(--margin-lr); right: var(--margin-lr); display: flex; align-items: baseline; }
+  .topbar__upper { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+  .topbar__sub { position: absolute; left: calc(var(--col-w) * 2 + var(--gutter) * 2); font-size: 20px; font-weight: 400; color: var(--text-tertiary); white-space: nowrap; }
+  .topbar__course { position: absolute; right: 0; font-size: 20px; font-weight: 500; color: var(--text-tertiary); }
+
+  /* Heading */
+  .heading { position: absolute; top: calc(var(--margin-tb) + 20px + 88px); left: var(--margin-lr); }
+  .heading__title { font-size: 40px; font-weight: 600; line-height: 1.2; color: var(--text-primary); margin-bottom: 16px; }
+  .heading__desc { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+
+  /* Pagination */
+  .pagination { position: absolute; bottom: var(--margin-tb); right: var(--margin-lr); font-size: 16px; }
+  .pagination .current { color: var(--text-primary); }
+  .pagination .total { color: var(--text-tertiary); }
+
+  .highlight { color: var(--primary); }
+
+  /* ============================
+     #01 표지
+     ============================ */
+  .slide--cover { background: var(--brand-bg); }
+  .cover__course { position: absolute; top: var(--margin-tb); right: var(--margin-lr); font-size: 20px; font-weight: 500; color: var(--brand-dim); }
+  .cover__left { position: absolute; left: var(--margin-lr); bottom: calc(var(--margin-tb) - 26px); }
+  .cover__sub { font-size: 64px; font-weight: 400; line-height: 1.2; color: var(--brand-text); margin-bottom: 56px; }
+  .cover__title { font-size: 264px; font-weight: 900; line-height: 0.9; color: var(--brand-text); letter-spacing: -0.02em; }
+  .cover__credits { position: absolute; left: calc(var(--margin-lr) + var(--col-w) * 8 + var(--gutter) * 8); bottom: calc(var(--margin-tb) - 4px); display: flex; align-items: flex-end; }
+  .cover__credit-group { display: flex; flex-direction: column; align-items: flex-start; }
+  .cover__credit-group:first-child { width: calc(var(--col-w) * 2 + var(--gutter) * 2); }
+  .cover__credit-label { font-size: 20px; font-weight: 600; line-height: 1.0; color: var(--brand-text); margin-bottom: 16px; }
+  .cover__credit-name { font-size: 20px; font-weight: 400; line-height: 1.0; color: var(--brand-text); }
+
+  /* ============================
+     #02 목차
+     ============================ */
+  .slide--index { background: var(--brand-bg); }
+  .index__course { position: absolute; top: var(--margin-tb); right: var(--margin-lr); font-size: 20px; font-weight: 500; color: var(--brand-dim); }
+  .index__label { position: absolute; left: var(--margin-lr); bottom: calc(var(--margin-tb) - 9px); font-size: 88px; font-weight: 600; line-height: 1.0; color: var(--brand-text); letter-spacing: -0.02em; }
+  .index__content { position: absolute; bottom: calc(var(--margin-tb) - 9px); left: calc(var(--margin-lr) + var(--col-w) * 10 + var(--gutter) * 10); right: var(--margin-lr); }
+  .index__group { margin-bottom: 40px; }
+  .index__group:last-child { margin-bottom: 0; }
+  .index__major { display: flex; align-items: baseline; gap: 24px; font-size: 28px; font-weight: 600; line-height: 1.0; color: var(--brand-text); }
+  .index__minor { display: flex; align-items: flex-start; gap: 24px; font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--brand-dim); margin-top: 28px; white-space: pre-line; }
+
+  /* ============================
+     #03 섹션 구분자
+     ============================ */
+  .slide--divider { background: var(--brand-bg); }
+  .divider__course { position: absolute; top: var(--margin-tb); right: var(--margin-lr); font-size: 20px; font-weight: 500; color: var(--brand-dim); }
+  .divider__content { position: absolute; left: calc(var(--margin-lr) - 6px); bottom: calc(var(--margin-tb) - 16px); }
+  .divider__number { font-size: 160px; font-weight: 400; line-height: 1.0; color: var(--brand-text); opacity: 0.15; margin-bottom: 16px; }
+  .divider__title { font-size: 56px; font-weight: 600; line-height: 1.2; color: var(--brand-text); margin-left: 6px; }
+
+  /* ============================
+     #04 문제 정의 (A1 + A3)
+     ============================ */
+  .slide--content { background: var(--bg); }
+  .content__body { position: absolute; top: calc(var(--margin-tb) + 20px + 88px + 48px + 120px); left: calc(var(--margin-lr) + var(--col-w) * 3 + var(--gutter) * 3); width: calc(var(--col-w) * 10 + var(--gutter) * 9); }
+  .content__text { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+
+  /* 인용 */
+  .quote { margin-top: 64px; padding-left: 32px; border-left: 3px solid var(--primary); }
+  .quote__text { font-size: 24px; font-weight: 600; line-height: 1.5; color: var(--text-primary); margin-bottom: 12px; }
+  .quote__source { font-size: 16px; font-weight: 400; color: var(--text-tertiary); }
+
+  /* ============================
+     #05 데이터 (A2)
+     ============================ */
+  .stats { position: absolute; top: calc(var(--margin-tb) + 20px + 88px + 48px + 120px); left: var(--margin-lr); right: var(--margin-lr); display: flex; gap: var(--gutter); }
+  .stat { flex: 1; padding: 40px 32px; border: 1px solid var(--border); border-radius: 16px; }
+  .stat__number { font-size: 72px; font-weight: 600; line-height: 1.0; color: var(--primary); margin-bottom: 16px; }
+  .stat__unit { font-size: 24px; font-weight: 400; color: var(--text-tertiary); }
+  .stat__label { font-size: 20px; font-weight: 600; line-height: 1.35; color: var(--text-primary); margin-bottom: 8px; }
+  .stat__desc { font-size: 16px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+
+  /* ============================
+     #06 솔루션 (B1 3단 카드)
+     ============================ */
+  .cards { position: absolute; top: calc(var(--margin-tb) + 20px + 88px + 48px + 120px); left: var(--margin-lr); right: var(--margin-lr); display: flex; gap: var(--gutter); }
+  .card { flex: 1; padding: 40px 32px; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 24px; }
+  .card__icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #fff; }
+  .card__title { font-size: 24px; font-weight: 600; line-height: 1.35; color: var(--text-primary); }
+  .card__desc { font-size: 18px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+  .card__features { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .card__features li { font-size: 16px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); padding-left: 16px; position: relative; }
+  .card__features li::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); }
+
+  /* ============================
+     #09~11 역할별 기능 (E3 목업 + 텍스트)
+     ============================ */
+  /* 목업: col-3 시작, 텍스트: col-9~14 */
+  .role-layout { position: absolute; top: calc(var(--margin-tb) + 20px + 48px); left: var(--margin-lr); right: var(--margin-lr); bottom: calc(var(--margin-tb) + 48px); }
+  /* col-3 시작: 2cols + 2gutters = 221px from margin */
+  .role-layout__phone { position: absolute; left: calc(var(--col-w) * 2 + var(--gutter) * 2); top: 0; bottom: 0; width: calc(var(--col-w) * 5 + var(--gutter) * 4); display: flex; align-items: center; justify-content: center; }
+  .role-layout__device { width: 340px; height: 694px; background: #000; border-radius: 48px; padding: 6px; position: relative; box-shadow: 0 0 0 1px #1a1a1a, 0 0 0 2px #333; }
+  .role-layout__screen { width: 100%; height: 100%; background: #fff; border-radius: 42px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-tertiary); }
+  .role-layout__screen img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+  .role-layout__island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 100px; height: 30px; background: #000; border-radius: 16px; z-index: 1; }
+  /* col-9~14: 8cols + 8gutters from margin = 884px */
+  .role-layout__text { position: absolute; left: calc(var(--col-w) * 8 + var(--gutter) * 8); width: calc(var(--col-w) * 6 + var(--gutter) * 5); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 32px; }
+  .role-layout__title { font-size: 40px; font-weight: 600; line-height: 1.2; color: var(--text-primary); }
+  .role-layout__desc { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+  .role-layout__features { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .role-layout__feature { display: flex; align-items: flex-start; gap: 16px; }
+  .role-layout__feature-num { font-size: 14px; font-weight: 600; color: var(--primary); background: rgba(78,120,235,0.08); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .role-layout__feature-num--green { color: var(--secondary); background: rgba(88,208,172,0.08); }
+  .role-layout__feature-text { font-size: 18px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); }
+
+  /* ============================
+     #07 DO/DON'T (B3)
+     ============================ */
+  .columns { position: absolute; top: calc(var(--margin-tb) + 20px + 88px + 48px + 120px); left: var(--margin-lr); right: var(--margin-lr); bottom: calc(var(--margin-tb) + 48px); display: flex; gap: 48px; }
+  .col { flex: 1; }
+  .col__header { font-size: 24px; font-weight: 600; line-height: 1.0; padding-bottom: 24px; margin-bottom: 32px; border-bottom: 2px solid; }
+  .col__header--do { color: var(--secondary); border-color: var(--secondary); }
+  .col__header--dont { color: var(--point-red); border-color: var(--point-red); }
+  .col__list { list-style: none; display: flex; flex-direction: column; gap: 20px; }
+  .col__list li { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); padding-left: 24px; position: relative; }
+  .col__list li::before { position: absolute; left: 0; font-size: 18px; font-weight: 600; }
+  .col--do .col__list li::before { content: 'O'; color: var(--secondary); }
+  .col--dont .col__list li::before { content: 'X'; color: var(--point-red); }
+
+  /* ============================
+     #04 문제 정의 — 중앙 임팩트
+     ============================ */
+  .impact { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .impact__title { font-size: 56px; font-weight: 600; line-height: 1.3; color: var(--text-primary); margin-bottom: 40px; }
+  .impact__desc { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-secondary); max-width: 720px; margin: 0 auto; }
+
+  /* ============================
+     풀블리드 intro
+     ============================ */
+  .slide--fullbleed { position: relative; overflow: hidden; }
+  .fullbleed__bg { position: absolute; inset: 0; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+  .fullbleed__overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, transparent 100%); }
+  .fullbleed__content { position: absolute; bottom: var(--margin-tb); left: var(--margin-lr); right: var(--margin-lr); z-index: 1; }
+  .fullbleed__title { font-size: 48px; font-weight: 600; line-height: 1.2; color: #f5f5f5; margin-bottom: 16px; }
+  .fullbleed__desc { font-size: 20px; font-weight: 400; line-height: 1.6; color: rgba(255,255,255,0.7); max-width: 720px; }
+
+  /* ============================
+     카드 이미지 (B1 with photos)
+     ============================ */
+  .card__photo { width: 100%; height: 200px; border-radius: 12px; object-fit: cover; }
+
+  /* ============================
+     키비주얼 D3 — 서체 & 컬러 (D3_color_swatch.html 동일)
+     ============================ */
+  .d3-fonts {
+    position: absolute;
+    top: calc(var(--margin-tb) + 20px + 88px + 48px + 72px);
+    left: var(--margin-lr); right: var(--margin-lr);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter);
+    padding-top: 40px; border-top: 1px solid var(--border-light);
+  }
+  .d3-font-sample { display: flex; flex-direction: column; }
+  .d3-font-sample__display { font-size: 88px; font-weight: 600; line-height: 1.0; color: var(--text-primary); letter-spacing: -0.02em; }
+  .d3-font-sample__type { font-size: 20px; font-weight: 600; line-height: 1.0; color: var(--text-primary); margin-top: 24px; }
+  .d3-font-sample__example { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text-tertiary); margin-top: 16px; }
+  .d3-colors {
+    position: absolute;
+    bottom: calc(var(--margin-tb) + 48px);
+    left: var(--margin-lr); right: var(--margin-lr);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter);
+    padding-top: 40px; border-top: 1px solid var(--border-light);
+  }
+  .d3-color-group { display: flex; flex-direction: column; gap: 12px; }
+  .d3-color-group__label { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+  .d3-color-group__chips { display: flex; flex-direction: column; gap: 8px; }
+  .d3-chip { width: 100%; height: 60px; border-radius: 12px; display: flex; align-items: flex-end; padding: 12px 16px; font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .d3-chip--h2 { height: 128px; }
+  .d3-chip--h3 { height: 83px; }
+  .d3-chip--dark { color: rgba(255,255,255,0.8); }
+  .d3-chip--light { color: var(--text-primary); }
+  .d3-chip--outline { box-shadow: inset 0 0 0 1px var(--border-light); color: var(--text-tertiary); }
+
+  /* ============================
+     메뉴구조도 D2 트리
+     ============================ */
+  .tree { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+  .tree__root { padding: 16px 40px; background: var(--text-primary); border-radius: 12px; font-size: 20px; font-weight: 600; color: #fff; }
+  .tree__branches { display: flex; gap: 24px; width: 100%; justify-content: center; position: relative; }
+  .tree__branches::before { content: ''; position: absolute; top: -20px; left: 25%; right: 25%; height: 1px; background: var(--border); }
+  .tree__branch { display: flex; flex-direction: column; align-items: center; gap: 16px; flex: 1; max-width: 320px; }
+  .tree__branch-label { padding: 12px 24px; border-radius: 12px; font-size: 18px; font-weight: 600; color: #fff; position: relative; }
+  .tree__branch-label::before { content: ''; position: absolute; top: -20px; left: 50%; width: 1px; height: 20px; background: var(--border); }
+  .tree__branch-label--blue { background: var(--primary); }
+  .tree__branch-label--green { background: var(--secondary); }
+  .tree__leaves { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .tree__leaf { padding: 10px 16px; background: #fff; border-radius: 8px; font-size: 14px; font-weight: 400; color: var(--text-secondary); text-align: center; }
+
+  /* ============================
+     #15 엔딩
+     ============================ */
+  .slide--ending { background: var(--brand-bg); }
+  .ending__left { position: absolute; left: var(--margin-lr); bottom: calc(var(--margin-tb) - 16px); }
+  .ending__sub { font-size: 48px; font-weight: 400; line-height: 1.2; color: var(--brand-text); margin-bottom: 40px; }
+  .ending__title { font-size: 160px; font-weight: 600; line-height: 0.9; color: var(--brand-text); letter-spacing: -0.02em; }
+  .ending__course { position: absolute; top: var(--margin-tb); right: var(--margin-lr); font-size: 20px; font-weight: 500; color: var(--brand-dim); }
+</style>
+</head>
+<body>
+<div class="slides">
+
+<!-- ============================================
+     #01 표지
+     ============================================ -->
+<div class="slide slide--cover">
+  <span class="cover__course">디지털콘텐츠제작03</span>
+  <div class="cover__left">
+    <p class="cover__sub">오늘 하루도, 안녕하셨습니다</p>
+    <h1 class="cover__title">HARU<br>ANBU</h1>
+  </div>
+  <div class="cover__credits">
+    <div class="cover__credit-group">
+      <span class="cover__credit-label">prof.</span>
+      <span class="cover__credit-name">남궁경</span>
+    </div>
+    <div class="cover__credit-group">
+      <span class="cover__credit-label">team.</span>
+      <span class="cover__credit-name">노인과 바다 그리고 네잎클로버</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     #02 목차
+     ============================================ -->
+<div class="slide slide--index">
+  <span class="index__course">디지털콘텐츠제작03</span>
+  <span class="index__label">Index</span>
+  <div class="index__content">
+    <div class="index__group">
+      <div class="index__major"><span>01</span><span>서비스 소개</span></div>
+      <div class="index__minor"><span>1-1
+1-2</span><span>문제 정의
+솔루션</span></div>
+    </div>
+    <div class="index__group">
+      <div class="index__major"><span>02</span><span>키 비주얼</span></div>
+      <div class="index__minor"><span>2-1
+2-2
+2-3</span><span>브랜드 아이덴티티
+로고 & 심볼
+무드 & 톤</span></div>
+    </div>
+    <div class="index__group">
+      <div class="index__major"><span>03</span><span>역할별 주요 기능</span></div>
+      <div class="index__minor"><span>3-1
+3-2
+3-3</span><span>보호자
+의료진
+환자</span></div>
+    </div>
+    <div class="index__group">
+      <div class="index__major"><span>04</span><span>UI 레퍼런스</span></div>
+      <div class="index__minor"><span>4-1
+4-2
+4-3
+4-4</span><span>카드 & 대시보드
+타임라인 & 일정
+접근성 & 피드백
+채팅 & 커뮤니케이션</span></div>
+    </div>
+    <div class="index__group">
+      <div class="index__major"><span>05</span><span>메뉴구조도</span></div>
+    </div>
+    <div class="index__group">
+      <div class="index__major"><span>06</span><span>주요페이지 와이어프레임 제작</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     #04 섹션 구분자 — 서비스 소개
+     ============================================ -->
+<div class="slide slide--divider">
+  <span class="divider__course">디지털콘텐츠제작03</span>
+  <div class="divider__content">
+    <div class="divider__number">01</div>
+    <h1 class="divider__title">서비스 소개</h1>
+  </div>
+</div>
+
+<!-- ============================================
+     #05 문제 정의 — 중앙 임팩트
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">서비스 소개</span>
+    <span class="topbar__sub">1-1 문제 정의</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="impact">
+    <h1 class="impact__title">보호자는 <span class="highlight">불안</span>하고,<br>의료진은 <span class="highlight">지치고</span>,<br>환자는 <span class="highlight">외롭다</span></h1>
+    <p class="impact__desc">요양병원에 입원한 환자의 보호자는 매일 전화를 걸어 상태를 확인하지만, 의료진은 업무 과중으로 충분한 소통이 어렵습니다. 세 사람 모두 단절된 채로 하루를 보냅니다.</p>
+  </div>
+  <div class="pagination"><span class="current">05</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #05 데이터 근거
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">서비스 소개</span>
+    <span class="topbar__sub">1-1 문제 정의</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">단절의 크기</h1>
+    <p class="heading__desc">세 사람이 매일 겪는 숫자들</p>
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__number">8.6<span class="stat__unit">년</span></div>
+      <div class="stat__label">평균 간병 기간</div>
+      <div class="stat__desc">보호자가 원거리에서 환자를 걱정하는 평균 기간</div>
+    </div>
+    <div class="stat">
+      <div class="stat__number">73<span class="stat__unit">%</span></div>
+      <div class="stat__label">소통 불만족</div>
+      <div class="stat__desc">의료진과의 소통에 불만족하는 보호자 비율</div>
+    </div>
+    <div class="stat">
+      <div class="stat__number">4.2<span class="stat__unit">회</span></div>
+      <div class="stat__label">일일 전화 시도</div>
+      <div class="stat__desc">보호자가 병원에 전화를 거는 하루 평균 횟수</div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">04</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #06 솔루션
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">서비스 소개</span>
+    <span class="topbar__sub">1-2 솔루션</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">세 사람을 하나로 잇다</h1>
+    <p class="heading__desc">하루안부는 보호자, 의료진, 환자 각각에게 맞춤 경험을 제공합니다</p>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <img class="card__photo" src="../불편한_보호자.png" alt="보호자">
+      <div class="card__title">보호자</div>
+      <div class="card__desc">AI 데일리 리포트로 매일 아침 안심을 전달합니다</div>
+      <ul class="card__features">
+        <li>AI 데일리 리포트</li>
+        <li>실시간 상태 알림</li>
+        <li>1:1 메시징</li>
+      </ul>
+    </div>
+    <div class="card">
+      <img class="card__photo" src="../불편한_의료진.png" alt="의료진">
+      <div class="card__title">의료진</div>
+      <div class="card__desc">케어 체크리스트로 업무 효율을 높입니다</div>
+      <ul class="card__features">
+        <li>케어 체크리스트</li>
+        <li>AI 인수인계 리포트</li>
+        <li>의료 타임라인</li>
+      </ul>
+    </div>
+    <div class="card">
+      <img class="card__photo" src="../불편한_환자.png" alt="환자">
+      <div class="card__title">환자</div>
+      <div class="card__desc">큰 글씨와 간단한 터치로 소통합니다</div>
+      <ul class="card__features">
+        <li>큰 글씨 홈</li>
+        <li>간편 감정 표현</li>
+        <li>AI 케어 가이드</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">05</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     풀블리드 인트로 — 키비주얼 도입
+     ============================================ -->
+<div class="slide slide--fullbleed">
+  <div class="fullbleed__bg" style="background: url('../screenshots/guardian/g01-home.png') center/cover no-repeat; filter: blur(20px) brightness(0.5); transform: scale(1.1);"></div>
+  <div class="fullbleed__overlay"></div>
+  <div class="fullbleed__content">
+    <h1 class="fullbleed__title">보호자 · 의료진 · 환자를<br>하나로 잇는 AI 돌봄 플랫폼</h1>
+    <p class="fullbleed__desc">요양병원의 세 사람은 매일 단절된 채 하루를 보냅니다.<br>하루안부는 AI로 이 단절을 연결합니다.</p>
+  </div>
+</div>
+
+<!-- ============================================
+     섹션 구분자 — 키 비주얼
+     ============================================ -->
+<div class="slide slide--divider">
+  <span class="divider__course">디지털콘텐츠제작03</span>
+  <div class="divider__content">
+    <div class="divider__number">02</div>
+    <h1 class="divider__title">키 비주얼</h1>
+  </div>
+</div>
+
+<!-- ============================================
+     #08 무드 & 톤 (DO/DON'T)
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">키 비주얼</span>
+    <span class="topbar__sub">2-3 무드 & 톤</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">무드 & 톤 가이드</h1>
+    <p class="heading__desc">따뜻 / 전문 / 안심 / 소프트</p>
+  </div>
+  <div class="columns">
+    <div class="col col--do">
+      <div class="col__header col__header--do">DO</div>
+      <ul class="col__list">
+        <li>안심 편집 감성의 앱 디자인</li>
+        <li>둥근 모서리 (border-radius 16px+)</li>
+        <li>넉넉한 여백, 시각적 여유</li>
+        <li>라인 일러스트레이션</li>
+        <li>"~하셨어요" 존댓말 + 따뜻한 말투</li>
+        <li>환자용 18px 이상 최소 폰트</li>
+      </ul>
+    </div>
+    <div class="col col--dont">
+      <div class="col__header col__header--dont">DON'T</div>
+      <ul class="col__list">
+        <li>병실 차트 느낌의 차가운 UI</li>
+        <li>각진 직선, 딱딱한 느낌</li>
+        <li>빽빽한 데이터 나열</li>
+        <li>형광색, 고채도 경고 남발</li>
+        <li>"~하십시오" 지시형 말투</li>
+        <li>12px 미만의 작은 텍스트</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">09</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     키비주얼 — 서체 & 컬러 시스템 (D3 그대로)
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">키 비주얼</span>
+    <span class="topbar__sub">2-1 브랜드 아이덴티티</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">Typography & Color System</h1>
+  </div>
+  <div class="d3-fonts">
+    <div class="d3-font-sample" style="grid-column:2;">
+      <span class="d3-font-sample__display" style="font-family:'Pretendard',sans-serif;">가나다</span>
+      <span class="d3-font-sample__type">Pretendard</span>
+      <span class="d3-font-sample__example">오늘 하루도, 안녕하셨습니다</span>
+    </div>
+    <div class="d3-font-sample" style="grid-column:3;">
+      <span class="d3-font-sample__display" style="font-family:'Noto Sans',sans-serif;">Abc</span>
+      <span class="d3-font-sample__type">Noto Sans</span>
+      <span class="d3-font-sample__example">The quick brown fox jumps</span>
+    </div>
+    <div class="d3-font-sample" style="grid-column:4;">
+      <span class="d3-font-sample__display" style="font-family:'Noto Sans SC',sans-serif;">你好世</span>
+      <span class="d3-font-sample__type">Noto Sans SC</span>
+      <span class="d3-font-sample__example">每天早上，平安地问候您</span>
+    </div>
+  </div>
+  <div class="d3-colors">
+    <div class="d3-color-group">
+      <span class="d3-color-group__label">Main</span>
+      <div class="d3-color-group__chips">
+        <div class="d3-chip d3-chip--h2 d3-chip--dark" style="background:#4E78EB">#4E78EB</div>
+        <div class="d3-chip d3-chip--h2 d3-chip--dark" style="background:#58D0AC">#58D0AC</div>
+      </div>
+    </div>
+    <div class="d3-color-group">
+      <span class="d3-color-group__label">Point</span>
+      <div class="d3-color-group__chips">
+        <div class="d3-chip d3-chip--h2 d3-chip--light" style="background:#F5D310">#F5D310</div>
+        <div class="d3-chip d3-chip--h2 d3-chip--dark" style="background:#FF4A1F">#FF4A1F</div>
+      </div>
+    </div>
+    <div class="d3-color-group">
+      <span class="d3-color-group__label">Etc</span>
+      <div class="d3-color-group__chips">
+        <div class="d3-chip d3-chip--h3 d3-chip--light" style="background:#D5FF24">#D5FF24</div>
+        <div class="d3-chip d3-chip--h3 d3-chip--dark" style="background:#6157BA">#6157BA</div>
+        <div class="d3-chip d3-chip--h3 d3-chip--light" style="background:#FEC5ED">#FEC5ED</div>
+      </div>
+    </div>
+    <div class="d3-color-group">
+      <span class="d3-color-group__label">Neutral</span>
+      <div class="d3-color-group__chips">
+        <div class="d3-chip d3-chip--dark" style="background:#161616">#161616</div>
+        <div class="d3-chip d3-chip--dark" style="background:#666666">#666666</div>
+        <div class="d3-chip d3-chip--dark" style="background:#B3B3B3">#B3B3B3</div>
+        <div class="d3-chip d3-chip--outline" style="background:#F5F5F5">#F5F5F5</div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">10</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #11 섹션 구분자 — 역할별 주요 기능
+     ============================================ -->
+<div class="slide slide--divider">
+  <span class="divider__course">디지털콘텐츠제작03</span>
+  <div class="divider__content">
+    <div class="divider__number">03</div>
+    <h1 class="divider__title">역할별 주요 기능</h1>
+  </div>
+</div>
+
+<!-- ============================================
+     #10 보호자 기능
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">역할별 주요 기능</span>
+    <span class="topbar__sub">3-1 보호자</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="role-layout">
+    <div class="role-layout__phone">
+      <div class="role-layout__device">
+        <div class="role-layout__screen"><div class="role-layout__island"></div><img src="../screenshots/guardian/g01-home.png" alt="보호자 홈"></div>
+      </div>
+    </div>
+    <div class="role-layout__text">
+      <h1 class="role-layout__title">AI 데일리 리포트</h1>
+      <p class="role-layout__desc">매일 아침, AI가 어머니의 하루를 정리해 보호자에게 전달합니다. 식사, 수면, 활동, 투약 정보를 한 화면에서 확인할 수 있습니다.</p>
+      <ul class="role-layout__features">
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">1</span><span class="role-layout__feature-text">식사/수면/활동 요약</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">2</span><span class="role-layout__feature-text">투약 및 처치 기록</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">3</span><span class="role-layout__feature-text">AI 건강 인사이트</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">10</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #11 의료진 기능
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">역할별 주요 기능</span>
+    <span class="topbar__sub">3-2 의료진</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="role-layout">
+    <div class="role-layout__phone">
+      <div class="role-layout__device">
+        <div class="role-layout__screen"><div class="role-layout__island"></div><img src="../screenshots/nurse/n03-checklist.png" alt="의료진 체크리스트"></div>
+      </div>
+    </div>
+    <div class="role-layout__text">
+      <h1 class="role-layout__title">케어 체크리스트</h1>
+      <p class="role-layout__desc">환자별 일일 케어 항목을 체크리스트로 관리합니다. 교대 시 AI가 인수인계 리포트를 자동 생성하여 누락을 방지합니다.</p>
+      <ul class="role-layout__features">
+        <li class="role-layout__feature"><span class="role-layout__feature-num">1</span><span class="role-layout__feature-text">일일 체크리스트</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num">2</span><span class="role-layout__feature-text">AI 인수인계 리포트</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num">3</span><span class="role-layout__feature-text">의료 타임라인</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">11</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #12 환자 기능
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">역할별 주요 기능</span>
+    <span class="topbar__sub">3-3 환자</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="role-layout">
+    <div class="role-layout__phone">
+      <div class="role-layout__device">
+        <div class="role-layout__screen"><div class="role-layout__island"></div><img src="../screenshots/patient/p01-home.png" alt="환자 홈"></div>
+      </div>
+    </div>
+    <div class="role-layout__text">
+      <h1 class="role-layout__title">큰 글씨 인터페이스</h1>
+      <p class="role-layout__desc">고령 환자를 위해 18px 이상의 큰 글씨와 간단한 터치 인터랙션으로 설계했습니다. 감정 표현 한 번으로 보호자에게 안부를 전합니다.</p>
+      <ul class="role-layout__features">
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">1</span><span class="role-layout__feature-text">큰 글씨 홈 화면</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">2</span><span class="role-layout__feature-text">간편 감정 표현</span></li>
+        <li class="role-layout__feature"><span class="role-layout__feature-num role-layout__feature-num--green">3</span><span class="role-layout__feature-text">SOS 긴급 호출</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">12</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #13 섹션 구분자 — 메뉴구조도
+     ============================================ -->
+<div class="slide slide--divider">
+  <span class="divider__course">디지털콘텐츠제작03</span>
+  <div class="divider__content">
+    <div class="divider__number">05</div>
+    <h1 class="divider__title">메뉴구조도</h1>
+  </div>
+</div>
+
+<!-- ============================================
+     메뉴구조도 — 전체 IA (D2 트리)
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">메뉴구조도</span>
+    <span class="topbar__sub">5-1 정보구조</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">정보구조도 (IA)</h1>
+    <p class="heading__desc">역할별 메뉴 구조</p>
+  </div>
+  <div style="position:absolute; top:320px; left:var(--margin-lr); right:var(--margin-lr); bottom:calc(var(--margin-tb)+48px); display:flex; align-items:flex-start; justify-content:center; padding-top:40px;">
+    <div class="tree">
+      <div class="tree__root">하루안부</div>
+      <div class="tree__branches">
+        <div class="tree__branch">
+          <div class="tree__branch-label tree__branch-label--green">보호자</div>
+          <div class="tree__leaves">
+            <div class="tree__leaf">홈 (데일리 리포트)</div>
+            <div class="tree__leaf">건강 대시보드</div>
+            <div class="tree__leaf">메시징</div>
+            <div class="tree__leaf">일정 관리</div>
+          </div>
+        </div>
+        <div class="tree__branch">
+          <div class="tree__branch-label tree__branch-label--blue">의료진</div>
+          <div class="tree__leaves">
+            <div class="tree__leaf">환자 목록</div>
+            <div class="tree__leaf">케어 체크리스트</div>
+            <div class="tree__leaf">인수인계</div>
+            <div class="tree__leaf">타임라인</div>
+          </div>
+        </div>
+        <div class="tree__branch">
+          <div class="tree__branch-label tree__branch-label--green">환자</div>
+          <div class="tree__leaves">
+            <div class="tree__leaf">큰 글씨 홈</div>
+            <div class="tree__leaf">감정 표현</div>
+            <div class="tree__leaf">AI 케어 가이드</div>
+            <div class="tree__leaf">SOS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">16</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     메뉴구조도 — 보호자
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">메뉴구조도</span>
+    <span class="topbar__sub">5-1 보호자 IA</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">보호자 정보구조</h1>
+    <p class="heading__desc">홈 → AI 리포트 → 채팅 순서로<br>매일 아침 안심을 확인합니다</p>
+  </div>
+  <!-- 폰 목업 3개: col-3~14 계단식 (E2 레이아웃) -->
+  <div style="position:absolute; top:0; left:calc(var(--margin-lr) + var(--col-w)*2 + var(--gutter)*2); width:calc(var(--col-w)*12 + var(--gutter)*11); height:100%;">
+    <div style="position:absolute; top:360px; left:0;">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/guardian/g01-home.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:114px; left:calc(420px + 21px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/guardian/g02-ai-report.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:-132px; left:calc(840px + 42px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/guardian/g03-chat.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">14</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #15 메뉴구조도 — 의료진
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">메뉴구조도</span>
+    <span class="topbar__sub">5-2 의료진 IA</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">의료진 정보구조</h1>
+    <p class="heading__desc">대시보드 → 환자 목록 → 체크리스트 순서로<br>효율적인 케어를 수행합니다</p>
+  </div>
+  <div style="position:absolute; top:0; left:calc(var(--margin-lr) + var(--col-w)*2 + var(--gutter)*2); width:calc(var(--col-w)*12 + var(--gutter)*11); height:100%;">
+    <div style="position:absolute; top:360px; left:0;">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/nurse/n01-dashboard.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:114px; left:calc(420px + 21px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/nurse/n02-patients.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:-132px; left:calc(840px + 42px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/nurse/n03-checklist.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">15</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #16 메뉴구조도 — 환자
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">메뉴구조도</span>
+    <span class="topbar__sub">5-3 환자 IA</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">환자 정보구조</h1>
+    <p class="heading__desc">큰 글씨 홈 → 가족 연결 → 도움 요청으로<br>간단한 터치만으로 소통합니다</p>
+  </div>
+  <div style="position:absolute; top:0; left:calc(var(--margin-lr) + var(--col-w)*2 + var(--gutter)*2); width:calc(var(--col-w)*12 + var(--gutter)*11); height:100%;">
+    <div style="position:absolute; top:360px; left:0;">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/patient/p01-home.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:114px; left:calc(420px + 21px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/patient/p02-family.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:-132px; left:calc(840px + 42px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/patient/p03-help.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">16</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #17 섹션 구분자 — 와이어프레임
+     ============================================ -->
+<div class="slide slide--divider">
+  <span class="divider__course">디지털콘텐츠제작03</span>
+  <div class="divider__content">
+    <div class="divider__number">06</div>
+    <h1 class="divider__title">주요페이지<br>와이어프레임 제작</h1>
+  </div>
+</div>
+
+<!-- ============================================
+     #18 와이어프레임 — 온보딩 플로우
+     ============================================ -->
+<div class="slide slide--content">
+  <div class="topbar">
+    <span class="topbar__upper">와이어프레임</span>
+    <span class="topbar__sub">6-1 온보딩 플로우</span>
+    <span class="topbar__course">디지털콘텐츠제작03</span>
+  </div>
+  <div class="heading">
+    <h1 class="heading__title">온보딩 플로우</h1>
+    <p class="heading__desc">스플래시 → 로그인 → 역할 선택으로<br>각 사용자에게 맞는 경험을 시작합니다</p>
+  </div>
+  <div style="position:absolute; top:0; left:calc(var(--margin-lr) + var(--col-w)*2 + var(--gutter)*2); width:calc(var(--col-w)*12 + var(--gutter)*11); height:100%;">
+    <div style="position:absolute; top:360px; left:0;">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/onboarding/ob01-splash.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:114px; left:calc(420px + 21px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/onboarding/ob02-login.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; top:-132px; left:calc(840px + 42px);">
+      <div style="width:420px; height:852px; background:#000; border-radius:56px; padding:6px; box-shadow:0 0 0 1px #1a1a1a, 0 0 0 2px #333;">
+        <div style="width:100%; height:100%; background:#fff; border-radius:50px; overflow:hidden; position:relative;">
+          <div style="position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:36px; background:#000; border-radius:20px; z-index:1;"></div>
+          <img src="../screenshots/onboarding/ob03-role.png" alt="" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination"><span class="current">18</span> <span class="total">/ 22</span></div>
+</div>
+
+<!-- ============================================
+     #15 엔딩
+     ============================================ -->
+<div class="slide slide--ending">
+  <span class="ending__course">디지털콘텐츠제작03</span>
+  <div class="ending__left">
+    <p class="ending__sub">오늘 하루도, 안녕하셨습니다</p>
+    <h1 class="ending__title">HARU<br>ANBU</h1>
+  </div>
+</div>
+
+</div><!-- .slides -->
+</body>
+</html>

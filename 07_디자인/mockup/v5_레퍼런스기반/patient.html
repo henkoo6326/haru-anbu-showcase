@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>하루안부 — 환자</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#D4A574;--primary-hover:#C4955E;--primary-light:#FDF5ED;--primary-50:rgba(212,165,116,.06);
+  --blue:#4A7FBF;--blue-light:#E8F0FA;
+  --green:#5BAE8C;--green-light:#EAF6F0;
+  --bg:#FAFAF7;--surface:#FFFFFF;
+  --text:#1E2A3A;--text-2:#5A6472;--text-3:#8C939A;--text-4:#B8BFC6;
+  --border:rgba(30,42,58,.06);--border-2:rgba(30,42,58,.1);
+  --positive:#2E9E5A;--positive-bg:#EEFBF3;
+  --warning:#E08A00;--warning-bg:#FFF7EB;
+  --danger:#D93025;--danger-bg:#FEF0EF;
+  --radius:16px;--radius-lg:20px;--radius-xl:28px;
+  --shadow-sm:0 1px 3px rgba(30,42,58,.06),0 1px 2px rgba(30,42,58,.04);
+  --shadow:0 4px 12px rgba(30,42,58,.06),0 1px 3px rgba(30,42,58,.04);
+  --shadow-md:0 8px 24px rgba(30,42,58,.08),0 2px 6px rgba(30,42,58,.04);
+  --shadow-lg:0 16px 48px rgba(30,42,58,.1),0 4px 12px rgba(30,42,58,.04);
+  --transition:180ms cubic-bezier(.4,0,.2,1);
+  /* 환자 전용: 큰 글씨, 큰 터치 */
+  --font-lg:18px;--font-xl:22px;--font-2xl:28px;--font-3xl:40px;
+  --touch-min:56px;
+}
+html{font-size:18px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+  background:#EDE5DA;color:var(--text);line-height:1.5;
+  display:flex;justify-content:center;gap:32px;padding:32px 16px;
+  flex-wrap:wrap;min-height:100vh;align-items:flex-start;
+}
+.frame-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.frame-label{font-size:13px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.phone{
+  width:393px;height:852px;background:var(--bg);border-radius:54px;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08),var(--shadow-lg),0 0 80px rgba(0,0,0,.06);
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:37px;background:#0a0a0a;border-radius:0 0 24px 24px;z-index:200}
+.phone::after{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:12px;height:12px;background:#1a1a2a;border-radius:50%;z-index:201}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:16px 32px 0;height:54px;position:relative;z-index:100}
+.sbar .time{font-size:16px;font-weight:700}
+.scroll{height:calc(100% - 54px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:96px;scroll-behavior:smooth}
+.scroll::-webkit-scrollbar{display:none}
+.home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:rgba(0,0,0,.2);border-radius:3px;z-index:200}
+
+/* TABBAR — 환자용 (큰 터치) */
+.tabbar{
+  position:absolute;bottom:0;left:0;right:0;height:92px;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);display:flex;justify-content:space-around;
+  align-items:flex-start;padding-top:10px;z-index:150;border-radius:0 0 54px 54px;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:12px;font-weight:600;color:var(--text-3);cursor:pointer;
+  padding:6px 20px;min-width:64px;border-radius:14px;
+}
+.tab.active{color:var(--primary)}
+.tab .ti{font-size:28px}
+
+/* === 환자 홈 === */
+.p-home{padding:8px 24px 0}
+.p-greeting{
+  font-size:var(--font-2xl);font-weight:800;
+  letter-spacing:-.04em;line-height:1.3;color:var(--text);
+}
+.p-date{font-size:var(--font-lg);color:var(--text-3);margin-top:4px;font-weight:400}
+
+/* 투약 알림 배너 */
+.med-banner{
+  margin:20px 20px 0;
+  background:linear-gradient(135deg,#D4A574 0%,#E8C9A0 100%);
+  border-radius:var(--radius-xl);padding:24px;color:#fff;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(212,165,116,.25);
+}
+.med-banner::after{
+  content:'💊';position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:56px;opacity:.2;
+}
+.med-banner .mb-label{font-size:var(--font-lg);font-weight:600}
+.med-banner .mb-time{font-size:var(--font-3xl);font-weight:800;margin-top:4px;letter-spacing:-.03em}
+.med-banner .mb-sub{font-size:16px;opacity:.85;margin-top:2px;color:#fff}
+
+.confirm-btn{
+  display:block;margin:12px 20px 0;width:calc(100% - 40px);
+  background:var(--primary);color:#fff;border:none;
+  border-radius:var(--radius-lg);padding:20px;
+  font-size:var(--font-xl);font-weight:700;font-family:inherit;
+  cursor:pointer;text-align:center;
+  min-height:var(--touch-min);
+  box-shadow:0 2px 8px rgba(212,165,116,.25);
+  transition:all var(--transition);
+}
+.confirm-btn:hover{background:var(--primary-hover)}
+.confirm-btn:active{transform:scale(.98)}
+
+/* 다음 일정 카드 */
+.next-card{
+  margin:16px 20px 0;background:var(--surface);
+  border-radius:var(--radius-xl);padding:20px;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.nc-label{font-size:15px;color:var(--text-3);font-weight:500}
+.nc-time{font-size:36px;font-weight:800;color:var(--text);margin-top:2px;letter-spacing:-.03em}
+.nc-desc{font-size:var(--font-lg);color:var(--text);margin-top:4px}
+.nc-remain{font-size:15px;color:var(--primary);font-weight:600;margin-top:4px}
+
+/* 오늘 일과 */
+.daily{padding:20px 20px 0}
+.daily-title{font-size:var(--font-xl);font-weight:700;margin-bottom:12px;letter-spacing:-.03em}
+.d-item{
+  background:var(--surface);border-radius:var(--radius-lg);
+  padding:16px 18px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  transition:all var(--transition);min-height:var(--touch-min);
+}
+.d-item:hover{border-color:var(--primary)}
+.d-left{display:flex;align-items:center;gap:14px}
+.d-time{font-size:16px;font-weight:600;color:var(--text-3);min-width:52px}
+.d-icon{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.d-text{font-size:var(--font-lg);font-weight:500;color:var(--text)}
+.d-check{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.d-check.done{background:var(--positive-bg);color:var(--positive)}
+.d-check.pending{background:var(--bg);border:2px solid var(--border-2)}
+
+/* === 도움 요청 === */
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
+.h-btn{
+  background:var(--surface);border-radius:var(--radius-xl);
+  padding:28px 16px;text-align:center;
+  box-shadow:var(--shadow);border:2px solid transparent;
+  cursor:pointer;transition:all var(--transition);
+  min-height:140px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.h-btn:hover{border-color:var(--primary)}
+.h-btn:active{transform:scale(.97);background:var(--primary-light)}
+.h-icon{
+  width:60px;height:60px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;font-size:30px;
+}
+.h-text{font-size:var(--font-xl);font-weight:700;color:var(--text)}
+.h-sub{font-size:14px;color:var(--text-3);margin-top:4px}
+
+.sos-big{
+  margin:16px 20px;background:linear-gradient(135deg,#D93025,#C62828);
+  border-radius:var(--radius-xl);padding:28px;text-align:center;color:#fff;
+  cursor:pointer;box-shadow:0 6px 24px rgba(217,48,37,.3);
+  transition:all var(--transition);min-height:120px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.sos-big:hover{box-shadow:0 6px 24px rgba(217,48,37,.4)}
+.sos-big:active{transform:scale(.98)}
+.sos-big .si{font-size:44px;margin-bottom:8px}
+.sos-big .st{font-size:var(--font-2xl);font-weight:800}
+.sos-big .ss{font-size:16px;opacity:.85;margin-top:4px;color:#fff}
+
+/* === 기분 체크 === */
+.mood-q{
+  font-size:var(--font-2xl);font-weight:800;color:var(--text);
+  text-align:center;line-height:1.3;letter-spacing:-.03em;
+}
+.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px;margin-top:24px}
+.m-btn{
+  background:var(--surface);border-radius:var(--radius-xl);
+  padding:24px 16px;text-align:center;
+  box-shadow:var(--shadow);border:3px solid transparent;
+  cursor:pointer;transition:all var(--transition);
+  min-height:120px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.m-btn:hover{border-color:var(--primary)}
+.m-btn.selected{border-color:var(--primary);background:var(--primary-light)}
+.m-btn:active{transform:scale(.96)}
+.m-emoji{font-size:52px}
+.m-text{font-size:var(--font-xl);font-weight:700;color:var(--text);margin-top:8px}
+
+.mood-submit{
+  display:block;margin:24px 20px 0;width:calc(100% - 40px);
+  background:var(--primary);color:#fff;border:none;
+  border-radius:var(--radius-lg);padding:20px;
+  font-size:var(--font-xl);font-weight:700;font-family:inherit;
+  cursor:pointer;text-align:center;min-height:var(--touch-min);
+  transition:all var(--transition);
+}
+.mood-submit:hover{background:var(--primary-hover)}
+
+.week-mood{
+  display:flex;justify-content:center;gap:10px;margin-top:12px;padding:0 20px;
+}
+.wm{text-align:center;padding:6px 8px;border-radius:12px}
+.wm.today{background:var(--primary-light)}
+.wm .wd{font-size:13px;color:var(--text-3);font-weight:500}
+.wm.today .wd{color:var(--primary);font-weight:700}
+.wm .we{font-size:28px;margin-top:2px}
+
+/* === 가족 소식 === */
+.fam-card{
+  background:var(--surface);border-radius:var(--radius-xl);
+  margin:0 20px 12px;padding:20px;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.fam-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.fam-avatar{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+}
+.fam-name{font-size:var(--font-xl);font-weight:700}
+.fam-rel{font-size:15px;color:var(--text-3)}
+.fam-msg{font-size:var(--font-lg);line-height:1.7;color:var(--text)}
+.fam-photo{
+  width:100%;height:180px;border-radius:var(--radius-lg);margin-top:14px;
+  background:linear-gradient(135deg,var(--blue-light),var(--primary-light));
+  display:flex;align-items:center;justify-content:center;font-size:52px;
+}
+.fam-time{font-size:14px;color:var(--text-3);margin-top:10px;text-align:right}
+
+.back-btn{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:500;color:var(--text-2);cursor:pointer;padding:4px 0}
+.spacer{height:20px}
+</style>
+</head>
+<body>
+
+<!-- ===== 1. 환자 홈 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">홈 화면 (큰 글씨)</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="p-home">
+    <div class="p-greeting">안녕하세요,<br>순자 어르신</div>
+    <div class="p-date">2026년 3월 30일 일요일</div>
+  </div>
+
+  <div class="med-banner">
+    <div class="mb-label">💊 약 드실 시간이에요</div>
+    <div class="mb-time">14:00</div>
+    <div class="mb-sub">오후 투약 · 30분 후</div>
+  </div>
+  <button class="confirm-btn">✅ 확인</button>
+
+  <div class="next-card">
+    <div class="nc-label">📅 다음 일정</div>
+    <div class="nc-time">14:00</div>
+    <div class="nc-desc">💊 오후 투약</div>
+    <div class="nc-remain">30분 후</div>
+  </div>
+
+  <div class="daily">
+    <div class="daily-title">📋 오늘 일과</div>
+    <div class="d-item"><div class="d-left"><div class="d-time">07:00</div><div class="d-icon" style="background:var(--green-light)">🌅</div><div class="d-text">기상</div></div><div class="d-check done">✓</div></div>
+    <div class="d-item"><div class="d-left"><div class="d-time">08:00</div><div class="d-icon" style="background:var(--blue-light)">💊</div><div class="d-text">오전 투약</div></div><div class="d-check done">✓</div></div>
+    <div class="d-item"><div class="d-left"><div class="d-time">09:00</div><div class="d-icon" style="background:var(--primary-light)">🍚</div><div class="d-text">아침 식사</div></div><div class="d-check done">✓</div></div>
+    <div class="d-item"><div class="d-left"><div class="d-time">14:00</div><div class="d-icon" style="background:var(--blue-light)">💊</div><div class="d-text">오후 투약</div></div><div class="d-check pending"></div></div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="tabbar">
+  <div class="tab active"><span class="ti">🏠</span>홈</div>
+  <div class="tab"><span class="ti">👨‍👩‍👧</span>가족</div>
+  <div class="tab"><span class="ti">🆘</span>도움</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 2. 도움 요청 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">도움 요청</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="p-home">
+    <div class="p-greeting" style="font-size:24px">무엇을 도와드릴까요?</div>
+    <div class="p-date">필요한 것을 눌러주세요</div>
+  </div>
+
+  <div style="padding-top:20px">
+    <div class="help-grid">
+      <div class="h-btn"><div class="h-icon" style="background:var(--blue-light)">👩‍⚕️</div><div class="h-text">간호사 호출</div><div class="h-sub">도움이 필요해요</div></div>
+      <div class="h-btn"><div class="h-icon" style="background:var(--primary-light)">📞</div><div class="h-text">가족 연락</div><div class="h-sub">가족에게 전화</div></div>
+      <div class="h-btn"><div class="h-icon" style="background:var(--green-light)">🤖</div><div class="h-text">AI 도우미</div><div class="h-sub">궁금한 것 물어보기</div></div>
+      <div class="h-btn"><div class="h-icon" style="background:var(--warning-bg)">📅</div><div class="h-text">오늘 일정</div><div class="h-sub">일과 확인하기</div></div>
+    </div>
+    <div class="sos-big">
+      <div class="si">🚨</div>
+      <div class="st">긴급 도움 요청</div>
+      <div class="ss">위험한 상황이면 눌러주세요</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="tabbar">
+  <div class="tab"><span class="ti">🏠</span>홈</div>
+  <div class="tab"><span class="ti">👨‍👩‍👧</span>가족</div>
+  <div class="tab active"><span class="ti">🆘</span>도움</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 3. 기분 체크 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">기분 체크</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="p-home">
+    <div class="back-btn">← 뒤로</div>
+  </div>
+
+  <div style="padding:20px 20px 0">
+    <div class="mood-q">오늘 기분이<br>어떠세요?</div>
+  </div>
+
+  <div class="mood-grid">
+    <div class="m-btn selected"><div class="m-emoji">😊</div><div class="m-text">좋아요</div></div>
+    <div class="m-btn"><div class="m-emoji">😐</div><div class="m-text">보통이에요</div></div>
+    <div class="m-btn"><div class="m-emoji">😢</div><div class="m-text">슬퍼요</div></div>
+    <div class="m-btn"><div class="m-emoji">😤</div><div class="m-text">불편해요</div></div>
+  </div>
+
+  <button class="mood-submit">기분 기록하기</button>
+
+  <div style="text-align:center;margin-top:24px;padding:0 20px">
+    <div style="font-size:15px;color:var(--text-3);font-weight:500;margin-bottom:12px">이번 주 기분</div>
+    <div class="week-mood">
+      <div class="wm"><div class="wd">월</div><div class="we">😊</div></div>
+      <div class="wm"><div class="wd">화</div><div class="we">😊</div></div>
+      <div class="wm"><div class="wd">수</div><div class="we">😐</div></div>
+      <div class="wm"><div class="wd">목</div><div class="we">😊</div></div>
+      <div class="wm"><div class="wd">금</div><div class="we">😢</div></div>
+      <div class="wm"><div class="wd">토</div><div class="we">😊</div></div>
+      <div class="wm today"><div class="wd">일</div><div class="we">😊</div></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+<!-- ===== 4. 가족 소식 ===== -->
+<div class="frame-wrap">
+<div class="frame-label">가족 소식</div>
+<div class="phone">
+<div class="sbar"><span class="time">9:41</span><div></div></div>
+<div class="scroll">
+  <div class="p-home">
+    <div class="p-greeting" style="font-size:24px">가족 소식</div>
+    <div class="p-date">가족이 보낸 메시지에요</div>
+  </div>
+
+  <div style="padding-top:16px">
+    <div class="fam-card">
+      <div class="fam-top">
+        <div class="fam-avatar" style="background:var(--blue-light)">👩</div>
+        <div><div class="fam-name">민서</div><div class="fam-rel">딸</div></div>
+      </div>
+      <div class="fam-msg">어머니 오늘도 좋은 하루 보내세요! 😊<br>주말에 손녀 데리고 갈게요~</div>
+      <div class="fam-photo">👨‍👩‍👧 🌸</div>
+      <div class="fam-time">오전 10:30</div>
+    </div>
+
+    <div class="fam-card">
+      <div class="fam-top">
+        <div class="fam-avatar" style="background:var(--green-light)">👦</div>
+        <div><div class="fam-name">준호</div><div class="fam-rel">아들</div></div>
+      </div>
+      <div class="fam-msg">엄마 건강하세요! 다음 주에 놀러 갈게요. 좋아하시는 떡 사갈게요 🍡</div>
+      <div class="fam-time">어제 오후 3:20</div>
+    </div>
+
+    <div class="fam-card">
+      <div class="fam-top">
+        <div class="fam-avatar" style="background:var(--warning-bg)">👧</div>
+        <div><div class="fam-name">서연</div><div class="fam-rel">손녀</div></div>
+      </div>
+      <div class="fam-msg" style="font-size:20px">할머니 사랑해요!! ❤️❤️</div>
+      <div class="fam-photo" style="height:140px">🎨 ✏️ 🌈</div>
+      <div class="fam-time">어제 오전 11:00</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+<div class="tabbar">
+  <div class="tab"><span class="ti">🏠</span>홈</div>
+  <div class="tab active"><span class="ti">👨‍👩‍👧</span>가족</div>
+  <div class="tab"><span class="ti">🆘</span>도움</div>
+</div>
+<div class="home-ind"></div>
+</div>
+</div>
+
+</body>
+</html>

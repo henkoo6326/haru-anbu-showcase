@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#EEF3FB">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 채팅</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --glass:rgba(255,255,255,.75);--glass-b:rgba(0,0,0,.05);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#EEF3FB;overflow-x:hidden}
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:102px}
+
+    /* ═══ 배경 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+
+    /* ═══ 헤더 — 표준 ═══ */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn,.header-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active,.header-btn:active{transform:scale(.93)}
+    .nav-btn iconify-icon,.header-btn iconify-icon{font-size:18px;color:var(--blue)}
+
+    /* ═══ 콘텐츠 ═══ */
+    .content{position:relative;z-index:1;padding:0 16px}
+
+    /* 근무중 간호사 카드 */
+    .duty-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .duty-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2C7AFC,#5B9BFF);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;position:relative}
+    .duty-av::after{content:'';position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
+    .duty-body{flex:1;min-width:0}
+    .duty-name{font-size:14px;font-weight:700}
+    .duty-sub{font-size:11px;color:var(--t3);margin-top:1px}
+    .duty-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+    .duty-badge{background:rgba(52,211,153,.1);color:var(--green-d);font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:flex;align-items:center;gap:4px}
+    .duty-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green)}
+    .duty-time{font-size:10px;color:var(--t3)}
+
+    /* 섹션 라벨 */
+    .section-label{font-size:12px;font-weight:700;color:var(--t3);padding:16px 4px 6px}
+
+    /* 채팅 목록 */
+    .chat-list{display:flex;flex-direction:column;gap:8px}
+    .chat-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b);border-radius:18px;text-decoration:none;color:inherit;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .chat-item:active{transform:scale(.97)}
+
+    .chat-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
+    .av-ai{background:linear-gradient(135deg,#2C7AFC,#1D6AF2);color:#fff}
+    .av-nurse{background:linear-gradient(135deg,#2C7AFC,#5B9BFF);color:#fff;font-size:18px}
+    .av-patient{background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff}
+    .av-family{background:linear-gradient(135deg,#34D399,#059669);color:#fff}
+
+    .chat-body{flex:1;min-width:0}
+    .chat-name{font-size:14px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+    .chat-name-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(44,122,252,.1);color:var(--blue)}
+    .chat-preview{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+    .chat-time{font-size:10px;color:var(--t3)}
+    .chat-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:2px 7px;min-width:20px;text-align:center}
+    .badge-hide{visibility:hidden}
+
+    /* ═══ 탭바 ═══ */
+    .tabbar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:rgba(180,210,250,.15);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.35);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+  </style>
+</head>
+<body>
+
+  <!-- 배경 -->
+  <div class="bg">
+    <svg class="bg-logo" viewBox="0 0 2526 2526" fill="none">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+      <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/>
+    </svg>
+  </div>
+
+  <div class="app">
+
+    <!-- ═══ 헤더 ═══ -->
+    <div class="header">
+      <div class="header-inner">
+        <span class="header-title">채팅</span>
+        <div class="header-btn">
+          <iconify-icon icon="fluent:compose-24-filled"></iconify-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 콘텐츠 ═══ -->
+    <div class="content">
+
+      <!-- 현재 근무중 간호사 -->
+      <div class="duty-card">
+        <div class="duty-av">김</div>
+        <div class="duty-body">
+          <div class="duty-name">김미영 간호사 · 3층 담당</div>
+          <div class="duty-sub">마지막 메시지 오후 2:14</div>
+        </div>
+        <div class="duty-meta">
+          <span class="duty-badge">근무 중</span>
+          <span class="duty-time">오후 근무</span>
+        </div>
+      </div>
+
+      <!-- AI 어시스턴트 -->
+      <div class="section-label">AI 어시스턴트</div>
+      <div class="chat-list" style="margin-bottom:4px">
+        <a href="g-guardian-live.html" class="chat-item">
+          <div class="chat-av av-ai">
+            <svg width="22" height="22" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+          </div>
+          <div class="chat-body">
+            <div class="chat-name">하루 AI <span class="chat-name-badge">AI</span></div>
+            <div class="chat-preview">요양·케어 정보, 감정 지원, 요양원 찾기 등</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">항상</span>
+            <span class="chat-badge badge-hide">0</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- 채팅방 -->
+      <div class="section-label">간호사</div>
+      <div class="chat-list" style="margin-bottom:4px">
+
+        <!-- 김미영 간호사 -->
+        <a href="g03-chat-nurse.html" class="chat-item">
+          <div class="chat-av av-nurse">김</div>
+          <div class="chat-body">
+            <div class="chat-name">김미영 간호사</div>
+            <div class="chat-preview">저녁 투약도 완료했습니다. 오늘 하루 컨디션...</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">오후 6:05</span>
+            <span class="chat-badge">4</span>
+          </div>
+        </a>
+
+        <!-- 이수진 간호사 -->
+        <a href="#" class="chat-item">
+          <div class="chat-av av-nurse">이</div>
+          <div class="chat-body">
+            <div class="chat-name">이수진 간호사</div>
+            <div class="chat-preview">내일 오전 검진 일정 안내드려요</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">어제</span>
+            <span class="chat-badge badge-hide">0</span>
+          </div>
+        </a>
+
+        <!-- 박지현 간호사 -->
+        <a href="#" class="chat-item">
+          <div class="chat-av av-nurse">박</div>
+          <div class="chat-body">
+            <div class="chat-name">박지현 간호사</div>
+            <div class="chat-preview">야간 순찰 완료, 어머님 편히 주무셨어요</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">4/12</span>
+            <span class="chat-badge badge-hide">0</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- 가족 · 환자 -->
+      <div class="section-label">가족 · 환자</div>
+      <div class="chat-list">
+
+        <!-- 환자 -->
+        <a href="g03-chat-patient.html" class="chat-item">
+          <div class="chat-av av-patient">
+            <iconify-icon icon="fluent:heart-24-filled" style="font-size:22px"></iconify-icon>
+          </div>
+          <div class="chat-body">
+            <div class="chat-name">손정희 어머니</div>
+            <div class="chat-preview">잘 있어요~ 걱정 마세요</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">오전 11:30</span>
+            <span class="chat-badge">2</span>
+          </div>
+        </a>
+
+        <!-- 가족 그룹 -->
+        <a href="#" class="chat-item">
+          <div class="chat-av av-family">
+            <iconify-icon icon="fluent:people-24-filled" style="font-size:22px"></iconify-icon>
+          </div>
+          <div class="chat-body">
+            <div class="chat-name">가족 그룹 채팅</div>
+            <div class="chat-preview">손예린: 오빠 이번 일요일 면회 같이 ...</div>
+          </div>
+          <div class="chat-meta">
+            <span class="chat-time">오전 9:42</span>
+            <span class="chat-badge">1</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ═══ 탭바 ═══ -->
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab">
+        <span class="tab-icon"><svg viewBox="0 0 2526 2526"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+      </a>
+      <a href="g03-chat.html" class="tab active">
+        <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+      </a>
+      <a href="g02-ai-report.html" class="tab">
+        <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="10" y="6" width="4" height="14" rx="2"/><rect x="16" y="9" width="4" height="11" rx="2"/></svg></span>
+      </a>
+      <a href="g08-billing.html" class="tab">
+        <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="16" rx="3"/><rect x="2" y="10" width="20" height="3" fill="rgba(255,255,255,0.35)"/><rect x="5" y="15" width="4" height="2" rx="1" fill="rgba(255,255,255,0.6)"/></svg></span>
+      </a>
+      <a href="g05-mypage.html" class="tab">
+        <span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+      </a>
+    </nav>
+
+  </div>
+</body>
+</html>

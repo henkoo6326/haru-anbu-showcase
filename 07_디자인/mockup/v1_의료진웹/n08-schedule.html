@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시간표 관리 — 하루안부 의료진</title>
+  <link rel="stylesheet" href="nurse-common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    /* ── Page-level tab bar ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,.55);
+      backdrop-filter: blur(20px) saturate(160%);
+      border-bottom: 0.5px solid rgba(0,0,0,.08);
+      padding: 0 24px;
+    }
+    .tab-item {
+      padding: 14px 20px;
+      font-size: 14px; font-weight: 600;
+      color: var(--slate-400);
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: all .14s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .tab-item:hover { color: var(--slate-700); }
+    .tab-item.active { color: var(--nurse); border-bottom-color: var(--nurse); font-weight: 800; }
+
+    /* ── Patient selector ── */
+    .patient-selector-wrap {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 18px;
+    }
+    .patient-selector {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.80);
+      border: 0.5px solid rgba(0,0,0,.10);
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all .14s;
+      min-width: 220px;
+      backdrop-filter: blur(12px);
+    }
+    .patient-selector:hover {
+      border-color: var(--nurse);
+      box-shadow: 0 0 0 3px rgba(5,150,105,.10);
+    }
+    .patient-selector-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--nurse-light), var(--nurse-50));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: var(--nurse-dark); flex-shrink: 0;
+    }
+    .patient-selector-info { flex: 1; }
+    .patient-selector-name { font-size: 14px; font-weight: 700; color: var(--slate-800); }
+    .patient-selector-room { font-size: 11px; color: var(--slate-500); margin-top: 1px; }
+    .selector-caret { color: var(--slate-400); font-size: 16px; }
+
+    .selector-label {
+      font-size: 13px; color: var(--slate-500); font-weight: 600;
+    }
+
+    /* ── Week header ── */
+    .week-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .week-nav-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,.70); border: 0.5px solid rgba(0,0,0,.10);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--slate-600);
+      transition: all .14s;
+    }
+    .week-nav-btn:hover { background: rgba(255,255,255,.95); color: var(--nurse); }
+
+    .week-days {
+      display: grid; grid-template-columns: 72px repeat(7, 1fr);
+      gap: 6px; flex: 1;
+    }
+    .week-day-cell {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px 4px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.45);
+      border: 0.5px solid rgba(0,0,0,.06);
+    }
+    .week-day-cell.today {
+      background: var(--nurse);
+      border-color: var(--nurse-dark);
+    }
+    .week-day-name {
+      font-size: 11px; font-weight: 600;
+      color: var(--slate-500);
+    }
+    .week-day-cell.today .week-day-name { color: rgba(255,255,255,.8); }
+    .week-day-num {
+      font-size: 18px; font-weight: 800;
+      color: var(--slate-800); margin-top: 2px;
+    }
+    .week-day-cell.today .week-day-num { color: #fff; }
+    .week-day-label-placeholder { font-size: 11px; color: var(--slate-400); font-weight: 600; display: flex; align-items: center; padding: 8px 4px; }
+
+    /* ── Schedule grid ── */
+    .schedule-grid {
+      display: flex; flex-direction: column;
+      gap: 8px;
+    }
+    .schedule-row {
+      display: grid; grid-template-columns: 72px 1fr auto;
+      align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.65);
+      backdrop-filter: blur(16px) saturate(140%);
+      border: 0.5px solid rgba(255,255,255,.60);
+      border-radius: 14px;
+      box-shadow: 0 1px 1px rgba(255,255,255,.55) inset, 0 2px 10px rgba(0,0,0,.04);
+      transition: all .14s;
+    }
+    .schedule-row:hover {
+      background: rgba(255,255,255,.85);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+    }
+    .schedule-time {
+      font-size: 13px; font-weight: 800; color: var(--slate-600);
+      font-variant-numeric: tabular-nums;
+    }
+    .schedule-content { flex: 1; }
+    .schedule-title {
+      font-size: 14px; font-weight: 700; color: var(--slate-800);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 3px;
+    }
+    .schedule-note { font-size: 12px; color: var(--slate-500); }
+
+    .schedule-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .sched-btn {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      border: 0.5px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.65);
+      cursor: pointer; color: var(--slate-500);
+      transition: all .14s;
+    }
+    .sched-btn:hover { background: rgba(255,255,255,.95); color: var(--nurse); border-color: var(--nurse); }
+
+    /* ── Status chips ── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+    }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .chip.done     { background: rgba(5,150,105,.12);   color: var(--nurse-dark); }
+    .chip.done .chip-dot { background: var(--nurse); }
+    .chip.error    { background: rgba(239,68,68,.10);   color: var(--red-600); }
+    .chip.error .chip-dot { background: var(--red-500); }
+    .chip.progress { background: rgba(249,115,22,.10);  color: #C2410C; }
+    .chip.progress .chip-dot { background: var(--orange-500); }
+    .chip.pending  { background: var(--slate-100);       color: var(--slate-500); }
+    .chip.pending .chip-dot { background: var(--slate-400); }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed; bottom: 32px; right: 32px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 22px;
+      background: var(--nurse);
+      color: #fff; font-family: var(--font); font-size: 14px; font-weight: 700;
+      border: none; border-radius: 999px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(5,150,105,.40);
+      transition: all .15s;
+      z-index: 200;
+    }
+    .fab:hover { background: var(--nurse-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(5,150,105,.45); }
+    .fab:active { transform: scale(.97); }
+
+    /* ── My schedule tab ── */
+    .my-schedule-grid {
+      display: grid; grid-template-columns: 80px repeat(7, 1fr);
+      gap: 1px;
+      background: rgba(0,0,0,.06);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .my-sched-cell {
+      background: rgba(255,255,255,.72);
+      padding: 10px 8px;
+      min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .my-sched-cell.header {
+      background: rgba(255,255,255,.90);
+      padding: 10px 8px;
+      font-size: 12px; font-weight: 700; color: var(--slate-600);
+      flex-direction: column; gap: 2px;
+    }
+    .my-sched-cell.header.today-col {
+      background: var(--nurse);
+      color: #fff;
+    }
+    .my-sched-cell.time-label {
+      background: rgba(255,255,255,.85);
+      font-size: 11px; font-weight: 700; color: var(--slate-500);
+      justify-content: flex-end; padding-right: 12px;
+    }
+    .my-sched-event {
+      width: 100%; background: var(--nurse);
+      border-radius: 6px; padding: 5px 7px;
+      font-size: 11px; font-weight: 600; color: #fff; line-height: 1.3;
+    }
+    .my-sched-event.blue {
+      background: var(--blue-500);
+    }
+    .my-sched-event.orange {
+      background: var(--orange-500);
+    }
+    .my-sched-event.slate {
+      background: var(--slate-400);
+    }
+  </style>
+</head>
+<body>
+<!-- Background -->
+<div class="bg"><div class="bg-g1"></div><div class="bg-g2"></div><div class="bg-g3"></div></div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <iconify-icon icon="ph:heart-pulse-bold" style="color:#fff; font-size:20px;"></iconify-icon>
+      </div>
+      <div>
+        <div class="logo-name">하루안부</div>
+        <div class="logo-sub">의료진 케어 시스템</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-facility">
+    <div class="facility-dot"></div>
+    <div class="facility-name">햇살요양원 · 2병동</div>
+  </div>
+
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:house-bold" class="nav-icon"></iconify-icon>
+        대시보드
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:users-bold" class="nav-icon"></iconify-icon>
+        환자 관리
+        <span class="nav-badge yellow">3</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clipboard-text-bold" class="nav-icon"></iconify-icon>
+        케어 체크리스트
+        <span class="nav-badge">2</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:arrows-clockwise-bold" class="nav-icon"></iconify-icon>
+        AI 인수인계
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:siren-bold" class="nav-icon"></iconify-icon>
+        SOS 센터
+        <span class="nav-badge">1</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:chats-bold" class="nav-icon"></iconify-icon>
+        보호자 채팅
+        <span class="nav-badge green">5</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#">
+        <iconify-icon icon="ph:calendar-bold" class="nav-icon"></iconify-icon>
+        시간표 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:pill-bold" class="nav-icon"></iconify-icon>
+        처방전 관리
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <iconify-icon icon="ph:clock-countdown-bold" class="nav-icon"></iconify-icon>
+        의료 타임라인
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">박</div>
+    <div>
+      <div class="user-name">박지현</div>
+      <div class="user-role">수간호사 · 2병동</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-wrapper">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="page-title">시간표 관리</div>
+      <div class="page-date">2026년 4월 16일 목요일</div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" title="알림">
+        <iconify-icon icon="ph:bell-bold"></iconify-icon>
+        <div class="notif-dot"></div>
+      </button>
+      <button class="icon-btn" title="설정">
+        <iconify-icon icon="ph:gear-bold"></iconify-icon>
+      </button>
+      <button class="sos-btn">
+        <iconify-icon icon="ph:siren-bold"></iconify-icon>
+        SOS
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('patient')">
+      <iconify-icon icon="ph:users-bold"></iconify-icon>
+      환자 일과
+    </div>
+    <div class="tab-item" onclick="switchTab('nurse')">
+      <iconify-icon icon="ph:user-circle-bold"></iconify-icon>
+      내 스케줄
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- TAB: 환자 일과 -->
+    <div id="tab-patient">
+
+      <!-- Patient selector + week info -->
+      <div class="patient-selector-wrap">
+        <span class="selector-label">환자 선택</span>
+        <div class="patient-selector">
+          <div class="patient-selector-avatar">김</div>
+          <div class="patient-selector-info">
+            <div class="patient-selector-name">김순자</div>
+            <div class="patient-selector-room">201호 · 알츠하이머, 고혈압</div>
+          </div>
+          <iconify-icon icon="ph:caret-down-bold" class="selector-caret"></iconify-icon>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+          <span style="font-size:12px; color:var(--slate-500);">케어 완료율</span>
+          <span style="font-size:16px; font-weight:800; color:var(--nurse);">7 / 10</span>
+          <span style="font-size:12px; color:var(--slate-400);">항목</span>
+        </div>
+      </div>
+
+      <!-- Week header -->
+      <div class="week-header">
+        <button class="week-nav-btn">
+          <iconify-icon icon="ph:caret-left-bold" style="font-size:14px;"></iconify-icon>
+        </button>
+        <div class="week-days">
+          <div class="week-day-label-placeholder">주간 일정</div>
+          <div class="week-day-cell">
+            <div class="week-day-name">월</div>
+            <div class="week-day-num">13</div>
+          </div>
+          <div class="week-day-cell">
+            <div class="week-day-name">화</div>
+            <div class="week-day-num">14</div>
+          </div>
+          <div class="week-day-cell">
+            <div class="week-day-name">수</div>
+            <div class="week-day-num">15</div>
+          </div>
+          <div class="week-day-cell today">
+            <div class="week-day-name">목 · 오늘</div>
+            <div class="week-day-num">16</div>
+          </div>
+          <div class="week-day-cell">
+            <div class="week-day-name">금</div>
+            <div class="week-day-num">17</div>
+          </div>
+          <div class="week-day-cell">
+            <div class="week-day-name">토</div>
+            <div class="week-day-num">18</div>
+          </div>
+          <div class="week-day-cell">
+            <div class="week-day-name">일</div>
+            <div class="week-day-num">19</div>
+          </div>
+        </div>
+        <button class="week-nav-btn">
+          <iconify-icon icon="ph:caret-right-bold" style="font-size:14px;"></iconify-icon>
+        </button>
+      </div>
+
+      <!-- Schedule grid -->
+      <div class="schedule-grid">
+
+        <!-- 07:00 완료 -->
+        <div class="schedule-row">
+          <div class="schedule-time">07:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:sun-bold" style="color:var(--orange-500); font-size:15px;"></iconify-icon>
+              기상 및 활력징후 측정
+              <span class="chip done"><span class="chip-dot"></span>완료</span>
+            </div>
+            <div class="schedule-note">체온 36.5°C · 혈압 138/86 · 맥박 72 · 산소포화도 98%</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 08:00 완료 -->
+        <div class="schedule-row">
+          <div class="schedule-time">08:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:fork-knife-bold" style="color:var(--nurse); font-size:15px;"></iconify-icon>
+              아침 식사
+              <span class="chip done"><span class="chip-dot"></span>완료</span>
+            </div>
+            <div class="schedule-note">섭취율 85% · 식욕 양호 · 수분 섭취 200ml</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 09:00 미완료 -->
+        <div class="schedule-row" style="border-left: 3px solid var(--red-500);">
+          <div class="schedule-time">09:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:pill-bold" style="color:var(--red-500); font-size:15px;"></iconify-icon>
+              오전 투약
+              <span class="chip error"><span class="chip-dot"></span>미완료</span>
+            </div>
+            <div class="schedule-note" style="color:var(--red-600); font-weight:600;">
+              <iconify-icon icon="ph:warning-bold" style="font-size:12px; vertical-align:middle;"></iconify-icon>
+              고혈압약 확인 필요 — 암로디핀 5mg 복용 여부 미확인
+            </div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="확인 처리" style="border-color:var(--nurse); color:var(--nurse);">
+              <iconify-icon icon="ph:check-bold" style="font-size:14px;"></iconify-icon>
+            </button>
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 10:30 완료 -->
+        <div class="schedule-row">
+          <div class="schedule-time">10:30</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:person-simple-walk-bold" style="color:var(--blue-500); font-size:15px;"></iconify-icon>
+              재활 프로그램
+              <span class="chip done"><span class="chip-dot"></span>완료</span>
+            </div>
+            <div class="schedule-note">상지 근력 운동 30분 · 담당 치료사: 이민준</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 12:00 완료 -->
+        <div class="schedule-row">
+          <div class="schedule-time">12:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:fork-knife-bold" style="color:var(--nurse); font-size:15px;"></iconify-icon>
+              점심 식사
+              <span class="chip done"><span class="chip-dot"></span>완료</span>
+            </div>
+            <div class="schedule-note">섭취율 70% · 소화 양호 · 수분 섭취 150ml</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 14:00 진행중 -->
+        <div class="schedule-row" style="border-left: 3px solid var(--orange-500);">
+          <div class="schedule-time">14:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:stethoscope-bold" style="color:var(--orange-500); font-size:15px;"></iconify-icon>
+              오후 케어 라운드
+              <span class="chip progress"><span class="chip-dot"></span>진행중</span>
+            </div>
+            <div class="schedule-note">욕창 관리 · 체위 변경 2시간마다 · 피부 상태 관찰 중</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="완료 처리" style="border-color:var(--nurse); color:var(--nurse);">
+              <iconify-icon icon="ph:check-bold" style="font-size:14px;"></iconify-icon>
+            </button>
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 15:30 예정 -->
+        <div class="schedule-row">
+          <div class="schedule-time">15:30</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:activity-bold" style="color:var(--slate-400); font-size:15px;"></iconify-icon>
+              물리치료
+              <span class="chip pending"><span class="chip-dot"></span>예정</span>
+            </div>
+            <div class="schedule-note">보행 훈련 30분 · 물리치료실 3호</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+            <button class="sched-btn" title="삭제"><iconify-icon icon="ph:trash-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 17:00 예정 -->
+        <div class="schedule-row">
+          <div class="schedule-time">17:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:fork-knife-bold" style="color:var(--slate-400); font-size:15px;"></iconify-icon>
+              저녁 식사
+              <span class="chip pending"><span class="chip-dot"></span>예정</span>
+            </div>
+            <div class="schedule-note">식이: 연식 · 당뇨식 병행</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 19:00 예정 -->
+        <div class="schedule-row">
+          <div class="schedule-time">19:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:pill-bold" style="color:var(--slate-400); font-size:15px;"></iconify-icon>
+              저녁 투약
+              <span class="chip pending"><span class="chip-dot"></span>예정</span>
+            </div>
+            <div class="schedule-note">도네페질 10mg · 아토르바스타틴 10mg · 칼슘 500mg</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+        <!-- 21:00 예정 -->
+        <div class="schedule-row">
+          <div class="schedule-time">21:00</div>
+          <div class="schedule-content">
+            <div class="schedule-title">
+              <iconify-icon icon="ph:moon-bold" style="color:var(--slate-400); font-size:15px;"></iconify-icon>
+              취침 전 활력징후
+              <span class="chip pending"><span class="chip-dot"></span>예정</span>
+            </div>
+            <div class="schedule-note">야간 담당 간호사 인계 후 측정</div>
+          </div>
+          <div class="schedule-actions">
+            <button class="sched-btn" title="수정"><iconify-icon icon="ph:pencil-simple-bold" style="font-size:14px;"></iconify-icon></button>
+          </div>
+        </div>
+
+      </div><!-- /schedule-grid -->
+    </div><!-- /tab-patient -->
+
+    <!-- TAB: 내 스케줄 (hidden by default) -->
+    <div id="tab-nurse" style="display:none;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div>
+          <div style="font-size:16px; font-weight:800; color:var(--slate-900);">박지현 간호사 주간 스케줄</div>
+          <div style="font-size:13px; color:var(--slate-500); margin-top:3px;">2026년 4월 13일 (월) — 4월 19일 (일)</div>
+        </div>
+        <button class="btn btn-primary btn-sm btn-pill">
+          <iconify-icon icon="ph:plus-bold"></iconify-icon>
+          근무 추가
+        </button>
+      </div>
+
+      <!-- Summary chips -->
+      <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:7px; padding:8px 14px; background:rgba(5,150,105,.10); border-radius:10px; border:0.5px solid rgba(5,150,105,.20);">
+          <iconify-icon icon="ph:clock-bold" style="color:var(--nurse); font-size:15px;"></iconify-icon>
+          <span style="font-size:12px; font-weight:700; color:var(--nurse-dark);">이번주 근무 40시간</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; padding:8px 14px; background:rgba(59,130,246,.08); border-radius:10px; border:0.5px solid rgba(59,130,246,.18);">
+          <iconify-icon icon="ph:users-bold" style="color:var(--blue-500); font-size:15px;"></iconify-icon>
+          <span style="font-size:12px; font-weight:700; color:var(--blue-600);">담당 환자 12명</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; padding:8px 14px; background:rgba(249,115,22,.08); border-radius:10px; border:0.5px solid rgba(249,115,22,.18);">
+          <iconify-icon icon="ph:arrows-clockwise-bold" style="color:var(--orange-500); font-size:15px;"></iconify-icon>
+          <span style="font-size:12px; font-weight:700; color:#C2410C;">인수인계 2회</span>
+        </div>
+      </div>
+
+      <!-- Weekly grid -->
+      <div class="my-schedule-grid">
+        <!-- header row -->
+        <div class="my-sched-cell header" style="background:rgba(255,255,255,.95);">
+          <span style="font-size:11px; color:var(--slate-400);">시간</span>
+        </div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">13</span><span style="font-size:10px; color:var(--slate-400);">월</span></div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">14</span><span style="font-size:10px; color:var(--slate-400);">화</span></div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">15</span><span style="font-size:10px; color:var(--slate-400);">수</span></div>
+        <div class="my-sched-cell header today-col"><span style="font-size:13px;">16</span><span style="font-size:10px; color:rgba(255,255,255,.75);">목·오늘</span></div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">17</span><span style="font-size:10px; color:var(--slate-400);">금</span></div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">18</span><span style="font-size:10px; color:var(--slate-400);">토</span></div>
+        <div class="my-sched-cell header"><span style="font-size:13px;">19</span><span style="font-size:10px; color:var(--slate-400);">일</span></div>
+
+        <!-- 07:00–15:00 근무 행 -->
+        <div class="my-sched-cell time-label">07–15시</div>
+        <div class="my-sched-cell"><div class="my-sched-event">주간 근무<br><span style="font-size:10px; opacity:.8;">2병동 전체</span></div></div>
+        <div class="my-sched-cell"><div class="my-sched-event">주간 근무</div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event">주간 근무<br><span style="font-size:10px; opacity:.8;">2병동 전체</span></div></div>
+        <div class="my-sched-cell"><div class="my-sched-event">주간 근무</div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+
+        <!-- 15:00–23:00 -->
+        <div class="my-sched-cell time-label">15–23시</div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event blue">준야간 근무<br><span style="font-size:10px; opacity:.8;">2병동 전체</span></div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event blue">준야간 근무</div></div>
+        <div class="my-sched-cell"><div class="my-sched-event blue">준야간 근무</div></div>
+
+        <!-- 회의/교육 -->
+        <div class="my-sched-cell time-label">09:00</div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event orange">케어팀 회의<br><span style="font-size:10px; opacity:.8;">30분</span></div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event orange">케어팀 회의</div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+
+        <!-- 인수인계 -->
+        <div class="my-sched-cell time-label">14:50</div>
+        <div class="my-sched-cell"><div class="my-sched-event slate">인수인계</div></div>
+        <div class="my-sched-cell"><div class="my-sched-event slate">인수인계</div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"><div class="my-sched-event slate">인수인계</div></div>
+        <div class="my-sched-cell"><div class="my-sched-event slate">인수인계</div></div>
+        <div class="my-sched-cell"></div>
+        <div class="my-sched-cell"></div>
+      </div>
+
+    </div><!-- /tab-nurse -->
+
+  </div><!-- /content -->
+
+  <!-- FAB -->
+  <button class="fab">
+    <iconify-icon icon="ph:plus-bold" style="font-size:18px;"></iconify-icon>
+    일정 추가
+  </button>
+
+</div><!-- /main-wrapper -->
+
+<script>
+  function switchTab(tab) {
+    document.getElementById('tab-patient').style.display = tab === 'patient' ? 'block' : 'none';
+    document.getElementById('tab-nurse').style.display   = tab === 'nurse'   ? 'block' : 'none';
+    document.querySelectorAll('.tab-item').forEach((el, i) => {
+      el.classList.toggle('active', (tab === 'patient' && i === 0) || (tab === 'nurse' && i === 1));
+    });
+  }
+</script>
+</body>
+</html>

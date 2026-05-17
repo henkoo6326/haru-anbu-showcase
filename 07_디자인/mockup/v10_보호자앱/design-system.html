@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>하루안부 · Design System</title>
+<link rel="stylesheet" href="common.css">
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+<style>
+  :root{
+    --blue:#2C7AFC;
+    --blue-2:#1D6AF2;
+    --blue-3:#5B9BFF;
+    --cyan:#22D3EE;
+    --ink:#2a1810;
+    --ink-2:rgba(42,24,16,.72);
+    --ink-3:rgba(42,24,16,.48);
+    --ink-4:rgba(42,24,16,.28);
+    --surface:#fff;
+    --surface-glass:rgba(255,255,255,.92);
+    --bd:rgba(0,0,0,.04);
+    --sh:0 2px 8px rgba(0,0,0,.04);
+  }
+  html,body{background:linear-gradient(180deg,#E6F0FF 0%,#F0F4F8 240px) fixed;}
+  body{font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;color:var(--ink);padding:48px 32px 120px;max-width:1280px;margin:0 auto}
+
+  /* ---------- Page Headings ---------- */
+  .ds-hero{margin-bottom:56px}
+  .ds-kicker{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:12px}
+  .ds-title{font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1.05;margin-bottom:12px}
+  .ds-sub{font-size:16px;color:var(--ink-2);max-width:600px;line-height:1.55}
+
+  .ds-section{margin-bottom:64px}
+  .ds-section-title{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .ds-section-title .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:rgba(44,122,252,.08);color:var(--blue);font-size:13px;font-weight:800}
+  .ds-section-desc{font-size:14px;color:var(--ink-3);margin-bottom:24px}
+
+  /* ---------- Color tokens ---------- */
+  .color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .swatch{background:var(--surface-glass);border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:var(--sh)}
+  .swatch-chip{height:92px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.4px;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+  .swatch-meta{padding:12px 14px}
+  .swatch-name{font-size:13px;font-weight:700;margin-bottom:2px}
+  .swatch-hex{font-size:11px;color:var(--ink-3);font-family:'SF Mono',ui-monospace,monospace;letter-spacing:.3px}
+
+  /* ---------- Typography ---------- */
+  .type-stack{display:flex;flex-direction:column;gap:0;background:var(--surface-glass);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+  .type-row{display:grid;grid-template-columns:120px 1fr 160px;gap:20px;align-items:baseline;padding:18px 24px;border-bottom:1px solid var(--bd)}
+  .type-row:last-child{border-bottom:0}
+  .type-label{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--blue);text-transform:uppercase}
+  .type-spec{font-size:11px;font-family:'SF Mono',ui-monospace,monospace;color:var(--ink-3);text-align:right}
+
+  /* ---------- Spacing / Radius ---------- */
+  .scale-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+  .scale-card{background:var(--surface-glass);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:20px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+  .scale-box{background:rgba(44,122,252,.1);border:1px dashed rgba(44,122,252,.4)}
+  .scale-meta{font-size:12px}
+  .scale-name{font-weight:800;font-size:13px;margin-bottom:2px}
+  .scale-val{color:var(--ink-3);font-family:'SF Mono',ui-monospace,monospace;font-size:11px}
+
+  .radius-card{background:var(--surface-glass);border:1px solid var(--bd);box-shadow:var(--sh);padding:20px;display:flex;flex-direction:column;gap:14px}
+  .radius-demo{width:72px;height:72px;background:linear-gradient(135deg,var(--blue),var(--cyan))}
+
+  /* ---------- Shadows ---------- */
+  .shadow-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px}
+  .shadow-card{background:#fff;border-radius:20px;padding:28px;text-align:center}
+  .shadow-name{font-size:13px;font-weight:800;margin-bottom:4px}
+  .shadow-val{font-size:10px;color:var(--ink-3);font-family:'SF Mono',ui-monospace,monospace;line-height:1.4}
+
+  /* ---------- Components ---------- */
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .comp-card{background:var(--surface-glass);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:24px;display:flex;flex-direction:column;gap:16px;min-height:140px}
+  .comp-label{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--blue);text-transform:uppercase}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:700;border:0;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-secondary{background:rgba(44,122,252,.08);color:var(--blue)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--bd)}
+  .btn-danger{background:rgba(239,68,68,.08);color:#EF4444}
+  .btn-pill{border-radius:999px}
+
+  /* badges */
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;font-size:11px;font-weight:700;border-radius:999px}
+  .badge-blue{background:rgba(44,122,252,.1);color:var(--blue)}
+  .badge-green{background:rgba(16,185,129,.1);color:#10B981}
+  .badge-amber{background:rgba(245,158,11,.12);color:#D97706}
+  .badge-red{background:rgba(239,68,68,.1);color:#EF4444}
+  .badge-neutral{background:rgba(42,24,16,.08);color:var(--ink-2)}
+
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(255,255,255,.85);border:1px solid var(--bd);color:var(--ink)}
+  .chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+  /* avatar */
+  .avatar{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+  .av-nurse{background:#2C7AFC}
+  .av-doctor{background:#1D6AF2}
+  .av-family{background:#5B9BFF}
+  .av-ai{background:linear-gradient(135deg,#22D3EE,#2C7AFC)}
+
+  /* chat bubble */
+  .bubble{max-width:240px;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4}
+  .bubble.in{background:#fff;border:1px solid var(--bd);border-bottom-left-radius:6px}
+  .bubble.out{background:var(--blue);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+
+  /* ---------- Icons ---------- */
+  .icon-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+  .icon-search{flex:1;min-width:200px;padding:10px 16px;border-radius:999px;border:1px solid var(--bd);background:var(--surface-glass);font-size:14px;font-family:inherit;outline:none}
+  .icon-search:focus{border-color:var(--blue)}
+  .icon-count{font-size:12px;color:var(--ink-3);font-weight:600}
+
+  .icon-group{margin-bottom:32px}
+  .icon-group-title{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .icon-group-title .dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+
+  .icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+  .icon-cell{background:var(--surface-glass);border:1px solid var(--bd);border-radius:16px;padding:16px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;box-shadow:var(--sh)}
+  .icon-cell:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08);border-color:rgba(44,122,252,.2)}
+  .icon-cell:active{transform:scale(.97)}
+  .icon-cell iconify-icon{font-size:28px;color:var(--blue)}
+  .icon-cell .iname{font-size:12px;color:var(--ink-2);font-weight:600;text-align:center;line-height:1.3}
+  .icon-cell.copied{border-color:var(--blue);background:rgba(44,122,252,.06)}
+  .icon-cell.copied .iname{color:var(--blue);font-weight:700}
+
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(120%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:100}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header class="ds-hero">
+  <div class="ds-kicker">하루안부 · v10 Guardian App</div>
+  <h1 class="ds-title">Design System</h1>
+  <p class="ds-sub">글라스모피즘 기반의 blue-mono 디자인 언어. 아이콘은 Iconify를 통해 Fluent UI · Material Symbols · Phosphor · Tabler 에서 가져와 `var(--blue)` 단색 원칙을 따른다.</p>
+</header>
+
+
+<!-- ========== 4. COMPONENTS ========== -->
+<section class="ds-section">
+  <h2 class="ds-section-title"><span class="num">01</span>Components</h2>
+  <p class="ds-section-desc">버튼, 배지, 칩, 아바타, 채팅 버블 등 앱 전반에서 반복되는 기본 요소.</p>
+  <div class="comp-grid">
+    <div class="comp-card"><div class="comp-label">Buttons</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn btn-primary">확인</button>
+        <button class="btn btn-secondary">보기</button>
+        <button class="btn btn-ghost">취소</button>
+        <button class="btn btn-danger">로그아웃</button>
+        <button class="btn btn-primary btn-pill"><iconify-icon icon="fluent:send-24-filled"></iconify-icon>전송</button>
+      </div>
+    </div>
+    <div class="comp-card"><div class="comp-label">Badges</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span class="badge badge-blue">LIVE</span>
+        <span class="badge badge-green">완료</span>
+        <span class="badge badge-amber">주의</span>
+        <span class="badge badge-red">긴급</span>
+        <span class="badge badge-neutral">보관</span>
+      </div>
+    </div>
+    <div class="comp-card"><div class="comp-label">Chips</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span class="chip active">전체</span>
+        <span class="chip">건강</span>
+        <span class="chip">식사</span>
+        <span class="chip">복약</span>
+      </div>
+    </div>
+    <div class="comp-card"><div class="comp-label">Avatars</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="avatar av-nurse">정</span>
+        <span class="avatar av-doctor">김</span>
+        <span class="avatar av-family">가</span>
+        <span class="avatar av-ai"><iconify-icon icon="ph:sparkle-fill"></iconify-icon></span>
+      </div>
+    </div>
+    <div class="comp-card" style="grid-column:span 2"><div class="comp-label">Chat Bubbles</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="bubble in">어제 혈압이 조금 높으셨어요. 오늘 확인 부탁드려요.</div>
+        <div class="bubble out">네, 오전에 재보고 공유드릴게요.</div>
+      </div>
+    </div>
+    <div class="comp-card"><div class="comp-label">Input</div>
+      <input class="icon-search" placeholder="검색어를 입력하세요" style="flex:unset">
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5. NAVIGATION ========== -->
+<section class="ds-section">
+  <h2 class="ds-section-title"><span class="num">02</span>Navigation</h2>
+  <p class="ds-section-desc">상단 헤더 버튼(알림·프로필)과 하단 5탭 글라스 탭바. 실제 앱과 동일한 스타일.</p>
+
+  <div style="font-size:12px;font-weight:800;color:var(--ink-2);letter-spacing:.6px;margin:8px 0 12px">HEADER BUTTONS</div>
+  <div style="background:linear-gradient(180deg,#D9E8FF,#F0F4F8);border-radius:28px;padding:28px;display:flex;gap:14px;justify-content:flex-end;margin-bottom:28px;border:1px solid var(--bd)">
+    <a class="nav-demo-btn" title="알림"><iconify-icon icon="fluent:alert-24-filled"></iconify-icon><span class="dot"></span></a>
+    <a class="nav-demo-btn" title="프로필"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></a>
+  </div>
+
+  <div style="font-size:12px;font-weight:800;color:var(--ink-2);letter-spacing:.6px;margin:8px 0 12px">BOTTOM BAR (TAB BAR + AI FAB)</div>
+  <div style="background:linear-gradient(180deg,#D9E8FF,#F0F4F8);border-radius:28px;padding:48px 24px;border:1px solid var(--bd)">
+    <div class="bottom-bar-demo">
+      <nav class="tabbar-demo">
+        <a class="tab-demo active" aria-label="홈"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></a>
+        <a class="tab-demo" aria-label="AI 가이드"><iconify-icon icon="ph:book-open-text-fill"></iconify-icon></a>
+        <a class="tab-demo" aria-label="소통"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></a>
+        <a class="tab-demo" aria-label="기록"><iconify-icon icon="fluent:folder-24-filled"></iconify-icon></a>
+        <a class="tab-demo" aria-label="마이"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></a>
+      </nav>
+      <button class="ai-fab-demo" aria-label="AI와 대화하기">
+        <svg width="22" height="22" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .nav-demo-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.55);border:.5px solid rgba(255,255,255,.55);box-shadow:0 1px 1px rgba(255,255,255,.6) inset,0 4px 16px rgba(0,0,0,.06);display:inline-flex;align-items:center;justify-content:center;color:var(--blue);position:relative;cursor:pointer}
+  .nav-demo-btn iconify-icon{font-size:22px}
+  .nav-demo-btn .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:#EF4444;border:2px solid #fff}
+  .bottom-bar-demo{display:flex;align-items:center;gap:10px;max-width:370px;margin:0 auto}
+  .tabbar-demo{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+  .tab-demo{flex:1;display:flex;align-items:center;justify-content:center;color:rgba(42,24,16,.48);cursor:pointer;text-decoration:none}
+  .tab-demo iconify-icon,.tab-demo svg{font-size:26px;width:26px;height:26px;color:inherit;fill:currentColor}
+  .tab-demo.active{color:var(--blue)}
+  .ai-fab-demo{width:60px;height:60px;border-radius:50%;background:rgba(180,210,250,.25);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
+</style>
+
+<!-- ========== 6. ICONS ========== -->
+<section class="ds-section">
+  <h2 class="ds-section-title"><span class="num">03</span>Icons</h2>
+  <p class="ds-section-desc">홈 화면(<code style="font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--blue)">g-guardian-live.html</code>)에서 실제로 쓰이는 <span id="iconTotal" style="font-weight:800;color:var(--blue)">24</span>개 아이콘. 클릭하면 이름이 복사돼.</p>
+
+  <div class="icon-toolbar">
+    <input class="icon-search" id="iconSearch" placeholder="아이콘 검색 (예: heart, pill, calendar)">
+    <span class="icon-count" id="iconCount"></span>
+  </div>
+
+  <div id="iconContainer"></div>
+</section>
+
+<div class="toast" id="toast">복사됨</div>
+
+<script>
+  const ICONS = {
+    "네비게이션": [
+      ["fluent:home-24-filled","홈"],
+      ["ph:book-open-text-fill","AI 가이드"],
+      ["fluent:folder-24-filled","기록"],
+      ["fluent:person-24-filled","내 정보"],
+      ["fluent:alert-24-filled","알림"]
+    ],
+    "AI · 입력": [
+      ["__logo__","하루안부 AI"],
+      ["material-symbols:mic-rounded","음성 입력"],
+      ["fluent:send-24-filled","전송"],
+      ["fluent:arrow-up-24-filled","리포트 열기"]
+    ],
+    "건강 · 리포트": [
+      ["tabler:pill-filled","투약"],
+      ["fluent:syringe-24-filled","주사"],
+      ["material-symbols:medical-services-rounded","의료"],
+      ["fluent:pulse-24-filled","심박"],
+      ["fluent:drop-24-filled","수분"],
+      ["fluent:food-24-filled","식사"],
+      ["ph:barbell-fill","운동"],
+      ["ph:moon-fill","수면"]
+    ],
+    "상태 · 감정": [
+      ["ph:smiley-fill","좋음"],
+      ["ph:smiley-meh-fill","보통"],
+      ["fluent:calendar-24-filled","일정"]
+    ]
+  };
+
+  const container = document.getElementById('iconContainer');
+  const search = document.getElementById('iconSearch');
+  const countEl = document.getElementById('iconCount');
+  const toast = document.getElementById('toast');
+
+  function render(filter=''){
+    container.innerHTML='';
+    let total=0, shown=0;
+    const q = filter.trim().toLowerCase();
+    Object.entries(ICONS).forEach(([group,list])=>{
+      total+=list.length;
+      const filtered = q ? list.filter(([n,l])=>n.toLowerCase().includes(q)||l.includes(q)) : list;
+      if(!filtered.length) return;
+      shown+=filtered.length;
+      const g = document.createElement('div'); g.className='icon-group';
+      g.innerHTML = `<div class="icon-group-title"><span class="dot"></span>${group} <span style="color:var(--ink-3);font-weight:600;margin-left:4px">${filtered.length}</span></div>`;
+      const grid = document.createElement('div'); grid.className='icon-grid';
+      filtered.forEach(([name,label])=>{
+        const cell = document.createElement('div');
+        cell.className='icon-cell';
+        const iconHtml = name==='__logo__'
+          ? `<svg width="28" height="28" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>`
+          : `<iconify-icon icon="${name}"></iconify-icon>`;
+        cell.innerHTML = `${iconHtml}<span class="iname">${label}</span>`;
+        cell.onclick = ()=>{
+          navigator.clipboard?.writeText(name);
+          cell.classList.add('copied');
+          toast.textContent = `복사됨 · ${label}`;
+          toast.classList.add('show');
+          clearTimeout(cell._t); cell._t=setTimeout(()=>cell.classList.remove('copied'),800);
+          clearTimeout(toast._t); toast._t=setTimeout(()=>toast.classList.remove('show'),1400);
+        };
+        grid.appendChild(cell);
+      });
+      g.appendChild(grid); container.appendChild(g);
+    });
+    document.getElementById('iconTotal').textContent = total;
+    countEl.textContent = q ? `${shown} / ${total} 표시` : `총 ${total}개`;
+    if(shown===0){ container.innerHTML = `<div style="padding:48px;text-align:center;color:var(--ink-3);font-size:14px">"${q}" 에 해당하는 아이콘이 없어</div>`; }
+  }
+  render();
+  search.addEventListener('input', e=>render(e.target.value));
+</script>
+</body>
+</html>

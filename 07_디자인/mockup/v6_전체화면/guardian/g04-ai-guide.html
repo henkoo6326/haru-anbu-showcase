@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 케어 가이드</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.55)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.48)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.42)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.38)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+    }
+    body {
+      background: transparent;
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 모드 칩 — 웰컴 내 배치 */
+    .mode-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .mode-chip {
+      padding: 12px 18px;
+      min-height: 44px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--divider);
+      background: var(--surface);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-medium);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      font-weight: var(--weight-semibold);
+    }
+
+    /* 메시지 영역 — g03과 동일 구조 */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      padding-bottom: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      -webkit-overflow-scrolling: touch;
+    }
+    .chat-messages::-webkit-scrollbar { display: none; }
+
+    /* AI 웰컴 — 심플 */
+    .ai-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-2xl) 0 var(--space-lg);
+      gap: var(--space-sm);
+    }
+    .ai-welcome-avatar {
+      width: 52px; height: 52px;
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ai-welcome-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .ai-welcome-desc {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* 추천 질문 */
+    .suggestions {
+      display: flex; flex-direction: column; gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .suggestion {
+      display: flex; align-items: center; gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .suggestion:active { transform: scale(0.97); }
+    .suggestion-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* 메시지 버블 — g03과 완전 동일 */
+    .msg {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: var(--space-xs);
+      max-width: 85%;
+    }
+    .msg.in { align-self: flex-start; }
+    .msg.out { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-sender {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+      padding-left: 2px;
+      width: 100%;
+    }
+    .msg-bubble {
+      padding: var(--space-md) var(--space-lg);
+      font-size: var(--text-body);
+      line-height: var(--line-height-relaxed);
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .msg.in .msg-bubble {
+      background: var(--surface);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.out .msg-bubble {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+    }
+    .msg-time {
+      font-size: var(--text-mini);
+      color: var(--text-tertiary);
+      align-self: flex-end;
+      flex-shrink: 0;
+      padding-bottom: 4px;
+    }
+
+    /* AI 버블 내 포맷 */
+    .msg.in .msg-bubble p + p { margin-top: 8px; }
+    .msg.in .msg-bubble ul {
+      margin: 6px 0 0 0;
+      padding-left: 16px;
+    }
+    .msg.in .msg-bubble li {
+      font-size: var(--text-callout);
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* 인풋바 — g03과 동일 */
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--surface);
+      border-top: 0.5px solid var(--divider);
+      flex-shrink: 0;
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 430px;
+      width: 100%;
+      z-index: var(--z-sticky);
+    }
+    .chat-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      height: 44px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-full);
+      background: var(--bg);
+      padding: 0 var(--space-sm);
+      transition: border-color .2s;
+    }
+    .chat-input-wrap:focus-within { border-color: var(--primary); }
+    .chat-input {
+      flex: 1;
+      height: 100%;
+      padding: 0 var(--space-xs);
+      border: none;
+      border-radius: 0;
+      font-family: var(--font-family);
+      font-size: var(--text-callout);
+      outline: none;
+      background: transparent;
+    }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+    .chat-emoji-btn {
+      width: 44px; height: 44px;
+      border: none; border-radius: var(--radius-full);
+      background: transparent; color: var(--text-tertiary);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; padding: 0;
+    }
+    .chat-send {
+      width: 44px; height: 44px;
+      border: none; border-radius: var(--radius-full);
+      background: var(--primary); color: white;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; padding: 0;
+      transition: transform .1s;
+    }
+    .chat-send:active { transform: scale(.92); }
+
+    .tabbar { position: relative; flex-shrink: 0; }
+  </style>
+</head>
+<body>  <!-- Header — 심플 -->
+  <div style="flex-shrink:0; background:var(--surface); border-bottom:0.5px solid var(--divider); padding:var(--space-sm) var(--space-lg) var(--space-md);">
+    <div style="display:flex; align-items:center; gap:var(--space-md);">
+      <a href="g01-home.html" class="btn-icon" aria-label="뒤로 가기" style="flex-shrink:0;">‹</a>
+      <span style="font-size:var(--text-headline); font-weight:var(--weight-semibold); flex:1;">AI 케어 가이드</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages">
+    <!-- AI 웰컴 + 모드 통합 -->
+    <div class="ai-welcome">
+      <div class="ai-welcome-avatar"><img src="../../logo/haru.svg" style="width:26px;height:26px;display:block;"></div>
+      <div class="ai-welcome-name">무엇이 궁금하세요?</div>
+      <div class="ai-welcome-desc">어머님 케어에 대해 물어보세요</div>
+      <div class="mode-chips">
+        <div class="mode-chip active">케어 상담</div>
+        <div class="mode-chip">질환 정보</div>
+        <div class="mode-chip">감정 지원</div>
+        <div class="mode-chip">비용 안내</div>
+        <div class="mode-chip">시설 찾기</div>
+      </div>
+    </div>
+
+    <!-- 추천 질문 -->
+    <div class="suggestions">
+      <div class="suggestion" onclick="askSuggestion(this)">
+        <div class="suggestion-icon" style="background:#FCE4EC;"><i data-lucide="pill" style="width:14px;height:14px;color:#C62828;"></i></div>
+        어머님이 드시는 약의 부작용이 궁금해요
+      </div>
+      <div class="suggestion" onclick="askSuggestion(this)">
+        <div class="suggestion-icon" style="background:#FFF3E0;"><i data-lucide="utensils" style="width:14px;height:14px;color:#E65100;"></i></div>
+        당뇨 환자 식단 관리 방법을 알려주세요
+      </div>
+      <div class="suggestion" onclick="askSuggestion(this)">
+        <div class="suggestion-icon" style="background:#D9F0F7;"><i data-lucide="heart" style="width:14px;height:14px;color:#0891B2;"></i></div>
+        보호자로서 번아웃이 올 때 어떻게 하면 좋을까요
+      </div>
+    </div>
+
+    <!-- 사용자 메시지 -->
+    <div class="msg out">
+      <div class="msg-bubble">어머님이 점심을 평소보다 적게 드셨는데, 걱정해야 할까요?</div>
+      <span class="msg-time">오후 12:30</span>
+    </div>
+
+    <!-- AI 응답 -->
+    <div class="msg in">
+      <span class="msg-sender">AI 케어 가이드</span>
+      <div class="msg-bubble">
+        <p>식사량이 <strong>일시적으로 줄어드는 것</strong>은 어르신에게 흔할 수 있어요.</p>
+        <p>다만 아래 경우에는 담당 간호사에게 확인해보시는 것이 좋아요:</p>
+        <ul>
+          <li>2일 이상 식사량이 50% 미만일 때</li>
+          <li>구토나 소화불량이 동반될 때</li>
+          <li>평소와 다르게 기운이 없으실 때</li>
+        </ul>
+        <p>오늘은 80% 정도 드셨으니 <strong>크게 걱정하지 않으셔도</strong> 괜찮아요. 저녁 식사 후 경과를 지켜보시면 좋겠어요.</p>
+      </div>
+      <span class="msg-time">오후 12:30</span>
+    </div>
+  </div>
+
+  <!-- Input — g03과 동일 구조 -->
+  <div class="chat-input-bar">
+    <div class="chat-input-wrap">
+      <input class="chat-input" type="text" placeholder="무엇이든 물어보세요..." aria-label="AI에게 질문 입력" id="aiInput" onkeydown="if(event.key==='Enter')sendAi()">
+      <button class="chat-emoji-btn" aria-label="이모지">
+        <i data-lucide="smile" style="width:20px;height:20px;"></i>
+      </button>
+    </div>
+    <button class="chat-send" aria-label="메시지 보내기" onclick="sendAi()"><i data-lucide="send-horizontal" style="width:18px;height:18px;"></i></button>
+  </div>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(50px + 44px + 8px); padding-bottom:44px;">
+    <a href="g01-home.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><i data-lucide="message-circle"></i></span>
+      <span class="tab-label">채팅</span>
+    </a>
+    <a href="g04-ai-guide.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="wand-sparkles"></i></span>
+      <span class="tab-label">AI 가이드</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><i data-lucide="clipboard-list"></i></span>
+      <span class="tab-label">리포트</span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="menu"></i></span>
+      <span class="tab-label">더보기</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    // 모드 칩 전환
+    document.querySelectorAll('.mode-chip').forEach(c => c.addEventListener('click', () => {
+      document.querySelector('.mode-chip.active').classList.remove('active');
+      c.classList.add('active');
+    }));
+
+    // 추천 질문 클릭
+    function askSuggestion(el) {
+      const text = el.textContent.trim();
+      const msgs = document.querySelector('.chat-messages');
+      const d = document.createElement('div');
+      d.className = 'msg out';
+      d.innerHTML = '<div class="msg-bubble">' + text + '</div><span class="msg-time">방금</span>';
+      msgs.appendChild(d);
+      el.closest('.suggestions').style.display = 'none';
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // 메시지 전송
+    function sendAi() {
+      const input = document.getElementById('aiInput');
+      if (!input.value.trim()) return;
+      const msgs = document.querySelector('.chat-messages');
+      const d = document.createElement('div');
+      d.className = 'msg out';
+      d.innerHTML = '<div class="msg-bubble">' + input.value + '</div><span class="msg-time">방금</span>';
+      msgs.appendChild(d);
+      input.value = '';
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

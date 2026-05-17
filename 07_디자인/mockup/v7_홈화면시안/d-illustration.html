@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v7 시안 D — 일러스트/캐릭터 스타일</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    body { background: #E8E8ED; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+    .phone {
+      position: relative;
+      width: 393px; height: 852px;
+      background: #FFFBF5;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 0 0 4px #1a1a1a, 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 36px;
+      background: #1a1a1a; border-radius: 20px; z-index: 20;
+    }
+
+    .scroll {
+      height: calc(852px - 84px);
+      overflow-y: auto;
+      padding-bottom: 100px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* 상태바 */
+    .sbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px 0; height: 54px;
+      font-size: 11px; font-weight: 600; color: var(--text-primary);
+      position: sticky; top: 0; z-index: 10;
+      background: #FFFBF5;
+    }
+    .sbar-time { font-size: 15px; font-weight: 700; }
+    .sbar-icons { display: flex; gap: 5px; }
+    .sbar-icons svg { display: block; }
+
+    /* ===== 일러스트 히어로 영역 ===== */
+    .illust-hero {
+      position: relative;
+      padding: 8px 24px 24px;
+      background: linear-gradient(180deg, #FFFBF5 0%, #FFF5E6 60%, #FFE8CC 100%);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* 배경 장식 — 구름/원 */
+    .deco-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+    }
+    .deco-1 { width: 200px; height: 200px; background: #FBBF24; top: -40px; right: -60px; }
+    .deco-2 { width: 120px; height: 120px; background: #0891B2; bottom: 20px; left: -30px; }
+    .deco-3 { width: 80px; height: 80px; background: #059669; top: 30px; left: 20px; }
+
+    /* 인사 */
+    .illust-greeting {
+      position: relative; z-index: 2;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .illust-date {
+      font-size: 13px; font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .illust-hello {
+      font-size: 24px; font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-primary);
+    }
+    .illust-hello span { color: #D97706; }
+
+    /* 캐릭터 영역 */
+    .character-area {
+      position: relative; z-index: 2;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* CSS 캐릭터 — 어르신 */
+    .character {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .char-body {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .char-elder .char-body {
+      background: linear-gradient(135deg, #FFE8CC, #FBBF24);
+      box-shadow: 0 4px 16px rgba(251,191,36,0.3);
+    }
+    /* 얼굴 */
+    .face {
+      position: relative;
+      width: 60px; height: 60px;
+    }
+    .eye {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4A3000;
+      top: 20px;
+    }
+    .eye-l { left: 15px; }
+    .eye-r { right: 15px; }
+    /* 웃는 입 */
+    .mouth-happy {
+      position: absolute;
+      bottom: 14px; left: 50%; transform: translateX(-50%);
+      width: 18px; height: 9px;
+      border-bottom: 3px solid #4A3000;
+      border-radius: 0 0 50% 50%;
+    }
+    /* 볼터치 */
+    .blush {
+      position: absolute;
+      width: 10px; height: 6px;
+      border-radius: 50%;
+      background: rgba(251,146,60,0.3);
+      top: 28px;
+    }
+    .blush-l { left: 6px; }
+    .blush-r { right: 6px; }
+
+    .char-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 8px;
+    }
+
+    /* 말풍선 */
+    .speech-bubble {
+      position: relative;
+      background: white;
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      max-width: 200px;
+      margin-bottom: 8px;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid white;
+    }
+    .speech-text {
+      font-size: 14px; font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      text-align: center;
+    }
+    .speech-emoji {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* 상태 표정 뱃지 */
+    .mood-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      background: white;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      font-size: 14px; font-weight: 600;
+      color: #059669;
+      position: relative; z-index: 2;
+    }
+
+    /* ===== 컨텐츠 영역 ===== */
+    .content {
+      padding: 20px 16px 0;
+      background: var(--bg);
+      border-radius: 28px 28px 0 0;
+      margin-top: -12px;
+      position: relative;
+    }
+
+    /* 케어 상태 가로 스크롤 */
+    .care-scroll {
+      display: flex; gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 20px;
+    }
+    .care-scroll::-webkit-scrollbar { display: none; }
+    .care-chip {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .care-chip-icon {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .care-chip-label {
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .care-chip-value {
+      font-size: 15px; font-weight: 700;
+    }
+
+    /* 간호사 + 알림 */
+    .info-row {
+      display: flex; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .info-card {
+      flex: 1;
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .info-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .info-title {
+      font-size: 14px; font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .info-sub {
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .info-card.alert-type {
+      background: #FFF5F5;
+      border: 1px solid #FEE2E2;
+    }
+    .info-card.alert-type .info-title { color: #991B1B; }
+
+    /* AI 카드 */
+    .ai-warm {
+      background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(217,119,6,0.1);
+      margin-bottom: 16px;
+    }
+    .ai-warm-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      background: white;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      color: #D97706;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ai-warm-text {
+      font-size: 15px; font-weight: 600;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    /* 일정 */
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .section-title { font-size: 17px; font-weight: 700; }
+    .section-more { font-size: 13px; color: #D97706; font-weight: 600; }
+
+    .timeline-card {
+      background: white;
+      border-radius: 16px;
+      padding: 4px 16px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+    .timeline-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+    }
+    .timeline-item + .timeline-item { border-top: 1px solid #F5F5F7; }
+    .timeline-time {
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      width: 44px; flex-shrink: 0;
+    }
+    .timeline-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .timeline-label { font-size: 14px; font-weight: 500; flex: 1; }
+
+    /* 탭바 */
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 84px;
+      background: rgba(255,251,245,0.92);
+      backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(0,0,0,0.08);
+      display: flex; justify-content: space-around; align-items: flex-start;
+      padding-top: 8px;
+    }
+    .tab-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500;
+      color: var(--text-secondary);
+      min-width: 56px;
+    }
+    .tab-item.active { color: #D97706; }
+    .tab-icon { font-size: 20px; }
+
+    .home-ind {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px;
+      background: var(--text-primary); border-radius: 999px; opacity: 0.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="scroll">
+      <!-- 상태바 -->
+      <div class="sbar">
+        <span class="sbar-time">9:41</span>
+        <div class="sbar-icons">
+          <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1C1C1E"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1C1C1E"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#1C1C1E"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#1C1C1E" opacity=".3"/></svg>
+          <svg width="16" height="12" fill="none"><path d="M8 2.4A7.5 7.5 0 0 1 14.5 5l1.2-1.2A9.5 9.5 0 0 0 8 0a9.5 9.5 0 0 0-7.7 3.8L1.5 5A7.5 7.5 0 0 1 8 2.4z" fill="#1C1C1E"/><circle cx="8" cy="11" r="1.5" fill="#1C1C1E"/></svg>
+          <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="#1C1C1E" stroke-opacity=".35"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="#1C1C1E"/></svg>
+        </div>
+      </div>
+
+      <!-- ===== 일러스트 히어로 ===== -->
+      <div class="illust-hero">
+        <div class="deco-circle deco-1"></div>
+        <div class="deco-circle deco-2"></div>
+        <div class="deco-circle deco-3"></div>
+
+        <div class="illust-greeting">
+          <div class="illust-date">4월 7일 월요일</div>
+          <div class="illust-hello">좋은 아침이에요,<br><span>예찬</span>님 ☀️</div>
+        </div>
+
+        <!-- 캐릭터 + 말풍선 -->
+        <div class="character-area">
+          <div class="character char-elder">
+            <div class="speech-bubble">
+              <span class="speech-text"><span class="speech-emoji">😊</span>오늘 기분이 좋아요</span>
+            </div>
+            <div class="char-body">
+              <div class="face">
+                <div class="eye eye-l"></div>
+                <div class="eye eye-r"></div>
+                <div class="blush blush-l"></div>
+                <div class="blush blush-r"></div>
+                <div class="mouth-happy"></div>
+              </div>
+            </div>
+            <div class="char-name">정희님</div>
+          </div>
+        </div>
+
+        <div class="mood-badge">😊 오늘 컨디션: 좋음</div>
+      </div>
+
+      <!-- ===== 컨텐츠 ===== -->
+      <div class="content">
+
+        <!-- 케어 상태 칩 가로 스크롤 -->
+        <div class="care-scroll">
+          <div class="care-chip">
+            <div class="care-chip-icon" style="background: #D1FAE5;">🍽</div>
+            <div>
+              <div class="care-chip-label">식사</div>
+              <div class="care-chip-value">2/3</div>
+            </div>
+          </div>
+          <div class="care-chip">
+            <div class="care-chip-icon" style="background: #D9F0F7;">💊</div>
+            <div>
+              <div class="care-chip-label">투약</div>
+              <div class="care-chip-value" style="color: var(--success);">완료</div>
+            </div>
+          </div>
+          <div class="care-chip">
+            <div class="care-chip-icon" style="background: #FEF3C7;">🧼</div>
+            <div>
+              <div class="care-chip-label">위생</div>
+              <div class="care-chip-value">1/2</div>
+            </div>
+          </div>
+          <div class="care-chip">
+            <div class="care-chip-icon" style="background: #E0F2FE;">🚶</div>
+            <div>
+              <div class="care-chip-label">활동</div>
+              <div class="care-chip-value" style="color: var(--info);">진행</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 간호사 + 알림 카드 -->
+        <div class="info-row">
+          <div class="info-card">
+            <div class="info-icon">👩‍⚕️</div>
+            <div class="info-title">김미영 간호사</div>
+            <div class="info-sub">3층 · 오전 근무 중</div>
+          </div>
+          <div class="info-card alert-type">
+            <div class="info-icon">🔔</div>
+            <div class="info-title">체온 37.8°C</div>
+            <div class="info-sub">10분 전 감지</div>
+          </div>
+        </div>
+
+        <!-- AI 카드 -->
+        <div class="ai-warm">
+          <div class="ai-warm-badge">✨ AI가 정리했어요</div>
+          <div class="ai-warm-text">
+            전반적으로 양호한 하루예요. 오후 산책 시 기분이 좋아 보였고, 식사량도 평소보다 늘었어요.
+          </div>
+        </div>
+
+        <!-- 일정 -->
+        <div class="section-header">
+          <span class="section-title">오늘 일정</span>
+          <span class="section-more">전체보기</span>
+        </div>
+        <div class="timeline-card">
+          <div class="timeline-item">
+            <span class="timeline-time">14:30</span>
+            <span class="timeline-dot" style="background: #D97706;"></span>
+            <span class="timeline-label">오후 간식</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">18:00</span>
+            <span class="timeline-dot" style="background: #E5E5EA;"></span>
+            <span class="timeline-label">저녁 식사</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">20:00</span>
+            <span class="timeline-dot" style="background: #E5E5EA;"></span>
+            <span class="timeline-label">저녁 투약</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 탭바 -->
+    <div class="tab-bar">
+      <div class="tab-item active"><span class="tab-icon">🏠</span>홈</div>
+      <div class="tab-item"><span class="tab-icon">💬</span>채팅</div>
+      <div class="tab-item"><span class="tab-icon">🤖</span>AI가이드</div>
+      <div class="tab-item"><span class="tab-icon">📊</span>리포트</div>
+      <div class="tab-item"><span class="tab-icon">⋯</span>더보기</div>
+    </div>
+    <div class="home-ind"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탭바 아이콘 후보 — 기록 / AI 가이드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#2C7AFC;--blue-l:#5B9BFF;--t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.3)}
+  html,body{min-height:100vh;font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;color:var(--t1);background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%) fixed}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.6px;margin-bottom:4px}
+  h2{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:28px 0 10px;color:var(--t1);display:flex;align-items:center;gap:8px}
+  h2::before{content:'';width:4px;height:16px;border-radius:2px;background:var(--blue)}
+  .lead{font-size:13px;color:var(--t2);margin-bottom:10px;line-height:1.55}
+  .lead code{background:rgba(0,0,0,.06);padding:2px 6px;border-radius:5px;font-size:12px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:600;margin-bottom:14px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+
+  /* 실제 탭바와 유사한 미니 탭바 */
+  .mini-tab{background:rgba(180,210,250,.2);border:1px solid rgba(255,255,255,.5);border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.4);padding:10px 12px;display:flex;align-items:center;justify-content:space-around;gap:6px;height:54px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .mini-tab .mt{display:flex;align-items:center;justify-content:center;flex:1;color:rgba(28,28,30,.35)}
+  .mini-tab .mt.target{color:var(--blue)}
+  .mini-tab iconify-icon,.mini-tab svg{font-size:22px;width:22px;height:22px}
+  .mini-tab .dot{width:4px;height:4px;border-radius:50%;background:rgba(28,28,30,.25);margin:0 2px}
+
+  .card{background:rgba(255,255,255,.65);border:1px solid rgba(0,0,0,.04);border-radius:18px;overflow:hidden;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .preview{padding:14px 14px 10px}
+  .meta{padding:10px 14px 12px;border-top:1px solid rgba(0,0,0,.05)}
+  .no{font-size:10.5px;font-weight:800;color:var(--blue);letter-spacing:.3px}
+  .name{font-size:13px;font-weight:700;margin:2px 0 2px;letter-spacing:-.2px}
+  .id{font-size:10.5px;color:var(--t3);font-family:ui-monospace,'SF Mono',Menlo,monospace;word-break:break-all}
+
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;background:rgba(44,122,252,.1);color:var(--blue);margin-right:4px}
+  .tag.now{background:rgba(239,68,68,.1);color:#EF4444}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="g-guardian-live.html" class="back"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon> 홈으로</a>
+    <h1>탭바 아이콘 후보</h1>
+    <p class="lead">실제 탭바 배경·활성색 그대로 시뮬레이션. 번호 알려주면 <code>g-guardian-live.html</code>에 바로 교체.</p>
+
+    <!-- ═══ 기록 ═══ -->
+    <h2>📁 기록 탭 (현재: <code>fluent:document-text-24-filled</code>)</h2>
+    <div class="grid">
+
+      <!-- 01 현재 -->
+      <div class="card">
+        <div class="preview">
+          <div class="mini-tab">
+            <span class="mt"><svg viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+            <span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span>
+            <span class="mt"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+            <span class="mt target"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span>
+            <span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span>
+          </div>
+        </div>
+        <div class="meta"><div class="no">R01 <span class="tag now">현재</span></div><div class="name">Document Text</div><div class="id">fluent:document-text-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:notebook-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R02</div><div class="name">Notebook</div><div class="id">fluent:notebook-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:clipboard-text-ltr-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R03</div><div class="name">Clipboard Text</div><div class="id">fluent:clipboard-text-ltr-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:history-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R04</div><div class="name">History (시계형)</div><div class="id">fluent:history-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:folder-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R05</div><div class="name">Folder</div><div class="id">fluent:folder-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:book-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R06</div><div class="name">Book</div><div class="id">fluent:book-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:calendar-ltr-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R07</div><div class="name">Calendar</div><div class="id">fluent:calendar-ltr-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:data-histogram-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R08</div><div class="name">Histogram (차트)</div><div class="id">fluent:data-histogram-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="solar:notebook-bold"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R09</div><div class="name">Notebook (Solar)</div><div class="id">solar:notebook-bold</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="ph:book-bookmark-fill"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R10</div><div class="name">Book Bookmark (Phosphor)</div><div class="id">ph:book-bookmark-fill</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="material-symbols:assignment-rounded"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R11</div><div class="name">Assignment (Material)</div><div class="id">material-symbols:assignment-rounded</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:archive-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">R12</div><div class="name">Archive</div><div class="id">fluent:archive-24-filled</div></div>
+      </div>
+
+    </div>
+
+    <!-- ═══ AI 케어 가이드 ═══ -->
+    <h2>🧭 AI 케어 가이드 탭 (현재: <code>fluent:shield-checkmark-24-filled</code>)</h2>
+    <div class="grid">
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:shield-checkmark-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G01 <span class="tag now">현재</span></div><div class="name">Shield Checkmark</div><div class="id">fluent:shield-checkmark-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:book-information-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G02</div><div class="name">Book Information</div><div class="id">fluent:book-information-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:lightbulb-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G03</div><div class="name">Lightbulb</div><div class="id">fluent:lightbulb-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:compass-northwest-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G04</div><div class="name">Compass</div><div class="id">fluent:compass-northwest-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:brain-circuit-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G05</div><div class="name">Brain Circuit (AI 느낌)</div><div class="id">fluent:brain-circuit-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:sparkle-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G06</div><div class="name">Sparkle (AI 마법)</div><div class="id">fluent:sparkle-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:stethoscope-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G07</div><div class="name">Stethoscope (의료)</div><div class="id">fluent:stethoscope-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G08</div><div class="name">Heart Pulse</div><div class="id">fluent:heart-pulse-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:learning-app-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G09</div><div class="name">Learning App</div><div class="id">fluent:learning-app-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="ph:book-open-fill"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G10</div><div class="name">Book Open (Phosphor)</div><div class="id">ph:book-open-fill</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="material-symbols:health-and-safety-rounded"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G11</div><div class="name">Health & Safety (Material)</div><div class="id">material-symbols:health-and-safety-rounded</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="material-symbols:menu-book-rounded"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G12</div><div class="name">Menu Book (Material)</div><div class="id">material-symbols:menu-book-rounded</div></div>
+      </div>
+
+      <!-- ═══ 펼쳐진 책 느낌 추가 후보 ═══ -->
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:book-open-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G13</div><div class="name">Book Open (Fluent)</div><div class="id">fluent:book-open-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:book-open-globe-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G14</div><div class="name">Book Open Globe</div><div class="id">fluent:book-open-globe-24-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="material-symbols:auto-stories-rounded"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G15</div><div class="name">Auto Stories (Material)</div><div class="id">material-symbols:auto-stories-rounded</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="material-symbols:import-contacts-rounded"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G16</div><div class="name">Import Contacts (Material, 펼쳐진 책)</div><div class="id">material-symbols:import-contacts-rounded</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="solar:book-2-bold"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G17</div><div class="name">Book 2 (Solar)</div><div class="id">solar:book-2-bold</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="ph:book-open-text-fill"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G18</div><div class="name">Book Open Text (Phosphor)</div><div class="id">ph:book-open-text-fill</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="mingcute:book-5-fill"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G19</div><div class="name">Book 5 (MingCute, 펼쳐진 책)</div><div class="id">mingcute:book-5-fill</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="mingcute:book-6-fill"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G20</div><div class="name">Book 6 (MingCute)</div><div class="id">mingcute:book-6-fill</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="tabler:book-2-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G21</div><div class="name">Book 2 (Tabler)</div><div class="id">tabler:book-2-filled</div></div>
+      </div>
+
+      <div class="card">
+        <div class="preview"><div class="mini-tab"><span class="mt"><iconify-icon icon="fluent:home-24-filled"></iconify-icon></span><span class="mt target"><iconify-icon icon="fluent:reading-mode-mobile-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:document-text-24-filled"></iconify-icon></span><span class="mt"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></span></div></div>
+        <div class="meta"><div class="no">G22</div><div class="name">Reading Mode Mobile</div><div class="id">fluent:reading-mode-mobile-24-filled</div></div>
+      </div>
+
+    </div>
+
+    <p class="lead" style="margin-top:28px">
+      <b>내 추천</b><br>
+      · <b>기록</b>: R02 (Notebook) — "케어 일지" 뉘앙스. R08(Histogram)도 리포트 성격 강조엔 좋음<br>
+      · <b>AI 가이드</b>: G05 (Brain Circuit) 또는 G06 (Sparkle) — AI 기능 명시적. 현재 Shield는 "보안" 느낌이라 의미 약간 모호<br>
+      알려주면 예: "R02, G05" 형식으로 → 바로 <code>g-guardian-live.html</code>에 적용할게.
+    </p>
+  </div>
+</body>
+</html>

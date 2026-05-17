@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>하루안부 · 긴급</title>
+  <link rel="preload" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 완전히 뷰포트를 채우는 고정 레이아웃 */
+    .scene {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 40% 60%;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════
+       LEFT — 빨간 히어로 패널
+    ══════════════════════════════════ */
+    .left {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      padding: 40px 28px;
+      background: linear-gradient(155deg, #F43F3F 0%, #DC2626 40%, #B91C1C 100%);
+      overflow: hidden;
+    }
+
+    /* 배경 장식 orbs */
+    .left::before {
+      content: '';
+      position: absolute;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.1) 0%, transparent 65%);
+      top: 50%; left: 55%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .left::after {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+      bottom: -60px; left: -40px;
+      pointer-events: none;
+    }
+
+    /* 박동 SOS 오브 */
+    .pulse-wrap {
+      position: relative;
+      width: 140px; height: 140px;
+      flex-shrink: 0;
+    }
+    .p-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.35);
+      animation: pring 2.4s ease-out infinite;
+    }
+    .p-ring:nth-child(1) { inset: -18px; animation-delay: 0s; }
+    .p-ring:nth-child(2) { inset: -38px; animation-delay: .65s; border-color: rgba(255,255,255,.18); }
+    .p-ring:nth-child(3) { inset: -62px; animation-delay: 1.3s; border-color: rgba(255,255,255,.07); }
+    @keyframes pring {
+      0%   { opacity: 1;  transform: scale(.82); }
+      100% { opacity: 0;  transform: scale(1.22); }
+    }
+    .orb {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 2px solid rgba(255,255,255,.55);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 0 rgba(255,255,255,.25);
+      animation: orb-beat 2s ease-in-out infinite;
+    }
+    @keyframes orb-beat {
+      0%, 100% { transform: scale(1);    box-shadow: 0 0 0  0px rgba(255,255,255,.2); }
+      50%       { transform: scale(1.07); box-shadow: 0 0 0 14px rgba(255,255,255,.0); }
+    }
+
+    .left-title {
+      font-size: 38px; font-weight: 900;
+      line-height: 1.08; letter-spacing: -.04em;
+      color: #fff;
+      text-align: center;
+      position: relative;
+    }
+    .left-sub {
+      font-size: 13.5px; line-height: 1.75;
+      color: rgba(255,255,255,.68);
+      text-align: center;
+      position: relative;
+      max-width: 220px;
+    }
+
+    /* ══════════════════════════════════
+       RIGHT — 액션 패널
+    ══════════════════════════════════ */
+    .right {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+      padding: 36px 40px 36px 32px;
+    }
+
+    /* 카운트다운 카드 */
+    .count-card {
+      flex-shrink: 0;
+      background: #FEF2F2;
+      border: 1px solid rgba(220,38,38,.15);
+      border-radius: 24px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .count-ring {
+      position: relative;
+      width: 96px; height: 96px;
+      flex-shrink: 0;
+    }
+    .count-ring svg {
+      width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
+    .cr-track { fill: none; stroke: rgba(220,38,38,.12); stroke-width: 9; }
+    .cr-fill  {
+      fill: none; stroke: #DC2626; stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 264;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .cr-num {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; font-weight: 900;
+      color: #DC2626; letter-spacing: -.04em;
+      line-height: 1;
+    }
+
+    .count-info {}
+    .count-headline {
+      font-size: 16px; font-weight: 800;
+      color: #111; letter-spacing: -.3px;
+      margin-bottom: 10px; line-height: 1.3;
+    }
+    .count-items { display: flex; flex-direction: column; gap: 6px; }
+    .ci {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: rgba(0,0,0,.45); font-weight: 500;
+    }
+    .ci iconify-icon { color: #DC2626; flex-shrink: 0; }
+
+    /* 취소 버튼 */
+    .cancel-btn {
+      flex-shrink: 0;
+      width: 100%; height: 72px;
+      border: 0; cursor: pointer; border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 0 0 1.5px rgba(0,0,0,.09), 0 6px 22px rgba(0,0,0,.08);
+      color: #111;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-family: inherit;
+      font-size: 18px; font-weight: 800; letter-spacing: -.3px;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .cancel-btn:hover { box-shadow: 0 0 0 1.5px rgba(0,0,0,.14), 0 10px 28px rgba(0,0,0,.12); }
+    .cancel-btn:active { transform: scale(.97); }
+
+    /* 빠른 버튼 행 */
+    .quick {
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .q-btn {
+      height: 64px; border: 0; cursor: pointer; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      font-family: inherit;
+      font-size: 15px; font-weight: 800; letter-spacing: -.2px;
+      text-decoration: none;
+      transition: transform .12s;
+    }
+    .q-btn:active { transform: scale(.97); }
+    .q-119 {
+      background: #DC2626; color: #fff;
+      box-shadow: 0 8px 24px rgba(220,38,38,.38);
+    }
+    .q-fam {
+      background: #FEF2F2; color: #DC2626;
+      box-shadow: 0 0 0 1.5px rgba(220,38,38,.2);
+    }
+  </style>
+</head>
+<body style="background:#fff">
+
+<div class="scene">
+
+  <!-- ══ LEFT ══ -->
+  <div class="left">
+    <div class="pulse-wrap" aria-hidden="true">
+      <div class="p-ring"></div>
+      <div class="p-ring"></div>
+      <div class="p-ring"></div>
+      <div class="orb">
+        <iconify-icon icon="fluent:alert-urgent-24-filled" width="60" style="color:#fff"></iconify-icon>
+      </div>
+    </div>
+
+    <div class="left-title">긴급<br>도움 요청</div>
+
+    <div class="left-sub">실수가 아니라면 그대로 두세요.<br>잠시 뒤 119와 가족에게<br>동시에 연락이 갑니다.</div>
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="right">
+
+    <section class="count-card">
+      <div class="count-ring">
+        <svg viewBox="0 0 96 96">
+          <circle class="cr-track" cx="48" cy="48" r="42"></circle>
+          <circle class="cr-fill" id="ringFill" cx="48" cy="48" r="42"></circle>
+        </svg>
+        <div class="cr-num" id="countNum">5</div>
+      </div>
+      <div class="count-info">
+        <div class="count-headline">5초 뒤 자동으로 실행됩니다</div>
+        <div class="count-items">
+          <div class="ci">
+            <iconify-icon icon="fluent:call-24-filled" width="16"></iconify-icon>
+            119 응급 전화 자동 연결
+          </div>
+          <div class="ci">
+            <iconify-icon icon="fluent:people-community-24-filled" width="16"></iconify-icon>
+            민지 · 서연 · 태우에게 위치 공유
+          </div>
+          <div class="ci">
+            <iconify-icon icon="fluent:location-24-filled" width="16"></iconify-icon>
+            현재 위치: 집 (거실)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <button class="cancel-btn" id="cancelBtn" type="button">
+      <iconify-icon icon="fluent:dismiss-circle-24-filled" width="24" style="color:rgba(0,0,0,.35)"></iconify-icon>
+      실수예요, 취소할게요
+    </button>
+
+    <div class="quick">
+      <a href="#" class="q-btn q-119">
+        <iconify-icon icon="fluent:call-24-filled" width="20"></iconify-icon>
+        119 바로 전화
+      </a>
+      <a href="p03-call.html" class="q-btn q-fam">
+        <iconify-icon icon="fluent:people-24-filled" width="20"></iconify-icon>
+        가족에게만 연락
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var CIRC = 264;
+  var total = 5, remain = total;
+  var numEl = document.getElementById('countNum');
+  var ringEl = document.getElementById('ringFill');
+  var cancelBtn = document.getElementById('cancelBtn');
+  var timer = null, cancelled = false;
+
+  function tick() {
+    remain -= 1;
+    if (cancelled) return;
+    if (remain <= 0) {
+      numEl.textContent = '연결';
+      numEl.style.fontSize = '18px';
+      ringEl.style.strokeDashoffset = CIRC;
+      return;
+    }
+    numEl.textContent = remain;
+    ringEl.style.strokeDashoffset = ((CIRC * (total - remain)) / total).toFixed(1);
+    timer = setTimeout(tick, 1000);
+  }
+  timer = setTimeout(tick, 1000);
+
+  cancelBtn.addEventListener('click', function () {
+    cancelled = true;
+    if (timer) clearTimeout(timer);
+    location.href = 'p01-today.html';
+  });
+})();
+</script>
+
+</body>
+</html>

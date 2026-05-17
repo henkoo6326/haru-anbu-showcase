@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="patient">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 v7 — 제미나이 스타일 홈 (환자)</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    /* ─── 기본 레이아웃 ─── */
+    body {
+      background: #FFFFFF;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 120px;
+      position: relative;
+    }
+
+    /* ─── 상단 네비 ─── */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 56px var(--space-lg) var(--space-lg);
+    }
+    .top-nav-logo {
+      font-size: 18px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .top-nav-logo span {
+      color: var(--patient);
+    }
+    .top-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .nav-icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #F5F5F7;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      transition: background var(--transition-fast);
+    }
+    .nav-icon-btn:active { background: #E5E5EA; }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--patient), var(--patient-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: var(--weight-bold);
+      color: white;
+    }
+
+    /* ─── Zone 1: 인삿말 ─── */
+    .greeting-zone {
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+    }
+    .greeting-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #F0FDF4;
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--nurse);
+      margin-bottom: var(--space-lg);
+    }
+    .greeting-status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--nurse);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+    .greeting-main-text {
+      font-size: 30px;
+      font-weight: var(--weight-bold);
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+    .greeting-sub-text {
+      font-size: var(--text-body-large);
+      color: var(--text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* ─── Zone 2: 퀵 액션 ─── */
+    .quick-zone {
+      padding: 0 var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .quick-zone-label {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: var(--space-xs);
+    }
+
+    /* pill 버튼 — 제미나이 스타일 */
+    .pill-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 16px 20px;
+      background: #F5F5F7;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-family);
+      text-align: left;
+      width: fit-content;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pill-btn:active {
+      transform: scale(0.97);
+      background: #E5E5EA;
+    }
+    .pill-btn--primary {
+      background: var(--patient);
+      color: white;
+    }
+    .pill-btn--primary:active {
+      background: var(--patient-dark);
+    }
+    .pill-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+    .pill-text {
+      font-size: var(--text-body-large);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .pill-btn--primary .pill-text {
+      color: white;
+    }
+
+    /* ─── 구분선 ─── */
+    .divider-zone {
+      margin: var(--space-2xl) var(--space-lg) var(--space-xl);
+      height: 1px;
+      background: var(--divider);
+    }
+
+    /* ─── Zone 3: 상태 요약 ─── */
+    .status-zone {
+      padding: 0 var(--space-lg);
+    }
+    .status-zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .status-zone-title {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+    }
+    .status-zone-date {
+      font-size: var(--text-caption);
+      color: var(--text-tertiary);
+    }
+    .status-chips {
+      display: flex;
+      gap: var(--space-md);
+    }
+    .status-chip {
+      flex: 1;
+      background: #F5F5F7;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .status-chip-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .status-chip-label {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      font-weight: var(--weight-medium);
+    }
+    .status-chip-icon {
+      width: 28px; height: 28px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-chip-icon--med { background: var(--patient-light); }
+    .status-chip-icon--schedule { background: #E8F0FE; }
+    .status-chip-value {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .status-chip-sub {
+      font-size: var(--text-caption);
+      color: var(--text-tertiary);
+    }
+    .status-progress {
+      height: 4px;
+      background: #E5E5EA;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: var(--space-xs);
+    }
+    .status-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+    .status-progress-fill--med { background: var(--patient); width: 33%; }
+    .status-progress-fill--schedule { background: #4285F4; width: 40%; }
+
+    /* ─── 가족 알림 카드 ─── */
+    .family-notice {
+      margin: var(--space-xl) var(--space-lg) 0;
+      background: var(--guardian-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .family-notice-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--guardian);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      font-weight: var(--weight-bold);
+      color: white;
+      flex-shrink: 0;
+    }
+    .family-notice-text { flex: 1; }
+    .family-notice-name {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--guardian);
+    }
+    .family-notice-msg {
+      font-size: var(--text-body);
+      color: var(--text-primary);
+      margin-top: 2px;
+    }
+    .family-notice-time {
+      font-size: var(--text-caption);
+      color: var(--text-tertiary);
+    }
+
+    /* ─── AI 입력창 (하단 고정) ─── */
+    .ai-input-bar {
+      position: fixed;
+      bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 398px;
+      background: #F5F5F7;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 14px 20px;
+      box-shadow: 0 -1px 0 rgba(0,0,0,0.05), var(--shadow-md);
+      z-index: 50;
+    }
+    .ai-input-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--patient), #F97316);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ai-input-placeholder {
+      flex: 1;
+      font-size: var(--text-body);
+      color: var(--text-tertiary);
+      font-family: var(--font-family);
+    }
+    .ai-voice-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ─── 탭바 ─── */
+    .tabbar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 430px;
+      width: 100%;
+      height: calc(60px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--divider);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 40;
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      color: var(--text-tertiary);
+      transition: color var(--transition-fast);
+    }
+    .tab.active { color: var(--patient); }
+    .tab-icon { font-size: 24px; line-height: 1; }
+    .tab-label { font-size: 12px; font-weight: var(--weight-medium); }
+
+    /* ─── 긴급 FAB ─── */
+    .fab-sos {
+      position: fixed;
+      bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+      right: var(--space-lg);
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--critical);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+      z-index: 50;
+      text-decoration: none;
+      transition: transform var(--transition-fast);
+    }
+    .fab-sos:active { transform: scale(0.92); }
+
+    /* ─── 투약 완료 모달 ─── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: var(--z-modal);
+    }
+    .overlay.show { display: flex; }
+    .bottom-sheet {
+      background: white;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: var(--space-xl) var(--space-xl) calc(var(--space-2xl) + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      max-width: 430px;
+    }
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: #E5E5EA;
+      border-radius: 2px;
+      margin: 0 auto var(--space-xl);
+    }
+    .sheet-title {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: var(--space-sm);
+    }
+    .sheet-desc {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+    }
+    .sheet-btns {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .sheet-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: var(--weight-bold);
+      font-family: var(--font-family);
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+    }
+    .sheet-btn--yes {
+      background: var(--patient);
+      color: white;
+      box-shadow: 0 4px 14px rgba(251, 146, 60, 0.35);
+    }
+    .sheet-btn--no {
+      background: #F5F5F7;
+      color: var(--text-secondary);
+    }
+
+    /* ─── Toast ─── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%; transform: translateX(-50%) translateY(-10px);
+      background: #1C1C1E;
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      font-family: var(--font-family);
+      box-shadow: var(--shadow-lg);
+      z-index: var(--z-toast);
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 네비 -->
+  <nav class="top-nav">
+    <div class="top-nav-logo">하루<span>안부</span></div>
+    <div class="top-nav-actions">
+      <a href="#" class="nav-icon-btn" aria-label="알림">
+        <i data-lucide="bell" style="width:20px;height:20px;"></i>
+      </a>
+      <div class="avatar">정</div>
+    </div>
+  </nav>
+
+  <!-- Zone 1: 인삿말 -->
+  <section class="greeting-zone">
+    <div class="greeting-status-badge">
+      <div class="greeting-status-dot"></div>
+      예찬님이 오늘 확인했어요
+    </div>
+    <h1 class="greeting-main-text">좋은 저녁이에요,<br>정희님</h1>
+    <p class="greeting-sub-text">오늘 하루도 수고하셨어요.<br>무엇을 도와드릴까요?</p>
+  </section>
+
+  <!-- Zone 2: 퀵 액션 pills -->
+  <section class="quick-zone">
+    <div class="quick-zone-label">바로 하기</div>
+
+    <!-- 메인 CTA — 투약 -->
+    <button class="pill-btn pill-btn--primary" onclick="showMedSheet()">
+      <span class="pill-icon">💊</span>
+      <span class="pill-text">점심 약 먹었어요</span>
+    </button>
+
+    <button class="pill-btn" onclick="location.href='../v6_전체화면/patient/p02-family.html'">
+      <span class="pill-icon">📅</span>
+      <span class="pill-text">오늘 일과 보기</span>
+    </button>
+
+    <button class="pill-btn" onclick="location.href='../v6_전체화면/patient/p03-help.html'">
+      <span class="pill-icon">🆘</span>
+      <span class="pill-text">도움 요청하기</span>
+    </button>
+
+    <button class="pill-btn" onclick="location.href='../v6_전체화면/patient/p02-family.html'">
+      <span class="pill-icon">💬</span>
+      <span class="pill-text">가족에게 연락</span>
+    </button>
+  </section>
+
+  <!-- 구분선 -->
+  <div class="divider-zone"></div>
+
+  <!-- Zone 3: 오늘 상태 요약 -->
+  <section class="status-zone">
+    <div class="status-zone-header">
+      <span class="status-zone-title">오늘 현황</span>
+      <span class="status-zone-date">4월 9일 수요일</span>
+    </div>
+    <div class="status-chips">
+      <!-- 투약 -->
+      <div class="status-chip">
+        <div class="status-chip-top">
+          <span class="status-chip-label">투약</span>
+          <div class="status-chip-icon status-chip-icon--med">
+            <i data-lucide="pill" style="width:16px;height:16px;color:var(--patient);"></i>
+          </div>
+        </div>
+        <div class="status-chip-value">1/3</div>
+        <div class="status-chip-sub">다음: 오후 6시</div>
+        <div class="status-progress">
+          <div class="status-progress-fill status-progress-fill--med"></div>
+        </div>
+      </div>
+
+      <!-- 일과 -->
+      <div class="status-chip">
+        <div class="status-chip-top">
+          <span class="status-chip-label">일과</span>
+          <div class="status-chip-icon status-chip-icon--schedule">
+            <i data-lucide="calendar-check" style="width:16px;height:16px;color:#4285F4;"></i>
+          </div>
+        </div>
+        <div class="status-chip-value">2/5</div>
+        <div class="status-chip-sub">다음: 오후 2시 산책</div>
+        <div class="status-progress">
+          <div class="status-progress-fill status-progress-fill--schedule"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 가족 알림 카드 -->
+  <div class="family-notice">
+    <div class="family-notice-avatar">예</div>
+    <div class="family-notice-text">
+      <div class="family-notice-name">예찬님</div>
+      <div class="family-notice-msg">엄마 저녁은 드셨어요? 😊</div>
+    </div>
+    <div class="family-notice-time">5분 전</div>
+  </div>
+
+  <!-- AI 입력창 -->
+  <div class="ai-input-bar">
+    <div class="ai-input-icon">
+      <i data-lucide="sparkles" style="width:16px;height:16px;color:white;"></i>
+    </div>
+    <span class="ai-input-placeholder">하루안부에게 물어보세요...</span>
+    <button class="ai-voice-btn" aria-label="음성 입력">
+      <i data-lucide="mic" style="width:18px;height:18px;color:var(--patient);"></i>
+    </button>
+  </div>
+
+  <!-- 긴급 도움 FAB -->
+  <a href="../v6_전체화면/patient/p03-help.html" class="fab-sos" aria-label="긴급 도움 요청">
+    <i data-lucide="bell-ring" style="width:22px;height:22px;"></i>
+  </a>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="#" class="tab active">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="#" class="tab">
+      <span class="tab-icon"><i data-lucide="heart"></i></span>
+      <span class="tab-label">가족</span>
+    </a>
+    <a href="#" class="tab" style="color:var(--critical);">
+      <span class="tab-icon"><i data-lucide="bell-ring"></i></span>
+      <span class="tab-label">도움</span>
+    </a>
+  </nav>
+
+  <!-- 투약 바텀시트 -->
+  <div class="overlay" id="medOverlay" onclick="closeMedSheet(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">💊 점심 약 드셨나요?</div>
+      <div class="sheet-desc">소화제 등 2알 · 12:30</div>
+      <div class="sheet-btns">
+        <button class="sheet-btn sheet-btn--yes" onclick="confirmMed()">네, 다 먹었어요!</button>
+        <button class="sheet-btn sheet-btn--no" onclick="closeMedSheet()">아직 안 먹었어요</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    /* ─ 시간대별 인삿말 동적 변경 ─ */
+    (function() {
+      const h = new Date().getHours();
+      const mainEl = document.querySelector('.greeting-main-text');
+      const subEl  = document.querySelector('.greeting-sub-text');
+
+      if (h >= 5 && h < 11) {
+        mainEl.innerHTML = '좋은 아침이에요,<br>정희님';
+        subEl.innerHTML  = '오늘도 건강한 하루 시작해봐요.<br>무엇을 도와드릴까요?';
+      } else if (h >= 11 && h < 14) {
+        mainEl.innerHTML = '점심시간이에요,<br>정희님';
+        subEl.innerHTML  = '약 드실 시간이에요.<br>오늘도 잘 챙겨드세요.';
+        /* 메인 pill 강조 */
+        document.querySelector('.pill-btn--primary .pill-text').textContent = '점심 약 먹었어요';
+      } else if (h >= 14 && h < 18) {
+        mainEl.innerHTML = '좋은 오후예요,<br>정희님';
+        subEl.innerHTML  = '오후 산책 시간이 다가오고 있어요.<br>오늘 일과 어떻게 되고 있나요?';
+      } else if (h >= 18 && h < 22) {
+        mainEl.innerHTML = '좋은 저녁이에요,<br>정희님';
+        subEl.innerHTML  = '오늘 하루도 수고하셨어요.<br>무엇을 도와드릴까요?';
+      } else {
+        mainEl.innerHTML = '편안한 밤이에요,<br>정희님';
+        subEl.innerHTML  = '오늘 하루 잘 지내셨나요?<br>푹 쉬세요.';
+      }
+    })();
+
+    /* ─ 투약 바텀시트 ─ */
+    function showMedSheet() {
+      document.getElementById('medOverlay').classList.add('show');
+    }
+    function closeMedSheet(e) {
+      if (!e || e.target === document.getElementById('medOverlay')) {
+        document.getElementById('medOverlay').classList.remove('show');
+      }
+    }
+    function confirmMed() {
+      document.getElementById('medOverlay').classList.remove('show');
+      showToast('점심 투약이 완료됐어요 ✅');
+      /* 상태 칩 업데이트 */
+      document.querySelector('.status-chip-value').textContent = '2/3';
+      document.querySelector('.status-progress-fill--med').style.width = '66%';
+      /* 메인 pill 변경 */
+      document.querySelector('.pill-btn--primary .pill-text').textContent = '저녁 약 먹었어요';
+    }
+
+    /* ─ Toast ─ */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+  </script>
+</body>
+</html>

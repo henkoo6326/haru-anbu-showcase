@@ -1,0 +1,9 @@
+.DS_Store
+*.pdf
+*.docx
+node_modules/
+.cache/
+.remotion/
+자율주행자동차처럼 2/
+의료진 web 자료/
+07_디자인/하루안부기획서디자인/하루안부_기획서_v15_standalone.html

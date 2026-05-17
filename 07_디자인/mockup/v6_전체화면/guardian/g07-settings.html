@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 알림 설정</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { background:var(--bg); max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; padding-bottom:108px; }
+    .content { padding:0 var(--space-lg); }
+
+    .page-title-area {
+      padding: var(--space-xl) 0 var(--space-lg);
+    }
+    .page-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-bold);
+      padding: 0;
+    }
+    .page-subtitle {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+      margin-top: var(--space-xs);
+    }
+
+    .setting-group {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-xl);
+    }
+    .setting-group-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      padding: var(--space-sm) var(--space-xs);
+    }
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      min-height: var(--row-height);
+    }
+    .setting-item + .setting-item {
+      border-top: 0.5px solid var(--divider);
+    }
+    .setting-info { flex: 1; }
+    .setting-label {
+      font-size: var(--text-headline);
+    }
+    .setting-desc {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* 토글 */
+    .toggle {
+      position: relative;
+      width: 51px; height: 31px;
+      background: var(--divider);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background var(--transition-normal);
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--success); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 27px; height: 27px;
+      background: white;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-normal);
+    }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* ═══ Liquid Glass 통일 ═══ */
+    html { background: #EEF5FF; }
+    body { background: transparent !important; padding-top: calc(max(env(safe-area-inset-top, 0px), 44px) + 52px) !important; padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 16px) !important; }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%, rgba(100,178,255,0.55) 0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%, rgba(56,189,248,0.48)  0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%, rgba(99,102,241,0.42)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%, rgba(44,122,252,0.38)  0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%, rgba(255,255,255,0.58) 0%, transparent 65%), #E4EEFC;
+      pointer-events: none;
+    }
+    .header {
+      position: fixed !important; top: 0 !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: 100% !important; max-width: 430px !important; z-index: 10 !important; height: auto !important;
+      padding-top: max(env(safe-area-inset-top, 0px), 44px) !important; padding-bottom: 12px !important;
+      padding-left: 16px !important; padding-right: 16px !important;
+      display: flex !important; align-items: center !important; justify-content: space-between !important;
+      background: rgba(255,255,255,0.04) !important;
+      backdrop-filter: blur(40px) saturate(160%) !important; -webkit-backdrop-filter: blur(40px) saturate(160%) !important;
+      border-bottom: 0.5px solid rgba(255,255,255,0.18) !important; box-shadow: none !important;
+    }
+    .btn-icon {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.10); backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.18s ease; color: rgba(28,28,30,0.7); text-decoration: none; font-size: 22px; font-weight: 300;
+    }
+    .btn-icon:active { transform: scale(0.94); }
+    .tabbar {
+      position: fixed !important; bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px) !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: calc(100% - 32px) !important; max-width: 398px !important;
+      height: 68px !important; padding: 0 2px !important; padding-bottom: 0 !important;
+      border-top: none !important; border-radius: 999px !important;
+      background: rgba(255,255,255,0.07) !important;
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      border: 0.5px solid rgba(255,255,255,0.55) !important;
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.25) inset, 0 4px 16px rgba(0,0,0,0.08) !important;
+      align-items: stretch !important; right: auto !important; gap: 0 !important; z-index: 40 !important;
+    }
+    .tab { flex-direction: column !important; gap: 2px !important; padding: 8px 4px !important; border-radius: 999px !important; font-size: 0.75rem !important; font-weight: 500 !important; color: rgba(28,28,30,0.45) !important; }
+    .tab.active { background: rgba(255,255,255,0.22) !important; color: #1C1C1E !important; }
+    /* 글라스 카드 */
+    .setting-group {
+      background: rgba(255,255,255,0.26) !important; position: relative; overflow: hidden;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    .setting-group::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%); pointer-events: none; z-index: 0;
+    }
+    .setting-item + .setting-item { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    .toggle { background: rgba(28,28,30,0.18) !important; }
+    .toggle.on { background: var(--success) !important; }
+  </style>
+</head>
+<body>  <div class="header">
+    <div class="header-left"><a href="g05-mypage.html" class="btn-icon" aria-label="뒤로 가기">‹</a></div>
+    <span class="header-title">알림 설정</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+    <div class="setting-group-title">케어 알림</div>
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">긴급 알림</div>
+          <div class="setting-desc">SOS, 혈압 이상 등 긴급 상황</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">일일 리포트</div>
+          <div class="setting-desc">매일 오후 5시 AI 케어 리포트</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">투약 완료 알림</div>
+          <div class="setting-desc">투약이 완료될 때마다</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">식사 기록 알림</div>
+          <div class="setting-desc">식사 기록이 업데이트될 때</div>
+        </div>
+        <div class="toggle" role="switch" tabindex="0" aria-checked="false" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+    </div>
+
+    <div class="setting-group-title">채팅</div>
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">새 메시지 알림</div>
+          <div class="setting-desc">간호사로부터 메시지 수신</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">소리</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">진동</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+    </div>
+
+    <div class="setting-group-title">기타</div>
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">처방전 변경 알림</div>
+          <div class="setting-desc">처방 내용이 변경될 때</div>
+        </div>
+        <div class="toggle on" role="switch" tabindex="0" aria-checked="true" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">마케팅 알림</div>
+          <div class="setting-desc">이벤트, 공지사항</div>
+        </div>
+        <div class="toggle" role="switch" tabindex="0" aria-checked="false" onclick="this.classList.toggle('on'); this.setAttribute('aria-checked', this.classList.contains('on'))" onkeydown="if(event.key===' '||event.key==='Enter'){this.click();event.preventDefault();}"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션">
+    <a href="../../v7_홈화면시안/g-guardian-live.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home" style="width:20px;height:20px;"></i></span><span>홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><i data-lucide="message-circle" style="width:20px;height:20px;"></i></span><span>채팅</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><i data-lucide="clipboard-list" style="width:20px;height:20px;"></i></span><span>기록</span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></span><span>결제</span>
+    </a>
+    <a href="g05-mypage.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="user" style="width:20px;height:20px;"></i></span><span>마이</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

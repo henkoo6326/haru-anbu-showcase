@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하루안부 — Brand Identity</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+  :root {
+    --blue: #2C7AFC;
+    --glow: rgba(44,122,252,0.25);
+    --dim-blue: rgba(44,122,252,0.06);
+    --dark: #0B0E14;
+    --card: #111520;
+    --navy: #1A2030;
+    --muted: rgba(255,255,255,0.3);
+    --dim: rgba(255,255,255,0.06);
+    --ease: cubic-bezier(.2,.21,0,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;font-size:10px}
+  @media(min-width:768px){html{font-size:calc(100vw*(10/1440))}}
+  @media(min-width:1440px){html{font-size:10px}}
+  body{
+    font-family:'Pretendard Variable','Pretendard',sans-serif;
+    background:var(--dark);color:#E0E2EA;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.02;
+    background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* NAV */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:2.4rem 4.8rem;display:flex;justify-content:space-between;align-items:center;
+    transition:transform 0.5s var(--ease),background 0.4s;
+  }
+  .nav.scrolled{background:rgba(11,14,20,0.85);backdrop-filter:blur(20px)}
+  .nav-logo{height:3.2rem;opacity:0.9}
+  .nav-brand{font-weight:800;font-size:1.6rem;color:#fff;letter-spacing:-0.02em}
+
+  /* HERO */
+  .hero{height:300vh;position:relative}
+  .hero-sticky{
+    position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .hero-orb{
+    position:absolute;width:50rem;height:50rem;border-radius:50%;
+    background:radial-gradient(circle,var(--glow),transparent 70%);
+    filter:blur(10rem);pointer-events:none;
+  }
+  .hero-logo-wrap{position:relative;z-index:1}
+  .hero-logo{width:20rem;height:20rem;filter:drop-shadow(0 0 6rem var(--glow))}
+  .hero-text{text-align:center;position:relative;z-index:1;margin-top:3.2rem}
+  .hero-name{
+    font-size:6.4rem;font-weight:900;letter-spacing:-0.04em;color:#fff;
+    opacity:0;transform:translateY(2rem);transition:all 0.8s 0.3s var(--ease);
+  }
+  .hero-name.in{opacity:1;transform:translateY(0)}
+  .hero-tagline{
+    font-size:1.8rem;font-weight:200;color:var(--muted);margin-top:1.2rem;
+    opacity:0;transform:translateY(1.4rem);transition:all 0.6s 0.6s var(--ease);
+  }
+  .hero-tagline.in{opacity:1;transform:translateY(0)}
+  .hero-scroll{
+    position:absolute;bottom:4.8rem;left:50%;transform:translateX(-50%);
+    font-size:1rem;font-weight:500;letter-spacing:0.5rem;color:rgba(255,255,255,0.08);
+    opacity:0;transition:opacity 0.6s 1s;display:flex;flex-direction:column;align-items:center;gap:1.2rem;
+  }
+  .hero-scroll.in{opacity:1}
+  .scroll-line{
+    width:1px;height:4.8rem;
+    background:linear-gradient(to bottom,rgba(255,255,255,0.08),transparent);
+    animation:sp 2.5s ease-in-out infinite;
+  }
+  @keyframes sp{0%,100%{transform:scaleY(0.6);opacity:0.3}50%{transform:scaleY(1);opacity:1}}
+
+  /* REVEAL */
+  [data-r]{opacity:0;transform:translateY(2.4rem);transition:opacity 0.8s,transform 0.8s var(--ease)}
+  [data-r].v{opacity:1;transform:translateY(0)}
+  [data-d="1"]{transition-delay:0.1s}[data-d="2"]{transition-delay:0.2s}
+  [data-d="3"]{transition-delay:0.3s}[data-d="4"]{transition-delay:0.4s}
+
+  /* SECTIONS */
+  .sec{max-width:100rem;margin:0 auto;padding:16rem 4.8rem;position:relative}
+  .ol{font-size:1.1rem;font-weight:700;letter-spacing:0.5rem;color:var(--blue);margin-bottom:1.6rem}
+  .bt{font-size:4.8rem;font-weight:200;line-height:1.4;letter-spacing:-0.03em;margin-bottom:4rem}
+  .bt strong{font-weight:800;color:#fff}
+  .bt em{font-weight:300;color:var(--blue);font-style:normal}
+
+  /* === 01: ANATOMY — 시각 중심 === */
+  .anatomy-full{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:4rem;
+    min-height:60rem;position:relative;
+  }
+  .anatomy-left{
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .anatomy-logo{width:32rem;height:32rem;filter:drop-shadow(0 0 4rem var(--glow))}
+  .anatomy-logo .p-right,.anatomy-logo .p-left{
+    transition:all 0.6s var(--ease);cursor:pointer;
+  }
+  .anatomy-logo .p-right:hover{filter:drop-shadow(0 0 2rem var(--glow));transform:translate(2%,-1%)}
+  .anatomy-logo .p-left:hover{filter:drop-shadow(0 0 2rem var(--glow));transform:translate(-2%,1%)}
+
+  /* 연결선 + 라벨 (시각적) */
+  .anatomy-right{
+    display:flex;flex-direction:column;justify-content:center;gap:1.6rem;padding-left:4rem;
+  }
+  .tag{
+    display:flex;align-items:center;gap:1.6rem;
+    padding:2rem 2.4rem;border-radius:1.6rem;
+    border:1px solid var(--dim);background:rgba(255,255,255,0.01);
+    transition:all 0.4s var(--ease);
+  }
+  .tag:hover{border-color:rgba(44,122,252,0.3);background:var(--dim-blue);transform:translateX(0.6rem)}
+  .tag-dot{width:1rem;height:1rem;border-radius:50%;background:var(--blue);flex-shrink:0;box-shadow:0 0 1rem var(--glow)}
+  .tag-line{width:3rem;height:1px;background:rgba(44,122,252,0.3);flex-shrink:0}
+  .tag-text{font-size:1.5rem;font-weight:600;color:#fff}
+  .tag-sub{font-size:1.2rem;font-weight:300;color:var(--muted);margin-top:0.2rem}
+
+  /* === 02: OPEN FORM — 아이콘 그리드 === */
+  .form-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-top:6rem;
+  }
+  .form-card{
+    padding:4rem 2.4rem;border-radius:2.4rem;text-align:center;
+    border:1px solid var(--dim);background:rgba(255,255,255,0.01);
+    transition:all 0.5s var(--ease);
+  }
+  .form-card:hover{border-color:rgba(44,122,252,0.2);transform:translateY(-0.6rem);background:var(--dim-blue)}
+  .form-icon{
+    width:6rem;height:6rem;margin:0 auto 2rem;border-radius:1.6rem;
+    background:var(--dim-blue);display:flex;align-items:center;justify-content:center;
+    font-size:2.4rem;color:var(--blue);
+  }
+  .form-card h3{font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:0.6rem}
+  .form-card p{font-size:1.2rem;font-weight:300;color:var(--muted);line-height:1.6}
+
+  /* === 03: SERVICE — 시각적 매핑 === */
+  .svc-visual{
+    display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:6rem;
+  }
+  .svc-card{
+    padding:3.2rem;border-radius:2rem;
+    border:1px solid var(--dim);background:rgba(255,255,255,0.01);
+    transition:all 0.4s var(--ease);display:flex;gap:2rem;align-items:flex-start;
+  }
+  .svc-card:hover{border-color:rgba(44,122,252,0.2);background:var(--dim-blue)}
+  .svc-icon{
+    width:4.8rem;height:4.8rem;border-radius:1.2rem;flex-shrink:0;
+    background:var(--dim-blue);display:flex;align-items:center;justify-content:center;
+  }
+  .svc-icon svg{width:2.4rem;height:2.4rem}
+  .svc-card h3{font-size:1.4rem;font-weight:700;color:var(--blue);margin-bottom:0.4rem}
+  .svc-card p{font-size:1.3rem;font-weight:300;color:var(--muted);line-height:1.6}
+
+  /* === 04: BRAND SYSTEM === */
+  .sys-grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:1.6rem;margin-top:6rem;
+  }
+  .sys-card{
+    border-radius:2rem;overflow:hidden;border:1px solid var(--dim);
+    background:var(--card);transition:all 0.4s var(--ease);
+  }
+  .sys-card:hover{transform:translateY(-0.6rem);border-color:rgba(44,122,252,0.2)}
+  .sys-prev{
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:2.4rem;
+  }
+  .sys-prev.w{background:#fff}.sys-prev.c{background:#F5F2E8}.sys-prev.d{background:var(--navy)}
+  .sys-meta{padding:1.4rem 1.8rem;border-top:1px solid var(--dim)}
+  .sys-meta h4{font-size:1.3rem;font-weight:700;color:#fff}
+  .sys-meta span{font-size:1.1rem;font-weight:300;color:var(--muted)}
+
+  /* === 05: COLOR === */
+  .color-flex{
+    display:flex;align-items:center;gap:4.8rem;margin-top:6rem;
+  }
+  .c-swatch{
+    width:16rem;height:16rem;border-radius:3.2rem;background:var(--blue);
+    box-shadow:0 2rem 8rem var(--glow);flex-shrink:0;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:1.6rem;
+  }
+  .c-swatch span{font-size:1.2rem;font-weight:500;color:rgba(255,255,255,0.6);letter-spacing:0.1rem}
+  .c-info h3{font-size:2.4rem;font-weight:800;color:#fff;margin-bottom:1.2rem}
+  .c-info p{font-size:1.5rem;font-weight:300;color:var(--muted);line-height:1.9}
+
+  /* QUOTE */
+  .q-wrap{
+    min-height:80vh;display:flex;align-items:center;justify-content:center;
+    position:relative;text-align:center;padding:8rem 4.8rem;
+  }
+  .q-orb{
+    position:absolute;width:40rem;height:40rem;border-radius:50%;
+    background:radial-gradient(circle,var(--glow),transparent 70%);
+    filter:blur(10rem);top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.12;pointer-events:none;
+  }
+  .q-text{
+    font-size:3.2rem;font-weight:200;line-height:1.9;color:rgba(255,255,255,0.5);
+    max-width:70rem;position:relative;z-index:1;
+  }
+  .q-text strong{font-weight:700;color:#fff}
+
+  /* FOOTER */
+  .ft{text-align:center;padding:8rem 4.8rem 4.8rem;border-top:1px solid var(--dim)}
+  .ft-logo{width:4.8rem;height:4.8rem;opacity:0.3;margin-bottom:1.6rem}
+  .ft-brand{font-weight:900;font-size:1.6rem;color:var(--blue)}
+  .ft-sub{font-size:1.1rem;color:rgba(255,255,255,0.08);margin-top:0.8rem}
+
+  @media(max-width:768px){
+    .hero-logo{width:14rem;height:14rem}
+    .hero-name{font-size:4rem}
+    .sec{padding:10rem 2.4rem}
+    .bt{font-size:3.2rem}
+    .anatomy-full{grid-template-columns:1fr}
+    .anatomy-logo{width:20rem;height:20rem}
+    .form-grid{grid-template-columns:1fr 1fr}
+    .svc-visual{grid-template-columns:1fr}
+    .sys-grid{grid-template-columns:1fr 1fr}
+    .color-flex{flex-direction:column}
+    .q-text{font-size:2.4rem}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <svg class="nav-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+  <span class="nav-brand">하루안부</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="hero-sticky">
+    <div class="hero-orb" id="heroOrb"></div>
+    <div class="hero-logo-wrap" id="hlw">
+      <svg class="hero-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+    </div>
+    <div class="hero-text">
+      <h1 class="hero-name" id="hn">하루안부</h1>
+      <p class="hero-tagline" id="ht">오늘 하루도, 안녕하셨습니다</p>
+    </div>
+    <div class="hero-scroll" id="hs"><span>SCROLL</span><div class="scroll-line"></div></div>
+  </div>
+</div>
+
+<!-- 01: SYMBOL -->
+<div class="sec">
+  <div class="ol" data-r>THE SYMBOL</div>
+  <h2 class="bt" data-r data-d="1"><strong>두 개의 곡선</strong>이 만나<br><em>하나의 안부</em>가 됩니다</h2>
+
+  <div class="anatomy-full" data-r data-d="2">
+    <div class="anatomy-left">
+      <svg class="anatomy-logo" viewBox="0 0 2526 2526" fill="none">
+        <path class="p-right" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path class="p-left" d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/>
+      </svg>
+    </div>
+    <div class="anatomy-right">
+      <div class="tag" id="tR"><div class="tag-dot"></div><div class="tag-line"></div><div><div class="tag-text">보호자</div><div class="tag-sub">멀리서 안부를 묻는 가족의 마음</div></div></div>
+      <div class="tag" id="tL"><div class="tag-dot"></div><div class="tag-line"></div><div><div class="tag-text">의료진</div><div class="tag-sub">현장에서 돌봄을 전하는 손길</div></div></div>
+      <div class="tag" id="tC"><div class="tag-dot"></div><div class="tag-line"></div><div><div class="tag-text">플랫폼</div><div class="tag-sub">두 마음이 만나는 연결점</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 02: OPEN FORM -->
+<div class="sec">
+  <div class="ol" data-r>OPEN FORM</div>
+  <h2 class="bt" data-r data-d="1"><strong>열린 형태</strong>, <em>끊이지 않는 안부</em></h2>
+
+  <div class="form-grid" data-r data-d="2">
+    <div class="form-card">
+      <div class="form-icon">↑</div>
+      <h3>하루의 시작</h3>
+      <p>매일 아침 새 안부가<br>흘러들어오는 공간</p>
+    </div>
+    <div class="form-card">
+      <div class="form-icon">↓</div>
+      <h3>연결의 지속</h3>
+      <p>끊이지 않는 케어의<br>연속성</p>
+    </div>
+    <div class="form-card">
+      <div class="form-icon">〰</div>
+      <h3>따뜻한 곡선</h3>
+      <p>차가운 직선이 아닌<br>부드러운 돌봄의 온도</p>
+    </div>
+    <div class="form-card">
+      <div class="form-icon">◎</div>
+      <h3>3자의 만남</h3>
+      <p>보호자 · 의료진 · 환자<br>하나로 모이는 중심</p>
+    </div>
+  </div>
+</div>
+
+<!-- 03: SERVICE -->
+<div class="sec">
+  <div class="ol" data-r>SERVICE CONNECTION</div>
+  <h2 class="bt" data-r data-d="1">로고의 <strong>모든 요소</strong>는<br><em>기능</em>과 연결됩니다</h2>
+
+  <div class="svc-visual" data-r data-d="2">
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0v-4a1 1 0 011-1h2a1 1 0 011 1v4"/></svg></div>
+      <div><h3>보호자 대시보드</h3><p>실시간 안부 확인</p></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+      <div><h3>케어 체크리스트</h3><p>현장 돌봄 기록</p></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
+      <div><h3>1:1 메시징</h3><p>보호자 ↔ 의료진 소통</p></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+      <div><h3>AI 데일리 리포트</h3><p>매일 아침 안부 요약</p></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div><h3>의료 타임라인</h3><p>끊이지 않는 돌봄 기록</p></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linecap="round"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></div>
+      <div><h3>AI 케어 가이드</h3><p>대화형 돌봄 안내</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 04: BRAND SYSTEM -->
+<div class="sec">
+  <div class="ol" data-r>BRAND SYSTEM</div>
+  <h2 class="bt" data-r data-d="1"><strong>하나의 심볼</strong>, <em>다섯 가지 형태</em></h2>
+
+  <div class="sys-grid" data-r data-d="2">
+    <div class="sys-card">
+      <div class="sys-prev w">
+        <svg viewBox="0 0 2526 2526" fill="none" width="70%"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+      </div>
+      <div class="sys-meta"><h4>심볼 단독</h4><span>앱 아이콘 · 파비콘</span></div>
+    </div>
+    <div class="sys-card">
+      <div class="sys-prev w" style="padding:3rem 2rem">
+        <span style="font-weight:800;font-size:2.8rem;color:#2C7AFC;letter-spacing:-0.04em">하루안부</span>
+      </div>
+      <div class="sys-meta"><h4>워드마크</h4><span>네비게이션 · 좁은 공간</span></div>
+    </div>
+    <div class="sys-card">
+      <div class="sys-prev w" style="flex-direction:row;gap:1rem">
+        <svg viewBox="0 0 2526 2526" fill="none" width="24%"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+        <span style="font-weight:800;font-size:2rem;color:#1A2030;letter-spacing:-0.03em">하루안부</span>
+      </div>
+      <div class="sys-meta"><h4>콤비네이션 가로</h4><span>헤더 · 발표자료 · 명함</span></div>
+    </div>
+    <div class="sys-card">
+      <div class="sys-prev c" style="flex-direction:column;gap:0.8rem">
+        <svg viewBox="0 0 2526 2526" fill="none" width="36%"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+        <span style="font-weight:800;font-size:1.6rem;color:#1A2030;letter-spacing:-0.03em">하루안부</span>
+      </div>
+      <div class="sys-meta"><h4>콤비네이션 세로</h4><span>스플래시 · 포스터</span></div>
+    </div>
+    <div class="sys-card">
+      <div class="sys-prev d">
+        <svg viewBox="0 0 2526 2526" fill="none" width="70%"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="rgba(255,255,255,0.15)"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="rgba(255,255,255,0.15)"/></svg>
+      </div>
+      <div class="sys-meta"><h4>단색 버전</h4><span>흑백 인쇄 · 워터마크</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 05: COLOR -->
+<div class="sec">
+  <div class="ol" data-r>COLOR</div>
+  <h2 class="bt" data-r data-d="1"><em>신뢰</em> 위에 세운 <strong>따뜻함</strong></h2>
+  <div class="color-flex" data-r data-d="2">
+    <div class="c-swatch"><span>#2C7AFC</span></div>
+    <div class="c-info">
+      <h3>하루안부 블루</h3>
+      <p>신뢰하되 다가가기 쉬운 —<br>"걱정 마세요, 저희가 잘 돌보고 있어요"</p>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="q-wrap">
+  <div class="q-orb"></div>
+  <p class="q-text" data-r>
+    매일 하루, 매일 안부.<br>
+    <strong>하루안부</strong>는 그 연결을 멈추지 않습니다.
+  </p>
+</div>
+
+<!-- FOOTER -->
+<div class="ft">
+  <svg class="ft-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/></svg>
+  <div class="ft-brand">하루안부</div>
+  <div class="ft-sub">Brand Identity — 2026</div>
+</div>
+
+<script>
+const ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('v')})},{threshold:0.12});
+document.querySelectorAll('[data-r]').forEach(el=>ro.observe(el));
+
+const hero=document.getElementById('hero'),hlw=document.getElementById('hlw'),
+heroOrb=document.getElementById('heroOrb'),hn=document.getElementById('hn'),
+ht=document.getElementById('ht'),hs=document.getElementById('hs'),nav=document.getElementById('nav');
+
+setTimeout(()=>{hn.classList.add('in');ht.classList.add('in');hs.classList.add('in')},200);
+
+let ls=0;
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY,h=hero.offsetHeight,vh=window.innerHeight,p=Math.min(s/(h-vh),1);
+  hlw.style.transform=`scale(${Math.max(1-p*0.5,0.5)}) translateY(${p*-40}px)`;
+  hlw.style.opacity=Math.max(1-p*1.5,0);
+  heroOrb.style.transform=`scale(${1+p*0.8})`;
+  heroOrb.style.opacity=Math.max(0.25-p*0.4,0);
+  hn.style.opacity=Math.max(1-p*2,0);
+  ht.style.opacity=Math.max(1-p*2,0);
+  hs.style.opacity=Math.max(1-p*3,0);
+  if(s>vh*0.5){nav.classList.add('scrolled');nav.style.transform=s>ls&&s>vh?'translateY(-105%)':'translateY(0)'}
+  else{nav.classList.remove('scrolled');nav.style.transform='translateY(0)'}
+  ls=s;
+},{passive:true});
+
+// anatomy hover
+const pR=document.querySelector('.p-right'),pL=document.querySelector('.p-left'),
+tR=document.getElementById('tR'),tL=document.getElementById('tL');
+pR.addEventListener('mouseenter',()=>{tR.style.borderColor='rgba(44,122,252,0.5)';tR.style.background='rgba(44,122,252,0.06)';tR.style.transform='translateX(0.8rem)'});
+pR.addEventListener('mouseleave',()=>{tR.style.borderColor='';tR.style.background='';tR.style.transform=''});
+pL.addEventListener('mouseenter',()=>{tL.style.borderColor='rgba(44,122,252,0.5)';tL.style.background='rgba(44,122,252,0.06)';tL.style.transform='translateX(0.8rem)'});
+pL.addEventListener('mouseleave',()=>{tL.style.borderColor='';tL.style.background='';tL.style.transform=''});
+</script>
+</body>
+</html>

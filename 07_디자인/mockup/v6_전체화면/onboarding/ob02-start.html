@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 시작하기</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+
+    body {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 라디얼 그라디언트 배경 */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.95)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.78)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+
+    }
+
+    /* 노이즈 텍스처 */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      max-width: 430px; left: 50%; transform: translateX(-50%);
+    }
+
+    .start-top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 var(--space-lg);
+      gap: var(--space-md);
+      animation: fadeInUp 0.6s ease both;
+      position: relative;
+      z-index: 1;
+    }
+
+    .start-logo {
+      width: 88px;
+      height: 88px;
+      background: white;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 28px rgba(44, 122, 252, 0.18);
+      margin-bottom: var(--space-sm);
+    }
+
+    .start-name {
+      font-size: 34px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      letter-spacing: -0.8px;
+      line-height: 1.2;
+    }
+
+    .start-tagline {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.6;
+      letter-spacing: -0.2px;
+    }
+
+    .start-bottom {
+      padding: var(--space-2xl) var(--space-xl) 52px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      animation: fadeInUp 0.6s ease 0.15s both;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-signup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 54px;
+      border-radius: 14px;
+      background: #2C7AFC;
+      color: white;
+      font-size: 17px;
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-family);
+      letter-spacing: -0.2px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-signup:active { transform: scale(0.97); opacity: 0.88; }
+
+    .btn-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 54px;
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 17px;
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-family);
+      letter-spacing: -0.2px;
+      border: 1.5px solid var(--divider);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-login:active { transform: scale(0.97); opacity: 0.88; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .start-top, .start-bottom { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="start-top">
+    <div class="start-logo">
+      <svg width="52" height="52" viewBox="0 0 2526 2526" fill="none">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0.000170058C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path d="M4.6772 19.3353C1286.35 -131.481 1286.35 630.399 1286.35 1246.66L28.3145 2526C7.32194 2031.8 3.73014 1368.08 867.143 1263.52C-115.881 1211.75 4.6772 424.157 4.6772 19.3353Z" fill="#2C7AFC"/>
+      </svg>
+    </div>
+    <div class="start-name">하루안부</div>
+    <div class="start-tagline">오늘 하루도, 안녕하셨습니다</div>
+  </div>
+
+  <div class="start-bottom">
+    <a href="ob03-social.html" class="btn-signup">지금 시작하기</a>
+    <a href="ob03-social.html?mode=login" class="btn-login">이미 계정이 있어요</a>
+  </div>
+
+  <div class="ios-home-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 v7 — 다크모드 홈화면</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+      background: #0A0A0F;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      background: #111116;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%; transform: translateX(-50%);
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .page-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .page-title {
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    .page-desc { font-size: 15px; color: rgba(255,255,255,0.4); }
+
+    /* 역할별 컬러 표시 */
+    .role-tags {
+      display: flex; justify-content: center; gap: 8px; margin-top: 16px;
+    }
+    .role-tag {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px;
+      border-radius: 999px; border: 1px solid;
+      font-size: 12px; font-weight: 600;
+    }
+    .role-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+    .role-g { border-color: rgba(34,211,238,0.3); color: #22D3EE; }
+    .role-g .role-dot { background: #22D3EE; }
+    .role-n { border-color: rgba(52,211,153,0.3); color: #34D399; }
+    .role-n .role-dot { background: #34D399; }
+    .role-p { border-color: rgba(251,146,60,0.3); color: #FB923C; }
+    .role-p .role-dot { background: #FB923C; }
+
+    /* 그리드 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      padding: 40px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    .mockup-item {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+
+    .mockup-label { text-align: center; }
+    .mockup-role-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px; border: 1px solid;
+      font-size: 11px; font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .mockup-name {
+      font-size: 16px; font-weight: 700;
+      color: white; margin-bottom: 2px;
+    }
+    .mockup-desc { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    .mockup-frame {
+      border: none;
+      border-radius: 48px;
+      overflow: hidden;
+      width: 393px; height: 852px;
+      transform: scale(0.58);
+      transform-origin: top center;
+      margin-bottom: -360px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+      transition: transform 0.3s ease;
+    }
+    .mockup-frame:hover { transform: scale(0.60); }
+
+    .open-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-top: 6px;
+      transition: all 0.2s;
+    }
+    .open-link:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    .page-footer {
+      text-align: center; padding: 32px;
+      font-size: 13px; color: rgba(255,255,255,0.2);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* 라이트/다크 비교 토글 섹션 */
+    .compare-note {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
+    .compare-note a { color: rgba(255,255,255,0.5); text-decoration: none; }
+    .compare-note a:hover { color: white; }
+
+    @media (max-width: 1200px) {
+      .grid { grid-template-columns: 1fr 1fr; gap: 32px; padding: 32px; }
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="page-tag">🌙 Dark Mode</div>
+    <h1 class="page-title">다크모드 홈화면</h1>
+    <p class="page-desc">보호자 · 간호사 · 환자 역할별 다크 테마</p>
+    <div class="role-tags">
+      <span class="role-tag role-g"><span class="role-dot"></span>보호자 Cyan</span>
+      <span class="role-tag role-n"><span class="role-dot"></span>간호사 Emerald</span>
+      <span class="role-tag role-p"><span class="role-dot"></span>환자 Orange</span>
+    </div>
+  </div>
+
+  <div class="compare-note">
+    라이트 모드 시안 비교: <a href="../v7_홈화면시안/index.html">← v7 홈화면 시안 보기</a>
+  </div>
+
+  <div class="grid">
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-role-tag role-g" style="border-color:rgba(34,211,238,0.3);color:#22D3EE;">
+          <span class="role-dot" style="background:#22D3EE;width:6px;height:6px;border-radius:50%;"></span>
+          보호자
+        </div>
+        <div class="mockup-name">Guardian Home</div>
+        <div class="mockup-desc">케어 현황 · 일정 · AI 인사이트</div>
+      </div>
+      <iframe class="mockup-frame" src="dark-guardian.html"></iframe>
+      <a class="open-link" href="dark-guardian.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-role-tag role-n" style="border-color:rgba(52,211,153,0.3);color:#34D399;">
+          <span class="role-dot" style="background:#34D399;width:6px;height:6px;border-radius:50%;"></span>
+          간호사
+        </div>
+        <div class="mockup-name">Nurse Dashboard</div>
+        <div class="mockup-desc">업무 현황 · 환자 모니터링</div>
+      </div>
+      <iframe class="mockup-frame" src="dark-nurse.html"></iframe>
+      <a class="open-link" href="dark-nurse.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-role-tag role-p" style="border-color:rgba(251,146,60,0.3);color:#FB923C;">
+          <span class="role-dot" style="background:#FB923C;width:6px;height:6px;border-radius:50%;"></span>
+          환자
+        </div>
+        <div class="mockup-name">Patient Home</div>
+        <div class="mockup-desc">일과 · 투약 · 가족 소식</div>
+      </div>
+      <iframe class="mockup-frame" src="dark-patient.html"></iframe>
+      <a class="open-link" href="dark-patient.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    하루안부 v7 Dark Mode Exploration · 2026.04.07
+  </div>
+</body>
+</html>

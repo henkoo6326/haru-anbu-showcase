@@ -1,0 +1,6 @@
+<svg viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 하루안부 워드마크 단독 — 네비게이션 바, 좁은 공간 -->
+  <g id="wordmark">
+    <text x="16" y="88" font-family="'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" font-weight="800" font-size="72" fill="#2C7AFC" letter-spacing="-2">하루안부</text>
+  </g>
+</svg>

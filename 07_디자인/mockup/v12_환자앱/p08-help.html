@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ko" data-role="patient" data-platform="mobile">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFF5E8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>하루안부 · 도움이 필요해요</title>
+
+  <link rel="icon" type="image/svg+xml" href="../07_디자인/logo/brand-system/01_심볼단독.svg">
+  <link rel="stylesheet" href="../07_디자인/tokens/tokens.css">
+  <link rel="stylesheet" href="patient.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+
+  <style>
+    .main {
+      flex: 1;
+      display: flex; flex-direction: column;
+      gap: var(--space-5);
+      min-height: 0;
+    }
+
+    /* ── 제목 ───────────────────────────────── */
+    .help-heading {
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .help-heading h1 {
+      font: var(--weight-bold) 32px / 1.15 var(--font-family-base);
+      letter-spacing: -0.03em;
+    }
+    .help-heading p {
+      font: var(--weight-medium) 18px / 1.4 var(--font-family-base);
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ── 도움 버튼 그리드 (병상 호출기) ─────── */
+    .help-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: var(--space-4);
+      min-height: 0;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .help-btn {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px;
+      padding: var(--space-5) var(--space-4);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1.5px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 18px rgba(194, 98, 28, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+      transition: transform .12s, box-shadow .15s, border-color .15s;
+      min-height: 0;
+      color: var(--color-text-primary);
+      text-align: center;
+    }
+    .help-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(194, 98, 28, 0.14);
+      border-color: rgba(251, 146, 60, 0.3);
+    }
+    .help-btn:active { transform: scale(.97); }
+
+    .help-btn .hb-icon {
+      width: 82px; height: 82px;
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--brand-orange-200, #FED7AA), var(--brand-orange-400));
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(251, 146, 60, 0.32);
+    }
+    .help-btn .hb-icon iconify-icon { font-size: 44px; }
+
+    .help-btn .hb-label {
+      font: var(--weight-bold) 22px / 1.15 var(--font-family-base);
+      letter-spacing: -0.3px;
+    }
+    .help-btn .hb-sub {
+      font: var(--weight-medium) 14px / 1 var(--font-family-base);
+      color: var(--color-text-secondary);
+      letter-spacing: -0.1px;
+    }
+
+    /* ── 아파요 — 유일한 빨강 (긴급) ───────── */
+    .help-btn--urgent {
+      background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+      border-color: rgba(220, 38, 38, 0.25);
+    }
+    .help-btn--urgent .hb-icon {
+      background: linear-gradient(135deg, #F87171, var(--color-danger, #DC2626));
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.36);
+    }
+    .help-btn--urgent .hb-label { color: var(--color-danger, #DC2626); }
+    .help-btn--urgent:hover { border-color: rgba(220, 38, 38, 0.5); }
+
+    /* ── 하단 가족 알림 스트립 ─────────────── */
+    .help-family {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: var(--space-4) var(--space-6);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      max-width: 1100px; width: 100%; margin: 0 auto;
+    }
+    .help-family .hf-label {
+      display: flex; align-items: center; gap: 10px;
+      font: var(--weight-bold) 18px / 1 var(--font-family-base);
+      color: var(--color-text-primary);
+      letter-spacing: -0.2px;
+      flex-shrink: 0;
+    }
+    .help-family .hf-label iconify-icon { color: var(--brand-orange-600); }
+    .help-family .hf-avatars {
+      display: flex; align-items: center;
+      flex: 1;
+    }
+    .help-family .av {
+      width: 42px; height: 42px; border-radius: 50%;
+      overflow: hidden; position: relative;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .help-family .av + .av { margin-left: -10px; }
+    .help-family .av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .help-family .hf-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      border: 0; cursor: pointer;
+      background: linear-gradient(135deg, var(--brand-orange-400), var(--brand-orange-600));
+      color: #fff;
+      font: var(--weight-bold) 18px / 1 var(--font-family-base);
+      letter-spacing: -0.2px;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(251, 146, 60, 0.35);
+      transition: transform .15s;
+      flex-shrink: 0;
+    }
+    .help-family .hf-cta:active { transform: scale(.97); }
+
+    /* ── 요청 토스트 ───────────────────────── */
+    .help-toast {
+      position: fixed; left: 50%; top: 50%;
+      transform: translate(-50%, -45%) scale(.9);
+      padding: var(--space-6) var(--space-7);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1000;
+      min-width: 380px;
+      text-align: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s, transform .3s cubic-bezier(.2,.9,.3,1.3);
+    }
+    .help-toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+    .help-toast .ht-mark {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand-green-400, #4ADE80), var(--brand-green-600, #16A34A));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.32);
+    }
+    .help-toast .ht-mark iconify-icon { font-size: 44px; }
+    .help-toast .ht-title {
+      font: var(--weight-bold) 26px / 1.15 var(--font-family-base);
+      letter-spacing: -0.3px;
+    }
+    .help-toast .ht-sub {
+      font: var(--weight-medium) 17px / 1.4 var(--font-family-base);
+      color: var(--color-text-secondary);
+      margin-top: 8px;
+    }
+
+    /* 반응형 */
+    @media (max-width: 980px) {
+      .help-grid { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); }
+      .help-grid .help-btn:nth-child(9) { display: none; }
+      .help-btn .hb-icon { width: 70px; height: 70px; }
+      .help-btn .hb-icon iconify-icon { font-size: 38px; }
+      .help-btn .hb-label { font-size: 20px; }
+    }
+    @media (max-width: 700px) {
+      .help-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, auto); }
+      .help-btn { padding: var(--space-4); }
+      .help-btn .hb-icon { width: 60px; height: 60px; }
+      .help-btn .hb-icon iconify-icon { font-size: 32px; }
+      .help-btn .hb-label { font-size: 18px; }
+      .help-family { flex-direction: column; gap: 10px; }
+      .help-family .hf-cta { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="p-header p-header--nav">
+      <a href="p01-today.html" class="p-back" aria-label="뒤로">
+        <iconify-icon icon="fluent:chevron-left-24-filled" width="28" aria-hidden="true"></iconify-icon>
+        뒤로
+      </a>
+      <nav class="top-nav" aria-label="주요 메뉴">
+        <a class="nav-tab" href="p01-today.html">
+          <iconify-icon icon="fluent:home-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          홈
+        </a>
+        <a class="nav-tab" href="p02-med-alert.html">
+          <iconify-icon icon="fluent:clipboard-bullet-list-ltr-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          할일
+        </a>
+        <a class="nav-tab" href="p03-call.html">
+          <iconify-icon icon="fluent:people-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          가족
+        </a>
+        <a class="nav-tab nav-tab--active" href="p08-help.html" aria-current="page">
+          <iconify-icon icon="fluent:hand-wave-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          도움
+        </a>
+      </nav>
+      <div aria-hidden="true"></div>
+    </header>
+
+    <div class="main">
+
+      <div class="help-heading">
+        <h1>무엇이 필요하세요?</h1>
+        <p>버튼을 누르시면 보호자에게 바로 알립니다.</p>
+      </div>
+
+      <!-- 병상 호출기: 8가지 요청 버튼 -->
+      <div class="help-grid" role="list">
+
+        <button class="help-btn" type="button" data-req="물 한 잔" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:drink-to-go-24-filled"></iconify-icon></span>
+          <span class="hb-label">물 한 잔</span>
+          <span class="hb-sub">목 마를 때</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="화장실" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:toilet-24-filled"></iconify-icon></span>
+          <span class="hb-label">화장실</span>
+          <span class="hb-sub">도와주세요</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="식사" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:food-24-filled"></iconify-icon></span>
+          <span class="hb-label">식사</span>
+          <span class="hb-sub">배고파요</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="약 챙겨주세요" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:pill-24-filled"></iconify-icon></span>
+          <span class="hb-label">약 주세요</span>
+          <span class="hb-sub">복약 시간 같아요</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="자세 바꾸기" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:bed-24-filled"></iconify-icon></span>
+          <span class="hb-label">자세 바꾸기</span>
+          <span class="hb-sub">몸이 불편해요</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="더워요 / 추워요" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:temperature-24-filled"></iconify-icon></span>
+          <span class="hb-label">더워요 · 추워요</span>
+          <span class="hb-sub">온도 조절</span>
+        </button>
+
+        <button class="help-btn" type="button" data-req="말벗" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:chat-sparkle-24-filled"></iconify-icon></span>
+          <span class="hb-label">말벗</span>
+          <span class="hb-sub">심심해요</span>
+        </button>
+
+        <button class="help-btn help-btn--urgent" type="button" data-req="아파요" data-urgent="1" role="listitem">
+          <span class="hb-icon"><iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon></span>
+          <span class="hb-label">아파요</span>
+          <span class="hb-sub">지금 바로 도움 요청</span>
+        </button>
+
+      </div>
+
+      <!-- 가족에게 "도움 필요" 알림 스트립 -->
+      <div class="help-family" aria-label="가족에게 도움 알림">
+        <div class="hf-label">
+          <iconify-icon icon="fluent:people-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          가족에게도 알림
+        </div>
+        <div class="hf-avatars" aria-hidden="true">
+          <div class="av"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt=""></div>
+          <div class="av"><img src="https://randomuser.me/api/portraits/women/9.jpg" alt=""></div>
+          <div class="av"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt=""></div>
+        </div>
+        <button class="hf-cta" type="button" id="familyNotify">
+          <iconify-icon icon="fluent:send-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          민지 · 서연 · 태우에게
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 요청 확인 토스트 (중앙 모달) -->
+  <div class="help-toast" id="toast" role="status" aria-live="polite">
+    <div class="ht-mark" aria-hidden="true">
+      <iconify-icon icon="fluent:checkmark-24-filled"></iconify-icon>
+    </div>
+    <div class="ht-title" id="toastTitle">요청 전달됐어요</div>
+    <div class="ht-sub" id="toastSub">보호자에게 알림을 보냈습니다. 곧 와요.</div>
+  </div>
+
+  <script>
+    (function () {
+      var toast = document.getElementById('toast');
+      var title = document.getElementById('toastTitle');
+      var sub = document.getElementById('toastSub');
+      var timer;
+
+      function showRequest(label, opts) {
+        opts = opts || {};
+        if (opts.urgent) {
+          title.textContent = '보호자를 부르고 있어요';
+          sub.textContent = label + ' — 가족에게도 동시에 알림을 보냈어요.';
+        } else {
+          title.textContent = label + ' 요청했어요';
+          sub.textContent = '보호자에게 알림을 보냈습니다. 곧 와요.';
+        }
+        toast.classList.add('show');
+        clearTimeout(timer);
+        timer = setTimeout(function () { toast.classList.remove('show'); }, 2600);
+      }
+
+      document.querySelectorAll('.help-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var label = btn.getAttribute('data-req') || '도움';
+          var urgent = btn.getAttribute('data-urgent') === '1';
+          showRequest(label, { urgent: urgent });
+        });
+      });
+
+      var famBtn = document.getElementById('familyNotify');
+      famBtn.addEventListener('click', function () {
+        title.textContent = '가족에게 알림 보냈어요';
+        sub.textContent = '민지 · 서연 · 태우 세 분께 "도움이 필요해요" 전달됐어요.';
+        toast.classList.add('show');
+        clearTimeout(timer);
+        timer = setTimeout(function () { toast.classList.remove('show'); }, 2600);
+      });
+
+      // 토스트 자체 클릭 시 닫기
+      toast.addEventListener('click', function () {
+        toast.classList.remove('show');
+        clearTimeout(timer);
+      });
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — AI 케어 가이드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.25);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%;background:#d4e4ff}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;overflow-x:hidden}
+
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.14)0%,transparent 65%);filter:blur(30px)}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.20)0%,transparent 65%);filter:blur(40px)}
+
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 100px)}
+
+    /* 헤더 */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.92)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.05);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+
+    /* SOS 배너 */
+    .sos-global{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:0 16px 12px;border-radius:14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);cursor:pointer;transition:transform .12s}
+    .sos-global:active{transform:scale(.98)}
+    .sos-pulse{width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0;animation:sosp 1.5s ease-in-out infinite}
+    @keyframes sosp{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+    .sos-text{font-size:14px;font-weight:700;color:#B91C1C;flex:1}
+    .sos-time{font-size:11px;color:rgba(185,28,28,.5)}
+
+    .content{position:relative;z-index:1;padding:0 16px}
+
+    /* 서브 헤딩 */
+    .sub-heading{font-size:13px;color:var(--t3);line-height:1.5;padding:0 4px 16px}
+
+    /* 벤토 그리드 */
+    .bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+
+    /* 카드 베이스 */
+    .card{background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.04);border-radius:20px;padding:20px;cursor:pointer;transition:transform .12s;position:relative;overflow:hidden}
+    .card:active{transform:scale(.97)}
+    .card-full{grid-column:1/-1}
+
+    .card-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+    .card-title{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+    .card-desc{font-size:12px;color:var(--t2);line-height:1.4}
+    .card-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;margin-top:10px}
+
+    /* 의료 백과 대형 카드 */
+    .card-hero{padding:24px;min-height:140px}
+    .card-hero .card-icon{width:52px;height:52px;border-radius:16px;margin-bottom:16px}
+    .card-hero .card-title{font-size:18px;margin-bottom:6px}
+    .card-hero .card-desc{font-size:13px}
+    .card-hero-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+    .hero-tag{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(44,122,252,.06);color:var(--blue)}
+
+    /* 질문 유도 캐러셀 */
+    .question-section{padding:0 0 16px}
+    .section-title{font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:12px;padding:0 4px}
+    .question-scroll{display:flex;gap:8px;overflow-x:auto;padding:0 4px 4px;-webkit-overflow-scrolling:touch}
+    .question-scroll::-webkit-scrollbar{display:none}
+    .question-chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.04);font-size:13px;font-weight:600;color:var(--t1);cursor:pointer;transition:transform .12s;white-space:nowrap}
+    .question-chip:active{transform:scale(.96)}
+    .question-chip iconify-icon{font-size:14px;color:var(--blue)}
+
+    /* 플로팅 AI 버튼 */
+    .fab-ai{position:fixed;bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 90px);right:max(calc((100% - 430px)/2 + 16px),16px);width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(44,122,252,.35);cursor:pointer;z-index:35;transition:transform .15s}
+    .fab-ai:active{transform:scale(.92)}
+
+    /* 탭바 */
+    .tabbar{position:fixed;bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 12px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:#fff;border:.5px solid rgba(0,0,0,.07);border-radius:999px;box-shadow:0 2px 12px rgba(0,0,0,.10),0 .5px 2px rgba(0,0,0,.06);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+
+    /* AI 오버레이 */
+    .ai-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.3);display:none;align-items:flex-end;justify-content:center}
+    .ai-overlay.show{display:flex}
+    .ai-panel{width:100%;max-width:430px;background:rgba(255,255,255,.97);border-radius:28px 28px 0 0;padding:20px 20px calc(32px + env(safe-area-inset-bottom,0px));max-height:85vh;display:flex;flex-direction:column}
+    .ai-panel-handle{width:36px;height:4px;background:rgba(0,0,0,.08);border-radius:2px;margin:0 auto 16px}
+    .ai-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .ai-panel-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-d));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ai-panel-title{font-size:18px;font-weight:800;flex:1}
+    .ai-panel-close{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--t3)}
+    .ai-mode-chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+    .ai-mode-chips::-webkit-scrollbar{display:none}
+    .ai-mode-chip{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--t2);background:rgba(0,0,0,.03);cursor:pointer;border:none;font-family:var(--font);transition:all .15s}
+    .ai-mode-chip.active{color:var(--blue);background:rgba(44,122,252,.1)}
+    .ai-chat-area{flex:1;overflow-y:auto;padding:8px 0;min-height:200px}
+    .ai-welcome{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px;line-height:1.6}
+    .ai-input-wrap{display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;background:rgba(0,0,0,.04);margin-top:8px}
+    .ai-input-field{flex:1;border:none;background:none;font-size:15px;font-family:var(--font);color:var(--t1);outline:none}
+    .ai-input-field::placeholder{color:var(--t3)}
+    .ai-send-btn{width:34px;height:34px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none;transition:transform .1s}
+    .ai-send-btn:active{transform:scale(.9)}
+
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+  </style>
+</head>
+<body>
+
+  <div class="bg"><div class="g1"></div><div class="g2"></div></div>
+
+  <div class="app">
+
+    <!-- 헤더 -->
+    <div class="header" id="header">
+      <div class="header-inner">
+        <span class="header-title">AI 케어 가이드</span>
+        <a href="g06-alert.html" class="nav-btn" aria-label="알림">
+          <iconify-icon icon="fluent:alert-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+        </a>
+      </div>
+    </div>
+
+    <!-- SOS 배너 -->
+    <div class="sos-global" onclick="toast('긴급 연락 화면으로 이동합니다')">
+      <div class="sos-pulse"></div>
+      <div class="sos-text">낙상 감지 · 302호</div>
+      <div class="sos-time">2분 전</div>
+    </div>
+
+    <div class="content">
+
+      <div class="sub-heading">보호자에게 필요한 케어 정보와 지식을 한 곳에 모았어요.<br>궁금한 것이 있다면 AI에게 물어보세요.</div>
+
+      <!-- 벤토 그리드 -->
+      <div class="bento">
+
+        <!-- 의료 백과사전 (풀 와이드) -->
+        <div class="card card-full card-hero" onclick="openAiOverlay()">
+          <div class="card-icon" style="background:linear-gradient(135deg,rgba(44,122,252,.12),rgba(44,122,252,.05))">
+            <iconify-icon icon="fluent:book-information-24-filled" style="font-size:26px;color:var(--blue)"></iconify-icon>
+          </div>
+          <div class="card-title">의료 백과사전</div>
+          <div class="card-desc">질병 정보, 약물 부작용, 재활 운동, 식단 관리 등<br>카테고리별 전문 콘텐츠를 확인하세요</div>
+          <div class="card-hero-tags">
+            <span class="hero-tag">질병 정보</span>
+            <span class="hero-tag">약물 부작용</span>
+            <span class="hero-tag">재활 운동</span>
+            <span class="hero-tag">식단 관리</span>
+          </div>
+        </div>
+
+        <!-- 감정 지원 가이드 -->
+        <div class="card" onclick="openAiOverlay()">
+          <div class="card-icon" style="background:rgba(239,68,68,.08)">
+            <iconify-icon icon="fluent:heart-24-filled" style="font-size:22px;color:#EF4444"></iconify-icon>
+          </div>
+          <div class="card-title">감정 지원</div>
+          <div class="card-desc">보호자 번아웃 예방, 스트레스 관리 팁</div>
+          <div class="card-badge" style="color:#B91C1C;background:rgba(239,68,68,.08)">
+            <iconify-icon icon="fluent:heart-pulse-24-filled" style="font-size:10px"></iconify-icon>
+            셀프케어
+          </div>
+        </div>
+
+        <!-- 요양원 찾기 -->
+        <div class="card" onclick="openAiOverlay()">
+          <div class="card-icon" style="background:rgba(52,211,153,.08)">
+            <iconify-icon icon="fluent:building-24-filled" style="font-size:22px;color:var(--green-d)"></iconify-icon>
+          </div>
+          <div class="card-title">요양원 찾기</div>
+          <div class="card-desc">주변 요양원 검색 및 비교</div>
+          <div class="card-badge" style="color:var(--green-d);background:rgba(52,211,153,.08)">
+            <iconify-icon icon="fluent:location-24-filled" style="font-size:10px"></iconify-icon>
+            검색
+          </div>
+        </div>
+
+        <!-- 요양보호사 정보 -->
+        <div class="card" onclick="openAiOverlay()">
+          <div class="card-icon" style="background:rgba(245,158,11,.08)">
+            <iconify-icon icon="fluent:person-24-filled" style="font-size:22px;color:var(--amber)"></iconify-icon>
+          </div>
+          <div class="card-title">요양보호사</div>
+          <div class="card-desc">등급, 자격 요건, 역할 안내</div>
+          <div class="card-badge" style="color:#92400E;background:rgba(245,158,11,.08)">
+            <iconify-icon icon="fluent:info-24-filled" style="font-size:10px"></iconify-icon>
+            정보
+          </div>
+        </div>
+
+        <!-- 요양비 계산기 -->
+        <div class="card" onclick="openAiOverlay()">
+          <div class="card-icon" style="background:rgba(44,122,252,.08)">
+            <iconify-icon icon="fluent:calculator-24-filled" style="font-size:22px;color:var(--blue)"></iconify-icon>
+          </div>
+          <div class="card-title">요양비 계산기</div>
+          <div class="card-desc">요양 등급별 비용 시뮬레이션</div>
+          <div class="card-badge" style="color:var(--blue-d);background:rgba(44,122,252,.08)">
+            <iconify-icon icon="fluent:money-24-filled" style="font-size:10px"></iconify-icon>
+            계산
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 질문 유도 캐러셀 -->
+      <div class="question-section">
+        <div class="section-title">이런 것도 물어볼 수 있어요</div>
+        <div class="question-scroll">
+          <div class="question-chip" onclick="openAiOverlay()">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>
+            어머니 약 부작용은?
+          </div>
+          <div class="question-chip" onclick="openAiOverlay()">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>
+            요양 등급 신청 방법
+          </div>
+          <div class="question-chip" onclick="openAiOverlay()">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>
+            낙상 예방 운동
+          </div>
+          <div class="question-chip" onclick="openAiOverlay()">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>
+            치매 초기 증상 구분
+          </div>
+          <div class="question-chip" onclick="openAiOverlay()">
+            <iconify-icon icon="ph:sparkle-fill"></iconify-icon>
+            보호자 스트레스 관리
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 플로팅 AI 버튼 -->
+  <div class="fab-ai" onclick="openAiOverlay()" aria-label="AI 채팅">
+    <svg width="24" height="24" viewBox="0 0 2526 2526" fill="white">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+      <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/>
+    </svg>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g02-ai-guide.html" class="tab active">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 12h8v2H8v-2zm0 4h5v2H8v-2z"/></svg></span>
+    </a>
+    <a href="g03-sotong.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g05-records.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+  <!-- AI 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay" onclick="if(event.target===this)closeAiOverlay()">
+    <div class="ai-panel">
+      <div class="ai-panel-handle"></div>
+      <div class="ai-panel-head">
+        <div class="ai-panel-av">
+          <svg width="20" height="20" viewBox="0 0 2526 2526" fill="white"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+        </div>
+        <div class="ai-panel-title">하루 AI</div>
+        <div class="ai-panel-close" onclick="closeAiOverlay()">✕</div>
+      </div>
+      <div class="ai-mode-chips">
+        <button class="ai-mode-chip active"><iconify-icon icon="fluent:chat-24-filled" style="font-size:14px"></iconify-icon>일반 질문</button>
+        <button class="ai-mode-chip"><iconify-icon icon="fluent:book-information-24-filled" style="font-size:14px"></iconify-icon>케어 상담</button>
+        <button class="ai-mode-chip"><iconify-icon icon="fluent:heart-24-filled" style="font-size:14px"></iconify-icon>감정 지원</button>
+        <button class="ai-mode-chip"><iconify-icon icon="fluent:book-24-filled" style="font-size:14px"></iconify-icon>요양 백과</button>
+        <button class="ai-mode-chip"><iconify-icon icon="tabler:pill-filled" style="font-size:14px"></iconify-icon>복약 정보</button>
+      </div>
+      <div class="ai-chat-area">
+        <div class="ai-welcome">무엇이든 물어보세요.<br>케어 정보, 감정 지원, 복약 상담까지<br>하루 AI가 도와드릴게요.</div>
+      </div>
+      <div class="ai-input-wrap">
+        <input class="ai-input-field" type="text" placeholder="메시지를 입력하세요...">
+        <button class="ai-send-btn"><iconify-icon icon="fluent:send-24-filled" style="font-size:16px;color:#fff"></iconify-icon></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+    function openAiOverlay(){document.getElementById('aiOverlay').classList.add('show');}
+    function closeAiOverlay(){document.getElementById('aiOverlay').classList.remove('show');}
+    function toast(msg){/* placeholder */}
+  </script>
+</body>
+</html>

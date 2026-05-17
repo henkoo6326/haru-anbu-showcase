@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 의료진 대시보드</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    /* 인사 */
+    .greeting {
+      padding: var(--space-xl) 0 var(--space-md);
+    }
+    .greeting-sub {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+      font-weight: var(--weight-medium);
+    }
+    .greeting-main {
+      font-size: var(--text-display);
+      font-weight: var(--weight-bold);
+      line-height: var(--line-height-tight);
+    }
+    .greeting-main span { color: var(--primary); }
+
+    /* ── Segmented Control ── */
+    .seg-control {
+      display: inline-flex;
+      background: rgba(0,0,0,0.06);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: var(--space-lg);
+    }
+    .seg-btn {
+      padding: 7px 18px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      font-family: var(--font-family);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .seg-btn.active {
+      background: var(--surface);
+      color: var(--text-primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── 메인 요약 카드 (Apple Card 스타일) ── */
+    .summary-card {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl) var(--space-xl) var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-md);
+    }
+    .summary-label {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .summary-value {
+      font-size: 36px;
+      font-weight: var(--weight-bold);
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: var(--space-md);
+    }
+    .summary-value .unit {
+      font-size: 20px;
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      letter-spacing: 0;
+    }
+    .dash-progress {
+      height: 10px;
+      background: var(--bg);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .dash-progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: var(--radius-full);
+      transition: width 0.8s ease;
+    }
+    .dash-pills {
+      display: flex;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    .dash-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .dash-pill .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot--done { background: var(--primary); }
+    .dot--progress { background: var(--accent); }
+    .dot--pending { background: var(--divider); }
+    .bar-seg {
+      width: 100%;
+      transition: height 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .bar-seg--done {
+      background: linear-gradient(180deg, var(--primary), color-mix(in srgb, var(--primary) 70%, #064E3B));
+    }
+    .bar-seg--progress {
+      background: linear-gradient(180deg, #A8D5BA, var(--primary));
+      opacity: 0.5;
+    }
+    .bar-time {
+      position: absolute;
+      bottom: -24px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* ── 리스트 행 (Daily Cash 스타일) ── */
+    .list-card {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-md);
+      overflow: hidden;
+    }
+    .list-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-lg) var(--space-xl);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .list-row:active { background: rgba(0,0,0,0.03); }
+    .list-row + .list-row {
+      border-top: 0.5px solid var(--divider);
+    }
+    .list-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .list-body { flex: 1; min-width: 0; }
+    .list-title {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .list-sub {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .list-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      color: var(--text-secondary);
+    }
+    .list-right .value {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+    }
+    .list-right .chevron {
+      width: 16px; height: 16px;
+      opacity: 0.4;
+    }
+
+    /* ── 탭 토글 (By Category/Merchant 스타일) ── */
+    .toggle-tabs {
+      display: flex;
+      background: rgba(0,0,0,0.06);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      margin-bottom: var(--space-md);
+    }
+    .toggle-tab {
+      flex: 1;
+      padding: 8px 0;
+      text-align: center;
+      border: none;
+      border-radius: var(--radius-full);
+      background: transparent;
+      font-family: var(--font-family);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .toggle-tab.active {
+      background: var(--surface);
+      color: var(--text-primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── 카테고리 카드 (Shopping/Services 스타일) ── */
+    .cat-card {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: var(--space-md);
+    }
+    .cat-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-lg) var(--space-xl);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .cat-row:active { background: rgba(0,0,0,0.03); }
+    .cat-row + .cat-row {
+      border-top: 0.5px solid var(--divider);
+    }
+    .cat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .cat-icon--pill { background: #FCE4EC; color: #C62828; }
+    .cat-icon--food { background: #FFF3E0; color: #E65100; }
+    .cat-icon--hygiene { background: #E8F5E9; color: #2E7D32; }
+    .cat-icon--vitals { background: #E3F2FD; color: #1565C0; }
+    .cat-icon--activity { background: #F3E5F5; color: #7B1FA2; }
+    .cat-body { flex: 1; min-width: 0; }
+    .cat-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .cat-count {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .cat-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .cat-right .pct {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* ── 완료 상태 카드 (Nothing to Pay 스타일) ── */
+    .status-card {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+    }
+    .status-label {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .status-value {
+      font-size: 28px;
+      font-weight: var(--weight-bold);
+      letter-spacing: -0.5px;
+    }
+    .status-check {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #f0f0f2;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-check--good {
+      background: var(--bg-success);
+      color: var(--success);
+    }
+
+    /* ── 주의 환자 리스트 ── */
+    .alert-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-lg) var(--space-xl);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+    .alert-row:active { background: rgba(0,0,0,0.03); }
+    .alert-row + .alert-row { border-top: 0.5px solid var(--divider); }
+    .alert-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+    .alert-avatar--warn { background: #FFF3E0; color: #E65100; }
+    .alert-avatar--crit { background: #FFEBEE; color: var(--critical); }
+    .alert-body { flex: 1; min-width: 0; }
+    .alert-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .alert-desc {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .alert-badge {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: var(--weight-semibold);
+    }
+    .alert-badge--warn { background: #FFF3E0; color: #E65100; }
+    .alert-badge--crit { background: #FFEBEE; color: var(--critical); }
+  </style>
+</head>
+<body>  <div class="content">
+
+    <!-- 헤더 -->
+    <div class="greeting">
+      <p class="greeting-sub">2026년 4월 2일 수요일</p>
+      <h1 class="greeting-main">안녕하세요,<br><span>김미영</span> 간호사님</h1>
+    </div>
+
+
+    <!-- ── 케어 현황 요약 카드 ── -->
+    <div class="summary-card">
+      <div class="summary-label">오늘 케어 완료</div>
+      <div class="summary-value">11 <span class="unit">/ 15건</span></div>
+
+      <div class="dash-progress">
+        <div class="dash-progress-fill" style="width:73%;"></div>
+      </div>
+      <div class="dash-pills">
+        <span class="dash-pill"><span class="dot dot--done"></span> 완료 11</span>
+        <span class="dash-pill"><span class="dot dot--progress"></span> 진행 2</span>
+        <span class="dash-pill"><span class="dot dot--pending"></span> 미완료 2</span>
+      </div>
+    </div>
+
+    <!-- ── 주요 현황 리스트 (Daily Cash 스타일) ── -->
+    <div class="list-card">
+      <a href="n05-sos.html" class="list-row">
+        <div class="list-icon" style="background:#FFEBEE; border-radius:50%;">
+          <i data-lucide="bell-ring" style="width:20px;height:20px;color:var(--critical);"></i>
+        </div>
+        <div class="list-body">
+          <div class="list-title">긴급 알림</div>
+          <div class="list-sub">1건 확인 필요</div>
+        </div>
+        <div class="list-right">
+          <i data-lucide="chevron-right" class="chevron"></i>
+        </div>
+      </a>
+      <a href="n06-handoff.html" class="list-row">
+        <div class="list-icon" style="background:#E3F2FD; border-radius:50%;">
+          <i data-lucide="clipboard-list" style="width:20px;height:20px;color:#1565C0;"></i>
+        </div>
+        <div class="list-body">
+          <div class="list-title">인수인계 리포트</div>
+          <div class="list-sub">야간→오전 전달사항 확인</div>
+        </div>
+        <div class="list-right">
+          <i data-lucide="chevron-right" class="chevron"></i>
+        </div>
+      </a>
+    </div>
+
+    <!-- ── 환자별 / 업무별 토글 ── -->
+    <div class="toggle-tabs">
+      <button class="toggle-tab active" onclick="toggleView('category')">업무별</button>
+      <button class="toggle-tab" onclick="toggleView('patient')">환자별</button>
+    </div>
+
+    <!-- ── 업무별 카테고리 (Shopping/Services 스타일) ── -->
+    <div id="view-category" class="cat-card">
+      <a href="#" class="cat-row" onclick="event.preventDefault();">
+        <div class="cat-icon cat-icon--pill">
+          <i data-lucide="pill" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name">투약 관리</div>
+          <div class="cat-count">5건 완료</div>
+        </div>
+        <div class="cat-right">
+          <span class="pct" style="color:var(--success);">100%</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--text-tertiary);"></i>
+        </div>
+      </a>
+      <a href="#" class="cat-row" onclick="event.preventDefault();">
+        <div class="cat-icon cat-icon--food">
+          <i data-lucide="utensils" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name">식사 보조</div>
+          <div class="cat-count">3건 완료 · 1건 주의</div>
+        </div>
+        <div class="cat-right">
+          <span class="pct" style="color:#E65100;">75%</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--text-tertiary);"></i>
+        </div>
+      </a>
+      <a href="#" class="cat-row" onclick="event.preventDefault();">
+        <div class="cat-icon cat-icon--vitals">
+          <i data-lucide="heart-pulse" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name">바이탈 체크</div>
+          <div class="cat-count">2건 완료 · 1건 이상</div>
+        </div>
+        <div class="cat-right">
+          <span class="pct" style="color:var(--critical);">67%</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--text-tertiary);"></i>
+        </div>
+      </a>
+      <a href="#" class="cat-row" onclick="event.preventDefault();">
+        <div class="cat-icon cat-icon--hygiene">
+          <i data-lucide="droplets" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name">위생 케어</div>
+          <div class="cat-count">1건 완료 · 1건 대기</div>
+        </div>
+        <div class="cat-right">
+          <span class="pct" style="color:#E65100;">50%</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--text-tertiary);"></i>
+        </div>
+      </a>
+      <a href="#" class="cat-row" onclick="event.preventDefault();">
+        <div class="cat-icon cat-icon--activity">
+          <i data-lucide="dumbbell" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name">활동 보조</div>
+          <div class="cat-count">오후 예정</div>
+        </div>
+        <div class="cat-right">
+          <span class="pct" style="color:var(--text-tertiary);">0%</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--text-tertiary);"></i>
+        </div>
+      </a>
+    </div>
+
+    <!-- ── 주의 환자 ── -->
+    <div class="section" style="margin-top:var(--space-lg);">
+      <div class="section-header">
+        <h2 class="section-title">주의 환자</h2>
+        <a href="n02-patients.html" class="section-action">전체 보기</a>
+      </div>
+      <div class="list-card">
+        <a href="n02-patients.html" class="alert-row">
+          <div class="alert-avatar alert-avatar--crit">
+            <i data-lucide="user-round" style="width:18px;height:18px;"></i>
+          </div>
+          <div class="alert-body">
+            <div class="alert-name">박영수</div>
+            <div class="alert-desc">82세 · 305호 · 혈압 상승</div>
+          </div>
+          <span class="alert-badge alert-badge--crit">경고</span>
+        </a>
+        <a href="n02-patients.html" class="alert-row">
+          <div class="alert-avatar alert-avatar--warn">
+            <i data-lucide="user-round" style="width:18px;height:18px;"></i>
+          </div>
+          <div class="alert-body">
+            <div class="alert-name">손정희</div>
+            <div class="alert-desc">78세 · 302호 · 식사량 감소</div>
+          </div>
+          <span class="alert-badge alert-badge--warn">주의</span>
+        </a>
+        <a href="n02-patients.html" class="alert-row">
+          <div class="alert-avatar alert-avatar--warn">
+            <i data-lucide="user-round" style="width:18px;height:18px;"></i>
+          </div>
+          <div class="alert-body">
+            <div class="alert-name">이순자</div>
+            <div class="alert-desc">75세 · 310호 · 투약 미완료</div>
+          </div>
+          <span class="alert-badge alert-badge--warn">주의</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" style="position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);padding:12px 24px;background:#1C1C1E;color:white;border-radius:999px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:300;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;text-align:center;max-width:380px;font-family:var(--font-family);"></div>
+
+  <!-- SOS FAB -->
+  <a href="n05-sos.html" class="sos-fab" aria-label="SOS 긴급 알림" style="position:fixed; bottom:calc(110px + env(safe-area-inset-bottom, 20px)); right:var(--space-lg); width:56px; height:56px; border-radius:50%; background:var(--critical); color:white; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(220, 38, 38, 0.4); border:none; z-index:100; cursor:pointer; text-decoration:none; transition:transform 0.15s ease;">
+    <i data-lucide="bell" style="width:24px;height:24px;"></i>
+  </a>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(50px + 44px + 8px); padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="n02-patients.html" class="tab">
+      <span class="tab-icon"><i data-lucide="users"></i></span>
+      <span class="tab-label">환자</span>
+    </a>
+    <a href="n03-checklist.html" class="tab">
+      <span class="tab-icon"><i data-lucide="list-checks"></i></span>
+      <span class="tab-label">체크리스트</span>
+    </a>
+    <a href="n04-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="user"></i></span>
+      <span class="tab-label">내 정보</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+
+    // Toggle view
+    function toggleView(view) {
+      const catView = document.getElementById('view-category');
+      const patView = document.getElementById('view-patient');
+      const tabs = document.querySelectorAll('.toggle-tab');
+
+      if (view === 'category') {
+        catView.style.display = '';
+        patView.style.display = 'none';
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+      } else {
+        catView.style.display = 'none';
+        patView.style.display = '';
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+      }
+    }
+
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(-20px)';
+      }, 3000);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

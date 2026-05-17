@@ -1,0 +1,1195 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>하루안부 기획서 V6</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--blue:#2C7AFC;--navy:#1E2A3A;--slate:#64748B;--rule:#E2E8F0;--ghost:rgba(255,255,255,0.04);}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#DADDE0;padding:24px;}
+.slide-outer{width:100%;overflow:hidden;position:relative;margin-bottom:24px;line-height:0;break-inside:avoid;page-break-inside:avoid;}
+.slide{width:1920px;height:1080px;background:#fff;position:relative;overflow:hidden;transform-origin:top left;display:block;line-height:normal;}
+.slide-dark{background:#1E2A3A!important;}
+/* TOP BAR v3 */
+.top-bar{position:absolute;top:80px;left:88px;right:88px;height:40px;display:flex;align-items:center;border-bottom:1px solid var(--rule);z-index:10;}
+.top-bar-section{font-size:14px;font-weight:600;color:#161616;width:197px;flex-shrink:0;}
+.top-bar-sub{font-size:14px;font-weight:400;color:#B3B3B3;flex:1;white-space:nowrap;overflow:hidden;padding-left:24px;}
+.top-bar-course{font-size:14px;font-weight:400;color:#B3B3B3;flex-shrink:0;}
+/* PAGINATION v3 */
+.pg-v3{position:absolute;top:1000px;right:88px;line-height:1;}
+.pg-v3 .pgc{font-size:14px;font-weight:600;color:#161616;}
+.pg-v3 .pgt{font-size:14px;font-weight:400;color:#B3B3B3;}
+.pg-v3-white .pgc{color:#fff;}
+.pg-v3-white .pgt{color:rgba(255,255,255,0.5);}
+/* LINE-METRIC */
+.line-metric{display:flex;align-items:center;margin-bottom:24px;}
+.lm-label{font-size:15px;font-weight:400;color:var(--slate);min-width:320px;}
+.lm-track{flex:1;height:1px;background:var(--rule);position:relative;margin:0 24px;}
+.lm-dot{position:absolute;right:0;top:50%;transform:translate(50%,-50%);width:10px;height:10px;border:2px solid var(--blue);border-radius:50%;background:#fff;}
+.lm-val{font-size:40px;font-weight:700;letter-spacing:-1px;color:var(--navy);min-width:160px;text-align:right;}
+/* LEAN CANVAS */
+.lc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;width:100%;height:100%;}
+.lc-cell{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;}
+.lc-cell:nth-child(3n){border-right:none;}
+.lc-cell:nth-child(n+7){border-bottom:none;}
+.lc-tag{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.lc-body{font-size:14px;font-weight:400;line-height:1.7;color:var(--slate);}
+/* PHONE MOCK */
+.phone-mock{width:240px;height:480px;border:2px solid #E2E8F0;border-radius:32px;background:#fff;position:relative;overflow:hidden;flex-shrink:0;}
+.phone-mock-dark{background:#F5F7FA;}
+.phone-screen{position:absolute;top:0;left:0;right:0;bottom:0;padding:16px 12px;overflow:hidden;}
+.phone-status{font-size:10px;font-weight:500;color:#161616;text-align:center;margin-bottom:8px;}
+/* STAT CARD */
+.stat-card{border:1px solid var(--rule);padding:32px;background:#F8FAFF;}
+.stat-num{font-size:48px;font-weight:700;color:var(--blue);letter-spacing:-1px;line-height:1;}
+.stat-label{font-size:16px;font-weight:400;color:var(--slate);margin-top:8px;}
+.stat-source{font-size:12px;font-weight:400;color:#B3B3B3;margin-top:4px;}
+/* BAR CHART */
+.bar-wrap{margin-bottom:24px;}
+.bar-label{font-size:14px;font-weight:500;color:#161616;margin-bottom:8px;}
+.bar-bg{height:32px;background:#F0F0F0;border-radius:4px;position:relative;overflow:hidden;}
+.bar-fill{height:100%;background:var(--blue);border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;}
+.bar-fill-val{font-size:14px;font-weight:600;color:#fff;}
+/* INSIGHT CARD */
+.insight-card{background:#F0F4FF;padding:32px 40px;margin-bottom:16px;}
+.insight-card-dark{background:#243247;padding:32px 40px;margin-bottom:16px;}
+/* SOURCE TEXT */
+.src{font-size:12px;font-weight:400;color:#B3B3B3;margin-top:8px;}
+/* EYEBROW / SLIDE-TITLE / CONTENT-ZONE */
+.eyebrow{position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;text-transform:uppercase;}
+.slide-title{position:absolute;top:208px;left:88px;right:88px;font-size:40px;font-weight:600;color:#161616;line-height:1.2;letter-spacing:-0.5px;}
+.content-zone{position:absolute;top:288px;left:88px;right:88px;bottom:120px;}
+/* AI IMAGE BOX */
+.ai-img-box{background:#D0D0D0;display:flex;align-items:center;justify-content:center;position:relative;}
+.ai-img-label{font-size:12px;font-weight:400;color:#888;text-align:center;padding:16px;line-height:1.6;}
+/* POSITIONING MAP */
+.pos-map{position:relative;border:1px solid var(--rule);}
+.pos-dot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);}
+/* PILL TAG */
+.pill{display:inline-block;padding:4px 14px;border-radius:100px;font-size:14px;font-weight:500;margin-right:8px;margin-bottom:8px;}
+.pill-blue{background:rgba(44,122,252,0.12);color:var(--blue);}
+.pill-gray{background:#F0F0F0;color:#64748B;}
+/* FLOWCHART */
+.fc-box{border:1px solid var(--blue);padding:12px 24px;font-size:14px;font-weight:500;color:#161616;text-align:center;background:#fff;}
+.fc-box-blue{border:1px solid var(--blue);padding:12px 24px;font-size:14px;font-weight:500;color:#fff;text-align:center;background:var(--blue);}
+.fc-arrow{font-size:20px;color:var(--blue);margin:0 8px;}
+/* 3COL */
+.three-col{display:flex;gap:0;}
+.three-col-item{flex:1;padding:0 48px;border-right:1px solid var(--rule);overflow:hidden;}
+.three-col-item:first-child{padding-left:0;}
+.three-col-item:last-child{border-right:none;padding-right:0;}
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;border:1px solid var(--rule);}
+.swot-cell{padding:40px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow:hidden;}
+.swot-cell:nth-child(2n){border-right:none;}
+.swot-cell:nth-child(n+3){border-bottom:none;}
+.swot-tag{font-size:11px;font-weight:600;letter-spacing:2px;color:var(--blue);margin-bottom:16px;}
+/* V2 TOC ROW */
+.toc-row-v3{display:flex;align-items:center;padding:20px 0;border-bottom:1px solid var(--rule);}
+.toc-row-v3-dark{display:flex;align-items:center;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+/* TOC ROW DK — dark section intro slides */
+.toc-row-dk{display:flex;align-items:center;padding:34px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+.toc-row-dk .tr-num{color:rgba(255,255,255,0.2);}
+.toc-row-dk .tr-title{color:rgba(255,255,255,0.15);}
+.toc-row-dk .tr-sub,.toc-row-dk .tr-pg{color:rgba(255,255,255,0.1);}
+.toc-row-dk.active .tr-num{color:var(--blue);}
+.toc-row-dk.active .tr-title{color:#5B9BFF;}
+.toc-row-dk.active .tr-sub,.toc-row-dk.active .tr-pg{color:rgba(44,122,252,0.65);}
+.tr-num{font-size:14px;font-weight:600;color:var(--blue);width:88px;flex-shrink:0;letter-spacing:2px;}
+.tr-title{font-size:32px;font-weight:600;color:#161616;width:320px;flex-shrink:0;line-height:1.2;letter-spacing:-0.5px;}
+.tr-title-dark{font-size:32px;font-weight:600;color:#fff;width:320px;flex-shrink:0;line-height:1.2;letter-spacing:-0.5px;}
+.tr-title-active{font-size:32px;font-weight:600;color:#2C7AFC;width:320px;flex-shrink:0;line-height:1.2;letter-spacing:-0.5px;}
+.tr-sub{font-size:16px;font-weight:400;color:#B3B3B3;flex:1;white-space:nowrap;}
+.tr-sub-dark{font-size:16px;font-weight:400;color:rgba(255,255,255,0.3);flex:1;white-space:nowrap;}
+.tr-sub-active{font-size:16px;font-weight:400;color:rgba(44,122,252,0.7);flex:1;white-space:nowrap;}
+.tr-pg{font-size:14px;font-weight:400;color:#B3B3B3;width:64px;text-align:right;flex-shrink:0;}
+.tr-pg-dark{font-size:14px;font-weight:400;color:rgba(255,255,255,0.2);width:64px;text-align:right;flex-shrink:0;}
+.tr-pg-active{font-size:14px;font-weight:400;color:#2C7AFC;width:64px;text-align:right;flex-shrink:0;}
+/* SECTION INTRO TOP NAV */
+.intro-nav{position:absolute;top:0;left:0;right:0;height:56px;border-bottom:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;padding:0 88px;z-index:10;}
+.intro-nav-logo{height:20px;margin-right:auto;filter:brightness(0) invert(1);}
+.intro-nav-items{display:flex;align-items:center;gap:48px;}
+.intro-nav-item{font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.intro-nav-item.cur{color:#fff;border-bottom:1.5px solid #fff;padding-bottom:2px;}
+/* SCREEN */
+@media screen{.slide-outer{height:calc(var(--ss,0.7)*1080px);}.slide{transform:scale(var(--ss,0.7));}}
+@media print{@page{size:20in 11.25in;margin:0;}body{background:none!important;padding:0!important;margin:0!important;}.slide-outer{break-inside:avoid;page-break-inside:avoid;page-break-after:always;margin:0!important;overflow:visible!important;height:1080px!important;}.slide{transform:none!important;margin:0!important;}}
+</style>
+</head>
+<body>
+
+<!-- S01 COVER -->
+<div class="slide-outer"><section class="slide slide-dark" id="s01">
+  <div style="position:absolute;top:80px;left:88px;display:flex;gap:80px;align-items:flex-start;">
+    <div>
+      <p style="font-size:14px;font-weight:500;color:#B3B3B3;letter-spacing:1px;margin-bottom:8px;">TEAM.</p>
+      <p style="font-size:16px;font-weight:400;color:#fff;line-height:1.6;">노인과 바다 그리고 네잎클로버<br>김지욱 손예찬 고해은</p>
+    </div>
+    <div>
+      <p style="font-size:14px;font-weight:500;color:#B3B3B3;letter-spacing:1px;margin-bottom:8px;">PROF.</p>
+      <p style="font-size:16px;font-weight:400;color:#fff;">남궁경</p>
+    </div>
+  </div>
+  <p style="position:absolute;top:80px;right:88px;font-size:14px;font-weight:500;color:#B3B3B3;letter-spacing:1px;">DIGITAL CONTENT</p>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);text-align:center;">
+    <img src="./logo/haru.svg" style="height:200px;width:auto;filter:brightness(0) invert(1);margin-bottom:40px;display:block;margin-left:auto;margin-right:auto;">
+    <p style="font-size:24px;font-weight:400;color:rgba(255,255,255,0.6);margin-bottom:16px;">오늘도 안녕하셨습니까,</p>
+    <h1 style="font-size:56px;font-weight:700;color:#fff;letter-spacing:-2px;">하루안부</h1>
+  </div>
+  <p style="position:absolute;bottom:80px;right:88px;font-size:14px;font-weight:400;color:#B3B3B3;">2026. 04</p>
+</section></div>
+
+<!-- S02 CONTENTS -->
+<div class="slide-outer"><section class="slide" id="s02" style="background:#F5F5F5;">
+  <div class="top-bar">
+    <span class="top-bar-section">목차</span>
+    <span class="top-bar-sub">Table of Contents</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;right:88px;">
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:32px;">Contents</h2>
+    <div style="border-top:1px solid var(--rule);">
+      <div class="toc-row-v3"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+      <div class="toc-row-v3"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+      <div class="toc-row-v3"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트 · 니즈 · 인사이트 · 문장형 컨셉 · 타겟 설정</span><span class="tr-pg">17</span></div>
+      <div class="toc-row-v3"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT · 벤치마킹 · 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+      <div class="toc-row-v3"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트</span><span class="tr-pg">27</span></div>
+      <div class="toc-row-v3"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인</span><span class="tr-pg">34</span></div>
+      <div class="toc-row-v3"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">02</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S03 섹션 인트로[01] -->
+<div class="slide-outer"><section class="slide slide-dark" id="s03">
+  <p style="position:absolute;top:80px;left:88px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:3px;text-transform:uppercase;">INDEX</p>
+  <p style="position:absolute;top:80px;right:88px;font-size:13px;font-weight:400;color:rgba(255,255,255,0.25);">디지털콘텐츠제작03</p>
+  <div style="position:absolute;top:136px;left:88px;right:88px;bottom:120px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="toc-row-dk active"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+    <div class="toc-row-dk"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+    <div class="toc-row-dk"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트·니즈·인사이트 · 문장형 컨셉 · 타겟설정 · 결론 도출</span><span class="tr-pg">17</span></div>
+    <div class="toc-row-dk"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT 분석 · 벤치마킹 &amp; 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+    <div class="toc-row-dk"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트 · 결론 도출</span><span class="tr-pg">27</span></div>
+    <div class="toc-row-dk"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인 · 프로토타입</span><span class="tr-pg">34</span></div>
+    <div class="toc-row-dk" style="border-bottom:none;"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">03</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S04 OVERVIEW -->
+<div class="slide-outer"><section class="slide slide-dark" id="s04">
+  <div style="position:absolute;top:0;left:0;bottom:0;width:1056px;display:flex;flex-direction:column;justify-content:center;padding:0 88px;">
+    <p style="font-size:14px;font-weight:600;color:#2C7AFC;letter-spacing:3px;margin-bottom:32px;">OVERVIEW</p>
+    <h2 style="font-size:56px;font-weight:600;color:#fff;letter-spacing:-1.5px;line-height:1.15;margin-bottom:32px;">하루 한 번의 안부가<br><span style="color:#2C7AFC;">연결</span>하는 것들</h2>
+    <p style="font-size:20px;font-weight:400;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:48px;">보호자·환자·의료진을 하나의 플랫폼으로<br>연결하는 AI 케어 커뮤니케이션 앱</p>
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="width:48px;height:48px;background:#2C7AFC;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:22px;">📞</span>
+        </div>
+        <div><p style="font-size:18px;font-weight:600;color:#fff;margin-bottom:4px;">AI 안부 통화</p><p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.5);">매일 AI가 먼저 걸어주는 안부 전화</p></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="width:48px;height:48px;background:rgba(44,122,252,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:22px;">📋</span>
+        </div>
+        <div><p style="font-size:18px;font-weight:600;color:#fff;margin-bottom:4px;">건강 리포트 공유</p><p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.5);">복약·식사·활동 정보 자동 공유</p></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="width:48px;height:48px;background:rgba(44,122,252,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:22px;">🔔</span>
+        </div>
+        <div><p style="font-size:18px;font-weight:600;color:#fff;margin-bottom:4px;">응급 알림 시스템</p><p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.5);">이상 감지 시 즉시 보호자 알림</p></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;top:80px;bottom:80px;left:1056px;width:1px;background:rgba(255,255,255,0.1);"></div>
+  <div style="position:absolute;top:0;left:1056px;right:0;bottom:0;display:flex;flex-direction:column;justify-content:center;padding:0 64px;gap:0;">
+    <p style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:24px;">TARGET USERS</p>
+    <div style="border:1px solid rgba(255,255,255,0.12);padding:32px;border-radius:4px;margin-bottom:16px;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">보호자</p>
+      <p style="font-size:18px;font-weight:500;color:#fff;margin-bottom:8px;">멀리서도 매일 안심하고 싶은</p>
+      <p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.4);">30-50대 자녀 · 월 2.3회 방문</p>
+    </div>
+    <div style="border:1px solid rgba(255,255,255,0.12);padding:32px;border-radius:4px;margin-bottom:16px;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">고령 환자</p>
+      <p style="font-size:18px;font-weight:500;color:#fff;margin-bottom:8px;">가족과 연결되고 싶은</p>
+      <p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.4);">65세+ · 요양원·병원 입원 중</p>
+    </div>
+    <div style="border:1px solid rgba(255,255,255,0.12);padding:32px;border-radius:4px;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">의료진</p>
+      <p style="font-size:18px;font-weight:500;color:#fff;margin-bottom:8px;">반복 설명 없이 효율적으로</p>
+      <p style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.4);">간호사·의사 · 1인당 20-30명 담당</p>
+    </div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">04</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S05 TARGET USERS -->
+<div class="slide-outer"><section class="slide" id="s05">
+  <div class="top-bar">
+    <span class="top-bar-section">01 프로젝트 개요</span>
+    <span class="top-bar-sub">타겟 사용자 정의</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">TARGET USERS</p>
+  <h2 style="position:absolute;top:208px;left:88px;right:88px;font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">연결이 끊긴 세 사람</h2>
+  <div style="position:absolute;top:312px;left:88px;right:88px;bottom:80px;display:flex;gap:24px;">
+    <!-- 보호자 -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--rule);">
+      <img src="./페르소나/불편한_보호자.png" style="width:100%;height:280px;object-fit:cover;object-position:top;display:block;">
+      <div style="padding:32px;flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <p style="font-size:12px;font-weight:600;color:#2C7AFC;letter-spacing:2px;margin-bottom:8px;">GUARDIAN 보호자</p>
+          <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:4px;">30–50대 자녀</p>
+        </div>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"엄마가 오늘 뭘 드셨는지, 잘 주무셨는지 매일 걱정인데..."</p>
+        <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:16px;">
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;">정보 비대칭</span>
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;margin-left:8px;">죄책감</span>
+        </div>
+      </div>
+    </div>
+    <!-- 환자 -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--rule);">
+      <img src="./페르소나/불편한_환자.png" style="width:100%;height:280px;object-fit:cover;object-position:top;display:block;">
+      <div style="padding:32px;flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <p style="font-size:12px;font-weight:600;color:#2C7AFC;letter-spacing:2px;margin-bottom:8px;">PATIENT 고령 환자</p>
+          <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:4px;">65세+ 입원 환자</p>
+        </div>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"아들한테 전화하고 싶은데 버튼이 어디 있는지 모르겠어..."</p>
+        <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:16px;">
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;">디지털 장벽</span>
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;margin-left:8px;">외로움</span>
+        </div>
+      </div>
+    </div>
+    <!-- 의료진 -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--rule);">
+      <img src="./페르소나/불편한_의료진.png" style="width:100%;height:280px;object-fit:cover;object-position:top;display:block;">
+      <div style="padding:32px;flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <p style="font-size:12px;font-weight:600;color:#2C7AFC;letter-spacing:2px;margin-bottom:8px;">STAFF 의료진</p>
+          <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:4px;">요양원 간호사·의사</p>
+        </div>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"보호자분들 전화가 하루에도 몇 번씩 와요. 같은 내용을 반복 설명하는 게 너무 힘들어요..."</p>
+        <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:16px;">
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;">반복 소통 부담</span>
+          <span style="background:#FFF0F0;color:#E53E3E;padding:6px 14px;font-size:13px;font-weight:500;border-radius:4px;margin-left:8px;">과부하</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">05</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S06 PROJECT GOAL -->
+<div class="slide-outer"><section class="slide" id="s06">
+  <div class="top-bar">
+    <span class="top-bar-section">01 프로젝트 개요</span>
+    <span class="top-bar-sub">프로젝트 목적</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;right:88px;text-align:center;">
+    <p style="font-size:20px;font-weight:400;color:#B3B3B3;margin-bottom:16px;">하루 한 번,</p>
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:24px;">오늘도 안녕하셨습니까, 하루안부가 <span style="color:#2C7AFC;">연결</span>합니다</h2>
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:8px;">병원, 요양원, 집에서 떨어져 있어도 하루 한 번 안부를 나눌 수 있도록.<br>보호자·환자·의료진을 하나의 앱으로 연결하는 따뜻한 케어 커뮤니케이션 서비스.</p>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;right:88px;display:flex;gap:24px;">
+    <div style="flex:1;border:1px solid #E2E8F0;padding:48px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:16px;">#연결</p>
+      <h3 style="font-size:24px;font-weight:600;color:#161616;margin-bottom:16px;">AI 안부 통화</h3>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.7;">AI가 먼저 걸어주는 하루 한 번의 전화로 보호자·환자·의료진을 실시간 연결</p>
+    </div>
+    <div style="flex:1;border:1px solid #E2E8F0;padding:48px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:16px;">#투명</p>
+      <h3 style="font-size:24px;font-weight:600;color:#161616;margin-bottom:16px;">건강 리포트 공유</h3>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.7;">복약·식사·활동 정보를 보호자와 의료진에게 즉시 공유. 정보 격차를 없앤다</p>
+    </div>
+    <div style="flex:1;border:1px solid #E2E8F0;padding:48px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:16px;">#지속</p>
+      <h3 style="font-size:24px;font-weight:600;color:#161616;margin-bottom:16px;">응급 알림 시스템</h3>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.7;">이상 감지 시 자동 알림으로 빠른 대응. 24시간 안심 케어를 제공</p>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">06</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S07 섹션 인트로[02] -->
+<div class="slide-outer"><section class="slide slide-dark" id="s07">
+  <p style="position:absolute;top:80px;left:88px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:3px;text-transform:uppercase;">INDEX</p>
+  <p style="position:absolute;top:80px;right:88px;font-size:13px;font-weight:400;color:rgba(255,255,255,0.25);">디지털콘텐츠제작03</p>
+  <div style="position:absolute;top:136px;left:88px;right:88px;bottom:120px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="toc-row-dk"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+    <div class="toc-row-dk active"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+    <div class="toc-row-dk"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트·니즈·인사이트 · 문장형 컨셉 · 타겟설정 · 결론 도출</span><span class="tr-pg">17</span></div>
+    <div class="toc-row-dk"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT 분석 · 벤치마킹 &amp; 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+    <div class="toc-row-dk"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트 · 결론 도출</span><span class="tr-pg">27</span></div>
+    <div class="toc-row-dk"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인 · 프로토타입</span><span class="tr-pg">34</span></div>
+    <div class="toc-row-dk" style="border-bottom:none;"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">07</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S08 DESK RESEARCH 1 -->
+<div class="slide-outer"><section class="slide" id="s08">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">데스크 리서치</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">DESK RESEARCH</p>
+  <h2 style="position:absolute;top:208px;left:88px;right:88px;font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">초고령사회, 대한민국이 <span style="color:#2C7AFC;">변하고</span> 있습니다</h2>
+  <p style="position:absolute;top:312px;left:88px;right:88px;font-size:18px;font-weight:400;color:#64748B;line-height:1.7;">한국은 2025년 65세 이상 인구가 전체의 20.6%를 넘어 초고령사회에 진입합니다. 노인 인구 증가와 함께 돌봄 수요와 의료 부담은 빠르게 늘어나고 있습니다.</p>
+  <div style="position:absolute;bottom:80px;left:88px;width:800px;">
+    <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:16px;">65세 이상 인구 비율 추이 (%)</p>
+    <svg width="780" height="280" viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="20" x2="60" y2="230" stroke="#E2E8F0" stroke-width="1"/>
+      <line x1="60" y1="230" x2="760" y2="230" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="50" y="234" font-size="12" fill="#B3B3B3" text-anchor="end">0</text>
+      <text x="50" y="190" font-size="12" fill="#B3B3B3" text-anchor="end">10</text>
+      <text x="50" y="145" font-size="12" fill="#B3B3B3" text-anchor="end">20</text>
+      <text x="50" y="100" font-size="12" fill="#B3B3B3" text-anchor="end">30</text>
+      <text x="50" y="55" font-size="12" fill="#B3B3B3" text-anchor="end">40</text>
+      <line x1="60" y1="190" x2="760" y2="190" stroke="#F0F0F0" stroke-width="1"/>
+      <line x1="60" y1="145" x2="760" y2="145" stroke="#F0F0F0" stroke-width="1"/>
+      <line x1="60" y1="100" x2="760" y2="100" stroke="#F0F0F0" stroke-width="1"/>
+      <line x1="60" y1="55" x2="760" y2="55" stroke="#F0F0F0" stroke-width="1"/>
+      <polyline points="110,193 285,174 460,157 635,125" fill="none" stroke="#2C7AFC" stroke-width="2.5"/>
+      <polyline points="635,125 760,25" fill="none" stroke="#2C7AFC" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <circle cx="110" cy="193" r="5" fill="#2C7AFC"/>
+      <circle cx="285" cy="174" r="5" fill="#2C7AFC"/>
+      <circle cx="460" cy="157" r="5" fill="#2C7AFC"/>
+      <circle cx="635" cy="125" r="5" fill="#2C7AFC"/>
+      <circle cx="760" cy="25" r="5" fill="#2C7AFC" stroke="#fff" stroke-width="2"/>
+      <text x="110" y="185" font-size="11" fill="#2C7AFC" text-anchor="middle">7.2%</text>
+      <text x="285" y="166" font-size="11" fill="#2C7AFC" text-anchor="middle">11.0%</text>
+      <text x="460" y="149" font-size="11" fill="#2C7AFC" text-anchor="middle">14.3%</text>
+      <text x="635" y="117" font-size="11" fill="#2C7AFC" text-anchor="middle">20.6%</text>
+      <text x="760" y="17" font-size="11" fill="#2C7AFC" text-anchor="middle">40.1%</text>
+      <text x="110" y="248" font-size="12" fill="#B3B3B3" text-anchor="middle">2000</text>
+      <text x="285" y="248" font-size="12" fill="#B3B3B3" text-anchor="middle">2010</text>
+      <text x="460" y="248" font-size="12" fill="#B3B3B3" text-anchor="middle">2018</text>
+      <text x="635" y="248" font-size="12" fill="#B3B3B3" text-anchor="middle">2025(예상)</text>
+      <text x="760" y="248" font-size="12" fill="#B3B3B3" text-anchor="middle">2050(예상)</text>
+    </svg>
+    <p class="src">출처: 통계청, 2024</p>
+  </div>
+  <div style="position:absolute;bottom:80px;right:88px;width:700px;display:flex;flex-direction:column;gap:0;">
+    <div style="display:flex;align-items:center;padding:32px 0;border-bottom:1px solid var(--rule);">
+      <div style="flex:1;">
+        <p style="font-size:48px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">1,008만</p>
+        <p style="font-size:16px;font-weight:400;color:#64748B;margin-top:8px;">2024년 65세 이상 인구</p>
+        <p class="src">출처: 통계청</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:32px 0;border-bottom:1px solid var(--rule);">
+      <div style="flex:1;">
+        <p style="font-size:48px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">37.8%</p>
+        <p style="font-size:16px;font-weight:400;color:#64748B;margin-top:8px;">노인 1인 가구 비율</p>
+        <p class="src">출처: 보건복지부 2023 노인실태조사</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:32px 0;">
+      <div style="flex:1;">
+        <p style="font-size:48px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">88.5%</p>
+        <p style="font-size:16px;font-weight:400;color:#64748B;margin-top:8px;">65세 이상 만성질환 보유율</p>
+        <p class="src">출처: 보건복지부 2023</p>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">08</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S09 DESK RESEARCH 2 -->
+<div class="slide-outer"><section class="slide" id="s09">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">데스크 리서치</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;width:600px;">
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:24px;">입원 중인 부모님,<br>오늘 어떠셨을까요?</h2>
+    <p style="font-size:14px;font-weight:400;color:#B3B3B3;">요양원 입소 노인 가족 방문 빈도: 월 평균 2.3회<br><span style="font-size:12px;">출처: 보건복지부, 2022</span></p>
+  </div>
+  <div style="position:absolute;top:208px;right:88px;width:700px;">
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:16px;">입원 환자 보호자의 <strong style="color:#161616;">68%</strong>가 "의료진으로부터 충분한 정보를 받지 못한다"고 응답했습니다.</p>
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:16px;">의사-환자 소통 만족도 조사에서 <strong style="color:#161616;">52.3%</strong>만이 "충분한 설명을 받았다"고 답했습니다.</p>
+    <p class="src">출처: 한국의료패널 2022 / 건강보험심사평가원 2023</p>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;width:750px;">
+    <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:24px;">보호자 설문조사 결과</p>
+    <p style="font-size:13px;font-weight:400;color:#64748B;margin-bottom:12px;">Q. 보호자로서 환자의 일상 정보를 충분히 알고 있다고 생각하시나요?</p>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:500;color:#161616;width:60px;">아니요</span>
+      <div style="flex:1;height:32px;background:#F0F0F0;border-radius:4px;overflow:hidden;">
+        <div style="width:75%;height:100%;background:#2C7AFC;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;">
+          <span style="font-size:14px;font-weight:600;color:#fff;">75%</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <span style="font-size:13px;font-weight:500;color:#161616;width:60px;">예</span>
+      <div style="flex:1;height:32px;background:#F0F0F0;border-radius:4px;overflow:hidden;">
+        <div style="width:25%;height:100%;background:#CBD5E1;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;">
+          <span style="font-size:14px;font-weight:600;color:#fff;">25%</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;font-weight:400;color:#64748B;margin-bottom:12px;">Q. 의료진과 소통이 원활하게 이루어진다고 느끼시나요?</p>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:500;color:#161616;width:60px;">아니요</span>
+      <div style="flex:1;height:32px;background:#F0F0F0;border-radius:4px;overflow:hidden;">
+        <div style="width:68%;height:100%;background:#2C7AFC;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;">
+          <span style="font-size:14px;font-weight:600;color:#fff;">68%</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+      <span style="font-size:13px;font-weight:500;color:#161616;width:60px;">예</span>
+      <div style="flex:1;height:32px;background:#F0F0F0;border-radius:4px;overflow:hidden;">
+        <div style="width:32%;height:100%;background:#CBD5E1;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;">
+          <span style="font-size:14px;font-weight:600;color:#fff;">32%</span>
+        </div>
+      </div>
+    </div>
+    <p class="src">설문: 팀 자체 설문조사 / 응답자 45명 / 2026.03</p>
+  </div>
+  <div style="position:absolute;bottom:80px;right:88px;width:700px;display:flex;flex-direction:column;gap:16px;">
+    <div style="border:1px solid var(--rule);padding:32px;">
+      <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"퇴원 날짜도 간호사한테 물어봐야 알아요. 의사 선생님이 바빠서..."</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 60대 보호자 인터뷰</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;">
+      <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"어르신이 오늘 뭘 드셨는지, 보호자분들이 물어봐도 매번 설명하기가..."</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 요양원 간호사 인터뷰</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;background:#F8FAFF;">
+      <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"요양원에 입원하면 가족과 연락이 뚝 끊기는 것 같아요. 면회도 월 2~3번이 고작인데..."</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 40대 보호자 인터뷰</p>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">09</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S10 DESK RESEARCH 3 -->
+<div class="slide-outer"><section class="slide" id="s10">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">데스크 리서치</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <!-- Left: Title + chart -->
+  <div style="position:absolute;top:208px;left:88px;width:840px;bottom:80px;display:flex;flex-direction:column;">
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:16px;">왜 디지털 케어는<br>지속되지 않을까요?</h2>
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:4px;">고령자 돌봄 앱의 30일 잔존율은 평균 <strong style="color:#161616;">4.2%</strong>에 그칩니다.</p>
+    <p class="src" style="margin-bottom:40px;">출처: 모바일인덱스 2023</p>
+    <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:24px;">돌봄 앱 사용자 잔존율</p>
+    <div style="display:flex;align-items:flex-end;gap:64px;height:240px;margin-bottom:16px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <span style="font-size:28px;font-weight:700;color:#2C7AFC;">100%</span>
+        <div style="width:140px;height:200px;background:#2C7AFC;border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:14px;font-weight:400;color:#64748B;">설치 첫날</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;align-self:flex-end;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:20px;color:#B3B3B3;">→</span>
+          <span style="font-size:14px;font-weight:500;color:#B3B3B3;">약 24배 감소</span>
+        </div>
+        <span style="font-size:28px;font-weight:700;color:#64748B;">4.2%</span>
+        <div style="width:140px;height:8px;background:#CBD5E1;border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:14px;font-weight:400;color:#64748B;">30일 후</span>
+      </div>
+    </div>
+    <p class="src">출처: 모바일인덱스, 2023</p>
+  </div>
+  <!-- Vertical divider -->
+  <div style="position:absolute;top:208px;bottom:80px;left:952px;width:1px;background:var(--rule);"></div>
+  <!-- Right: Quote cards -->
+  <div style="position:absolute;top:208px;left:976px;right:88px;bottom:80px;display:flex;flex-direction:column;justify-content:space-between;">
+    <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:24px;">사용자 인터뷰</p>
+    <div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+      <div style="flex:1;background:#F5F7FA;padding:32px;display:flex;flex-direction:column;justify-content:center;">
+        <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"스마트폰을 쓸 줄은 아는데, 앱을 새로 배우는 게 어려워요"</p>
+        <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 고령 환자 인터뷰</p>
+      </div>
+      <div style="flex:1;background:#F5F7FA;padding:32px;display:flex;flex-direction:column;justify-content:center;">
+        <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"쓰다 보면 복잡하고 아들한테 물어봐야 하니까 귀찮아서 안 쓰게 돼요"</p>
+        <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 보호자 인터뷰</p>
+      </div>
+      <div style="flex:1;background:#F5F7FA;padding:32px;display:flex;flex-direction:column;justify-content:center;">
+        <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.7;font-style:italic;">"처음엔 열심히 쓰다가 어느 순간 까먹어요. 알림이 와도 어떻게 답해야 할지 모르고..."</p>
+        <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-top:12px;">— 요양원 입원 환자 보호자 인터뷰</p>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">10</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S11 DESK RESEARCH 4 -->
+<div class="slide-outer"><section class="slide" id="s11">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">데스크 리서치</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;right:88px;">
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:16px;">디지털 헬스케어 시장, 빠르게 <span style="color:#2C7AFC;">성장</span>하고 있어요</h2>
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:4px;">국내 디지털 헬스케어 시장은 2023년 14.2조 원에서 2028년 25조 원 규모로 성장할 전망입니다. 특히 고령자 대상 에이지테크(AgeTech) 분야가 빠르게 부상하고 있습니다.</p>
+    <p class="src">출처: 한국보건산업진흥원, 2023</p>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;width:900px;">
+    <div style="display:flex;align-items:flex-end;gap:32px;height:280px;margin-bottom:16px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+        <span style="font-size:16px;font-weight:600;color:#2C7AFC;">14.2조</span>
+        <div style="width:100%;height:142px;background:linear-gradient(180deg,#2C7AFC,#5B9BFF);border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:13px;font-weight:400;color:#64748B;">2023</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+        <span style="font-size:16px;font-weight:600;color:#2C7AFC;">16.8조</span>
+        <div style="width:100%;height:168px;background:linear-gradient(180deg,#2C7AFC,#5B9BFF);border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:13px;font-weight:400;color:#64748B;">2024</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+        <span style="font-size:16px;font-weight:600;color:#2C7AFC;">19.5조</span>
+        <div style="width:100%;height:195px;background:linear-gradient(180deg,#2C7AFC,#5B9BFF);border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:13px;font-weight:400;color:#64748B;">2025</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+        <span style="font-size:16px;font-weight:600;color:#2C7AFC;">21.9조</span>
+        <div style="width:100%;height:219px;background:transparent;border:2px dashed #2C7AFC;border-radius:4px 4px 0 0;box-sizing:border-box;"></div>
+        <span style="font-size:13px;font-weight:400;color:#64748B;">2026(예상)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+        <span style="font-size:16px;font-weight:600;color:#2C7AFC;">25.0조</span>
+        <div style="width:100%;height:250px;background:transparent;border:2px dashed #2C7AFC;border-radius:4px 4px 0 0;box-sizing:border-box;"></div>
+        <span style="font-size:13px;font-weight:400;color:#64748B;">2028(예상)</span>
+      </div>
+    </div>
+    <p class="src">출처: 한국보건산업진흥원, 2023</p>
+  </div>
+  <div style="position:absolute;bottom:80px;right:88px;width:600px;display:flex;flex-direction:column;gap:24px;">
+    <div style="border:1px solid var(--rule);padding:32px;background:#F8FAFF;">
+      <p style="font-size:36px;font-weight:700;color:#2C7AFC;letter-spacing:-0.5px;">71.5%</p>
+      <p style="font-size:16px;font-weight:400;color:#64748B;margin-top:8px;">65세 이상 스마트폰 보유율</p>
+      <p class="src">출처: 과학기술정보통신부, 2023</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;background:#F8FAFF;">
+      <p style="font-size:36px;font-weight:700;color:#64748B;letter-spacing:-0.5px;">11.2%</p>
+      <p style="font-size:16px;font-weight:400;color:#64748B;margin-top:8px;">그 중 건강앱 실제 활용 → <span style="color:#2C7AFC;font-weight:600;">기회 갭 66.3%p</span></p>
+      <p class="src">출처: 과기정통부, 2023</p>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">11</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S12 2025 TREND (whitespace fixed) -->
+<div class="slide-outer"><section class="slide" id="s12">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">2025 트렌드</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;display:flex;align-items:center;gap:24px;">
+    <span style="font-size:56px;font-weight:700;color:#2C7AFC;letter-spacing:-2px;">2025</span>
+    <span style="font-size:32px;color:#B3B3B3;">→</span>
+    <h2 style="font-size:32px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">트렌드와 함께 이어나갈 수 있도록!</h2>
+  </div>
+  <div style="position:absolute;top:308px;left:88px;right:88px;bottom:80px;display:flex;gap:24px;">
+    <div style="flex:1;border:1px solid #E2E8F0;padding:40px 32px;display:flex;flex-direction:column;overflow:hidden;">
+      <span class="pill pill-blue" style="margin-bottom:16px;display:inline-block;">#에이지테크</span>
+      <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:16px;">#AgeTech</p>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:24px;">노인을 위한 기술 서비스가 빠르게 성장. 간편한 UI, 음성 인터페이스, 자동화된 케어 솔루션이 핵심 트렌드</p>
+      <p class="src">출처: 대한노인회·한국노인인력개발원, 2025</p>
+      <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:24px;">
+        <p style="font-size:40px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">72%</p>
+        <p style="font-size:14px;font-weight:400;color:#64748B;margin-top:4px;">AgeTech 투자 전년 대비 증가율</p>
+        <p class="src">출처: 중소벤처기업부, 2025</p>
+      </div>
+    </div>
+    <div style="flex:1;border:1px solid #E2E8F0;padding:40px 32px;display:flex;flex-direction:column;overflow:hidden;">
+      <span class="pill pill-blue" style="margin-bottom:16px;display:inline-block;">#케어디지털화</span>
+      <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:16px;">#Care_Digital</p>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:24px;">원격 의료·비대면 돌봄 확대로 가족-환자-의료진 디지털 소통 플랫폼 수요가 급증하고 있음</p>
+      <p class="src">출처: 보건복지부 디지털 케어 추진 계획, 2024</p>
+      <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:24px;">
+        <p style="font-size:40px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">3.2배</p>
+        <p style="font-size:14px;font-weight:400;color:#64748B;margin-top:4px;">원격 돌봄 서비스 이용 증가율 (2020→2024)</p>
+        <p class="src">출처: 보건복지부, 2024</p>
+      </div>
+    </div>
+    <div style="flex:1;border:1px solid #E2E8F0;padding:40px 32px;display:flex;flex-direction:column;overflow:hidden;">
+      <span class="pill pill-blue" style="margin-bottom:16px;display:inline-block;">#패밀리케어</span>
+      <p style="font-size:20px;font-weight:600;color:#161616;margin-bottom:16px;">#Family_Care</p>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:24px;">물리적 거리와 관계없이 가족이 함께 건강을 챙기는 '연결된 돌봄' 문화 확산</p>
+      <p class="src">출처: 한국트렌드연구소, 2025</p>
+      <div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:24px;">
+        <p style="font-size:40px;font-weight:700;color:#2C7AFC;letter-spacing:-1px;">68%</p>
+        <p style="font-size:14px;font-weight:400;color:#64748B;margin-top:4px;">보호자 중 원격 안부 서비스 필요하다 응답</p>
+        <p class="src">출처: 한국트렌드연구소, 2025</p>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">12</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S13 ONLINE SURVEY (whitespace fixed) -->
+<div class="slide-outer"><section class="slide" id="s13">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">온라인 서베이</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:80px;right:88px;font-size:14px;font-weight:400;color:#B3B3B3;">응답자: 45명 | 2026년 3월 14일~16일 | Google Forms</p>
+  <div style="position:absolute;top:168px;left:88px;right:88px;display:flex;gap:16px;height:400px;">
+    <div style="flex:1;border:1px solid var(--rule);padding:24px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:500;color:#2C7AFC;margin-bottom:8px;">Q.04</p>
+      <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:16px;line-height:1.5;">보호자로서 환자의 일상을 파악하는 앱/서비스가 있나요?</p>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="50" fill="none" stroke="#E2E8F0" stroke-width="20"/>
+        <circle cx="70" cy="70" r="50" fill="none" stroke="#2C7AFC" stroke-width="20" stroke-dasharray="222 92" stroke-dashoffset="78" transform="rotate(-90 70 70)"/>
+        <text x="70" y="68" font-size="18" font-weight="700" fill="#161616" text-anchor="middle">71.1%</text>
+        <text x="70" y="86" font-size="11" fill="#64748B" text-anchor="middle">없음</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#2C7AFC;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">없음 71.1%</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#CBD5E1;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">있음 15.6%</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#E2E8F0;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">알 수 없음 13.3%</span></div>
+      </div>
+    </div>
+    <div style="flex:1;border:1px solid var(--rule);padding:24px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:500;color:#2C7AFC;margin-bottom:8px;">Q.07</p>
+      <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:16px;line-height:1.5;">'AI 안부 통화' 서비스를 사용해보고 싶으신가요?</p>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="50" fill="none" stroke="#E2E8F0" stroke-width="20"/>
+        <circle cx="70" cy="70" r="50" fill="none" stroke="#2C7AFC" stroke-width="20" stroke-dasharray="201 113" stroke-dashoffset="78" transform="rotate(-90 70 70)"/>
+        <text x="70" y="68" font-size="18" font-weight="700" fill="#161616" text-anchor="middle">64%</text>
+        <text x="70" y="86" font-size="11" fill="#64748B" text-anchor="middle">사용하고 싶다</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#2C7AFC;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">사용하고 싶다 64%</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#CBD5E1;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">모르겠다 28%</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;background:#E2E8F0;border-radius:50%;flex-shrink:0;"></span><span style="font-size:12px;color:#64748B;">필요없다 8%</span></div>
+      </div>
+    </div>
+    <div style="flex:1.5;border:1px solid var(--rule);padding:24px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:500;color:#2C7AFC;margin-bottom:8px;">Q.11</p>
+      <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:24px;line-height:1.5;">케어 앱을 꾸준히 쓰게 하는 요소는?</p>
+      <div style="margin-bottom:16px;">
+        <p style="font-size:13px;font-weight:400;color:#64748B;margin-bottom:8px;">가족이 함께 볼 수 있어서</p>
+        <div style="height:24px;background:#F0F0F0;border-radius:3px;overflow:hidden;"><div style="width:60%;height:100%;background:#2C7AFC;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#fff;">60%</span></div></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <p style="font-size:13px;font-weight:400;color:#64748B;margin-bottom:8px;">간단하고 자동화돼서</p>
+        <div style="height:24px;background:#F0F0F0;border-radius:3px;overflow:hidden;"><div style="width:55%;height:100%;background:#2C7AFC;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#fff;">55%</span></div></div>
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:400;color:#64748B;margin-bottom:8px;">보상이나 피드백이 있어서</p>
+        <div style="height:24px;background:#F0F0F0;border-radius:3px;overflow:hidden;"><div style="width:40%;height:100%;background:#2C7AFC;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#fff;">40%</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;top:588px;left:88px;right:88px;bottom:80px;display:flex;gap:16px;">
+    <div style="flex:1;border:1px solid var(--rule);padding:24px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:500;color:#2C7AFC;margin-bottom:8px;">Q.04-1</p>
+      <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:16px;">현재 케어 앱이 없다면 이유는?</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <span class="pill pill-gray">어떤 앱이 있는지 몰라서</span>
+        <span class="pill pill-gray">배우기 어려울 것 같아서</span>
+        <span class="pill pill-gray">필요성을 못 느껴서</span>
+      </div>
+    </div>
+    <div style="flex:1.5;border:1px solid var(--rule);padding:24px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:500;color:#2C7AFC;margin-bottom:8px;">Q.09-1</p>
+      <p style="font-size:14px;font-weight:500;color:#161616;margin-bottom:16px;">보호자로서 가장 힘든 점은?</p>
+      <div style="display:flex;align-items:flex-end;gap:16px;height:120px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:80px;height:80px;background:#2C7AFC;border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:600;color:#fff;text-align:center;">정보<br>부족</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:64px;height:64px;background:rgba(44,122,252,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;font-weight:600;color:#fff;text-align:center;">소통<br>단절</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:52px;height:52px;background:rgba(44,122,252,0.45);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;font-weight:600;color:#fff;text-align:center;">응급<br>대응</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:44px;height:44px;background:rgba(100,116,139,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;font-weight:500;color:#fff;text-align:center;">시간<br>부족</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;height:36px;background:rgba(100,116,139,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;font-weight:500;color:#fff;text-align:center;">심리적<br>부담</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">13</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S14 BENCHMARKING (unchanged) -->
+<div class="slide-outer"><section class="slide" id="s14">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">벤치마킹</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">BENCH MARKING</p>
+  <div style="position:absolute;top:208px;left:88px;width:1120px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;">
+    <div style="border:1px solid var(--rule);padding:32px;overflow:hidden;">
+      <p style="font-size:18px;font-weight:600;color:#161616;margin-bottom:8px;">팜스(Farms)</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-bottom:16px;">요양원 가족 소통 앱</p>
+      <p style="font-size:13px;font-weight:500;color:#2C7AFC;margin-bottom:4px;">GOOD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;margin-bottom:16px;">실시간 사진 공유, 케어 일지 제공</p>
+      <p style="font-size:13px;font-weight:500;color:#E53E3E;margin-bottom:4px;">BAD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;">의료 정보 연동 미흡, 의료진 참여 없음</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;overflow:hidden;">
+      <p style="font-size:18px;font-weight:600;color:#161616;margin-bottom:8px;">케어닥</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-bottom:16px;">재가 돌봄 서비스</p>
+      <p style="font-size:13px;font-weight:500;color:#2C7AFC;margin-bottom:4px;">GOOD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;margin-bottom:16px;">전문 케어메이커 연결, 돌봄 일정 관리</p>
+      <p style="font-size:13px;font-weight:500;color:#E53E3E;margin-bottom:4px;">BAD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;">앱 소통 기능 부재, 단방향 서비스</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;overflow:hidden;">
+      <p style="font-size:18px;font-weight:600;color:#161616;margin-bottom:8px;">카카오헬스케어 파스타</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-bottom:16px;">혈당·건강 관리</p>
+      <p style="font-size:13px;font-weight:500;color:#2C7AFC;margin-bottom:4px;">GOOD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;margin-bottom:16px;">AI 혈당 분석, 간편한 식사 기록</p>
+      <p style="font-size:13px;font-weight:500;color:#E53E3E;margin-bottom:4px;">BAD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;">보호자 연동 없음, 고령자 UI 어려움</p>
+    </div>
+    <div style="border:1px solid var(--rule);padding:32px;overflow:hidden;">
+      <p style="font-size:18px;font-weight:600;color:#161616;margin-bottom:8px;">네이버 케어</p>
+      <p style="font-size:13px;font-weight:400;color:#B3B3B3;margin-bottom:16px;">디지털 케어</p>
+      <p style="font-size:13px;font-weight:500;color:#2C7AFC;margin-bottom:4px;">GOOD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;margin-bottom:16px;">네이버 생태계 연동, 다양한 건강 정보</p>
+      <p style="font-size:13px;font-weight:500;color:#E53E3E;margin-bottom:4px;">BAD</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;">보호자-의료진 3자 소통 부재</p>
+    </div>
+  </div>
+  <div style="position:absolute;top:208px;right:88px;width:560px;bottom:80px;">
+    <div style="position:relative;width:100%;height:100%;border:1px solid var(--rule);">
+      <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#E2E8F0;"></div>
+      <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#E2E8F0;"></div>
+      <span style="position:absolute;top:50%;left:8px;font-size:11px;color:#B3B3B3;transform:translateY(-50%);">단방향</span>
+      <span style="position:absolute;top:50%;right:8px;font-size:11px;color:#B3B3B3;transform:translateY(-50%);">다자간</span>
+      <span style="position:absolute;top:8px;left:50%;font-size:11px;color:#B3B3B3;transform:translateX(-50%);">기록 중심</span>
+      <span style="position:absolute;bottom:8px;left:50%;font-size:11px;color:#B3B3B3;transform:translateX(-50%);">실시간 연결</span>
+      <div style="position:absolute;top:35%;left:38%;transform:translate(-50%,-50%);"><div style="width:8px;height:8px;background:#CBD5E1;border-radius:50%;margin:0 auto;"></div><p style="font-size:11px;color:#64748B;text-align:center;margin-top:2px;">팜스</p></div>
+      <div style="position:absolute;top:65%;left:22%;transform:translate(-50%,-50%);"><div style="width:8px;height:8px;background:#CBD5E1;border-radius:50%;margin:0 auto;"></div><p style="font-size:11px;color:#64748B;text-align:center;margin-top:2px;">케어닥</p></div>
+      <div style="position:absolute;top:28%;left:68%;transform:translate(-50%,-50%);"><div style="width:8px;height:8px;background:#CBD5E1;border-radius:50%;margin:0 auto;"></div><p style="font-size:11px;color:#64748B;text-align:center;margin-top:2px;">카카오헬스케어</p></div>
+      <div style="position:absolute;top:32%;left:50%;transform:translate(-50%,-50%);"><div style="width:8px;height:8px;background:#CBD5E1;border-radius:50%;margin:0 auto;"></div><p style="font-size:11px;color:#64748B;text-align:center;margin-top:2px;">네이버케어</p></div>
+      <div style="position:absolute;top:72%;left:78%;transform:translate(-50%,-50%);"><div style="width:40px;height:40px;background:#2C7AFC;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;"><span style="font-size:8px;font-weight:600;color:#fff;text-align:center;">하루<br>안부</span></div></div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">14</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S15 RESEARCH INSIGHTS (whitespace fixed) -->
+<div class="slide-outer"><section class="slide" id="s15">
+  <div class="top-bar">
+    <span class="top-bar-section">02 리서치</span>
+    <span class="top-bar-sub">결론 도출</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;right:88px;text-align:center;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">RESEARCH INSIGHTS</p>
+  <h2 style="position:absolute;top:208px;left:88px;right:88px;text-align:center;font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">케어 앱은 많지만, <span style="color:#2C7AFC;">소통</span>이 빠진 서비스가 대부분이었습니다</h2>
+  <p style="position:absolute;top:328px;left:88px;right:88px;text-align:center;font-size:18px;font-weight:400;color:#64748B;line-height:1.7;">8개 서비스를 분석한 결과, 공통된 3가지 한계가 드러났습니다.</p>
+  <div style="position:absolute;top:448px;left:88px;right:88px;display:flex;gap:24px;bottom:160px;">
+    <div style="flex:1;background:#F0F4FF;padding:32px;display:flex;flex-direction:column;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;letter-spacing:1px;margin-bottom:12px;">문제 01</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">3자 소통의 공백</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;">보호자·환자·의료진을 동시에 연결하는 앱이 없다. 정보는 항상 한 방향으로만 흐른다.</p>
+      <div style="margin-top:auto;border-top:1px solid rgba(44,122,252,0.2);padding-top:16px;">
+        <p style="font-size:28px;font-weight:700;color:#2C7AFC;">0개</p>
+        <p style="font-size:13px;font-weight:400;color:#64748B;">3자 동시 소통 가능 앱 (분석 대상 8개 중)</p>
+      </div>
+    </div>
+    <div style="flex:1;background:#F0F4FF;padding:32px;display:flex;flex-direction:column;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;letter-spacing:1px;margin-bottom:12px;">문제 02</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">고령자 접근성 부재</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;">고령자를 위한 단순화된 UI, 자동화된 소통 기능을 제공하는 서비스가 극히 드물다.</p>
+      <div style="margin-top:auto;border-top:1px solid rgba(44,122,252,0.2);padding-top:16px;">
+        <p style="font-size:28px;font-weight:700;color:#2C7AFC;">11.2%</p>
+        <p style="font-size:13px;font-weight:400;color:#64748B;">스마트폰 보유 고령자 중 건강앱 활용률</p>
+      </div>
+    </div>
+    <div style="flex:1;background:#F0F4FF;padding:32px;display:flex;flex-direction:column;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;letter-spacing:1px;margin-bottom:12px;">문제 03</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">지속성 설계 부재</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;">한번 쓰고 끝나는 정보 제공 방식으로는 지속적인 케어 루틴 형성이 불가능하다.</p>
+      <div style="margin-top:auto;border-top:1px solid rgba(44,122,252,0.2);padding-top:16px;">
+        <p style="font-size:28px;font-weight:700;color:#2C7AFC;">4.2%</p>
+        <p style="font-size:13px;font-weight:400;color:#64748B;">돌봄 앱 평균 30일 잔존율</p>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;right:88px;background:#2C7AFC;padding:24px 40px;display:flex;align-items:center;gap:24px;">
+    <p style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);flex-shrink:0;">그래서 하루안부는</p>
+    <p style="font-size:18px;font-weight:600;color:#fff;">보호자·환자·의료진을 <em style="font-style:normal;">하루 한 번 자동으로</em> 연결하여, 소통의 공백을 없앤다.</p>
+  </div>
+  <div class="pg-v3"><span class="pgc">15</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S16 섹션 인트로[03] v2 row layout -->
+<div class="slide-outer"><section class="slide slide-dark" id="s16">
+  <div style="position:absolute;top:80px;left:88px;"><h2 style="font-size:24px;font-weight:600;color:#fff;">CONTENTS</h2></div>
+  <div style="position:absolute;top:160px;left:88px;right:88px;bottom:120px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="toc-row-dk"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+    <div class="toc-row-dk"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+    <div class="toc-row-dk active"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트·니즈·인사이트 · 문장형 컨셉 · 타겟설정 · 결론 도출</span><span class="tr-pg">17</span></div>
+    <div class="toc-row-dk"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT 분석 · 벤치마킹 &amp; 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+    <div class="toc-row-dk"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트 · 결론 도출</span><span class="tr-pg">27</span></div>
+    <div class="toc-row-dk"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인 · 프로토타입</span><span class="tr-pg">34</span></div>
+    <div class="toc-row-dk" style="border-bottom:none;"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">16</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S17 DERIVE INSIGHT (table proportions fixed) -->
+<div class="slide-outer"><section class="slide" id="s17">
+  <div class="top-bar">
+    <span class="top-bar-section">03 인사이트·정의</span>
+    <span class="top-bar-sub">페인포인트·니즈·인사이트</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;right:88px;text-align:center;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">DERIVE INSIGHT</p>
+  <h2 style="position:absolute;top:208px;left:88px;right:88px;text-align:center;font-size:36px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">페인포인트와 니즈를 분석하여 인사이트를 도출했어요</h2>
+  <p style="position:absolute;top:296px;left:88px;right:88px;text-align:center;font-size:18px;font-weight:400;color:#64748B;">세 사용자 그룹의 불편함과 필요를 연결해 서비스 방향을 정의했습니다.</p>
+  <div style="position:absolute;top:360px;left:88px;right:88px;bottom:80px;display:grid;grid-template-columns:80px 1fr 1fr 1fr;grid-template-rows:56px 1fr 1fr 1fr;gap:0;border:1px solid var(--rule);">
+    <div style="background:#F8FAFF;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px;display:flex;align-items:center;justify-content:center;"></div>
+    <div style="background:#F8FAFF;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 24px;display:flex;align-items:center;"><span style="font-size:16px;font-weight:600;color:#161616;">보호자</span></div>
+    <div style="background:#F8FAFF;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 24px;display:flex;align-items:center;"><span style="font-size:16px;font-weight:600;color:#161616;">환자</span></div>
+    <div style="background:#F8FAFF;border-bottom:1px solid var(--rule);padding:16px 24px;display:flex;align-items:center;"><span style="font-size:16px;font-weight:600;color:#161616;">의료진</span></div>
+    <div style="background:#F5F7FA;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 8px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;"><span style="font-size:12px;font-weight:500;color:#B3B3B3;letter-spacing:1px;">PAINPOINT</span></div>
+    <div style="background:#F5F7FA;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">입원 중인 부모님의 하루를 실시간으로 알 방법이 없음</p></div>
+    <div style="background:#F5F7FA;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">자녀에게 연락하고 싶어도 전화가 부담스럽고 방법이 어려움</p></div>
+    <div style="background:#F5F7FA;border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">보호자에게 환자 상태를 매번 설명하는 것이 시간·자원 낭비</p></div>
+    <div style="background:#F5F7FA;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 8px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;"><span style="font-size:12px;font-weight:500;color:#B3B3B3;letter-spacing:1px;">NEEDS</span></div>
+    <div style="border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">수시로 확인하지 않아도 <strong style="color:#161616;">자동으로 알려주는</strong> 알림 시스템</p></div>
+    <div style="border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">부담 없이 가족과 연결되는 <strong style="color:#161616;">간단한 소통</strong> 수단</p></div>
+    <div style="border-bottom:1px solid var(--rule);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.7;">보호자와 기록을 <strong style="color:#161616;">즉시 공유</strong>할 수 있는 통합 채널</p></div>
+    <div style="background:#2C7AFC;border-right:1px solid rgba(255,255,255,0.2);padding:16px 8px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;"><span style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.8);letter-spacing:1px;">INSIGHT</span></div>
+    <div style="background:#2C7AFC;border-right:1px solid rgba(255,255,255,0.2);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#fff;line-height:1.7;">자동화된 AI 안부 통화로 하루 한 번 연결, 보호자 부담을 최소화</p></div>
+    <div style="background:#2C7AFC;border-right:1px solid rgba(255,255,255,0.2);padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#fff;line-height:1.7;">버튼 하나로 가능한 음성 통화·안부 전송. 고령자도 쉽게 사용</p></div>
+    <div style="background:#2C7AFC;padding:24px;overflow:hidden;"><p style="font-size:15px;font-weight:400;color:#fff;line-height:1.7;">케어 리포트 자동 생성으로 소통 효율 극대화</p></div>
+  </div>
+  <div class="pg-v3"><span class="pgc">17</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S18 SERVICE CONCEPT (left text / right AI image split) -->
+<div class="slide-outer"><section class="slide" id="s18">
+  <div class="top-bar">
+    <span class="top-bar-section">03 인사이트·정의</span>
+    <span class="top-bar-sub">문장형 컨셉</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <!-- Left panel: text content -->
+  <div style="position:absolute;top:0;left:0;width:960px;bottom:0;display:flex;flex-direction:column;justify-content:center;padding:80px 88px 120px;">
+    <p style="font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;margin-bottom:32px;">PROJECT CONCEPT</p>
+    <div style="border:2px solid #2C7AFC;padding:48px;background:#F0F4FF;margin-bottom:40px;">
+      <h2 style="font-size:36px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:24px;">오늘도 안녕하셨습니까,<br><span style="color:#2C7AFC;">하루안부</span></h2>
+      <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;">An AI-powered care communication platform that connects the elderly, family, and medical staff — one greeting at a time.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0;">
+      <div style="border-top:3px solid #2C7AFC;padding-top:20px;padding-bottom:20px;border-bottom:1px solid var(--rule);">
+        <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:6px;">고객</p>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.6;">거리와 환경에 관계없이 연결되고 싶은 모든 케어 관계자</p>
+      </div>
+      <div style="padding-top:20px;padding-bottom:20px;border-bottom:1px solid var(--rule);">
+        <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:6px;">목적</p>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.6;">하루 한 번의 안부로 케어의 공백을 채우는 것</p>
+      </div>
+      <div style="padding-top:20px;">
+        <p style="font-size:14px;font-weight:500;color:#2C7AFC;margin-bottom:6px;">역할</p>
+        <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.6;">AI가 먼저 연결하고, 사람이 이어받는 따뜻한 다리</p>
+      </div>
+    </div>
+  </div>
+  <!-- Right panel: AI image -->
+  <div class="ai-img-box" style="position:absolute;top:0;right:0;width:960px;bottom:0;">
+    <p class="ai-img-label" style="font-size:12px;max-width:600px;">[AI 이미지 프롬프트] Warm, cinematic photograph of a Korean family moment: elderly woman in a care home room, receiving a phone call, sunlight streaming in through a window, daughter's face visible on phone screen, soft warm tones. Emotional, documentary style. Vertical framing, 960x1080.</p>
+  </div>
+  <div class="pg-v3"><span class="pgc">18</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S19 DEVICE STRATEGY (actual screenshots) -->
+<div class="slide-outer"><section class="slide" id="s19">
+  <div class="top-bar">
+    <span class="top-bar-section">03 인사이트·정의</span>
+    <span class="top-bar-sub">타겟 설정</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">DEVICE STRATEGY</p>
+  <div style="position:absolute;top:208px;left:88px;width:720px;">
+    <h2 style="font-size:48px;font-weight:700;color:#161616;letter-spacing:-1px;margin-bottom:8px;">iOS + Android</h2>
+    <p style="font-size:32px;font-weight:600;color:#2C7AFC;margin-bottom:32px;">Cross Platform</p>
+    <div style="border-top:1px solid var(--rule);padding-top:24px;margin-bottom:24px;">
+      <h3 style="font-size:18px;font-weight:600;color:#161616;margin-bottom:12px;">MZ 보호자 &amp; 고령 환자 동시 타겟</h3>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.7;">보호자(30-50대)는 iPhone 비중이 높고, 고령 환자(65세+)는 갤럭시·LG 기기가 많아 크로스플랫폼 전략이 필수.</p>
+    </div>
+    <div style="border-top:1px solid var(--rule);padding-top:24px;">
+      <h3 style="font-size:18px;font-weight:600;color:#161616;margin-bottom:12px;">카카오·네이버 연동 최적화</h3>
+      <p style="font-size:16px;font-weight:400;color:#64748B;line-height:1.7;">한국 고령층은 카카오톡 사용률 94%. 앱 외에도 카카오 알림톡·네이버 케어 API 연동으로 접근성 극대화.</p>
+      <p class="src">출처: 카카오 2023 리포트</p>
+    </div>
+  </div>
+  <!-- Right: 3 phone frames with actual screenshots -->
+  <div style="position:absolute;top:168px;right:88px;width:840px;bottom:160px;display:flex;gap:24px;align-items:flex-start;justify-content:center;">
+    <div style="text-align:center;">
+      <div style="width:240px;height:480px;border:2px solid #E2E8F0;border-radius:36px;background:#fff;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1);">
+        <img src="./screenshots/guardian/g01-home.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <p style="font-size:14px;font-weight:600;color:#161616;margin-top:12px;">보호자 앱</p>
+      <p style="font-size:12px;font-weight:400;color:#B3B3B3;">홈 · 안부 카드 · 케어 리포트</p>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <div style="width:240px;height:480px;border:2px solid #E2E8F0;border-radius:36px;background:#fff;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1);">
+        <img src="./screenshots/patient/p01-home.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <p style="font-size:14px;font-weight:600;color:#161616;margin-top:12px;">환자 앱</p>
+      <p style="font-size:12px;font-weight:400;color:#B3B3B3;">안부 버튼 · 복약 알림</p>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:240px;height:480px;border:2px solid #E2E8F0;border-radius:36px;background:#fff;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1);">
+        <img src="./screenshots/nurse/n01-dashboard.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <p style="font-size:14px;font-weight:600;color:#161616;margin-top:12px;">의료진 앱</p>
+      <p style="font-size:12px;font-weight:400;color:#B3B3B3;">대시보드 · 환자 목록</p>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;right:88px;display:flex;gap:0;border:1px solid var(--rule);">
+    <div style="flex:1;padding:20px 32px;border-right:1px solid var(--rule);"><p style="font-size:14px;font-weight:600;color:#161616;margin-bottom:6px;">보호자</p><p style="font-size:13px;font-weight:400;color:#64748B;">30-50대 / iOS 61% · Android 39%</p></div>
+    <div style="flex:1;padding:20px 32px;border-right:1px solid var(--rule);"><p style="font-size:14px;font-weight:600;color:#161616;margin-bottom:6px;">환자 (고령자)</p><p style="font-size:13px;font-weight:400;color:#64748B;">65세+ / Android 72% · iOS 28%</p></div>
+    <div style="flex:1;padding:20px 32px;"><p style="font-size:14px;font-weight:600;color:#161616;margin-bottom:6px;">의료진</p><p style="font-size:13px;font-weight:400;color:#64748B;">20-40대 / iOS 55% · Android 45%</p></div>
+  </div>
+  <div class="pg-v3"><span class="pgc">19</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S20 INSIGHT CONCLUSION (unchanged) -->
+<div class="slide-outer"><section class="slide" id="s20">
+  <div class="top-bar">
+    <span class="top-bar-section">03 인사이트·정의</span>
+    <span class="top-bar-sub">결론 도출</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <div style="position:absolute;top:208px;left:88px;right:88px;">
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:8px;">케어 앱, 설치는 했지만</h2>
+    <h2 style="font-size:40px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;margin-bottom:24px;"><span style="color:#2C7AFC;">소통</span>은 여전히 단절된 적 없으신가요?</h2>
+    <p style="font-size:18px;font-weight:400;color:#64748B;line-height:1.8;">수많은 케어 앱이 있었지만, 실시간 소통이 빠진 채 정보 기록에만 그쳤습니다.<br>기록은 쌓이지만 연결은 되지 않고, 결국 가족의 불안은 해소되지 않았습니다.</p>
+  </div>
+  <div style="position:absolute;top:440px;left:88px;right:88px;display:flex;gap:24px;">
+    <div style="flex:1;border-left:3px solid #2C7AFC;padding:24px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">인사이트 01</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">연결이 먼저다</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.7;">보호자·환자·의료진을 하나로 잇는 실시간 소통 채널이 필요하다</p>
+    </div>
+    <div style="flex:1;border-left:3px solid #2C7AFC;padding:24px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">인사이트 02</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">고령자가 쓸 수 있어야 한다</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.7;">71.5%가 스마트폰을 보유하지만 건강앱 활용률은 11.2% — 접근성이 핵심이다</p>
+    </div>
+    <div style="flex:1;border-left:3px solid #2C7AFC;padding:24px 32px;background:#F8FAFF;">
+      <p style="font-size:14px;font-weight:600;color:#2C7AFC;margin-bottom:8px;">인사이트 03</p>
+      <p style="font-size:16px;font-weight:600;color:#161616;margin-bottom:8px;">자동화가 지속성을 만든다</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.7;">매일 AI가 먼저 연결하는 구조여야 30일 리텐션 4.2%의 한계를 넘을 수 있다</p>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;right:88px;background:#2C7AFC;padding:32px 48px;display:flex;align-items:center;gap:32px;">
+    <p style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap;flex-shrink:0;">그래서 하루안부는</p>
+    <p style="font-size:22px;font-weight:600;color:#fff;line-height:1.4;">AI가 먼저 연결하고, 고령자도 버튼 하나로 사용하며, 하루 한 번 자동으로 케어 사이클을 완성한다.</p>
+  </div>
+  <div class="pg-v3"><span class="pgc">20</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S21 섹션 인트로[04] v2 row layout -->
+<div class="slide-outer"><section class="slide slide-dark" id="s21">
+  <div style="position:absolute;top:80px;left:88px;"><h2 style="font-size:24px;font-weight:600;color:#fff;">CONTENTS</h2></div>
+  <div style="position:absolute;top:160px;left:88px;right:88px;bottom:120px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="toc-row-dk"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+    <div class="toc-row-dk"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+    <div class="toc-row-dk"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트·니즈·인사이트 · 문장형 컨셉 · 타겟설정 · 결론 도출</span><span class="tr-pg">17</span></div>
+    <div class="toc-row-dk active"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT 분석 · 벤치마킹 &amp; 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+    <div class="toc-row-dk"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트 · 결론 도출</span><span class="tr-pg">27</span></div>
+    <div class="toc-row-dk"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인 · 프로토타입</span><span class="tr-pg">34</span></div>
+    <div class="toc-row-dk" style="border-bottom:none;"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">21</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S22 3C ANALYSIS -->
+<div class="slide-outer"><section class="slide" id="s22">
+  <div class="top-bar">
+    <span class="top-bar-section">04 컨셉·전략 수립</span>
+    <span class="top-bar-sub">3C 분석</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">3C ANALYSIS</p>
+  <h2 style="position:absolute;top:208px;left:88px;font-size:36px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">우리 서비스를 둘러싼 3가지 관점</h2>
+  <div style="position:absolute;top:312px;left:88px;right:88px;bottom:80px;display:flex;gap:0;border:1px solid var(--rule);">
+    <div style="flex:1;padding:40px;border-right:1px solid var(--rule);overflow:hidden;">
+      <p style="font-size:20px;font-weight:700;color:#2C7AFC;margin-bottom:8px;">Customer</p>
+      <p style="font-size:14px;font-weight:400;color:#B3B3B3;margin-bottom:24px;">고객</p>
+      <p style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:16px;">65세 이상 고령 환자 + 30-50대 보호자 + 20-40대 의료진</p>
+      <p style="font-size:14px;font-weight:600;color:#161616;margin-bottom:8px;">핵심 니즈</p>
+      <p style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;margin-bottom:24px;">쉽고 빠른 3자 소통, 자동화된 케어 알림, 실시간 정보 공유</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="pill pill-blue">#연결</span><span class="pill pill-blue">#안심</span><span class="pill pill-blue">#자동화</span></div>
+    </div>
+    <div style="flex:1;padding:40px;border-right:1px solid var(--rule);overflow:hidden;">
+      <p style="font-size:20px;font-weight:700;color:#2C7AFC;margin-bottom:8px;">Company</p>
+      <p style="font-size:14px;font-weight:400;color:#B3B3B3;margin-bottom:24px;">하루안부</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;border-bottom:1px solid var(--rule);">AI 기반 안부 통화 자동 발신 기술</li>
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;border-bottom:1px solid var(--rule);">3자 동시 접속 케어 리포트 공유</li>
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;">고령자 친화 초간단 UX (버튼 1개)</li>
+      </ul>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px;"><span class="pill pill-blue">#신뢰</span><span class="pill pill-blue">#따뜻함</span><span class="pill pill-blue">#지속성</span></div>
+    </div>
+    <div style="flex:1;padding:40px;overflow:hidden;">
+      <p style="font-size:20px;font-weight:700;color:#2C7AFC;margin-bottom:8px;">Competitor</p>
+      <p style="font-size:14px;font-weight:400;color:#B3B3B3;margin-bottom:24px;">경쟁사</p>
+      <ul style="list-style:none;padding:0;margin-bottom:24px;">
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;border-bottom:1px solid var(--rule);"><strong style="color:#161616;">팜스</strong>: 단방향 기록, 의료진 연동 없음</li>
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;border-bottom:1px solid var(--rule);"><strong style="color:#161616;">케어닥</strong>: 서비스 중개, 앱 소통 부재</li>
+        <li style="font-size:14px;font-weight:400;color:#64748B;line-height:1.8;padding:8px 0;"><strong style="color:#161616;">카카오헬스케어</strong>: 건강 데이터 중심</li>
+      </ul>
+      <div style="background:#F0F4FF;padding:16px 20px;">
+        <p style="font-size:13px;font-weight:600;color:#2C7AFC;margin-bottom:4px;">기회</p>
+        <p style="font-size:13px;font-weight:400;color:#64748B;line-height:1.6;">3자 실시간 소통 + 고령자 UX를 동시에 갖춘 서비스 없음</p>
+      </div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">22</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S23 SWOT ANALYSIS -->
+<div class="slide-outer"><section class="slide" id="s23">
+  <div class="top-bar">
+    <span class="top-bar-section">04 컨셉·전략 수립</span>
+    <span class="top-bar-sub">SWOT 분석</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">SWOT ANALYSIS</p>
+  <h2 style="position:absolute;top:208px;left:88px;font-size:36px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">하루안부의 강점과 기회를 파악합니다</h2>
+  <div style="position:absolute;top:312px;left:88px;right:88px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;border:1px solid var(--rule);">
+    <div style="background:#F8FAFF;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:40px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:600;letter-spacing:2px;color:#2C7AFC;margin-bottom:16px;">S — 강점</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">AI 자동 안부 전화 차별화</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">3자 동시 소통 플랫폼 최초</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">초간단 고령자 UX</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;">케어 리포트 자동 생성</li>
+      </ul>
+    </div>
+    <div style="background:#F8FAFF;border-bottom:1px solid var(--rule);padding:40px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:600;letter-spacing:2px;color:#E53E3E;margin-bottom:16px;">W — 약점</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">초기 사용자 유치 어려움</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">AI 전화 거부감 가능성</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">의료기관 파트너십 확보 필요</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;">개인정보 신뢰도 구축</li>
+      </ul>
+    </div>
+    <div style="background:#F8FAFF;border-right:1px solid var(--rule);padding:40px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:600;letter-spacing:2px;color:#38A169;margin-bottom:16px;">O — 기회</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">초고령사회 진입으로 수요 폭발</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">정부 디지털 돌봄 정책 지원</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">카카오·네이버 케어 생태계 빈틈</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;">에이지테크 투자 급증</li>
+      </ul>
+    </div>
+    <div style="background:#F8FAFF;padding:40px;overflow:hidden;">
+      <p style="font-size:12px;font-weight:600;letter-spacing:2px;color:#D69E2E;margin-bottom:16px;">T — 위협</p>
+      <ul style="list-style:none;padding:0;">
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">대형 플랫폼(카카오, 네이버)의 시장 진입</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;border-bottom:1px solid var(--rule);">고령자 디지털 격차</li>
+        <li style="font-size:15px;font-weight:400;color:#64748B;line-height:1.8;padding:6px 0;">의료 데이터 규제 강화 가능성</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">23</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S24 POSITIONING MAP -->
+<div class="slide-outer"><section class="slide" id="s24">
+  <div class="top-bar">
+    <span class="top-bar-section">04 컨셉·전략 수립</span>
+    <span class="top-bar-sub">벤치마킹 &amp; 포지셔닝맵</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">POSITIONING MAP</p>
+  <h2 style="position:absolute;top:208px;left:88px;font-size:36px;font-weight:600;color:#161616;letter-spacing:-0.5px;line-height:1.2;">하루안부만이 채울 수 있는 공간이 있습니다</h2>
+  <div style="position:absolute;top:312px;left:88px;right:88px;bottom:80px;">
+    <div style="position:relative;width:100%;height:100%;border:1px solid var(--rule);background:#FAFAFA;">
+      <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#CBD5E1;"></div>
+      <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#CBD5E1;"></div>
+      <span style="position:absolute;top:50%;left:16px;transform:translateY(-24px);font-size:13px;font-weight:500;color:#94A3B8;">← 단방향 소통</span>
+      <span style="position:absolute;top:50%;right:16px;transform:translateY(-24px);font-size:13px;font-weight:500;color:#94A3B8;">다자간 소통 →</span>
+      <span style="position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:500;color:#94A3B8;">기록/정보 중심 ↑</span>
+      <span style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:500;color:#94A3B8;">↓ 실시간 연결 중심</span>
+      <div style="position:absolute;top:30%;left:55%;transform:translate(-50%,-50%);"><div style="width:12px;height:12px;background:#94A3B8;border-radius:50%;margin:0 auto;"></div><p style="font-size:12px;color:#64748B;text-align:center;margin-top:4px;white-space:nowrap;">팜스</p></div>
+      <div style="position:absolute;top:65%;left:22%;transform:translate(-50%,-50%);"><div style="width:12px;height:12px;background:#94A3B8;border-radius:50%;margin:0 auto;"></div><p style="font-size:12px;color:#64748B;text-align:center;margin-top:4px;white-space:nowrap;">케어닥</p></div>
+      <div style="position:absolute;top:25%;left:68%;transform:translate(-50%,-50%);"><div style="width:12px;height:12px;background:#94A3B8;border-radius:50%;margin:0 auto;"></div><p style="font-size:12px;color:#64748B;text-align:center;margin-top:4px;white-space:nowrap;">카카오헬스케어</p></div>
+      <div style="position:absolute;top:28%;left:40%;transform:translate(-50%,-50%);"><div style="width:12px;height:12px;background:#94A3B8;border-radius:50%;margin:0 auto;"></div><p style="font-size:12px;color:#64748B;text-align:center;margin-top:4px;white-space:nowrap;">네이버케어</p></div>
+      <div style="position:absolute;top:75%;left:80%;transform:translate(-50%,-50%);"><div style="width:64px;height:64px;background:#2C7AFC;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 0 0 16px rgba(44,122,252,0.15);"><span style="font-size:11px;font-weight:600;color:#fff;text-align:center;line-height:1.3;">하루<br>안부</span></div><p style="font-size:12px;color:#2C7AFC;text-align:center;margin-top:8px;font-weight:600;white-space:nowrap;">하루안부</p></div>
+    </div>
+  </div>
+  <div class="pg-v3"><span class="pgc">24</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S25 ONE-LINE CONCEPT -->
+<div class="slide-outer"><section class="slide" id="s25">
+  <div class="top-bar">
+    <span class="top-bar-section">04 컨셉·전략 수립</span>
+    <span class="top-bar-sub">한 줄 컨셉</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;right:88px;text-align:center;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;text-transform:uppercase;">One-Line Concept</p>
+  <div style="position:absolute;top:50%;left:88px;right:88px;transform:translateY(-60%);text-align:center;">
+    <h2 style="font-size:56px;font-weight:600;color:#161616;letter-spacing:-1px;line-height:1.4;margin-bottom:0;">"하루 한 번의 <span style="color:#2C7AFC;">안부</span>가</h2>
+    <h2 style="font-size:56px;font-weight:600;color:#161616;letter-spacing:-1px;line-height:1.4;margin-bottom:0;">보호자와 환자와 의료진을</h2>
+    <h2 style="font-size:56px;font-weight:600;color:#161616;letter-spacing:-1px;line-height:1.4;">하나로 <span style="color:#2C7AFC;">연결</span>합니다"</h2>
+    <p style="font-size:20px;font-weight:400;color:#B3B3B3;margin-top:32px;">"One greeting a day connects families, patients, and care teams."</p>
+  </div>
+  <div style="position:absolute;bottom:80px;left:88px;right:88px;display:flex;gap:0;border:1px solid var(--rule);">
+    <div style="flex:1;padding:24px 32px;border-right:1px solid var(--rule);text-align:center;"><p style="font-size:14px;font-weight:500;color:#B3B3B3;margin-bottom:8px;">그래서 하루안부는</p><p style="font-size:16px;font-weight:600;color:#2C7AFC;">AI로 먼저 연결한다</p></div>
+    <div style="flex:1;padding:24px 32px;border-right:1px solid var(--rule);text-align:center;"><p style="font-size:14px;font-weight:500;color:#B3B3B3;margin-bottom:8px;">그래서 하루안부는</p><p style="font-size:16px;font-weight:600;color:#2C7AFC;">3자를 동시에 잇는다</p></div>
+    <div style="flex:1;padding:24px 32px;text-align:center;"><p style="font-size:14px;font-weight:500;color:#B3B3B3;margin-bottom:8px;">그래서 하루안부는</p><p style="font-size:16px;font-weight:600;color:#2C7AFC;">매일 루틴을 만든다</p></div>
+  </div>
+  <div class="pg-v3"><span class="pgc">25</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S26 섹션 인트로[05] v2 row layout -->
+<div class="slide-outer"><section class="slide slide-dark" id="s26">
+  <div style="position:absolute;top:80px;left:88px;"><h2 style="font-size:24px;font-weight:600;color:#fff;">CONTENTS</h2></div>
+  <div style="position:absolute;top:160px;left:88px;right:88px;bottom:120px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="toc-row-dk"><span class="tr-num">01</span><span class="tr-title">프로젝트 개요</span><span class="tr-sub">프로젝트 명 · 타겟 사용자 정의 · 프로젝트 목적</span><span class="tr-pg">04</span></div>
+    <div class="toc-row-dk"><span class="tr-num">02</span><span class="tr-title">리서치</span><span class="tr-sub">데스크 리서치 · 온라인 서베이 · 2025 트렌드 · 결론 도출</span><span class="tr-pg">08</span></div>
+    <div class="toc-row-dk"><span class="tr-num">03</span><span class="tr-title">인사이트·정의</span><span class="tr-sub">페인포인트·니즈·인사이트 · 문장형 컨셉 · 타겟설정 · 결론 도출</span><span class="tr-pg">17</span></div>
+    <div class="toc-row-dk"><span class="tr-num">04</span><span class="tr-title">컨셉·전략 수립</span><span class="tr-sub">3C 분석 · SWOT 분석 · 벤치마킹 &amp; 포지셔닝맵 · 한 줄 컨셉</span><span class="tr-pg">22</span></div>
+    <div class="toc-row-dk active"><span class="tr-num">05</span><span class="tr-title">UX 구조 설계</span><span class="tr-sub">페르소나 · 고객여정도 · 메뉴구조도 · UI 플로우차트 · 결론 도출</span><span class="tr-pg">27</span></div>
+    <div class="toc-row-dk"><span class="tr-num">06</span><span class="tr-title">비주얼 디자인 개발</span><span class="tr-sub">디자인 컨셉보드 · 서비스 BI · 와이어프레임 · UIUX 디자인 · 프로토타입</span><span class="tr-pg">34</span></div>
+    <div class="toc-row-dk" style="border-bottom:none;"><span class="tr-num">07</span><span class="tr-title">기대효과</span><span class="tr-sub">기대효과 · KPI · 비즈니스 모델 · 린캔버스</span><span class="tr-pg">39</span></div>
+  </div>
+  <div class="pg-v3 pg-v3-white"><span class="pgc">26</span><span class="pgt"> / 44</span></div>
+</section></div>
+
+<!-- S27 PERSONA 1 보호자 (actual photo) -->
+<div class="slide-outer"><section class="slide" id="s27">
+  <div class="top-bar">
+    <span class="top-bar-section">05 UX 구조 설계</span>
+    <span class="top-bar-sub">페르소나</span>
+    <span class="top-bar-course">디지털콘텐츠제작03</span>
+  </div>
+  <p style="position:absolute;top:168px;left:88px;font-size:14px;font-weight:500;color:#2C7AFC;letter-spacing:2px;">PERSONA 01. 보호자</p>
+  <div style="position:absolute;top:208px;left:88px;width:480px;">
+    <div style="width:280px;height:280px;overflow:hidden;margin-bottom:24px;">
+      <img src="./페르소나/불편한_보호자.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    <h3 style="font-size:24px;font-weight:600;color:#161616;margin-bottom:8px;">김수연</h3>
+    <p style="font-size:16px;font-weight:400;color:#64748B;margin-bottom:16px;">52세 / 직장인 (팀장)</p>
+    <div style="border-top:1px solid var(—rule);padding-top:16px;">
+      <p style="font-size:14px;font-weight:400

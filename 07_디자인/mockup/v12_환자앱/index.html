@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>하루안부 · 환자 태블릿 앱 (v12) — 쇼케이스</title>
+  <link rel="icon" type="image/svg+xml" href="../07_디자인/logo/brand-system/01_심볼단독.svg">
+  <link rel="stylesheet" href="../07_디자인/tokens/tokens.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: #FFF5E8; }
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-family-base);
+      color: var(--color-text-primary);
+      background: #FFF5E8;
+      padding: var(--space-10) var(--space-8) var(--space-11);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 1280px; margin: 0 auto; }
+
+    /* ── 헤더 ─────────────────────────────────────────────── */
+    .showcase-head {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-6);
+      align-items: center;
+      margin-bottom: var(--space-9);
+    }
+    .showcase-head img { width: 56px; height: 56px; }
+    .showcase-head .title {
+      font: var(--weight-bold) 32px / 1.15 var(--font-family-base);
+      letter-spacing: -0.02em;
+    }
+    .showcase-head .sub {
+      font: var(--weight-medium) var(--text-body-lg) / 1.4 var(--font-family-base);
+      color: var(--color-text-secondary);
+      margin-top: 6px;
+    }
+
+    /* ── 원칙 배지 ────────────────────────────────────────── */
+    .principles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-9);
+    }
+    .principle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: var(--radius-full);
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      font: var(--weight-semibold) var(--text-callout) / 1 var(--font-family-base);
+      color: var(--color-text-secondary);
+      box-shadow: 0 2px 8px rgba(194, 98, 28, 0.05);
+    }
+    .principle-chip iconify-icon { color: var(--brand-orange-500); }
+
+    /* ── 스크린 카드 그리드 ─────────────────────────────── */
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-8);
+    }
+    .screens > .screen-card:first-child {
+      grid-column: 1 / -1;   /* P-01 홈은 가로 전체 */
+    }
+    .screens > .screen-card:first-child .preview { aspect-ratio: 1180 / 760; }
+
+    .screen-card {
+      background: #fff;
+      border-radius: var(--radius-hero);
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(194, 98, 28, 0.10);
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--motion-transition) var(--easing-standard),
+                  box-shadow var(--motion-transition) var(--easing-standard);
+    }
+    .screen-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 52px rgba(194, 98, 28, 0.16);
+    }
+
+    .screen-meta {
+      padding: var(--space-6) var(--space-7);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-5);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .screen-meta .id {
+      font: var(--weight-bold) var(--text-caption) / 1 var(--font-family-base);
+      letter-spacing: 0.08em;
+      color: var(--brand-orange-600);
+      background: var(--brand-orange-100);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+    }
+    .screen-meta h2 {
+      font: var(--weight-bold) var(--text-title) / 1.2 var(--font-family-base);
+      margin: 8px 0 4px;
+    }
+    .screen-meta p {
+      font: var(--weight-medium) var(--text-body) / 1.4 var(--font-family-base);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font: var(--weight-bold) var(--text-callout) / 1 var(--font-family-base);
+      color: var(--brand-orange-600);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    /* 프리뷰 — 실제 페이지를 태블릿 해상도로 렌더 → 스케일 축소 */
+    .preview {
+      position: relative;
+      aspect-ratio: 1180 / 820;
+      background: #FFF5E8;
+      overflow: hidden;
+    }
+    .preview iframe {
+      /* 실제 태블릿 뷰포트 크기로 iframe을 크게 잡고 transform으로 축소 */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1180px;
+      height: 820px;
+      border: 0;
+      transform-origin: top left;
+      /* JS에서 컨테이너 너비에 맞춰 scale 값 주입 */
+    }
+
+    @media (max-width: 920px) {
+      .screens { grid-template-columns: 1fr; }
+      .showcase-head .title { font-size: 24px; }
+      body { padding: var(--space-8) var(--space-6) var(--space-9); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <header class="showcase-head">
+      <img src="../07_디자인/logo/brand-system/01_심볼단독.svg" alt="">
+      <div>
+        <h1 class="title">하루안부 · 환자 태블릿 앱 (v12)</h1>
+        <div class="sub">2026-04-18 전면 리디자인 — iPad 10" · Galaxy Tab A 거치형</div>
+      </div>
+    </header>
+
+    <div class="principles" aria-label="디자인 원칙">
+      <span class="principle-chip">
+        <iconify-icon icon="fluent:target-24-filled" width="16" aria-hidden="true"></iconify-icon>
+        한 화면에 주인공 1개
+      </span>
+      <span class="principle-chip">
+        <iconify-icon icon="fluent:text-case-title-24-filled" width="16" aria-hidden="true"></iconify-icon>
+        큰 글자 · 큰 버튼
+      </span>
+      <span class="principle-chip">
+        <iconify-icon icon="fluent:alert-urgent-24-filled" width="16" aria-hidden="true"></iconify-icon>
+        긴급=빨강 1곳만 (SOS)
+      </span>
+      <span class="principle-chip">
+        <iconify-icon icon="fluent:sparkle-24-filled" width="16" aria-hidden="true"></iconify-icon>
+        장식 제거 · 이모지 금지
+      </span>
+    </div>
+
+    <section class="screens">
+
+      <a href="p01-today.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-01</span>
+            <h2>오늘 홈</h2>
+            <p>AI 말벗이 히어로, 오른쪽에 할 일·일정 타일 2개</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p01-today.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-01 오늘 홈 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p02-med-alert.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-02</span>
+            <h2>오늘 할 일</h2>
+            <p>식사·약·건강 측정·산책을 시간 순 체크리스트로</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p02-med-alert.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-02 오늘 할 일 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p03-call.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-03</span>
+            <h2>가족에게 전화</h2>
+            <p>얼굴 3개 풀사이즈 타일 — 최근통화·메시지 제거</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p03-call.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-03 전화 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p05-voice.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-05</span>
+            <h2>말벗과 대화</h2>
+            <p>듣는 중 파형 + 최근 교환 1쌍. 그만 말하기 버튼이 주인공</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p05-voice.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-05 말벗 대화 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p06-photo.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-06</span>
+            <h2>사진 크게 보기</h2>
+            <p>민지가 보낸 사진 풀사이즈 + 좌우 큰 화살표</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p06-photo.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-06 사진 뷰어 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p07-message.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-07</span>
+            <h2>민지와 대화</h2>
+            <p>최근 교환 3개 + 빠른 답장 칩 + 음성 답장</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p07-message.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-07 메시지 상세 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p08-help.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-08</span>
+            <h2>도움 요청 확인</h2>
+            <p>5초 카운트다운 + 취소 버튼 + 개별 가족 호출</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p08-help.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-08 도움 요청 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p09-sos.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-09</span>
+            <h2>긴급 SOS</h2>
+            <p>119 자동 연결 + 가족 위치 공유. 큰 취소 버튼</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p09-sos.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-09 SOS 미리보기"></iframe>
+        </div>
+      </a>
+
+      <a href="p10-med-done.html" target="_blank" class="screen-card">
+        <div class="screen-meta">
+          <div>
+            <span class="id">P-10</span>
+            <h2>약 복용 완료</h2>
+            <p>방금 드신 약 + 다음 약 + 가족 자동 알림 확인</p>
+          </div>
+          <span class="open-btn">
+            열기
+            <iconify-icon icon="fluent:open-16-filled" width="18" aria-hidden="true"></iconify-icon>
+          </span>
+        </div>
+        <div class="preview">
+          <iframe src="p10-med-done.html" loading="lazy" tabindex="-1" aria-hidden="true" title="P-10 약 복용 완료 미리보기"></iframe>
+        </div>
+      </a>
+
+    </section>
+  </div>
+
+  <script>
+    // 프리뷰 iframe을 카드 너비에 맞춰 정확히 scale.
+    // 실제 렌더 너비는 1180px로 고정 → 카드 너비 / 1180 = scale.
+    function fitPreviews() {
+      document.querySelectorAll('.preview').forEach(function (el) {
+        var iframe = el.querySelector('iframe');
+        if (!iframe) return;
+        var scale = el.clientWidth / 1180;
+        iframe.style.transform = 'scale(' + scale + ')';
+        iframe.style.width = (100 / scale) + '%';   // 스케일 이후에도 컨테이너 꽉 채우기
+        iframe.style.height = (100 / scale) + '%';
+      });
+    }
+    window.addEventListener('load', fitPreviews);
+    window.addEventListener('resize', fitPreviews);
+  </script>
+
+</body>
+</html>

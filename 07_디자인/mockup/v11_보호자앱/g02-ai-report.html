@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 기록</title>
+  <link rel="stylesheet" href="common.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    :root {
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+    }
+    html { background:#d4e4ff; overscroll-behavior:none; }
+    body {
+      background:transparent; max-width:430px; margin:0 auto; min-height:100vh;
+      padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 24px + 68px + 16px);
+      font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+      -webkit-font-smoothing:antialiased; color:var(--t1);
+      overscroll-behavior:none;
+    }
+    .content { padding:0 16px; position:relative; z-index:1; }
+
+    /* ═══ 배경 블롭 ═══ */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.18)0%,transparent 65%);filter:blur(30px);animation:ga 8s ease-in-out infinite alternate}
+    .bg .g2{position:absolute;width:600px;height:400px;left:50%;top:35%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(200,220,255,.25)0%,transparent 65%);filter:blur(40px);animation:gb 10s ease-in-out infinite alternate}
+    .bg .g3{position:absolute;width:700px;height:500px;left:50%;bottom:-15%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(44,122,252,.08)0%,transparent 70%);filter:blur(35px);animation:gc 12s ease-in-out infinite alternate}
+    @keyframes ga{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.08)translateY(12px)}}
+    @keyframes gb{0%{transform:translate(-50%,-50%)scale(1)}100%{transform:translate(-52%,-48%)scale(1.05)}}
+    @keyframes gc{0%{transform:translateX(-50%)scale(1)}100%{transform:translateX(-48%)scale(1.06)translateY(-8px)}}
+
+    /* ═══ 헤더 — 표준 ═══ */
+    .header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--t1)}
+    .header-left,.header-right{width:36px;display:flex;align-items:center}
+    .header-right{justify-content:flex-end}
+    .nav-btn,.btn-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s;color:var(--t1)}
+    .nav-btn:active,.btn-icon:active{transform:scale(.93)}
+    .nav-btn iconify-icon,.btn-icon iconify-icon{font-size:18px;color:var(--blue)}
+
+    /* ═══ 섹션 간격 ═══ */
+    .zone { margin-bottom:20px; }
+    .zone-title {
+      font-size:17px;font-weight:700;letter-spacing:-.3px;
+      margin-bottom:12px;padding:0 4px;
+    }
+
+    /* ═══ AI 요약바 ═══ */
+    .ai-bar {
+      display:flex;align-items:center;gap:16px;padding:20px;border-radius:20px;
+      background:rgba(255,255,255,.75);backdrop-filter:blur(20px);
+      border:1px solid rgba(0,0,0,.04);
+      position:relative;overflow:hidden;
+    }
+    .ai-bar::before {
+      content:'';position:absolute;inset:0;border-radius:inherit;
+      background:linear-gradient(148deg,rgba(255,255,255,.40) 0%,transparent 50%);
+      pointer-events:none;z-index:0;
+    }
+    .ai-score{position:relative;flex-shrink:0;width:60px;height:60px;display:flex;align-items:center;justify-content:center}
+    .ai-score-num{font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-1px;line-height:1}
+    .ai-right{flex:1;display:flex;flex-direction:column;gap:3px;position:relative;z-index:1}
+    .ai-label{font-size:10px;font-weight:800;color:var(--blue);letter-spacing:.3px}
+    .ai-text{font-size:14px;font-weight:600;line-height:1.4}
+
+    /* ═══ 벤토 그리드 ═══ */
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid-full{grid-column:1/-1}
+
+    /* ═══ 위젯 카드 베이스 ═══ */
+    .w {
+      background:rgba(255,255,255,.75);backdrop-filter:blur(20px);
+      border:1px solid rgba(0,0,0,.04);border-radius:20px;
+      padding:18px;cursor:pointer;
+      transition:transform .12s;position:relative;overflow:hidden;
+    }
+    .w::before {
+      content:'';position:absolute;inset:0;border-radius:inherit;
+      background:linear-gradient(148deg,rgba(255,255,255,.40) 0%,transparent 50%);
+      pointer-events:none;z-index:0;
+    }
+    .w:active{transform:scale(.97)}
+    .w-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1}
+    .w-title{font-size:16px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px;letter-spacing:-.3px}
+    .w-title iconify-icon{font-size:18px}
+    .w-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+
+    /* ═══ 투약 위젯 ═══ */
+    .pill-dots{display:flex;gap:8px;margin-top:8px}
+    .pill-dot{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t2)}
+    .pill-dot-circle{width:8px;height:8px;border-radius:50%}
+
+    /* ═══ 식사 위젯 ═══ */
+    .meal-bars{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+    .meal-bar-row{display:flex;align-items:center;gap:8px}
+    .meal-bar-label{font-size:11px;font-weight:600;width:24px;flex-shrink:0}
+    .meal-bar-bg{flex:1;height:5px;background:rgba(0,0,0,.04);border-radius:3px;overflow:hidden}
+    .meal-bar-fill{height:100%;border-radius:3px}
+
+    /* ═══ 기분+활동 결합 카드 ═══ */
+    .combined-inner{display:flex;gap:16px;position:relative;z-index:1}
+    .combined-half{flex:1;text-align:center}
+    .combined-divider{width:1px;background:rgba(0,0,0,.06);margin:0 0}
+    .combined-metric{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+    .combined-unit{font-size:12px;font-weight:500;color:var(--t3)}
+    .combined-sub{font-size:11px;color:var(--t3);margin-top:4px}
+
+    /* ═══ 위생 체크리스트 ═══ */
+    .chk-row{display:flex;align-items:center;gap:8px;padding:5px 0;position:relative;z-index:1}
+    .chk-box{width:16px;height:16px;border-radius:5px;border:2px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px}
+    .chk-box.done{background:var(--blue);border-color:var(--blue);color:#fff}
+    .chk-name{font-size:12px;font-weight:600;flex:1}
+    .chk-time{font-size:10px;color:var(--t3)}
+
+    /* ═══ 특이사항 위젯 ═══ */
+    .note-widget {
+      background:rgba(245,158,11,.07) !important;
+      border:0.5px solid rgba(245,158,11,.2) !important;
+    }
+    .note-widget::before {
+      background:linear-gradient(148deg,rgba(245,158,11,.08) 0%,transparent 50%) !important;
+    }
+    .note-widget .w-title{color:#92400E}
+    .note-text{font-size:13px;color:#78350F;line-height:1.45;position:relative;z-index:1}
+
+    /* ═══ 담당 간호사 카드 ═══ */
+    .nurse-card{padding:0 !important}
+    .nurse-img{width:100%;height:120px;overflow:hidden;border-radius:20px 20px 0 0;position:relative}
+    .nurse-img img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+    .nurse-img-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#DBEAFE,#93C5FD);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--blue-d)}
+    .nurse-body{padding:14px 16px;text-align:center;position:relative;z-index:1}
+    .nurse-name{font-size:15px;font-weight:800}
+    .nurse-sub{font-size:11px;color:var(--t3);margin-top:2px}
+    .nurse-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;color:var(--green-d);background:rgba(52,211,153,.12);margin-top:6px}
+    .nurse-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green)}
+    .nurse-btn{width:100%;margin-top:10px;padding:10px;border-radius:12px;background:var(--blue);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer}
+    .nurse-btn:active{opacity:.85}
+
+    /* ═══ ZONE C: 의료 기록 카드 ═══ */
+    .record-card {
+      background:rgba(255,255,255,.72);backdrop-filter:blur(56px) saturate(180%) brightness(1.06);
+      -webkit-backdrop-filter:blur(56px) saturate(180%) brightness(1.06);
+      border:0.5px solid rgba(255,255,255,.70);border-radius:20px;
+      padding:18px;cursor:pointer;
+      box-shadow:0 1px 0 rgba(255,255,255,.80) inset,0 6px 20px rgba(0,0,0,.09);
+      position:relative;overflow:hidden;transition:transform .12s;
+    }
+    .record-card::before {
+      content:'';position:absolute;inset:0;border-radius:inherit;
+      background:linear-gradient(135deg,rgba(255,255,255,.22) 0%,transparent 55%);
+      pointer-events:none;z-index:0;
+    }
+    .record-card:active{transform:scale(.97)}
+    .record-card + .record-card{margin-top:10px}
+    .rc-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;position:relative;z-index:1}
+    .rc-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rc-title{font-size:15px;font-weight:700;flex:1}
+    .rc-count{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(44,122,252,.1);color:var(--blue)}
+    .rc-arrow{font-size:16px;color:var(--t3)}
+
+    /* 처방약 행 */
+    .med-row {
+      display:flex;align-items:center;gap:10px;
+      padding:8px 12px;border-radius:12px;
+      background:rgba(255,255,255,.22);border:0.5px solid rgba(255,255,255,.45);
+      margin-bottom:6px;position:relative;z-index:1;
+    }
+    .med-row:last-child{margin-bottom:0}
+    .med-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .med-name-short{font-size:13px;font-weight:600;flex:1}
+    .med-info{font-size:11px;color:var(--t2)}
+    .rc-footer{font-size:11px;color:var(--t3);margin-top:10px;position:relative;z-index:1}
+
+    /* 타임라인 미리보기 행 */
+    .tl-preview{position:relative;z-index:1}
+    .tl-pv-item{display:flex;align-items:center;gap:10px;padding:8px 0}
+    .tl-pv-item+.tl-pv-item{border-top:0.5px solid rgba(0,0,0,.04)}
+    .tl-pv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .tl-pv-date{font-size:11px;font-weight:600;color:var(--t3);width:32px;flex-shrink:0}
+    .tl-pv-type{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;flex-shrink:0}
+    .tl-pv-text{font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rc-link{display:block;font-size:12px;font-weight:600;color:var(--blue);margin-top:10px;text-align:right;position:relative;z-index:1}
+
+    /* ═══ 주간 트렌드 ═══ */
+    .trend-row{display:flex;align-items:flex-end;gap:6px;height:48px;margin-top:10px}
+    .trend-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .trend-bar-bg{width:100%;height:40px;background:rgba(0,0,0,.03);border-radius:4px;position:relative;overflow:hidden}
+    .trend-fill{position:absolute;bottom:0;left:0;right:0;border-radius:4px}
+    .trend-day{font-size:9px;color:var(--t3);font-weight:500}
+
+    /* ═══ CTA ═══ */
+    .cta-row{display:flex;gap:8px;margin-top:4px}
+    .cta-btn {
+      flex:1;padding:14px;border-radius:16px;text-align:center;
+      font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      transition:transform .12s;border:none;
+    }
+    .cta-btn:active{transform:scale(.97)}
+    .cta-secondary {
+      background:rgba(255,255,255,.72);backdrop-filter:blur(40px);
+      border:0.5px solid rgba(255,255,255,.80);color:var(--t1);
+    }
+    .cta-primary {
+      background:rgba(44,122,252,.12);backdrop-filter:blur(40px);
+      border:0.5px solid rgba(44,122,252,.25);color:var(--blue);
+    }
+
+    /* ═══ 바텀시트 ═══ */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.2);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;z-index:200}
+    .overlay.show{display:flex}
+    .sheet{background:rgba(255,255,255,.94);backdrop-filter:blur(40px);border-radius:28px 28px 0 0;padding:20px 24px calc(32px + env(safe-area-inset-bottom,0px));width:100%;max-width:430px;max-height:70vh;overflow-y:auto}
+    .sheet-handle{width:36px;height:4px;background:rgba(0,0,0,.08);border-radius:2px;margin:0 auto 20px}
+    .sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .sheet-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+    .sheet-icon iconify-icon{font-size:22px;color:#fff}
+    .sheet-ttl{font-size:20px;font-weight:800}
+    .sheet-sub{font-size:13px;color:var(--t3)}
+    .srow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.025);margin-bottom:8px}
+    .srow-icon{width:36px;height:36px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center}
+    .srow-icon iconify-icon{font-size:18px}
+    .srow-text{flex:1}
+    .srow-label{font-size:12px;color:var(--t3)}
+    .srow-val{font-size:15px;font-weight:600;margin-top:1px}
+    .srow-badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+
+    /* ═══ 탭바 ═══ */
+    .tabbar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:rgba(180,210,250,.15);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.35);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:#2C7AFC}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+  </style>
+</head>
+<body>
+
+  <!-- 배경 애니메이션 블롭 -->
+  <div class="bg"><svg class="bg-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg><div class="g1"></div><div class="g2"></div><div class="g3"></div></div>
+
+  <!-- 헤더 — 표준 -->
+  <div class="header" id="header">
+    <div class="header-left"><a href="g-guardian-live.html" class="btn-icon" aria-label="뒤로 가기"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon></a></div>
+    <span class="header-title">일일 리포트</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ ZONE A: 날짜 선택 + AI 요약 ══ -->
+    <div class="zone">
+      <div class="ai-bar">
+        <div class="ai-score">
+          <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="5"/>
+            <circle cx="30" cy="30" r="25" fill="none" stroke="var(--blue)" stroke-width="5" stroke-linecap="round" stroke-dasharray="118 157" transform="rotate(-90 30 30)"/>
+          </svg>
+          <div style="position:absolute;text-align:center">
+            <div class="ai-score-num">75</div>
+          </div>
+        </div>
+        <div class="ai-right">
+          <div class="ai-label">AI 케어 분석</div>
+          <div class="ai-text">투약 3회 완료, 식사 양호<br>점심 섭취량 소폭 감소 — 경과 관찰</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ZONE B: 오늘의 케어 벤토 그리드 ══ -->
+    <div class="zone">
+      <div class="zone-title">오늘의 케어</div>
+      <div class="grid">
+
+        <!-- 투약 -->
+        <div class="w" onclick="openSheet('pill')">
+          <div class="w-head">
+            <div class="w-title"><iconify-icon icon="tabler:pill-filled" style="color:#6EE7B7"></iconify-icon>투약</div>
+            <div class="w-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div>
+          </div>
+          <div style="position:relative;z-index:1">
+            <div style="font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1">3<span style="font-size:16px;font-weight:600;color:var(--t3)">/3</span></div>
+            <div class="pill-dots">
+              <div class="pill-dot"><div class="pill-dot-circle" style="background:var(--green)"></div>아침</div>
+              <div class="pill-dot"><div class="pill-dot-circle" style="background:var(--green)"></div>점심</div>
+              <div class="pill-dot"><div class="pill-dot-circle" style="background:var(--green)"></div>오후</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 식사 -->
+        <div class="w" onclick="openSheet('food')">
+          <div class="w-head">
+            <div class="w-title"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon>식사</div>
+          </div>
+          <div style="position:relative;z-index:1">
+            <div style="font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1">3<span style="font-size:16px;font-weight:600;color:var(--t3)"> 끼</span></div>
+            <div class="meal-bars">
+              <div class="meal-bar-row"><span class="meal-bar-label">아침</span><div class="meal-bar-bg"><div class="meal-bar-fill" style="width:100%;background:var(--green)"></div></div></div>
+              <div class="meal-bar-row"><span class="meal-bar-label">점심</span><div class="meal-bar-bg"><div class="meal-bar-fill" style="width:55%;background:var(--amber)"></div></div></div>
+              <div class="meal-bar-row"><span class="meal-bar-label">저녁</span><div class="meal-bar-bg"><div class="meal-bar-fill" style="width:90%;background:var(--green)"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기분 + 활동 결합 -->
+        <div class="w grid-full" onclick="openSheet('mood')">
+          <div class="w-head">
+            <div class="w-title"><iconify-icon icon="fluent:emoji-24-filled" style="color:var(--blue)"></iconify-icon>기분 · 활동</div>
+          </div>
+          <div class="combined-inner">
+            <div class="combined-half">
+              <div class="combined-metric" style="color:var(--blue)">87<span class="combined-unit">점</span></div>
+              <div class="combined-sub">밝고 안정적</div>
+            </div>
+            <div class="combined-divider"></div>
+            <div class="combined-half">
+              <div class="combined-metric">25<span class="combined-unit">분</span></div>
+              <div class="combined-sub">산책 · 스트레칭</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 위생 -->
+        <div class="w" onclick="openSheet('hygiene')">
+          <div class="w-head">
+            <div class="w-title"><iconify-icon icon="fluent:drop-24-filled" style="color:var(--blue)"></iconify-icon>위생</div>
+          </div>
+          <div class="chk-row"><div class="chk-box done">✓</div><div class="chk-name">세면</div><div class="chk-time">07:00</div></div>
+          <div class="chk-row"><div class="chk-box done">✓</div><div class="chk-name">구강</div><div class="chk-time">07:10</div></div>
+          <div class="chk-row"><div class="chk-box"></div><div class="chk-name">취침 세면</div><div class="chk-time" style="color:var(--t3)">예정</div></div>
+        </div>
+
+        <!-- 담당 간호사 -->
+        <div class="w nurse-card" onclick="openSheet('nurse')">
+          <div class="nurse-img">
+            <div class="nurse-img-placeholder">
+              <iconify-icon icon="fluent:person-24-filled" style="font-size:40px;color:var(--blue-d);opacity:.5"></iconify-icon>
+            </div>
+          </div>
+          <div class="nurse-body">
+            <div class="nurse-name">김서연 간호사</div>
+            <div class="nurse-sub">실버케어 3층</div>
+            <div class="nurse-badge">근무중</div>
+            <button class="nurse-btn" onclick="event.stopPropagation();location.href='g03-chat-nurse.html'">채팅하기</button>
+          </div>
+        </div>
+
+        <!-- 특이사항 (full-width) -->
+        <div class="w note-widget grid-full" onclick="openSheet('note')">
+          <div class="w-head">
+            <div class="w-title"><iconify-icon icon="fluent:warning-24-filled" style="color:var(--amber)"></iconify-icon>특이사항</div>
+            <div class="w-badge" style="color:#92400E;background:rgba(245,158,11,.12)">1건</div>
+          </div>
+          <div class="note-text">점심 식사량이 평소보다 소폭 감소. 저녁 경과 관찰 예정.</div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══ ZONE E: CTA ══ -->
+    <div class="zone">
+      <div class="cta-row">
+        <a href="g03-chat.html" class="cta-btn cta-secondary"><iconify-icon icon="fluent:chat-24-filled" style="font-size:18px"></iconify-icon>담당자에게 문의</a>
+        <a href="g-guardian-live.html?chat=1" class="cta-btn cta-primary"><iconify-icon icon="fluent:sparkle-24-filled" style="font-size:18px"></iconify-icon>AI에게 질문</a>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- 바텀시트 -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet" id="sheetContent"></div>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 2526 2526"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g02-ai-report.html" class="tab active">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="4" height="8" rx="2"/><rect x="10" y="6" width="4" height="14" rx="2"/><rect x="16" y="9" width="4" height="11" rx="2"/></svg></span>
+    </a>
+    <a href="g08-billing.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="16" rx="3"/><rect x="2" y="10" width="20" height="3" fill="rgba(255,255,255,0.35)"/><rect x="5" y="15" width="4" height="2" rx="1" fill="rgba(255,255,255,0.6)"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+<script>
+/* ─── 바텀시트 ─── */
+const SHEETS = {
+  pill: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#FBBF24,#F59E0B)"><iconify-icon icon="tabler:pill-filled"></iconify-icon></div><div><div class="sheet-ttl">투약 상세</div><div class="sheet-sub">오늘 3회 모두 완료</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:syringe-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">아침 투약</div><div class="srow-val">혈압약 · 당뇨약 — 08:00</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="material-symbols:medical-services-rounded" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">점심 투약</div><div class="srow-val">소화제 — 12:30</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:heart-pulse-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오후 투약</div><div class="srow-val">관절 영양제 — 14:00</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>`,
+
+  food: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#34D399,#059669)"><iconify-icon icon="fluent:food-24-filled"></iconify-icon></div><div><div class="sheet-ttl">식사 상세</div><div class="sheet-sub">3끼 완료 · 점심 섭취 감소</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">아침 07:30</div><div class="srow-val">죽 + 반찬 2종 — 잔반 없음</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">양호</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--amber)"></iconify-icon></div><div class="srow-text"><div class="srow-label">점심 12:00</div><div class="srow-val">밥 + 국 + 반찬 3종 — 55%</div></div><div class="srow-badge" style="color:#92400E;background:rgba(245,158,11,.12)">감소</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--green-d)"></iconify-icon></div><div class="srow-text"><div class="srow-label">저녁 18:30</div><div class="srow-val">밥 + 된장찌개 — 잔반 없음</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">양호</div></div>`,
+
+  mood: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="fluent:emoji-24-filled"></iconify-icon></div><div><div class="sheet-ttl">기분 · 활동 상세</div><div class="sheet-sub">전반적으로 밝은 상태</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:emoji-24-filled" style="color:var(--green)"></iconify-icon></div><div class="srow-text"><div class="srow-label">기분 — 오전</div><div class="srow-val">밝고 활기찬 상태</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">좋음</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:emoji-meh-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">기분 — 오후</div><div class="srow-val">점심 후 안정적</div></div><div class="srow-badge" style="color:var(--blue-d);background:rgba(44,122,252,.1)">보통</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:walk-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오전 스트레칭</div><div class="srow-val">10분 · 상체 중심 스트레칭</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:walk-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">오후 산책</div><div class="srow-val">15분 · 1층 정원 산책</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>`,
+
+  hygiene: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="fluent:drop-24-filled"></iconify-icon></div><div><div class="sheet-ttl">위생 상세</div><div class="sheet-sub">3건 중 2건 완료</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">세면</div><div class="srow-val">아침 07:00 완료</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">구강 케어</div><div class="srow-val">아침 07:10 완료</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">완료</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:drop-24-filled" style="color:rgba(44,122,252,.3)"></iconify-icon></div><div class="srow-text"><div class="srow-label">취침 전 세면</div><div class="srow-val">20:00 예정</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">예정</div></div>`,
+
+  note: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,#FBBF24,#F59E0B)"><iconify-icon icon="fluent:warning-24-filled"></iconify-icon></div><div><div class="sheet-ttl">특이사항</div><div class="sheet-sub">오늘 1건 기록</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:food-24-filled" style="color:var(--amber)"></iconify-icon></div><div class="srow-text"><div class="srow-label">점심 식사량 감소</div><div class="srow-val">평소 대비 약 45% 감소. 컨디션 이상 없음. 저녁 식사 때 경과 관찰 예정.</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:person-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">담당자 소견</div><div class="srow-val">김서연 간호사: 일시적 식욕 감소로 판단. 수분 섭취는 정상.</div></div></div>`,
+
+  nurse: `<div class="sheet-handle"></div>
+    <div class="sheet-head"><div class="sheet-icon" style="background:linear-gradient(135deg,var(--blue-l),var(--blue))"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></div><div><div class="sheet-ttl">김서연 간호사</div><div class="sheet-sub">실버케어 3층 · 5년차</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:clock-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">근무 시간</div><div class="srow-val">07:00 ~ 15:00 (주간)</div></div><div class="srow-badge" style="color:var(--green-d);background:rgba(52,211,153,.12)">근무중</div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:call-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">연락처</div><div class="srow-val">실버케어 내선 302</div></div></div>
+    <div class="srow"><div class="srow-icon"><iconify-icon icon="fluent:chat-24-filled" style="color:var(--blue)"></iconify-icon></div><div class="srow-text"><div class="srow-label">최근 메시지</div><div class="srow-val">어르신 오전 산책 잘 다녀오셨어요</div></div><div class="srow-badge" style="color:var(--t3);background:rgba(0,0,0,.04)">10:30</div></div>`
+};
+
+function openSheet(type){
+  document.getElementById('sheetContent').innerHTML = SHEETS[type];
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('show');
+}
+</script>
+</body>
+</html>

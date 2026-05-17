@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#EEF3FB">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 마이</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.35);
+      --glass-b:rgba(0,0,0,.05);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:#d4e4ff;overflow-x:hidden}
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative}
+
+    /* 배경 */
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%)}
+    .bg-logo{position:absolute;width:140%;height:auto;left:50%;top:42%;transform:translate(-50%,-50%);opacity:.06;filter:blur(32px);animation:bgl 8s ease-in-out infinite}
+    @keyframes bgl{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.05}50%{transform:translate(-50%,-50%)scale(1.06)rotate(1.5deg);opacity:.08}}
+
+    /* 헤더 — 기록 페이지와 통일 */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.86)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+
+    /* 콘텐츠 */
+    .content{position:relative;z-index:1;padding:0 16px 120px}
+
+    /* 카드 베이스 */
+    .card{background:rgba(255,255,255,.80);border:1px solid var(--glass-b);border-radius:20px;margin-bottom:12px}
+
+    /* 프로필 카드 */
+    .profile{padding:24px 20px;display:flex;align-items:center;gap:16px}
+    .profile-av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#DBEAFE,#93C5FD);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--blue-d);flex-shrink:0;position:relative}
+    .profile-av-edit{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+    .profile-info{flex:1}
+    .profile-name{font-size:20px;font-weight:800;letter-spacing:-.5px}
+    .profile-sub{font-size:12px;color:var(--t3);margin-top:2px}
+    .profile-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(44,122,252,.08);color:var(--blue);margin-top:6px}
+
+    /* 케어 칩 */
+    .care-chips{display:flex;gap:8px;padding:0 20px 20px}
+    .care-chip{flex:1;text-align:center;padding:12px 8px;background:rgba(44,122,252,.04);border-radius:14px;border:1px solid rgba(44,122,252,.06)}
+    .care-chip-val{font-size:16px;font-weight:800;color:var(--t1)}
+    .care-chip-label{font-size:10px;color:var(--t3);margin-top:2px}
+
+    /* 케어 대상 */
+    .care-target{padding:18px 20px}
+    .care-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+    .care-av{width:48px;height:48px;border-radius:50%;background:rgba(44,122,252,.08);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--blue);flex-shrink:0;position:relative}
+    .care-av-dot{position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff}
+    .care-name{font-size:16px;font-weight:700}
+    .care-sub{font-size:12px;color:var(--t3);margin-top:1px}
+    .care-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(52,211,153,.1);color:var(--green-d)}
+    .care-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green)}
+    .care-rows{display:flex;flex-direction:column}
+    .care-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(0,0,0,.04)}
+    .care-row:first-child{border-top:none}
+    .care-row-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(44,122,252,.06)}
+    .care-row-icon iconify-icon{font-size:16px;color:var(--blue)}
+    .care-row-body{flex:1}
+    .care-row-label{font-size:11px;color:var(--t3)}
+    .care-row-val{font-size:14px;font-weight:600}
+
+    /* 빠른 액션 */
+    .quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+    .quick-btn{background:rgba(255,255,255,.80);border:1px solid var(--glass-b);border-radius:16px;padding:18px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .12s;text-decoration:none;color:var(--t1)}
+    .quick-btn:active{transform:scale(.96)}
+    .quick-icon{width:44px;height:44px;border-radius:50%;background:rgba(44,122,252,.06);display:flex;align-items:center;justify-content:center}
+    .quick-icon iconify-icon{font-size:20px;color:var(--blue)}
+    .quick-icon svg{width:20px;height:20px;fill:var(--blue)}
+    .quick-label{font-size:12px;font-weight:600}
+
+    /* 메뉴 그룹 */
+    .menu-title{font-size:12px;font-weight:700;color:var(--t3);padding:0 4px;margin:16px 0 8px}
+    .menu-group{border-radius:20px;overflow:hidden}
+    .menu-item{display:flex;align-items:center;gap:12px;padding:14px 20px;text-decoration:none;color:var(--t1);transition:background .15s}
+    .menu-item:active{background:rgba(0,0,0,.02)}
+    .menu-item+.menu-item{border-top:1px solid rgba(0,0,0,.04)}
+    .mi-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .mi-icon iconify-icon{font-size:16px}
+    .mi-icon svg{width:16px;height:16px}
+    .mi-blue{background:rgba(44,122,252,.06)}.mi-blue iconify-icon,.mi-blue svg{color:var(--blue);fill:var(--blue)}
+    .mi-green{background:rgba(52,211,153,.06)}.mi-green iconify-icon{color:var(--green-d)}
+    .mi-amber{background:rgba(245,158,11,.06)}.mi-amber iconify-icon{color:var(--amber)}
+    .mi-body{flex:1}
+    .mi-label{font-size:14px;font-weight:600}
+    .mi-desc{font-size:11px;color:var(--t3);margin-top:1px}
+    .mi-right{display:flex;align-items:center;gap:6px}
+    .mi-badge{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .mi-chevron{color:var(--t3);font-size:14px}
+
+    /* 로그아웃 */
+    .logout{display:flex;align-items:center;justify-content:center;width:100%;padding:14px;font-size:14px;font-weight:600;color:var(--t3);background:rgba(255,255,255,.5);border:1px solid var(--glass-b);border-radius:16px;margin-top:16px;cursor:pointer;text-decoration:none}
+
+    /* 탭바 */
+    .tabbar{flex:1;min-width:0;height:60px;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);border-radius:999px;box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px}
+    .bottom-bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:40;width:calc(100% - 48px);max-width:370px}
+    .ai-fab{width:60px;height:60px;border-radius:50%;background:rgba(210,225,250,.55);backdrop-filter:url(#glass-warp) blur(12px);-webkit-backdrop-filter:url(#glass-warp) blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 4px 20px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s;flex-shrink:0;text-decoration:none}
+    .ai-fab:active{transform:scale(.92)}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+
+
+    .version{text-align:center;font-size:11px;color:var(--t3);margin-top:16px;padding-bottom:20px}
+      
+      /* ── glassmorphism card layer ── */
+    .w,.rec-card,.insight-card,.summary-card,.schedule-preview,
+    .q-item,.article-card,.alert-card,.srow,.quick-btn,
+    .chat-row,.mi-row,.pres-item,.billing-item,.tl-card {
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+  
+    /* iOS PWA standalone 모드: url(#glass-warp) 미지원 → 순수 blur + 진한 배경으로 fallback */
+    @media (display-mode: standalone) {
+      .tabbar, .ai-fab {
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        background: rgba(220,232,252,.78) !important;
+        border: 1px solid rgba(255,255,255,.6) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="glass-warp" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.008" numOctaves="3" seed="3" result="bigWarp"/>
+      <feDisplacementMap in="SourceGraphic" in2="bigWarp" scale="55" xChannelSelector="R" yChannelSelector="R" result="d1"/>
+      <feTurbulence type="turbulence" baseFrequency="0.025 0.03" numOctaves="2" seed="7" result="fineWarp"/>
+      <feDisplacementMap in="d1" in2="fineWarp" scale="12" xChannelSelector="R" yChannelSelector="R" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="2.5"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="bg"><svg class="bg-logo" viewBox="0 0 2526 2526" fill="none"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z" fill="#2C7AFC"/></svg></div>
+
+<div class="app">
+  <div class="header" id="header">
+    <div class="header-inner">
+      <span class="header-title">마이</span>
+      <button class="nav-btn" aria-label="설정">
+        <iconify-icon icon="fluent:settings-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="content">
+
+    <!-- 프로필 카드 -->
+    <div class="card">
+      <div class="profile">
+        <div class="profile-av">손
+          <div class="profile-av-edit"><iconify-icon icon="fluent:camera-24-filled" style="font-size:11px;color:#fff"></iconify-icon></div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">손예찬</div>
+          <div class="profile-sub">보호자 · 어머님(손정희) 담당</div>
+          <div class="profile-badge">
+            <svg width="10" height="10" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+            프리미엄
+          </div>
+        </div>
+      </div>
+      <div class="care-chips">
+        <div class="care-chip"><div class="care-chip-val">302호</div><div class="care-chip-label">호실</div></div>
+        <div class="care-chip"><div class="care-chip-val">김서연</div><div class="care-chip-label">담당 간호사</div></div>
+        <div class="care-chip"><div class="care-chip-val">200일</div><div class="care-chip-label">입소 경과</div></div>
+      </div>
+    </div>
+
+    <!-- 빠른 액션 -->
+    <div class="quick-grid">
+      <a href="g03-sotong.html" class="quick-btn">
+        <div class="quick-icon"><iconify-icon icon="fluent:chat-24-filled"></iconify-icon></div>
+        <span class="quick-label">소통</span>
+      </a>
+      <a href="g05-records.html" class="quick-btn">
+        <div class="quick-icon"><iconify-icon icon="fluent:document-24-filled"></iconify-icon></div>
+        <span class="quick-label">기록</span>
+      </a>
+      <a href="g02-ai-guide.html" class="quick-btn">
+        <div class="quick-icon"><iconify-icon icon="fluent:book-information-24-filled"></iconify-icon></div>
+        <span class="quick-label">AI 가이드</span>
+      </a>
+    </div>
+
+    <!-- 케어 대상 카드 -->
+    <div class="card care-target">
+      <div class="care-top">
+        <div class="care-av">정<div class="care-av-dot"></div></div>
+        <div style="flex:1">
+          <div class="care-name">손정희</div>
+          <div class="care-sub">케어 대상 · 78세</div>
+        </div>
+        <div class="care-badge">케어 중</div>
+      </div>
+      <div class="care-rows">
+        <div class="care-row">
+          <div class="care-row-icon"><iconify-icon icon="fluent:door-24-filled"></iconify-icon></div>
+          <div class="care-row-body"><div class="care-row-label">호실</div><div class="care-row-val">302호</div></div>
+        </div>
+        <div class="care-row">
+          <div class="care-row-icon"><iconify-icon icon="fluent:stethoscope-24-filled"></iconify-icon></div>
+          <div class="care-row-body"><div class="care-row-label">담당 간호사</div><div class="care-row-val">김서연 간호사</div></div>
+        </div>
+        <div class="care-row">
+          <div class="care-row-icon"><iconify-icon icon="fluent:calendar-24-filled"></iconify-icon></div>
+          <div class="care-row-body"><div class="care-row-label">입소일</div><div class="care-row-val">2025.09.15</div></div>
+        </div>
+        <div class="care-row">
+          <div class="care-row-icon"><iconify-icon icon="fluent:heart-pulse-24-filled"></iconify-icon></div>
+          <div class="care-row-body"><div class="care-row-label">주요 진단</div><div class="care-row-val">고혈압 · 당뇨 관리</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메뉴: 계정 -->
+    <div class="menu-title">계정</div>
+    <div class="card menu-group">
+      <a class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:person-edit-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">프로필 수정</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+      <a href="g06-alert.html" class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:alert-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">알림 설정</div><div class="mi-desc">긴급 알림, 일일 리포트</div></div>
+        <div class="mi-right"><span class="mi-badge">3</span><span class="mi-chevron">›</span></div>
+      </a>
+      <a class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:shield-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">개인정보 보호</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+    </div>
+
+    <!-- 메뉴: 서비스 -->
+    <div class="menu-title">서비스</div>
+    <div class="card menu-group">
+      <a href="g05-records.html" class="menu-item">
+        <div class="mi-icon mi-amber"><iconify-icon icon="fluent:wallet-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">구독 · 결제</div><div class="mi-desc">₩125,000 / 월</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+      <a href="g05-records.html" class="menu-item">
+        <div class="mi-icon mi-green"><iconify-icon icon="fluent:pill-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">처방전 관리</div><div class="mi-desc">복약 현황, 처방 이력</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+      <a class="menu-item">
+        <div class="mi-icon mi-blue">
+          <svg viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 .00017C2518.68 494.198 2522.27 1157.92 1658.86 1262.48 2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+        </div>
+        <div class="mi-body"><div class="mi-label">AI 리포트 설정</div><div class="mi-desc">수신 주기, 알림 방식</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+    </div>
+
+    <!-- 메뉴: 지원 -->
+    <div class="menu-title">지원</div>
+    <div class="card menu-group">
+      <a class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:question-circle-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">도움말</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+      <a class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:document-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">이용약관</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+      <a class="menu-item">
+        <div class="mi-icon mi-blue"><iconify-icon icon="fluent:info-24-filled"></iconify-icon></div>
+        <div class="mi-body"><div class="mi-label">앱 정보</div><div class="mi-desc">버전 1.0.0</div></div>
+        <div class="mi-right"><span class="mi-chevron">›</span></div>
+      </a>
+    </div>
+
+    <!-- 로그아웃 -->
+    <a href="#" class="logout">로그아웃</a>
+
+    <div class="version">하루안부 v1.0.0</div>
+
+  </div>
+
+  <!-- 탭바 -->
+  <div class="bottom-bar">
+    <nav class="tabbar">
+      <a href="g-guardian-live.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:home-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g02-ai-guide.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:book-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g03-sotong.html" class="tab"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span></a>
+      <a href="g05-records.html" class="tab"><span class="tab-icon"><iconify-icon icon="fluent:folder-24-filled" style="font-size:26px"></iconify-icon></span></a>
+      <a href="g05-mypage.html" class="tab active"><span class="tab-icon"><iconify-icon icon="fluent:person-24-filled" style="font-size:26px"></iconify-icon></span></a>
+    </nav>
+    <a href="g-guardian-live.html?chat=1" class="ai-fab" aria-label="AI 대화">
+      <svg width="18" height="18" viewBox="0 0 2526 2526" fill="#2C7AFC"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg>
+    </a>
+  </div>
+</div>
+<script>
+  function toast(msg){/* placeholder */}
+  window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+</script>
+</body>
+</html>

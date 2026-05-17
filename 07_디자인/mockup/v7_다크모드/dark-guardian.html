@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다크모드 — 보호자 홈</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    body { background: #1C1C1E; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+    /* ── 다크 토큰 ── */
+    :root {
+      --dk-bg: #0A0A0F;
+      --dk-surface: #1C1C1E;
+      --dk-surface2: #2C2C2E;
+      --dk-surface3: #3A3A3C;
+      --dk-divider: rgba(255,255,255,0.07);
+      --dk-text1: #FFFFFF;
+      --dk-text2: rgba(255,255,255,0.55);
+      --dk-text3: rgba(255,255,255,0.3);
+      --dk-primary: #22D3EE;        /* cyan-400 */
+      --dk-primary-glow: rgba(34,211,238,0.18);
+      --dk-primary-dim: rgba(34,211,238,0.08);
+    }
+
+    .phone {
+      position: relative;
+      width: 393px; height: 852px;
+      background: var(--dk-bg);
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 0 0 4px #000, 0 24px 64px rgba(0,0,0,0.6);
+    }
+    .phone::before {
+      content: '';
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 36px;
+      background: #000; border-radius: 20px; z-index: 20;
+    }
+
+    .scroll {
+      height: calc(852px - 84px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 20px;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* 상태바 */
+    .sbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px 0; height: 54px;
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      position: sticky; top: 0; z-index: 10;
+      background: linear-gradient(180deg, var(--dk-bg) 60%, transparent);
+    }
+    .sbar-time { font-size: 15px; font-weight: 700; color: white; }
+    .sbar-icons { display: flex; gap: 5px; align-items: center; }
+
+    /* ── 상단 히어로 ── */
+    .hero {
+      padding: 12px 24px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* 배경 글로우 */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-greeting {
+      font-size: 13px; font-weight: 500;
+      color: var(--dk-text2);
+      margin-bottom: 4px;
+    }
+    .hero-name {
+      font-size: 26px; font-weight: 700;
+      color: var(--dk-text1);
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .hero-name span { color: var(--dk-primary); }
+
+    /* 케어 카드 */
+    .care-card {
+      background: var(--dk-surface);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid var(--dk-divider);
+      position: relative;
+      overflow: hidden;
+    }
+    .care-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,211,238,0.4), transparent);
+    }
+
+    .care-card-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .care-label { font-size: 13px; font-weight: 600; color: var(--dk-text2); }
+    .care-time {
+      font-size: 11px; color: var(--dk-text3);
+      background: var(--dk-surface2);
+      padding: 3px 8px; border-radius: 6px;
+    }
+
+    .care-row {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .ring-wrap {
+      position: relative; width: 80px; height: 80px; flex-shrink: 0;
+    }
+    .ring-wrap svg { transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(34,211,238,0.4)); }
+    .ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .ring-pct { font-size: 22px; font-weight: 800; color: var(--dk-primary); line-height: 1; }
+    .ring-sub { font-size: 10px; color: var(--dk-text3); margin-top: 2px; }
+
+    .care-info { flex: 1; }
+    .care-patient-name { font-size: 17px; font-weight: 700; color: var(--dk-text1); margin-bottom: 3px; }
+    .care-room { font-size: 12px; color: var(--dk-text2); margin-bottom: 10px; }
+
+    .stat-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 9px;
+      background: var(--dk-surface2);
+      border-radius: 7px;
+      font-size: 11px; font-weight: 500;
+      color: var(--dk-text2);
+    }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .dot-c { background: var(--dk-primary); }
+    .dot-g { background: #34D399; }
+    .dot-y { background: #FCD34D; }
+
+    /* 컨텐츠 */
+    .content { padding: 0 16px; }
+
+    /* 섹션 구분 */
+    .section { margin: 16px 0; }
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; padding: 0 4px;
+    }
+    .section-title { font-size: 16px; font-weight: 700; color: var(--dk-text1); }
+    .section-more { font-size: 12px; color: var(--dk-primary); font-weight: 600; }
+
+    /* 긴급 알림 */
+    .alert-row {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(220,38,38,0.12);
+      border: 1px solid rgba(220,38,38,0.25);
+      border-radius: 14px; padding: 14px 16px;
+      margin: 16px 0;
+    }
+    .alert-pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #F87171; flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .alert-text { flex: 1; font-size: 13px; font-weight: 600; color: #FCA5A5; }
+    .alert-time { font-size: 11px; color: rgba(252,165,165,0.6); }
+
+    /* 상태 그리드 */
+    .stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--dk-surface);
+      border: 1px solid var(--dk-divider);
+      border-radius: 14px; padding: 14px;
+    }
+    .stat-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; margin-bottom: 8px;
+    }
+    .stat-label { font-size: 11px; color: var(--dk-text3); margin-bottom: 3px; }
+    .stat-value { font-size: 16px; font-weight: 700; color: var(--dk-text1); }
+    .stat-bar { height: 3px; background: var(--dk-surface3); border-radius: 999px; margin-top: 8px; overflow: hidden; }
+    .stat-bar-fill { height: 100%; border-radius: 999px; }
+
+    /* 일정 */
+    .schedule-list {
+      background: var(--dk-surface);
+      border: 1px solid var(--dk-divider);
+      border-radius: 14px; overflow: hidden;
+    }
+    .schedule-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+    }
+    .schedule-row + .schedule-row { border-top: 1px solid var(--dk-divider); }
+    .sch-time { font-size: 12px; font-weight: 600; color: var(--dk-text3); width: 44px; flex-shrink: 0; }
+    .sch-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .sch-label { flex: 1; font-size: 14px; font-weight: 500; color: var(--dk-text1); }
+    .sch-badge {
+      padding: 3px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 600;
+    }
+    .badge-on { background: rgba(34,211,238,0.12); color: var(--dk-primary); }
+    .badge-off { background: var(--dk-surface2); color: var(--dk-text3); }
+
+    /* AI 카드 */
+    .ai-card {
+      background: var(--dk-surface);
+      border: 1px solid rgba(34,211,238,0.12);
+      border-radius: 14px; padding: 16px;
+      margin-bottom: 16px;
+    }
+    .ai-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      background: rgba(34,211,238,0.1);
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600; color: var(--dk-primary);
+      margin-bottom: 10px;
+    }
+    .ai-text { font-size: 14px; font-weight: 500; color: var(--dk-text2); line-height: 1.5; }
+
+    /* 간호사 */
+    .nurse-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--dk-surface);
+      border: 1px solid var(--dk-divider);
+      border-radius: 14px; padding: 14px;
+      margin-bottom: 16px;
+    }
+    .nurse-av {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(34,211,238,0.2), rgba(34,211,238,0.08));
+      border: 1px solid rgba(34,211,238,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: var(--dk-primary);
+      flex-shrink: 0;
+    }
+    .nurse-info { flex: 1; }
+    .nurse-name { font-size: 14px; font-weight: 600; color: var(--dk-text1); }
+    .nurse-role { font-size: 11px; color: var(--dk-text3); margin-top: 1px; }
+    .nurse-btn {
+      padding: 7px 14px;
+      background: rgba(34,211,238,0.1);
+      border: 1px solid rgba(34,211,238,0.2);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600; color: var(--dk-primary);
+    }
+
+    /* 탭바 */
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 84px;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(255,255,255,0.06);
+      display: flex; justify-content: space-around; align-items: flex-start;
+      padding-top: 8px;
+    }
+    .tab-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.3);
+      min-width: 56px;
+    }
+    .tab-item.active { color: var(--dk-primary); }
+    .tab-icon { font-size: 20px; }
+
+    .home-ind {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px;
+      background: white; border-radius: 999px; opacity: 0.15;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="scroll">
+
+    <div class="sbar">
+      <span class="sbar-time">9:41</span>
+      <div class="sbar-icons">
+        <svg width="17" height="12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="white" opacity=".6"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="white" opacity=".6"/><rect x="9" y="0" width="3" height="12" rx="1" fill="white" opacity=".6"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity=".2"/></svg>
+        <svg width="16" height="12" fill="none"><path d="M8 2.4A7.5 7.5 0 0 1 14.5 5l1.2-1.2A9.5 9.5 0 0 0 8 0a9.5 9.5 0 0 0-7.7 3.8L1.5 5A7.5 7.5 0 0 1 8 2.4z" fill="white" opacity=".6"/><circle cx="8" cy="11" r="1.5" fill="white" opacity=".6"/></svg>
+        <svg width="27" height="12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-opacity=".3"/><rect x="1.5" y="2.5" width="17" height="7" rx="1" fill="white" opacity=".6"/></svg>
+      </div>
+    </div>
+
+    <!-- 히어로 -->
+    <div class="hero">
+      <div class="hero-greeting">4월 7일 월요일</div>
+      <div class="hero-name">안녕하세요,<br><span>예찬</span>님</div>
+
+      <div class="care-card">
+        <div class="care-card-top">
+          <span class="care-label">오늘의 케어</span>
+          <span class="care-time">오전 11:23 업데이트</span>
+        </div>
+        <div class="care-row">
+          <div class="ring-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+              <circle cx="40" cy="40" r="33" fill="none" stroke="#22D3EE" stroke-width="7"
+                stroke-dasharray="207" stroke-dashoffset="56" stroke-linecap="round"/>
+            </svg>
+            <div class="ring-label">
+              <span class="ring-pct">73%</span>
+              <span class="ring-sub">완료</span>
+            </div>
+          </div>
+          <div class="care-info">
+            <div class="care-patient-name">손정희님</div>
+            <div class="care-room">302호 · 김미영 간호사</div>
+            <div class="stat-chips">
+              <span class="stat-chip"><span class="chip-dot dot-g"></span>식사 2/3</span>
+              <span class="stat-chip"><span class="chip-dot dot-g"></span>투약 완료</span>
+              <span class="stat-chip"><span class="chip-dot dot-y"></span>위생 1/2</span>
+              <span class="stat-chip"><span class="chip-dot dot-c"></span>활동 진행</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- 긴급 알림 -->
+      <div class="alert-row">
+        <div class="alert-pulse"></div>
+        <span class="alert-text">체온 37.8°C 감지</span>
+        <span class="alert-time">10분 전</span>
+      </div>
+
+      <!-- 상태 그리드 -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(52,211,153,0.12);">🍽</div>
+          <div class="stat-label">식사</div>
+          <div class="stat-value">2/3</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:66%;background:#34D399;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(34,211,238,0.12);">💊</div>
+          <div class="stat-label">투약</div>
+          <div class="stat-value" style="color:#34D399;">완료</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:100%;background:#34D399;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(252,211,77,0.12);">🧼</div>
+          <div class="stat-label">위생</div>
+          <div class="stat-value">1/2</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:50%;background:#FCD34D;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(34,211,238,0.08);">🚶</div>
+          <div class="stat-label">활동</div>
+          <div class="stat-value" style="color:var(--dk-primary);">진행 중</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:40%;background:var(--dk-primary);"></div></div>
+        </div>
+      </div>
+
+      <!-- 담당 간호사 -->
+      <div class="nurse-row">
+        <div class="nurse-av">김</div>
+        <div class="nurse-info">
+          <div class="nurse-name">김미영 간호사</div>
+          <div class="nurse-role">3층 담당 · 오전 근무 중</div>
+        </div>
+        <div class="nurse-btn">💬 채팅</div>
+      </div>
+
+      <!-- 일정 -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">오늘 일정</span>
+          <span class="section-more">전체보기</span>
+        </div>
+        <div class="schedule-list">
+          <div class="schedule-row">
+            <span class="sch-time">14:30</span>
+            <span class="sch-dot" style="background:var(--dk-primary);"></span>
+            <span class="sch-label">오후 간식</span>
+            <span class="sch-badge badge-on">진행 중</span>
+          </div>
+          <div class="schedule-row">
+            <span class="sch-time">18:00</span>
+            <span class="sch-dot" style="background:rgba(255,255,255,0.15);"></span>
+            <span class="sch-label">저녁 식사</span>
+            <span class="sch-badge badge-off">예정</span>
+          </div>
+          <div class="schedule-row">
+            <span class="sch-time">20:00</span>
+            <span class="sch-dot" style="background:rgba(255,255,255,0.15);"></span>
+            <span class="sch-label">저녁 투약</span>
+            <span class="sch-badge badge-off">예정</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 카드 -->
+      <div class="ai-card">
+        <div class="ai-tag">✨ AI가 정리했어요</div>
+        <div class="ai-text">전반적으로 양호한 하루예요. 오후 산책 시 기분이 좋아 보였어요. 체온이 약간 높으니 수분 섭취를 권장드려요.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item active"><span class="tab-icon">🏠</span>홈</div>
+    <div class="tab-item"><span class="tab-icon">💬</span>채팅</div>
+    <div class="tab-item"><span class="tab-icon">🤖</span>AI가이드</div>
+    <div class="tab-item"><span class="tab-icon">📊</span>리포트</div>
+    <div class="tab-item"><span class="tab-icon">⋯</span>더보기</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+</body>
+</html>

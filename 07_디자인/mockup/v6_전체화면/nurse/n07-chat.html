@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 보호자 채팅</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { max-width:430px; padding-top:72px; margin:0 auto; min-height:100vh; background:linear-gradient(180deg, var(--surface) 72px, var(--bg) 72px); padding-bottom:108px; }
+    .content { padding:0; }
+
+    /* 헤더 */
+    .chat-header {
+      display:flex; align-items:center; gap:var(--space-md);
+      padding:var(--space-sm) var(--space-lg);
+      background:var(--surface); border-bottom:0.5px solid var(--divider);
+      position:sticky; top:54px; z-index:5;
+    }
+    .chat-header .back { font-size:24px; color:var(--primary); text-decoration:none; }
+    .chat-header-info { flex:1; }
+    .chat-header-name { font-size:var(--text-headline); font-weight:var(--weight-semibold); }
+    .chat-header-meta { font-size:var(--text-mini); color:var(--text-secondary); }
+
+    /* 채팅 리스트 */
+    .chat-list { padding:var(--space-sm) var(--space-lg); }
+    .chat-item {
+      display:flex; align-items:center; gap:var(--space-md);
+      padding:var(--space-lg) 0;
+      border-bottom:0.5px solid var(--divider);
+      text-decoration:none; color:inherit;
+      transition:background 0.15s;
+    }
+    .chat-item:last-child { border-bottom:none; }
+    .chat-avatar {
+      width:48px; height:48px; border-radius:50%;
+      background:var(--primary-light); display:flex; align-items:center; justify-content:center;
+      font-size:20px; flex-shrink:0;
+    }
+    .chat-body { flex:1; min-width:0; }
+    .chat-name-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
+    .chat-name { font-size:var(--text-headline); font-weight:var(--weight-semibold); }
+    .chat-time { font-size:var(--text-mini); color:var(--text-tertiary); }
+    .chat-preview { font-size:var(--text-caption); color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-badge {
+      min-width:20px; height:20px; border-radius:10px;
+      background:var(--critical); color:white;
+      font-size:11px; font-weight:var(--weight-bold);
+      display:flex; align-items:center; justify-content:center;
+      padding:0 6px; flex-shrink:0;
+    }
+    .chat-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+
+    /* 대화방 뷰 */
+    .chatroom { display:none; flex-direction:column; height:calc(100vh - 54px - 84px); }
+    .chatroom.active { display:flex; }
+    .messages { flex:1; overflow-y:auto; padding:var(--space-lg); display:flex; flex-direction:column; gap:var(--space-md); }
+    .msg-date { text-align:center; font-size:var(--text-mini); color:var(--text-tertiary); padding:var(--space-sm) 0; }
+    .msg { max-width:75%; }
+    .msg.in { align-self:flex-start; }
+    .msg.out { align-self:flex-end; }
+    .msg-bubble {
+      padding:var(--space-md) var(--space-lg);
+      border-radius:var(--radius-lg);
+      font-size:var(--text-body);
+      line-height:var(--line-height-normal);
+      word-break:break-word;
+    }
+    .msg.in .msg-bubble { background:var(--surface); box-shadow:var(--shadow-sm); border-bottom-left-radius:var(--radius-xs); }
+    .msg.out .msg-bubble { background:var(--primary); color:white; border-bottom-right-radius:var(--radius-xs); }
+    .msg-time { font-size:var(--text-mini); color:var(--text-tertiary); margin-top:4px; }
+    .msg.out .msg-time { text-align:right; }
+
+    .chat-input-bar {
+      display:flex; align-items:center; gap:var(--space-sm);
+      padding:var(--space-sm) var(--space-lg);
+      background:var(--surface); border-top:0.5px solid var(--divider);
+    }
+    .chat-input {
+      flex:1; height:40px; border:1px solid var(--divider); border-radius:var(--radius-full);
+      padding:0 var(--space-lg); font-size:var(--text-callout); font-family:var(--font-family);
+      outline:none; background:var(--bg);
+    }
+    .chat-input:focus { border-color:var(--primary); }
+    .chat-send {
+      width:36px; height:36px; border-radius:50%; background:var(--primary);
+      border:none; color:white; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+  </style>
+</head>
+<body>  <!-- 채팅 리스트 뷰 -->
+  <div id="listView">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-header-name">채팅</div>
+        <div class="chat-header-meta">담당 보호자 3명</div>
+      </div>
+    </div>
+    <div class="chat-list">
+      <a href="#" class="chat-item" onclick="openChat('김예찬','손정희 보호자','어머니 점심 식사량이 평소보다 줄었습니다','오전 11:23',2); return false;">
+        <div class="chat-avatar">👨</div>
+        <div class="chat-body">
+          <div class="chat-name-row"><span class="chat-name">김예찬</span></div>
+          <div class="chat-preview">어머니 점심 식사량이 평소보다 줄었습니다</div>
+        </div>
+        <div class="chat-right">
+          <span class="chat-time">오전 11:23</span>
+          <span class="chat-badge">2</span>
+        </div>
+      </a>
+      <a href="#" class="chat-item" onclick="openChat('이수진','박영수 보호자','네 감사합니다, 혈압약 잘 드시고 계시죠?','오전 10:05',0); return false;">
+        <div class="chat-avatar">👩</div>
+        <div class="chat-body">
+          <div class="chat-name-row"><span class="chat-name">이수진</span></div>
+          <div class="chat-preview">네 감사합니다, 혈압약 잘 드시고 계시죠?</div>
+        </div>
+        <div class="chat-right">
+          <span class="chat-time">오전 10:05</span>
+        </div>
+      </a>
+      <a href="#" class="chat-item" onclick="openChat('박서준','이순자 보호자','다음 주 면회 일정 확인 부탁드립니다','어제',0); return false;">
+        <div class="chat-avatar">👨</div>
+        <div class="chat-body">
+          <div class="chat-name-row"><span class="chat-name">박서준</span></div>
+          <div class="chat-preview">다음 주 면회 일정 확인 부탁드립니다</div>
+        </div>
+        <div class="chat-right">
+          <span class="chat-time">어제</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 대화방 뷰 -->
+  <div id="roomView" class="chatroom">
+    <div class="chat-header">
+      <a href="#" class="back" onclick="closeChat(); return false;">‹</a>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="roomName"></div>
+        <div class="chat-header-meta" id="roomMeta"></div>
+      </div>
+    </div>
+    <div class="messages" id="messages">
+      <div class="msg-date">2026년 4월 2일 수요일</div>
+      <div class="msg in"><div class="msg-bubble">안녕하세요, 어머니 상태가 궁금합니다.</div><div class="msg-time">오전 9:30</div></div>
+      <div class="msg out"><div class="msg-bubble">안녕하세요! 오전 바이탈 체크 정상이셨어요. 혈압 128/82, 체온 36.4도입니다.</div><div class="msg-time">오전 9:35</div></div>
+      <div class="msg in"><div class="msg-bubble">감사합니다. 점심은 잘 드셨나요?</div><div class="msg-time">오전 11:20</div></div>
+      <div class="msg out"><div class="msg-bubble">점심 식사량이 평소보다 조금 줄었습니다. 죽을 50% 정도 드셨어요. 오후에 간식으로 보충할 예정입니다.</div><div class="msg-time">오전 11:23</div></div>
+      <div class="msg in"><div class="msg-bubble">네 알겠습니다. 혹시 많이 안 좋으신 건 아닌지 걱정되네요.</div><div class="msg-time">오전 11:25</div></div>
+    </div>
+    <div class="chat-input-bar">
+      <input class="chat-input" placeholder="메시지를 입력하세요" id="chatInput">
+      <button class="chat-send" onclick="sendMsg()"><i data-lucide="send" style="width:18px;height:18px;"></i></button>
+    </div>
+  </div>
+
+  <nav class="tabbar" role="navigation" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;height:calc(50px + 44px + 8px);padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab"><span class="tab-icon"><i data-lucide="home"></i></span><span class="tab-label">홈</span></a>
+    <a href="n02-patients.html" class="tab"><span class="tab-icon"><i data-lucide="users"></i></span><span class="tab-label">환자</span></a>
+    <a href="n07-chat.html" class="tab active" aria-current="page"><span class="tab-icon"><i data-lucide="message-circle"></i></span><span class="tab-label">채팅</span></a>
+    <a href="n03-checklist.html" class="tab"><span class="tab-icon"><i data-lucide="list-checks"></i></span><span class="tab-label">체크리스트</span></a>
+    <a href="n04-mypage.html" class="tab"><span class="tab-icon"><i data-lucide="user"></i></span><span class="tab-label">내 정보</span></a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function openChat(name, meta) {
+      document.getElementById('listView').style.display = 'none';
+      document.getElementById('roomView').classList.add('active');
+      document.getElementById('roomName').textContent = name;
+      document.getElementById('roomMeta').textContent = meta;
+      const m = document.getElementById('messages');
+      m.scrollTop = m.scrollHeight;
+    }
+    function closeChat() {
+      document.getElementById('roomView').classList.remove('active');
+      document.getElementById('listView').style.display = '';
+    }
+    function sendMsg() {
+      const input = document.getElementById('chatInput');
+      if (!input.value.trim()) return;
+      const m = document.getElementById('messages');
+      const d = document.createElement('div');
+      d.className = 'msg out';
+      d.innerHTML = '<div class="msg-bubble">' + input.value + '</div><div class="msg-time">방금</div>';
+      m.appendChild(d);
+      input.value = '';
+      m.scrollTop = m.scrollHeight;
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>

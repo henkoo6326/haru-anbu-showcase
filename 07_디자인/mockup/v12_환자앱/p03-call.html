@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko" data-role="patient" data-platform="mobile">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFF5E8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>하루안부 · 가족에게 전화</title>
+
+  <link rel="icon" type="image/svg+xml" href="../07_디자인/logo/brand-system/01_심볼단독.svg">
+  <link rel="stylesheet" href="../07_디자인/tokens/tokens.css">
+  <link rel="stylesheet" href="patient.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+
+  <style>
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-8);
+      min-height: 0;
+    }
+
+    .call-heading {
+      text-align: center;
+      margin-top: var(--space-2);
+    }
+    .call-heading h1 {
+      font: var(--weight-bold) 34px / 1.15 var(--font-family-base);
+      letter-spacing: -0.03em;
+    }
+    .call-heading p {
+      font: var(--weight-medium) 19px / 1.4 var(--font-family-base);
+      color: var(--color-text-secondary);
+      margin-top: 6px;
+    }
+
+    /* 가족 3명 타일 — 화면 중심에 큼지막하게 */
+    .family-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-7);
+      width: 100%;
+      max-width: 1080px;
+      min-height: 0;
+    }
+
+    .family-tile {
+      padding: var(--space-7) var(--space-5) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+      text-decoration: none;
+      color: var(--color-text-primary);
+      transition: box-shadow var(--motion-transition) var(--easing-standard);
+    }
+    .family-tile:hover { box-shadow: 0 12px 32px rgba(194, 98, 28, 0.12); }
+
+    .family-tile-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .family-tile-name {
+      font: var(--weight-bold) 30px / 1 var(--font-family-base);
+      letter-spacing: -0.02em;
+    }
+    .family-tile-relation {
+      font: var(--weight-medium) 18px / 1 var(--font-family-base);
+      color: var(--color-text-secondary);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font: var(--weight-bold) 16px / 1 var(--font-family-base);
+      letter-spacing: -0.1px;
+    }
+    .status-pill--online {
+      background: var(--brand-green-100);
+      color: var(--brand-green-700);
+    }
+    .status-pill--offline {
+      background: var(--palette-gray-100);
+      color: var(--palette-gray-500);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .status-pill--online .status-dot { background: var(--brand-green-500); }
+    .status-pill--offline .status-dot { background: var(--palette-gray-400); }
+
+    /* ── CTA 스택: primary + ghost 2단 ───────────────
+       상태에 따라 조합이 바뀜 (온라인=영상+음성, 자리비움=음성메시지+문자) */
+    .cta-stack {
+      width: 100%;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+    }
+    .cta {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 10px;
+      border-radius: 18px;
+      font-family: var(--font-family-base);
+      letter-spacing: -0.2px;
+      text-decoration: none;
+      cursor: pointer;
+      border: 0;
+      transition: transform .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .cta:active { transform: scale(.97); }
+
+    .cta--primary {
+      height: 72px;
+      background: linear-gradient(135deg, var(--brand-orange-400), var(--brand-orange-600));
+      color: #fff;
+      font: var(--weight-bold) 23px / 1 var(--font-family-base);
+      box-shadow: 0 8px 22px rgba(251, 146, 60, 0.38);
+    }
+    .cta--primary:hover { box-shadow: 0 12px 28px rgba(251, 146, 60, 0.45); }
+
+    .cta--ghost {
+      height: 58px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--color-text-primary);
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      font: var(--weight-bold) 19px / 1 var(--font-family-base);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .cta--ghost iconify-icon { color: var(--brand-orange-600); }
+    .cta--ghost:hover {
+      border-color: var(--brand-orange-300);
+      background: var(--brand-orange-50, #FFF7E8);
+    }
+
+    @media (max-width: 900px) {
+      .family-grid { grid-template-columns: 1fr; gap: var(--space-5); }
+      .family-tile { padding: var(--space-6) var(--space-5); }
+      .family-tile-name { font-size: 26px; }
+      .family-tile-relation { font-size: 17px; }
+      .call-heading h1 { font-size: 32px; }
+      .call-heading p { font-size: 18px; }
+      .cta--primary { height: 64px; font-size: 20px; }
+      .cta--ghost { height: 54px; font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="p-header p-header--nav">
+      <a href="p01-today.html" class="p-back" aria-label="뒤로">
+        <iconify-icon icon="fluent:chevron-left-24-filled" width="28" aria-hidden="true"></iconify-icon>
+        뒤로
+      </a>
+      <nav class="top-nav" aria-label="주요 메뉴">
+        <a class="nav-tab" href="p01-today.html">
+          <iconify-icon icon="fluent:home-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          홈
+        </a>
+        <a class="nav-tab" href="p02-med-alert.html">
+          <iconify-icon icon="fluent:clipboard-bullet-list-ltr-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          할일
+        </a>
+        <a class="nav-tab nav-tab--active" href="p03-call.html" aria-current="page">
+          <iconify-icon icon="fluent:people-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          가족
+        </a>
+        <a class="nav-tab" href="p08-help.html">
+          <iconify-icon icon="fluent:hand-wave-24-filled" width="22" aria-hidden="true"></iconify-icon>
+          도움
+        </a>
+      </nav>
+      <div aria-hidden="true"></div>
+    </header>
+
+    <div class="main">
+
+      <div class="call-heading">
+        <h1>누구와 통화하시겠어요?</h1>
+        <p>얼굴 한 번 누르시면 바로 걸립니다.</p>
+      </div>
+
+      <div class="family-grid" role="list">
+
+        <!-- 민지 (온라인) — 영상통화 + 음성통화 -->
+        <article class="family-tile glass" role="listitem">
+          <div class="avatar avatar--xl avatar--orange" aria-hidden="true">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt=""
+                 style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+            <span class="avatar-dot avatar-dot--online"></span>
+          </div>
+          <div class="family-tile-meta">
+            <div class="family-tile-name">민지</div>
+            <div class="family-tile-relation">딸</div>
+          </div>
+          <span class="status-pill status-pill--online">
+            <span class="status-dot"></span>
+            지금 접속 중
+          </span>
+          <div class="cta-stack">
+            <a href="#" class="cta cta--primary" aria-label="딸 민지에게 영상통화">
+              <iconify-icon icon="fluent:video-24-filled" width="26" aria-hidden="true"></iconify-icon>
+              영상통화
+            </a>
+            <a href="#" class="cta cta--ghost" aria-label="딸 민지에게 음성통화">
+              <iconify-icon icon="fluent:call-24-filled" width="22" aria-hidden="true"></iconify-icon>
+              목소리만 통화
+            </a>
+          </div>
+        </article>
+
+        <!-- 서연 (온라인) — 영상통화 + 음성 메시지 -->
+        <article class="family-tile glass" role="listitem">
+          <div class="avatar avatar--xl avatar--green" aria-hidden="true">
+            <img src="https://randomuser.me/api/portraits/women/9.jpg" alt=""
+                 style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+            <span class="avatar-dot avatar-dot--online"></span>
+          </div>
+          <div class="family-tile-meta">
+            <div class="family-tile-name">서연</div>
+            <div class="family-tile-relation">손녀</div>
+          </div>
+          <span class="status-pill status-pill--online">
+            <span class="status-dot"></span>
+            지금 접속 중
+          </span>
+          <div class="cta-stack">
+            <a href="#" class="cta cta--primary" aria-label="손녀 서연에게 영상통화">
+              <iconify-icon icon="fluent:video-24-filled" width="26" aria-hidden="true"></iconify-icon>
+              영상통화
+            </a>
+            <a href="p05-voice.html" class="cta cta--ghost" aria-label="손녀 서연에게 음성 메시지 남기기">
+              <iconify-icon icon="fluent:mic-24-filled" width="22" aria-hidden="true"></iconify-icon>
+              음성 메시지
+            </a>
+          </div>
+        </article>
+
+        <!-- 태우 (자리 비움) — 음성 메시지 + 문자 남기기 -->
+        <article class="family-tile glass" role="listitem">
+          <div class="avatar avatar--xl avatar--blue" aria-hidden="true">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt=""
+                 style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+            <span class="avatar-dot"></span>
+          </div>
+          <div class="family-tile-meta">
+            <div class="family-tile-name">태우</div>
+            <div class="family-tile-relation">아들</div>
+          </div>
+          <span class="status-pill status-pill--offline">
+            <span class="status-dot"></span>
+            자리 비움
+          </span>
+          <div class="cta-stack">
+            <a href="p05-voice.html" class="cta cta--primary" aria-label="아들 태우에게 음성 메시지 남기기">
+              <iconify-icon icon="fluent:mic-24-filled" width="24" aria-hidden="true"></iconify-icon>
+              음성 메시지
+            </a>
+            <a href="p07-message.html" class="cta cta--ghost" aria-label="아들 태우에게 문자 남기기">
+              <iconify-icon icon="fluent:chat-24-filled" width="22" aria-hidden="true"></iconify-icon>
+              문자로 남기기
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

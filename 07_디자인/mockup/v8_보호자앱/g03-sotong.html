@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d4e4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="app-icon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 소통</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#2C7AFC;--blue-l:#5B9BFF;--blue-d:#1D6AF2;
+      --green:#34D399;--green-d:#059669;
+      --amber:#F59E0B;--red:#EF4444;
+      --t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.25);
+      --font:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;
+    }
+    html{height:100%;background:#d4e4ff}
+    body{height:100%;font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;background:transparent;overflow-x:hidden}
+
+    .bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);pointer-events:none}
+    .bg .g1{position:absolute;width:500px;height:500px;left:50%;top:-5%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(44,122,252,.14)0%,transparent 65%);filter:blur(30px)}
+
+    .app{max-width:430px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 100px)}
+
+    /* 헤더 */
+    .header{position:sticky;top:0;z-index:30;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 0;background:rgba(212,228,255,.85);transition:background .3s}
+    .header.scrolled{background:rgba(255,255,255,.92)}
+    .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .header-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+    .nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.05);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;transition:transform .1s}
+    .nav-btn:active{transform:scale(.93)}
+
+    /* 세그먼트 컨트롤 */
+    .segment{display:flex;gap:0;background:rgba(0,0,0,.05);border-radius:10px;padding:3px;margin:0 0 12px}
+    .segment-btn{flex:1;padding:8px 0;border-radius:8px;font-size:14px;font-weight:600;text-align:center;color:var(--t2);cursor:pointer;transition:all .2s;border:none;background:none;font-family:var(--font);position:relative}
+    .segment-btn.active{background:#fff;color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .segment-badge{position:absolute;top:4px;right:calc(50% - 32px);width:6px;height:6px;border-radius:50%;background:var(--red)}
+
+    /* SOS 배너 */
+    .sos-global{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:0 16px 12px;border-radius:14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);cursor:pointer;transition:transform .12s}
+    .sos-global:active{transform:scale(.98)}
+    .sos-pulse{width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0;animation:sosp 1.5s ease-in-out infinite}
+    @keyframes sosp{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+    .sos-text{font-size:14px;font-weight:700;color:#B91C1C;flex:1}
+    .sos-time{font-size:11px;color:rgba(185,28,28,.5)}
+
+    .content{position:relative;z-index:1;padding:0 16px}
+
+    /* ─── 대화 탭 ─── */
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    /* 근무중 간호사 */
+    .duty-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.04);border-radius:18px;margin-bottom:12px}
+    .duty-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2C7AFC,#5B9BFF);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;position:relative}
+    .duty-av::after{content:'';position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
+    .duty-body{flex:1;min-width:0}
+    .duty-name{font-size:14px;font-weight:700}
+    .duty-sub{font-size:11px;color:var(--t3);margin-top:1px}
+    .duty-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+    .duty-badge{background:rgba(52,211,153,.1);color:var(--green-d);font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:flex;align-items:center;gap:4px}
+    .duty-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green)}
+
+    /* 섹션 라벨 */
+    .section-label{font-size:12px;font-weight:700;color:var(--t3);padding:12px 4px 6px}
+
+    /* 채팅 목록 */
+    .chat-list{display:flex;flex-direction:column;gap:8px}
+    .chat-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.04);border-radius:18px;text-decoration:none;color:inherit;transition:transform .15s}
+    .chat-item:active{transform:scale(.97)}
+    .chat-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
+    .av-nurse{background:linear-gradient(135deg,#2C7AFC,#5B9BFF);color:#fff;font-size:18px}
+    .av-patient{background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#fff}
+    .av-family{background:linear-gradient(135deg,#34D399,#059669);color:#fff}
+    .chat-body{flex:1;min-width:0}
+    .chat-name{font-size:14px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+    .chat-preview{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+    .chat-time{font-size:10px;color:var(--t3)}
+    .chat-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:2px 7px;min-width:20px;text-align:center}
+    .badge-hide{visibility:hidden}
+
+    /* ─── 알림 탭 ─── */
+    .filter-chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .filter-chips::-webkit-scrollbar{display:none}
+    .filter-chip{flex-shrink:0;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;color:var(--t2);background:rgba(0,0,0,.03);border:none;cursor:pointer;font-family:var(--font);transition:all .15s}
+    .filter-chip.active{color:var(--blue);background:rgba(44,122,252,.1)}
+
+    .notif-list{display:flex;flex-direction:column;gap:8px}
+    .notif-card{display:flex;align-items:flex-start;gap:12px;padding:16px;background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.04);border-radius:18px;cursor:pointer;transition:transform .12s}
+    .notif-card:active{transform:scale(.98)}
+    .notif-card.urgent{border-color:rgba(239,68,68,.15);background:rgba(239,68,68,.03)}
+    .notif-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .notif-body{flex:1}
+    .notif-title{font-size:14px;font-weight:700;margin-bottom:3px}
+    .notif-desc{font-size:13px;color:var(--t2);line-height:1.45}
+    .notif-time{font-size:11px;color:var(--t3);margin-top:6px}
+    .notif-dot-unread{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:6px}
+
+    /* 플로팅 AI 버튼 */
+    .fab-ai{position:fixed;bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 90px);right:max(calc((100% - 430px)/2 + 16px),16px);width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(44,122,252,.35);cursor:pointer;z-index:35;transition:transform .15s}
+    .fab-ai:active{transform:scale(.92)}
+
+    /* 탭바 */
+    .tabbar{position:fixed;bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 12px);left:50%;transform:translateX(-50%);width:calc(100% - 80px);max-width:320px;height:68px;background:#fff;border:.5px solid rgba(0,0,0,.07);border-radius:999px;box-shadow:0 2px 12px rgba(0,0,0,.10),0 .5px 2px rgba(0,0,0,.06);display:flex;align-items:stretch;justify-content:space-around;padding:0 10px;z-index:40}
+    .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;padding:8px 4px;border-radius:999px;color:rgba(28,28,30,.45);text-decoration:none;transition:all .18s}
+    .tab.active{color:var(--blue)}
+    .tab-icon{display:flex;align-items:center}
+    .tab-icon svg{width:26px;height:26px;fill:currentColor}
+
+    .home-ind{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.15);z-index:99}
+  </style>
+</head>
+<body>
+
+  <div class="bg"><div class="g1"></div></div>
+
+  <div class="app">
+
+    <!-- 헤더 + 세그먼트 -->
+    <div class="header" id="header">
+      <div class="header-row">
+        <span class="header-title">소통</span>
+        <div class="nav-btn">
+          <iconify-icon icon="fluent:compose-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+        </div>
+      </div>
+      <div class="segment">
+        <button class="segment-btn active" onclick="switchTab('chat',this)">대화</button>
+        <button class="segment-btn" onclick="switchTab('notif',this)">
+          알림
+          <span class="segment-badge"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SOS 배너 -->
+    <div class="sos-global" onclick="toast('긴급 연락 화면')">
+      <div class="sos-pulse"></div>
+      <div class="sos-text">낙상 감지 · 302호</div>
+      <div class="sos-time">2분 전</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══ 대화 탭 ═══ -->
+      <div class="tab-content active" id="tabChat">
+
+        <!-- 현재 근무중 간호사 -->
+        <div class="duty-card">
+          <div class="duty-av">김</div>
+          <div class="duty-body">
+            <div class="duty-name">김미영 간호사 · 3층 담당</div>
+            <div class="duty-sub">마지막 메시지 오후 2:14</div>
+          </div>
+          <div class="duty-meta">
+            <span class="duty-badge">근무 중</span>
+          </div>
+        </div>
+
+        <!-- 간호사 -->
+        <div class="section-label">간호사</div>
+        <div class="chat-list" style="margin-bottom:4px">
+          <a href="g03-chat-nurse.html" class="chat-item">
+            <div class="chat-av av-nurse">김</div>
+            <div class="chat-body">
+              <div class="chat-name">김미영 간호사</div>
+              <div class="chat-preview">저녁 투약도 완료했습니다. 오늘 하루 컨디션...</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">오후 6:05</span>
+              <span class="chat-badge">4</span>
+            </div>
+          </a>
+          <a href="#" class="chat-item">
+            <div class="chat-av av-nurse">이</div>
+            <div class="chat-body">
+              <div class="chat-name">이수진 간호사</div>
+              <div class="chat-preview">내일 오전 검진 일정 안내드려요</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">어제</span>
+              <span class="chat-badge badge-hide">0</span>
+            </div>
+          </a>
+          <a href="#" class="chat-item">
+            <div class="chat-av av-nurse">박</div>
+            <div class="chat-body">
+              <div class="chat-name">박지현 간호사</div>
+              <div class="chat-preview">야간 순찰 완료, 어머님 편히 주무셨어요</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">4/12</span>
+              <span class="chat-badge badge-hide">0</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- 가족 · 환자 -->
+        <div class="section-label">가족 · 환자</div>
+        <div class="chat-list">
+          <a href="g03-chat-patient.html" class="chat-item">
+            <div class="chat-av av-patient">
+              <iconify-icon icon="fluent:heart-24-filled" style="font-size:22px"></iconify-icon>
+            </div>
+            <div class="chat-body">
+              <div class="chat-name">정희님 (어머니)</div>
+              <div class="chat-preview">오늘 날씨 좋다~</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">오후 3:20</span>
+              <span class="chat-badge">1</span>
+            </div>
+          </a>
+          <a href="g03-chat-family.html" class="chat-item">
+            <div class="chat-av av-family">
+              <iconify-icon icon="fluent:people-24-filled" style="font-size:22px"></iconify-icon>
+            </div>
+            <div class="chat-body">
+              <div class="chat-name">가족 그룹</div>
+              <div class="chat-preview">주말에 면회 갈 수 있을까?</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">4/14</span>
+              <span class="chat-badge badge-hide">0</span>
+            </div>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- ═══ 알림 탭 ═══ -->
+      <div class="tab-content" id="tabNotif">
+
+        <!-- 필터 -->
+        <div class="filter-chips">
+          <button class="filter-chip active">전체</button>
+          <button class="filter-chip">케어</button>
+          <button class="filter-chip">일정</button>
+          <button class="filter-chip">결제</button>
+        </div>
+
+        <div class="notif-list">
+
+          <!-- 긴급 알림 -->
+          <div class="notif-card urgent">
+            <div class="notif-icon" style="background:rgba(239,68,68,.1)">
+              <iconify-icon icon="fluent:alert-24-filled" style="font-size:18px;color:var(--red)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title" style="color:#B91C1C">낙상 감지 알림</div>
+              <div class="notif-desc">302호에서 낙상이 감지되었습니다. 김서연 간호사가 현장을 확인하고 있습니다.</div>
+              <div class="notif-time">2분 전</div>
+            </div>
+            <div class="notif-dot-unread" style="background:var(--red)"></div>
+          </div>
+
+          <!-- 케어 알림 -->
+          <div class="notif-card">
+            <div class="notif-icon" style="background:rgba(44,122,252,.08)">
+              <iconify-icon icon="ph:sparkle-fill" style="font-size:18px;color:var(--blue)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">오늘 투약 시간이 변경되었어요</div>
+              <div class="notif-desc">저녁 투약 시간이 18:00에서 18:30으로 변경되었습니다. 식사 후 복용하기 위함이에요.</div>
+              <div class="notif-time">1시간 전</div>
+            </div>
+            <div class="notif-dot-unread"></div>
+          </div>
+
+          <!-- AI 요약 카드 -->
+          <div class="notif-card">
+            <div class="notif-icon" style="background:rgba(52,211,153,.08)">
+              <iconify-icon icon="fluent:food-24-filled" style="font-size:18px;color:var(--green-d)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">점심 식사 완료</div>
+              <div class="notif-desc">밥 + 된장국 + 반찬 3종, 섭취율 80%. 전반적으로 양호한 식사량입니다.</div>
+              <div class="notif-time">3시간 전</div>
+            </div>
+          </div>
+
+          <div class="notif-card">
+            <div class="notif-icon" style="background:rgba(245,158,11,.08)">
+              <iconify-icon icon="fluent:calendar-24-filled" style="font-size:18px;color:var(--amber)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">내일 오전 검진 예정</div>
+              <div class="notif-desc">4/17(목) 오전 10시 정기 건강검진이 예정되어 있습니다. 공복 검사로 아침 식사를 건너뛸 수 있어요.</div>
+              <div class="notif-time">5시간 전</div>
+            </div>
+          </div>
+
+          <div class="notif-card">
+            <div class="notif-icon" style="background:rgba(44,122,252,.08)">
+              <iconify-icon icon="fluent:receipt-24-filled" style="font-size:18px;color:var(--blue)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">4월 요양비 청구서 발행</div>
+              <div class="notif-desc">이번 달 요양비 1,245,000원이 청구되었습니다. 납부 기한: 4월 25일</div>
+              <div class="notif-time">어제</div>
+            </div>
+          </div>
+
+          <div class="notif-card">
+            <div class="notif-icon" style="background:rgba(52,211,153,.08)">
+              <iconify-icon icon="fluent:walk-24-filled" style="font-size:18px;color:var(--green-d)"></iconify-icon>
+            </div>
+            <div class="notif-body">
+              <div class="notif-title">오전 산책 완료</div>
+              <div class="notif-desc">정원 2바퀴 산책을 완료했어요. 보조보행기 사용, 중간 1회 휴식.</div>
+              <div class="notif-time">어제</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 플로팅 AI -->
+  <div class="fab-ai" onclick="openAiOverlay()" aria-label="AI 채팅">
+    <svg width="24" height="24" viewBox="0 0 2526 2526" fill="white">
+      <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/>
+      <path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/>
+    </svg>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="g-guardian-live.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 2526 2526" fill="currentColor"><path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.198 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z"/><path d="M4.677 19.335C1286.35-131.481 1286.35 630.399 1286.35 1246.66L28.315 2526C7.322 2031.8 3.73 1368.08 867.143 1263.52C-115.881 1211.75 4.677 424.157 4.677 19.335Z"/></svg></span>
+    </a>
+    <a href="g02-ai-guide.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 12h8v2H8v-2zm0 4h5v2H8v-2z"/></svg></span>
+    </a>
+    <a href="g03-sotong.html" class="tab active">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.81 2 10.5c0 2.65 1.56 5.02 4 6.56V22l4.34-2.41c.54.07 1.1.11 1.66.11 5.52 0 10-3.81 10-8.5S17.52 2 12 2z"/></svg></span>
+    </a>
+    <a href="g05-records.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6H4z"/></svg></span>
+    </a>
+  </nav>
+
+  <script>
+    window.addEventListener('scroll',function(){document.getElementById('header').classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+
+    function switchTab(tab, btn){
+      document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
+      document.querySelectorAll('.segment-btn').forEach(function(el){el.classList.remove('active');});
+      btn.classList.add('active');
+      document.getElementById(tab==='chat'?'tabChat':'tabNotif').classList.add('active');
+    }
+
+    function openAiOverlay(){/* AI overlay - same as other pages */}
+    function toast(msg){}
+  </script>
+</body>
+</html>

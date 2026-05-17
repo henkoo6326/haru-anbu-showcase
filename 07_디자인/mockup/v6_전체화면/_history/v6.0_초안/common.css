@@ -1,0 +1,1123 @@
+/* ============================================================
+   하루안부 — Design Tokens & Component Library
+   Based on: Apple Health (main) + Apple Fitness (sub) reference
+   Version: 1.0 | 2026.04.02
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   0. CDN Imports
+   ------------------------------------------------------------ */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+/* ------------------------------------------------------------
+   1. DESIGN TOKENS
+   ------------------------------------------------------------ */
+:root {
+  /* --- Colors (placeholder — 추후 재선정) --- */
+  --guardian: #4A7FBF;
+  --guardian-light: #E8F0FA;
+  --nurse: #5BAE8C;
+  --nurse-light: #EAF6F0;
+  --patient: #D4A574;
+  --patient-light: #FDF5ED;
+
+  /* Semantic */
+  --success: #34C759;
+  --warning: #FF9500;
+  --critical: #FF3B30;
+  --info: #007AFF;
+
+  /* Background & Surface */
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --divider: #E5E5EA;
+
+  /* Text */
+  --text-primary: #1C1C1E;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #C0C0C0;
+
+  /* --- Typography (Apple Health scale + Pretendard) --- */
+  --font-family: 'Pretendard Variable', 'Pretendard', -apple-system, 'Helvetica Neue', sans-serif;
+
+  --text-display: 32px;       /* Large Title — 화면 대제목 */
+  --text-title: 22px;         /* Title 1 — 섹션 제목, 모달 헤더 */
+  --text-headline: 17px;      /* Title 3 — 카드 제목, 행 제목 */
+  --text-body: 16px;          /* Body — 본문 */
+  --text-body-large: 18px;    /* Body Large — 환자용 본문 */
+  --text-callout: 14px;       /* Callout — 보조 정보 */
+  --text-caption: 13px;       /* Subheadline — 캡션, 타임스탬프 */
+  --text-mini: 11px;          /* Caption 2 — 최소 텍스트 */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+
+  /* --- Spacing (4px grid, Apple Health pattern) --- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;          /* 화면 마진, 카드 패딩 기본값 */
+  --space-xl: 24px;          /* 섹션 간격 */
+  --space-2xl: 32px;         /* 대형 섹션 브레이크 */
+  --space-3xl: 48px;         /* 최대 블록 간격 */
+
+  /* --- Border Radius (Apple Health ref) --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;          /* 뱃지, 칩, 인풋 */
+  --radius-md: 12px;         /* 카드, 버튼 */
+  --radius-lg: 16px;         /* 대형 카드, 모달, 바텀시트 */
+  --radius-xl: 20px;         /* 폰 프레임 내부 요소 */
+  --radius-full: 9999px;     /* 원형, 필 버튼 */
+
+  /* --- Shadows (Apple Health — subtle, minimal) --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* --- Transitions --- */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* --- Z-Index --- */
+  --z-base: 0;
+  --z-card: 1;
+  --z-sticky: 10;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+
+  /* --- Component Sizes (Apple Health ref) --- */
+  --btn-height: 48px;
+  --btn-height-sm: 36px;
+  --input-height: 48px;
+  --row-height: 56px;
+  --row-height-compact: 44px;
+  --tabbar-height: 50px;
+  --header-height: 44px;
+  --touch-target: 44px;      /* iOS minimum touch target */
+  --icon-sm: 20px;
+  --icon-md: 24px;
+  --icon-lg: 28px;
+  --icon-xl: 32px;
+  --avatar-sm: 32px;
+  --avatar-md: 40px;
+  --avatar-lg: 56px;
+}
+
+/* --- Role-based --primary override --- */
+[data-role="guardian"] {
+  --primary: var(--guardian);
+  --primary-light: var(--guardian-light);
+}
+[data-role="nurse"] {
+  --primary: var(--nurse);
+  --primary-light: var(--nurse-light);
+}
+[data-role="patient"] {
+  --primary: var(--patient);
+  --primary-light: var(--patient-light);
+}
+
+
+/* ------------------------------------------------------------
+   2. RESET & BASE
+   ------------------------------------------------------------ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--primary, var(--info));
+  text-decoration: none;
+}
+
+
+/* ------------------------------------------------------------
+   3. PHONE FRAME (목업 프레임)
+   ------------------------------------------------------------ */
+.frame-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.frame-label {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.phone {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  background: var(--bg);
+  border-radius: 48px;
+  overflow: hidden;
+  box-shadow: 0 0 0 4px #1a1a1a, 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Dynamic Island */
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 36px;
+  background: #1a1a1a;
+  border-radius: 20px;
+  z-index: var(--z-sticky);
+}
+
+/* Status Bar */
+.sbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px 0;
+  height: 60px;
+  font-size: var(--text-mini);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  position: relative;
+  z-index: var(--z-sticky);
+}
+
+.sbar-time {
+  font-weight: var(--weight-bold);
+}
+
+.sbar-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Scrollable Content Area */
+.scroll {
+  height: calc(852px - 60px - var(--tabbar-height) - 34px);
+  overflow-y: auto;
+  padding: 0 var(--space-lg);
+  padding-bottom: var(--space-lg);
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Home Indicator */
+.home-ind {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: var(--text-primary);
+  border-radius: var(--radius-full);
+  opacity: 0.2;
+}
+
+
+/* ------------------------------------------------------------
+   4. TYPOGRAPHY UTILITIES
+   ------------------------------------------------------------ */
+.text-display {
+  font-size: var(--text-display);
+  font-weight: var(--weight-semibold);
+  line-height: var(--line-height-tight);
+}
+
+.text-title {
+  font-size: var(--text-title);
+  font-weight: var(--weight-semibold);
+  line-height: var(--line-height-tight);
+}
+
+.text-headline {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  line-height: var(--line-height-normal);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-height-normal);
+}
+
+.text-body-large {
+  font-size: var(--text-body-large);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-height-relaxed);
+}
+
+.text-callout {
+  font-size: var(--text-callout);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-height-normal);
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.text-mini {
+  font-size: var(--text-mini);
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
+.text-secondary { color: var(--text-secondary); }
+.text-primary-color { color: var(--primary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-critical { color: var(--critical); }
+.font-medium { font-weight: var(--weight-medium); }
+.font-semibold { font-weight: var(--weight-semibold); }
+.font-bold { font-weight: var(--weight-bold); }
+
+
+/* ------------------------------------------------------------
+   5. BUTTONS (Apple Health pattern)
+   ------------------------------------------------------------ */
+
+/* Primary Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  height: var(--btn-height);
+  padding: 0 var(--space-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.btn-secondary {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.btn-destructive {
+  background: var(--critical);
+  color: #FFFFFF;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  padding: 0;
+  height: auto;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-sm {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-lg);
+  font-size: var(--text-callout);
+  border-radius: var(--radius-sm);
+}
+
+.btn-pill {
+  border-radius: var(--radius-full);
+}
+
+/* Icon Button (Apple Health: back, close, add) */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  padding: 0;
+  font-size: var(--icon-md);
+}
+
+.btn-icon:active {
+  background: var(--divider);
+}
+
+/* Text Link Button */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-family: var(--font-family);
+  font-size: var(--text-callout);
+  font-weight: var(--weight-regular);
+  cursor: pointer;
+  padding: 0;
+}
+
+
+/* ------------------------------------------------------------
+   6. CARDS (Apple Health pattern)
+   ------------------------------------------------------------ */
+
+/* Standard Card */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card with colored tint background (status cards) */
+.card-tint {
+  background: var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+/* Card Group (grouped list style) */
+.card-group {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Alert/Banner Card */
+.card-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+}
+
+.card-alert--info {
+  background: #E8F0FE;
+}
+
+.card-alert--success {
+  background: #E8F8ED;
+}
+
+.card-alert--warning {
+  background: #FFF3E0;
+}
+
+.card-alert--critical {
+  background: #FFEBEE;
+}
+
+
+/* ------------------------------------------------------------
+   7. LIST ROWS (Apple Health pattern)
+   ------------------------------------------------------------ */
+
+/* Standard Row */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: var(--row-height);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.row + .row {
+  border-top: 1px solid var(--divider);
+}
+
+.row-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  color: var(--primary);
+  flex-shrink: 0;
+  font-size: var(--icon-md);
+}
+
+.row-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-regular);
+  color: var(--text-primary);
+}
+
+.row-subtitle {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.row-accessory {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: var(--icon-md);
+}
+
+/* Chevron */
+.chevron::after {
+  content: '›';
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text-tertiary);
+}
+
+
+/* ------------------------------------------------------------
+   8. NAVIGATION — Tab Bar (Apple Health pattern)
+   ------------------------------------------------------------ */
+.tabbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--tabbar-height) + 34px); /* + home indicator area */
+  padding-bottom: 34px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--surface);
+  border-top: 0.5px solid var(--divider);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab.active {
+  color: var(--primary);
+}
+
+.tab-icon {
+  font-size: var(--icon-md);
+  line-height: 1;
+}
+
+.tab-label {
+  line-height: 1;
+}
+
+/* Patient tab bar — larger touch targets */
+.tabbar--patient {
+  height: calc(60px + 34px);
+  padding-bottom: 34px;
+}
+
+.tabbar--patient .tab {
+  font-size: 12px;
+}
+
+.tabbar--patient .tab-icon {
+  font-size: var(--icon-lg);
+}
+
+
+/* ------------------------------------------------------------
+   9. NAVIGATION — Header (Apple Health pattern)
+   ------------------------------------------------------------ */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding: 0 var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.header-title {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+  flex: 1;
+}
+
+.header-left,
+.header-right {
+  width: var(--touch-target);
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+/* Large Title (Apple Health Summary style) */
+.page-title {
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  padding: var(--space-sm) 0 var(--space-lg);
+}
+
+
+/* ------------------------------------------------------------
+   10. SECTION (Apple Health "Get More" pattern)
+   ------------------------------------------------------------ */
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.section-title {
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+}
+
+.section-action {
+  font-size: var(--text-callout);
+  font-weight: var(--weight-regular);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+
+/* ------------------------------------------------------------
+   11. BADGES & CHIPS
+   ------------------------------------------------------------ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--text-mini);
+  font-weight: var(--weight-semibold);
+  line-height: 1.4;
+}
+
+.badge--success {
+  background: #E8F8ED;
+  color: var(--success);
+}
+
+.badge--warning {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.badge--critical {
+  background: #FFEBEE;
+  color: var(--critical);
+}
+
+.badge--info {
+  background: #E8F0FE;
+  color: var(--info);
+}
+
+.badge--neutral {
+  background: var(--bg);
+  color: var(--text-secondary);
+}
+
+/* Chip (selectable) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--divider);
+  background: var(--surface);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FFFFFF;
+}
+
+
+/* ------------------------------------------------------------
+   12. FORMS & INPUTS
+   ------------------------------------------------------------ */
+.input {
+  width: 100%;
+  height: var(--input-height);
+  padding: 0 var(--space-md);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Toggle (iOS style) */
+.toggle {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  background: var(--divider);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background var(--transition-normal);
+}
+
+.toggle.on {
+  background: var(--success);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  background: var(--surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal);
+}
+
+.toggle.on::after {
+  transform: translateX(20px);
+}
+
+/* Checkbox (Apple Health style) */
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--divider);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+
+/* ------------------------------------------------------------
+   13. MODAL & BOTTOM SHEET
+   ------------------------------------------------------------ */
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.overlay--center {
+  align-items: center;
+}
+
+/* Bottom Sheet */
+.sheet {
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  width: 100%;
+  max-height: 90%;
+  overflow-y: auto;
+  z-index: var(--z-modal);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 5px;
+  background: var(--divider);
+  border-radius: var(--radius-full);
+  margin: var(--space-sm) auto var(--space-lg);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 0.5px solid var(--divider);
+}
+
+.sheet-body {
+  padding: var(--space-lg);
+}
+
+/* Modal (center) */
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: calc(100% - 80px);
+  max-width: 320px;
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal);
+  text-align: center;
+}
+
+.modal-title {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-sm);
+}
+
+.modal-body {
+  font-size: var(--text-callout);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  line-height: var(--line-height-relaxed);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+
+/* ------------------------------------------------------------
+   14. PROGRESS & DATA VIS (Apple Fitness ring + Health bar)
+   ------------------------------------------------------------ */
+
+/* Progress Ring (donut chart) */
+.progress-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-label {
+  position: absolute;
+  text-align: center;
+}
+
+.progress-ring-value {
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+}
+
+.progress-ring-unit {
+  font-size: var(--text-mini);
+  color: var(--text-secondary);
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  transition: width var(--transition-slow);
+}
+
+/* Metric Card (Apple Fitness style) */
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-value {
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+  color: var(--primary);
+}
+
+.metric-label {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Timeline Dots (Apple Health cycle tracking pattern) */
+.timeline-dots {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--divider);
+}
+
+.timeline-dot.filled {
+  background: var(--primary);
+}
+
+.timeline-dot.outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+}
+
+
+/* ------------------------------------------------------------
+   15. TOAST / SNACKBAR
+   ------------------------------------------------------------ */
+.toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--text-primary);
+  color: var(--surface);
+  border-radius: var(--radius-full);
+  font-size: var(--text-callout);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-toast);
+}
+
+
+/* ------------------------------------------------------------
+   16. AVATAR
+   ------------------------------------------------------------ */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: var(--weight-semibold);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar--sm { width: var(--avatar-sm); height: var(--avatar-sm); font-size: var(--text-caption); }
+.avatar--md { width: var(--avatar-md); height: var(--avatar-md); font-size: var(--text-callout); }
+.avatar--lg { width: var(--avatar-lg); height: var(--avatar-lg); font-size: var(--text-title); }
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* ------------------------------------------------------------
+   17. CHAT BUBBLES
+   ------------------------------------------------------------ */
+.bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg) 0;
+}
+
+.bubble {
+  max-width: 75%;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-body);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+}
+
+.bubble.incoming {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--text-primary);
+  border-bottom-left-radius: var(--radius-xs);
+  box-shadow: var(--shadow-sm);
+}
+
+.bubble.outgoing {
+  align-self: flex-end;
+  background: var(--primary);
+  color: #FFFFFF;
+  border-bottom-right-radius: var(--radius-xs);
+}
+
+.bubble-time {
+  font-size: var(--text-mini);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.bubble.incoming .bubble-time { text-align: left; }
+.bubble.outgoing .bubble-time { text-align: right; }
+
+
+/* ------------------------------------------------------------
+   18. EMPTY STATE (Apple Health pattern)
+   ------------------------------------------------------------ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-xl);
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 56px;
+  margin-bottom: var(--space-lg);
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: var(--text-headline);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state-desc {
+  font-size: var(--text-callout);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  max-width: 260px;
+}
+
+
+/* ------------------------------------------------------------
+   19. SPACING & LAYOUT UTILITIES
+   ------------------------------------------------------------ */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-center { align-items: center; justify-content: center; }
+.flex-between { justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+.mt-2xl { margin-top: var(--space-2xl); }
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.p-lg { padding: var(--space-lg); }
+.px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

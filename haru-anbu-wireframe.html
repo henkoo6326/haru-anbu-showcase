@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280">
+  <title>하루안부 — Wireframe Deck</title>
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    :root {
+      --ink:       #111111;
+      --ink-2:     #444444;
+      --mute:      #888888;
+      --mute-2:    #BBBBBB;
+      --line:      #CCCCCC;
+      --line-soft: #E5E5E5;
+      --paper:     #F4F4F4;
+      --bg:        #FFFFFF;
+      --dark:      #1A1A1A;
+      --font: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      --pad: 72px;
+    }
+
+    @page { size: 1280px 720px; margin: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1280px;
+      background: #e8e8e8;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      filter: grayscale(100%);
+    }
+
+    /* ── SLIDE BASE ── */
+    .slide {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: white;
+      position: relative;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide:last-child { page-break-after: auto; }
+
+    /* ── SLIDE NAV BAR ── */
+    .s-nav {
+      flex-shrink: 0;
+      height: 44px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--pad);
+    }
+    .s-nav-left { display: flex; align-items: center; gap: 8px; }
+    .logo-mark { width: 14px; height: 14px; }
+    .logo-text { font-size: 13px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+    .s-nav-section { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+    .s-num { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; color: var(--mute-2); }
+
+    /* ── SLIDE BODY ── */
+    .s-body {
+      flex: 1;
+      padding: 48px var(--pad);
+      overflow: hidden;
+    }
+    .s-body.no-pad { padding: 0; }
+    .s-body.pad-sm { padding: 36px var(--pad); }
+
+    /* ── TYPE ── */
+    .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-bottom: 12px; }
+    .h1 { font-size: 96px; font-weight: 700; line-height: 0.95; letter-spacing: -0.05em; color: var(--ink); }
+    .h2 { font-size: 44px; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; color: var(--ink); margin-bottom: 14px; }
+    .h3 { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 12px; }
+    .body-lg { font-size: 16px; line-height: 1.72; color: var(--ink-2); letter-spacing: -0.01em; }
+    .body-md { font-size: 14px; line-height: 1.7; color: var(--ink-2); letter-spacing: -0.01em; }
+    .body-sm { font-size: 12px; line-height: 1.65; color: var(--mute); }
+    strong { font-weight: 600; color: var(--ink); }
+
+    /* ── LAYOUT HELPERS ── */
+    .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; height: 100%; align-items: center; }
+    .cols-6040 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; height: 100%; align-items: center; }
+    .cols-4060 { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; height: 100%; align-items: center; }
+
+    /* ── HERO SLIDE ── */
+    .hero-body {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 60px;
+      align-items: end;
+      height: 100%;
+    }
+    .hero-title { font-size: 110px; font-weight: 700; line-height: 0.92; letter-spacing: -0.05em; color: var(--ink); margin-bottom: 24px; }
+    .hero-sub { font-size: 17px; line-height: 1.65; color: var(--ink-2); max-width: 40ch; letter-spacing: -0.01em; margin-bottom: 32px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--mute); margin-bottom: 24px;
+    }
+    .hero-eyebrow::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--ink); flex-shrink:0; }
+    .btn-wf {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 20px; background: var(--ink); color: white;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .btn-wf::after { content:'→'; }
+    .hero-tags { display: flex; gap: 16px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .hero-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+
+    /* ── HERO FEED ── */
+    .hf {
+      background: var(--paper); border: 1px solid var(--line);
+      padding: 20px; height: 100%; display: flex; flex-direction: column;
+    }
+    .hf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .hf-time { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute-2); }
+    .hf-live { display: flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
+    .hf-live::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--mute); }
+    .hf-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+    .hf-item:last-of-type { border-bottom: none; }
+    .hf-dot { width:6px; height:6px; border-radius:50%; background:var(--mute-2); flex-shrink:0; margin-top:4px; }
+    .hf-dot.g { background:var(--ink-2); }
+    .hf-dot.a { background:var(--ink); width:8px; height:8px; margin-top:3px; }
+    .hf-who { display:block; font-size:11px; font-weight:600; color:var(--ink); line-height:1.3; }
+    .hf-what { display:block; font-size:10px; color:var(--mute); margin-top:1px; }
+    .hf-badge { font-size:9px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--mute); white-space:nowrap; flex-shrink:0; margin-top:2px; }
+    .hf-badge.ok { color:var(--ink-2); }
+    .hf-badge.warn { color:var(--ink); }
+    .hf-body-item { flex:1; min-width:0; }
+    .hf-stat { display:flex; justify-content:space-between; align-items:baseline; padding-top:14px; margin-top:auto; border-top:1px solid var(--line); }
+    .hf-stat-label { font-size:9px; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--mute); }
+    .hf-stat-val { font-size:28px; font-weight:700; letter-spacing:-0.04em; color:var(--ink); }
+    .hf-stat-val small { font-size:12px; font-weight:500; color:var(--mute); margin-left:2px; }
+
+    /* ── OVERVIEW SLIDE ── */
+    .overview-grid { display: grid; grid-template-columns: 160px 1fr; gap: 56px; height: 100%; align-items: start; padding-top: 8px; }
+    .overview-label { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); padding-top: 6px; }
+    .overview-body p { font-size: 18px; line-height: 1.82; color: var(--ink-2); letter-spacing: -0.01em; }
+    .overview-body p + p { margin-top: 20px; }
+
+    /* ── CONCEPT SLIDE (dark) ── */
+    .slide.dark { background: var(--dark); color: white; }
+    .slide.dark .s-nav { border-bottom-color: rgba(255,255,255,.1); }
+    .slide.dark .logo-text { color: white; }
+    .slide.dark .s-nav-section, .slide.dark .s-num { color: rgba(255,255,255,.3); }
+    .concept-inner { display: grid; grid-template-columns: 200px 1fr; gap: 56px; height: 100%; align-items: center; }
+    .concept-label { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+    .concept-sub { font-size: 13px; color: rgba(255,255,255,.35); }
+    .concept-statement { font-size: 40px; font-weight: 400; line-height: 1.38; letter-spacing: -0.025em; color: white; margin-bottom: 48px; }
+    .concept-statement em { font-style: normal; font-weight: 600; }
+    .concept-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,.1); }
+    .concept-meta .ck { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+    .concept-meta .cv { font-size: 13px; color: rgba(255,255,255,.55); line-height: 1.6; }
+
+    /* ── FLOW / TRY IT ── */
+    .flow-notif-wf {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: var(--dark); color: white; margin-bottom: 28px;
+    }
+    .flow-notif-left { display: flex; align-items: center; gap: 14px; }
+    .flow-notif-icon { width:36px; height:36px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .flow-notif-app { font-size:9px; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:3px; }
+    .flow-notif-msg { font-size:12px; font-weight:600; color:white; line-height:1.4; }
+    .flow-notif-time { font-size:10px; color:rgba(255,255,255,.28); margin-top:2px; }
+    .flow-notif-lbl { padding:10px 18px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:11px; font-weight:600; color:white; flex-shrink:0; }
+
+    .flow-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .fc {
+      border: 1px solid var(--line);
+      padding: 16px;
+      background: var(--paper);
+      display: flex; flex-direction: column;
+    }
+    .fc-num { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+    .fc-role { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+    .fc-name { font-size: 10px; color: var(--mute); margin-bottom: 10px; }
+    .fc-screen {
+      flex: 1;
+      background: white;
+      border: 1px dashed var(--line);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px;
+      min-height: 80px;
+    }
+    .fc-screen-inner { text-align: center; }
+    .fc-screen-label { font-size: 9px; font-weight: 600; color: var(--mute-2); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-top: 5px; }
+    .fc-desc { font-size: 10px; line-height: 1.55; color: var(--ink-2); }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); height: 100%; }
+    .stat { padding: 40px 36px; background: white; }
+    .stat-num { font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--ink); margin-bottom: 14px; }
+    .stat-num .unit { font-size: .38em; font-weight: 500; color: var(--mute); margin-left: 4px; }
+    .stat-desc { font-size: 14px; line-height: 1.6; color: var(--ink-2); margin-bottom: 12px; max-width: 22ch; }
+    .stat-source { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute-2); }
+
+    /* ── PERSONA ── */
+    .persona-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); height: 100%; }
+    .persona { padding: 36px 28px; background: white; }
+    .persona-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 18px; }
+    .persona-name { font-size: 26px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 4px; }
+    .persona-meta { font-size: 12px; color: var(--mute); margin-bottom: 20px; }
+    .persona-quote { font-size: 13px; line-height: 1.7; color: var(--ink-2); padding: 14px 16px; background: var(--paper); border: 1px solid var(--line); }
+    .persona-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 8px 16px; font-size: 11px; font-weight: 600; color: var(--ink); border: 1px solid var(--ink); letter-spacing: 0.02em; }
+    .persona-cta::after { content: '→'; }
+
+    /* ── SOLUTION ── */
+    .roles-list { border-top: 1px solid var(--line); }
+    .role-row { display: grid; grid-template-columns: 44px 1fr 2fr 72px; gap: 32px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .role-num { font-size: 11px; font-weight: 500; color: var(--mute-2); }
+    .role-name { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; }
+    .role-name span { display: block; font-size: 9px; font-weight: 500; color: var(--mute); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px; }
+    .role-desc { font-size: 13px; line-height: 1.65; color: var(--ink-2); }
+    .role-platform { font-size: 9px; font-weight: 500; color: var(--mute); letter-spacing: 0.14em; text-transform: uppercase; text-align: right; }
+
+    /* ── PRODUCT MOCKUP ── */
+    .product-content { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+    .device-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute-2); margin-bottom: 8px; }
+    .db-dot { width:4px; height:4px; border-radius:50%; background:var(--mute); flex-shrink:0; }
+    .product-role { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 10px; }
+    .product-title { font-size: 28px; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); line-height: 1.2; margin-bottom: 12px; }
+    .product-desc { font-size: 14px; line-height: 1.72; color: var(--ink-2); margin-bottom: 18px; max-width: 38ch; }
+    .product-features { display: flex; flex-direction: column; gap: 7px; }
+    .product-feature { font-size: 12px; font-weight: 500; color: var(--ink-2); display: flex; align-items: baseline; gap: 8px; }
+    .product-feature::before { content: '—'; color: var(--mute); flex-shrink: 0; }
+
+    /* wireframe phones / tablets / desktops */
+    .wf-device-wrap { display: flex; align-items: center; justify-content: center; height: 100%; }
+    .wf-phone {
+      width: 220px;
+      background: var(--ink); border-radius: 36px; padding: 12px 9px 18px;
+      position: relative;
+    }
+    .wf-phone::before {
+      content:''; position:absolute; top:12px; left:50%; transform:translateX(-50%);
+      width:60px; height:7px; background:var(--ink); border-radius:6px; z-index:10;
+    }
+    .wf-phone-screen {
+      aspect-ratio: 9 / 19.5; background: white; border-radius: 24px;
+      border: 1px solid var(--line-soft);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wf-tablet {
+      width: 380px;
+      background: var(--ink); border-radius: 16px; padding: 11px 10px;
+      position: relative;
+    }
+    .wf-tablet::before {
+      content:''; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      width:6px; height:6px; background:#333; border-radius:50%; z-index:10;
+    }
+    .wf-tablet-screen {
+      aspect-ratio: 4/3; background: white; border-radius: 4px;
+      border: 1px solid var(--line-soft);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wf-desktop {
+      width: 100%;
+      background: var(--paper); border-radius: 8px 8px 4px 4px;
+      border: 1px solid var(--line); overflow: hidden;
+    }
+    .wf-browser-bar {
+      height: 34px; background: #ddd; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; padding: 0 12px; gap: 8px;
+    }
+    .wf-bb-dots { display: flex; gap: 5px; }
+    .wf-bb-dot { width: 10px; height: 10px; border-radius: 50%; background: #bbb; }
+    .wf-bb-url { flex:1; height:18px; background:rgba(0,0,0,.08); border-radius:4px; }
+    .wf-desktop-screen {
+      aspect-ratio: 16/9; background: white;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wf-screen-label { text-align: center; }
+    .wf-screen-label svg { margin: 0 auto 6px; display: block; }
+    .wf-screen-name { font-size: 10px; font-weight: 600; color: var(--mute-2); letter-spacing: 0.1em; text-transform: uppercase; }
+    .wf-screen-sub { font-size: 9px; color: var(--mute-2); margin-top: 2px; }
+
+    /* ── DESIGN SYSTEM ── */
+    .ds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); height: 100%; }
+    .ds-cell { padding: 40px 36px; background: white; display: flex; flex-direction: column; }
+    .ds-cell.dark-cell { background: var(--dark); color: white; }
+    .ds-cell.blue-cell { background: var(--ink-2); color: white; }
+    .ds-cell .t-label { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-bottom: auto; }
+    .ds-cell.dark-cell .t-label, .ds-cell.blue-cell .t-label { color: rgba(255,255,255,.4); }
+    .ds-color-name { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-top: 52px; }
+    .ds-color-hex { font-size: 11px; font-weight: 500; color: var(--mute); margin-top: 4px; }
+    .ds-cell.dark-cell .ds-color-hex, .ds-cell.blue-cell .ds-color-hex { color: rgba(255,255,255,.45); }
+    .ds-typo-sample { font-size: 52px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-top: 52px; }
+    .ds-typo-meta { font-size: 11px; color: var(--mute); margin-top: 12px; }
+
+    /* ── AI FEATURE ── */
+    .feature-card { padding: 40px 36px; background: var(--paper); border: 1px solid var(--line); height: 100%; display: flex; flex-direction: column; }
+    .feature-card-label { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-bottom: 16px; }
+    .feature-card-num { font-size: 72px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--ink); margin-bottom: 18px; }
+    .feature-card-num .unit { font-size: .3em; font-weight: 500; color: var(--mute); margin-left: 3px; }
+    .feature-card-msg { font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+
+    /* ── ROI ── */
+    .roi-tabs { display: flex; border: 1px solid var(--line); margin-bottom: 20px; }
+    .roi-tab { flex:1; padding: 14px 16px; background: transparent; border-right: 1px solid var(--line); }
+    .roi-tab:last-child { border-right: 0; }
+    .roi-tab.active { background: var(--ink); }
+    .rt-label { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 3px; }
+    .roi-tab.active .rt-label { color: rgba(255,255,255,.4); }
+    .rt-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .roi-tab.active .rt-name { color: white; }
+    .roi-result { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .roi-cell { padding: 24px 20px; background: white; }
+    .rc-label { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 12px; }
+    .roi-val { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--ink); }
+    .roi-val.accent { color: var(--ink-2); }
+    .roi-val .unit { font-size: .38em; font-weight: 500; color: var(--mute); margin-left: 3px; }
+    .rc-foot { margin-top: 10px; font-size: 11px; line-height: 1.5; color: var(--mute); }
+    .roi-summary { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+    .roi-summary strong { font-weight: 600; color: var(--ink); }
+    .roi-summary em { font-style: normal; font-weight: 600; }
+
+    /* ── CLOSING ── */
+    .closing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+    .closing-mark { font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); margin-bottom: 32px; }
+    .closing-title { font-size: 64px; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; color: var(--ink); margin-bottom: 20px; }
+    .closing-title em { font-style: normal; color: var(--ink-2); }
+    .closing-line { font-size: 16px; line-height: 1.7; color: var(--ink-2); max-width: 34ch; margin-bottom: 36px; }
+    .closing-tags { display: flex; gap: 20px; }
+    .closing-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute-2); }
+
+    /* ── NAV LOGO SVG ── */
+    .logo-path { fill: #111; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+  01 · HERO
+══════════════════════════════════ -->
+<div class="slide" id="s01">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+        <path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/>
+        <path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/>
+      </svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-num">01 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="hero-body">
+      <div>
+        <div class="hero-eyebrow">AI Care Communication Platform — 2026</div>
+        <h1 class="hero-title">하루안부.</h1>
+        <p class="hero-sub">
+          <strong>보호자 · 의료진 · 환자</strong>, 흩어진 세 시선을<br>
+          하루의 안부 한 줄로 잇는 케어 플랫폼.
+        </p>
+        <div class="btn-wf">4명의 플로우 체험하기</div>
+        <div class="hero-tags">
+          <span class="hero-tag">UX · UI · Brand</span>
+          <span class="hero-tag">Care Communication</span>
+          <span class="hero-tag">2026</span>
+          <span class="hero-tag">Showcase v2</span>
+        </div>
+      </div>
+      <div class="hf">
+        <div class="hf-head">
+          <span class="hf-time">오늘 · 08:42 AM</span>
+          <span class="hf-live">Live</span>
+        </div>
+        <div class="hf-item">
+          <div class="hf-dot g"></div>
+          <div class="hf-body-item">
+            <span class="hf-who">이서연 · 요양보호사</span>
+            <span class="hf-what">케어 기록 완료 — 식사 15%</span>
+          </div>
+          <span class="hf-badge ok">완료</span>
+        </div>
+        <div class="hf-item">
+          <div class="hf-dot a"></div>
+          <div class="hf-body-item">
+            <span class="hf-who">AI · Claude 분석</span>
+            <span class="hf-what">이상 신호 감지 · 주의 등급</span>
+          </div>
+          <span class="hf-badge warn">주의</span>
+        </div>
+        <div class="hf-item">
+          <div class="hf-dot g"></div>
+          <div class="hf-body-item">
+            <span class="hf-who">김미영 · 보호자</span>
+            <span class="hf-what">푸시 알림 수신 · 안심지수 82</span>
+          </div>
+          <span class="hf-badge">3초</span>
+        </div>
+        <div class="hf-item">
+          <div class="hf-dot"></div>
+          <div class="hf-body-item">
+            <span class="hf-who">박지현 · 간호사</span>
+            <span class="hf-what">보충식 준비 안내 회신 완료</span>
+          </div>
+          <span class="hf-badge ok">1분</span>
+        </div>
+        <div class="hf-stat">
+          <span class="hf-stat-label">AI 안심지수</span>
+          <span class="hf-stat-val">87<small>점</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  02 · OVERVIEW
+══════════════════════════════════ -->
+<div class="slide" id="s02">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Overview</span>
+    <span class="s-num">02 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="overview-grid">
+      <div><div class="overview-label">Overview</div></div>
+      <div class="overview-body">
+        <p>
+          하루안부는 요양원에 가족을 모신 <strong>보호자</strong>, 47명을 동시에 돌보는 <strong>의료진</strong>, 가족과 디지털로 연결되지 못한 <strong>환자</strong> — 흩어진 세 시선을 하나의 안부로 잇는 케어 커뮤니케이션 플랫폼입니다.
+        </p>
+        <p>
+          전화 한 통으로 묻기엔 사소하고, 묻지 않기엔 중요한 <strong>오늘 하루의 흐름</strong>을 한 화면 안에서 묻고 답하게 합니다. 같은 데이터, 다른 시선. 한 번의 기록이 네 명에게 자동으로 닿습니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  03 · CONCEPT
+══════════════════════════════════ -->
+<div class="slide dark" id="s03">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path fill="white" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path fill="white" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Concept</span>
+    <span class="s-num">03 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="concept-inner">
+      <div>
+        <div class="concept-label">Concept</div>
+        <div class="concept-sub">두 곡선</div>
+      </div>
+      <div>
+        <p class="concept-statement">
+          두 개의 곡선이 만나<br><em>하나의 안부</em>가 됩니다.
+        </p>
+        <div class="concept-meta">
+          <div>
+            <div class="ck">Symbol</div>
+            <div class="cv">멀리서 묻는 가족의 마음과 현장에서 답하는 의료진의 손길, 두 곡선이 가운데에서 맞물립니다.</div>
+          </div>
+          <div>
+            <div class="ck">Open Form</div>
+            <div class="cv">닫히지 않은 형태. 매일 새 안부가 흘러들어오는 열린 공간을 의미합니다.</div>
+          </div>
+          <div>
+            <div class="ck">Tagline</div>
+            <div class="cv">오늘 하루도, 안녕하셨습니다. 매일 잊지 않고 안부를 묻는 마음 그 자체.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  04 · TRY IT (flow)
+══════════════════════════════════ -->
+<div class="slide" id="s04">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Experience the Flow</span>
+    <span class="s-num">04 / 14</span>
+  </div>
+  <div class="s-body pad-sm">
+    <div class="flow-notif-wf">
+      <div class="flow-notif-left">
+        <div class="flow-notif-icon">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2.5A5.5 5.5 0 0 0 4.5 8c0 2.1-.5 3.5-1 4.5H16.5c-.5-1-1-2.4-1-4.5A5.5 5.5 0 0 0 10 2.5z" stroke="white" stroke-width="1.4"/>
+            <path d="M8.5 16.5a1.5 1.5 0 0 0 3 0" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flow-notif-app">하루안부 · 자동 감지</div>
+          <div class="flow-notif-msg">환자 #007 김순자 — 아침 식사량 15% 미만 기록됨</div>
+          <div class="flow-notif-time">오전 10:14</div>
+        </div>
+      </div>
+      <div class="flow-notif-lbl">지금 따라가기 →</div>
+    </div>
+    <div class="flow-cards">
+      <div class="fc">
+        <div class="fc-num">Step 01</div>
+        <div class="fc-role">요양보호사</div>
+        <div class="fc-name">이서연</div>
+        <div class="fc-screen">
+          <div class="fc-screen-inner">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2.5" stroke="#ccc" stroke-width="1.2"/></svg>
+            <span class="fc-screen-label">Caregiver<br>Mobile App</span>
+          </div>
+        </div>
+        <div class="fc-desc">8단계 케어 스텝퍼에서 식사 섭취량 15%를 기록. AI가 이상 신호 즉시 감지.</div>
+      </div>
+      <div class="fc">
+        <div class="fc-num">Step 02</div>
+        <div class="fc-role">AI 분석</div>
+        <div class="fc-name">Claude</div>
+        <div class="fc-screen">
+          <div class="fc-screen-inner">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#ccc" stroke-width="1.2"/><path d="M7 10h6M10 7v6" stroke="#ccc" stroke-width="1.2"/></svg>
+            <span class="fc-screen-label">AI Engine<br>Claude API</span>
+          </div>
+        </div>
+        <div class="fc-desc">평균 대비 −55%p 이탈을 주의 등급으로 분류. 자연어 알림 메시지 자동 생성.</div>
+      </div>
+      <div class="fc">
+        <div class="fc-num">Step 03</div>
+        <div class="fc-role">보호자</div>
+        <div class="fc-name">김미영</div>
+        <div class="fc-screen">
+          <div class="fc-screen-inner">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2.5" stroke="#ccc" stroke-width="1.2"/></svg>
+            <span class="fc-screen-label">Guardian<br>Mobile App</span>
+          </div>
+        </div>
+        <div class="fc-desc">식사 카드가 강조 상태로 전환, 푸시 알림 3초 내 도착. 안심 지수 실시간 갱신.</div>
+      </div>
+      <div class="fc">
+        <div class="fc-num">Step 04</div>
+        <div class="fc-role">의료진</div>
+        <div class="fc-name">박지현</div>
+        <div class="fc-screen">
+          <div class="fc-screen-inner">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2.5" stroke="#ccc" stroke-width="1.2"/></svg>
+            <span class="fc-screen-label">Medical<br>Mobile App</span>
+          </div>
+        </div>
+        <div class="fc-desc">채팅 큐에서 보호자 메시지 확인, 1분 내 회신. 환자 태블릿에도 동시 전달.</div>
+      </div>
+      <div class="fc">
+        <div class="fc-num">Step 05</div>
+        <div class="fc-role">환자</div>
+        <div class="fc-name">김순자</div>
+        <div class="fc-screen">
+          <div class="fc-screen-inner">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="10" rx="2" stroke="#ccc" stroke-width="1.2"/></svg>
+            <span class="fc-screen-label">Patient<br>Tablet App</span>
+          </div>
+        </div>
+        <div class="fc-desc">태블릿에 아들 메시지가 큰 글씨로 뜸. 하나의 안부가 다섯 사람에게 닿았습니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  05 · PROBLEM
+══════════════════════════════════ -->
+<div class="slide" id="s05">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Problem</span>
+    <span class="s-num">05 / 14</span>
+  </div>
+  <div class="s-body pad-sm" style="display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <div class="eyebrow">Problem</div>
+      <div class="h2">국내 6개 경쟁사, 모두 같은 자리에 있었다.</div>
+      <div class="body-md" style="max-width:64ch;">시설 매칭, 시설 운영, 보호자 결제 — '입소 후 3자 실시간 소통'은 단 한 곳도 다루지 않았습니다.</div>
+    </div>
+    <div class="stats-row" style="height:auto;">
+      <div class="stat" style="padding:28px 28px;">
+        <div class="stat-num">187<span class="unit">만 가구</span></div>
+        <div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div>
+        <div class="stat-source">통계청 2024</div>
+      </div>
+      <div class="stat" style="padding:28px 28px;">
+        <div class="stat-num">22<span class="unit">통/일</span></div>
+        <div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div>
+        <div class="stat-source">현장 인터뷰 v2.1</div>
+      </div>
+      <div class="stat" style="padding:28px 28px;">
+        <div class="stat-num">0<span class="unit">곳</span></div>
+        <div class="stat-desc">입소 후 3자 실시간 소통 시장의 국내 사업자 수.</div>
+        <div class="stat-source">경쟁사 6곳 분석</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  06 · PERSONA
+══════════════════════════════════ -->
+<div class="slide" id="s06">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Three Voices</span>
+    <span class="s-num">06 / 14</span>
+  </div>
+  <div class="s-body pad-sm" style="display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <div class="eyebrow">Three Voices</div>
+      <div class="h2">기능이 아니라 안심을 설계한다.</div>
+    </div>
+    <div class="persona-grid" style="height:auto;">
+      <div class="persona">
+        <div class="persona-tag">Guardian</div>
+        <div class="persona-name">김미영</div>
+        <div class="persona-meta">53세 · 보호자 · 모친 5년 입소</div>
+        <div class="persona-quote">오늘 엄마가 식사를 하셨는지 알 길이 없다. 전화하긴 죄송하고, 기다리긴 불안하다.</div>
+        <div class="persona-cta">보호자 앱 체험</div>
+      </div>
+      <div class="persona">
+        <div class="persona-tag">Medical</div>
+        <div class="persona-name">박지현</div>
+        <div class="persona-meta">38세 · 간호사 · 환자 47명 담당</div>
+        <div class="persona-quote">전화 응대에 하루 2시간. 같은 질문을 47번 받고 나면, 정작 환자를 볼 시간이 없다.</div>
+        <div class="persona-cta">의료진 대시보드 체험</div>
+      </div>
+      <div class="persona">
+        <div class="persona-tag">Patient</div>
+        <div class="persona-name">김순자</div>
+        <div class="persona-meta">82세 · 입소 환자 · 치매 초기</div>
+        <div class="persona-quote">아들 얼굴이 보고 싶다. 휴대폰은 어렵고, 누군가 도와주면 좋겠다.</div>
+        <div class="persona-cta">환자 앱 체험</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  07 · SOLUTION
+══════════════════════════════════ -->
+<div class="slide" id="s07">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Solution</span>
+    <span class="s-num">07 / 14</span>
+  </div>
+  <div class="s-body pad-sm" style="display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <div class="eyebrow">Solution</div>
+      <div class="h2">한 번의 안부, 다섯 개의 화면.</div>
+    </div>
+    <div class="roles-list">
+      <div class="role-row"><div class="role-num">01</div><div class="role-name">온보딩<span>Onboarding</span></div><div class="role-desc">최초 진입 1회. 역할을 묻고, 케어 그룹에 매칭하고, 권한을 부여해 본 앱으로 분기.</div><div class="role-platform">Mobile</div></div>
+      <div class="role-row"><div class="role-num">02</div><div class="role-name">보호자 앱<span>Guardian</span></div><div class="role-desc">멀리 있어도 오늘이 보이는 한 화면. 식사·복약·기분 흐름과 안심 지수를 1일 1회 자동 수신.</div><div class="role-platform">Mobile</div></div>
+      <div class="role-row"><div class="role-num">03</div><div class="role-name">요양보호사 앱<span>Caregiver</span></div><div class="role-desc">방문 동선 위에서 8단계 스텝퍼로 빠르게 기록. 음성 메모는 AI가 인계장으로 전환.</div><div class="role-platform">Mobile</div></div>
+      <div class="role-row"><div class="role-num">04</div><div class="role-name">환자 앱<span>Patient</span></div><div class="role-desc">거실 거치형 태블릿. 화면 3개·터치 56px·글자 +2px. 조작이 아니라 '있는 것'.</div><div class="role-platform">Tablet</div></div>
+      <div class="role-row"><div class="role-num">05</div><div class="role-name">의료진 웹<span>Medical</span></div><div class="role-desc">47명의 환자를 한 대시보드에. 이상 신호는 AI가 먼저 정렬해 우선순위 큐로 전달.</div><div class="role-platform">Desktop</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  08 · PRODUCT — Guardian
+══════════════════════════════════ -->
+<div class="slide" id="s08">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Product · Guardian</span>
+    <span class="s-num">08 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="cols-2">
+      <div class="wf-device-wrap">
+        <div class="wf-phone">
+          <div class="wf-phone-screen">
+            <div class="wf-screen-label">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="4" y="2" width="14" height="18" rx="3" stroke="#ccc" stroke-width="1.4"/><path d="M8 6h6M8 9h4" stroke="#ccc" stroke-width="1.2"/></svg>
+              <div class="wf-screen-name">Guardian App</div>
+              <div class="wf-screen-sub">보호자 앱 · 홈 화면</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="product-content">
+        <div class="device-badge"><span class="db-dot"></span>Mobile App — iOS / Android</div>
+        <div class="product-role">Guardian · 보호자</div>
+        <div class="product-title">멀리서도<br>오늘이 보인다.</div>
+        <div class="product-desc">출근길 스마트폰 하나로 오늘의 상태를 확인합니다. 식사·복약·기분 흐름을 AI가 0~100 안심 지수로 요약해 매일 아침 자동 전달합니다.</div>
+        <div class="product-features">
+          <span class="product-feature">AI 안심 지수 · 1일 1회 자동 수신</span>
+          <span class="product-feature">식사 · 복약 · 기분 흐름 시각화</span>
+          <span class="product-feature">의료진 · 환자와 1:1 채팅</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  09 · PRODUCT — Caregiver
+══════════════════════════════════ -->
+<div class="slide" id="s09">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Product · Caregiver</span>
+    <span class="s-num">09 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="cols-2">
+      <div class="product-content">
+        <div class="device-badge"><span class="db-dot"></span>Mobile App — iOS / Android</div>
+        <div class="product-role">Caregiver · 요양보호사</div>
+        <div class="product-title">방문 동선 위에서<br>30초 완성.</div>
+        <div class="product-desc">방을 이동하며 8단계 스텝퍼를 탭합니다. 기록한 순간 AI가 이상 신호를 감지하고, 보호자와 의료진에게 자동 전달됩니다.</div>
+        <div class="product-features">
+          <span class="product-feature">8단계 케어 스텝퍼 · 정형화 입력</span>
+          <span class="product-feature">음성 메모 → AI 인계장 자동 변환</span>
+          <span class="product-feature">실시간 이상 신호 감지</span>
+        </div>
+      </div>
+      <div class="wf-device-wrap">
+        <div class="wf-phone">
+          <div class="wf-phone-screen">
+            <div class="wf-screen-label">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="4" y="2" width="14" height="18" rx="3" stroke="#ccc" stroke-width="1.4"/><path d="M7 8h8M7 11h8M7 14h5" stroke="#ccc" stroke-width="1.2"/></svg>
+              <div class="wf-screen-name">Caregiver App</div>
+              <div class="wf-screen-sub">케어 스텝퍼 화면</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  10 · PRODUCT — Patient
+══════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Product · Patient</span>
+    <span class="s-num">10 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="cols-6040" style="align-items:center;">
+      <div class="wf-device-wrap">
+        <div class="wf-tablet">
+          <div class="wf-tablet-screen">
+            <div class="wf-screen-label">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#ccc" stroke-width="1.4"/></svg>
+              <div class="wf-screen-name">Patient App</div>
+              <div class="wf-screen-sub">환자 앱 · 거실 거치형</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="product-content">
+        <div class="device-badge"><span class="db-dot"></span>Tablet App — 거실 거치형</div>
+        <div class="product-role">Patient · 환자</div>
+        <div class="product-title">조작이 아니라<br>'있는 것'.</div>
+        <div class="product-desc">거실 거치형 태블릿. 화면은 단 3개, 터치 영역은 56px 이상, 글자는 자동으로 2pt 확대됩니다. 가족 얼굴을 보고, 말벗 AI와 이야기합니다.</div>
+        <div class="product-features">
+          <span class="product-feature">화면 3개 · 56px 이상 터치 영역</span>
+          <span class="product-feature">가족 영상통화 · 사진 큰 보기</span>
+          <span class="product-feature">말벗 AI · 긴급 SOS 원터치</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  11 · PRODUCT — Medical
+══════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Product · Medical</span>
+    <span class="s-num">11 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="cols-4060" style="align-items:center;">
+      <div class="product-content">
+        <div class="device-badge"><span class="db-dot"></span>Web Dashboard — Desktop</div>
+        <div class="product-role">Medical · 의료진</div>
+        <div class="product-title">47명을 한눈에,<br>AI가 먼저 정렬.</div>
+        <div class="product-desc">하루 22통의 안부 전화를 절반으로 줄입니다. AI가 이상 신호를 중요도 순으로 정렬하고 보호자 문의는 채팅 큐에서 1분 내 처리됩니다.</div>
+        <div class="product-features">
+          <span class="product-feature">47명 환자 · 단일 대시보드</span>
+          <span class="product-feature">AI 우선순위 큐 · 이상 신호 정렬</span>
+          <span class="product-feature">보호자 채팅 큐 · 인계장 자동 생성</span>
+        </div>
+      </div>
+      <div class="wf-device-wrap">
+        <div class="wf-desktop">
+          <div class="wf-browser-bar">
+            <div class="wf-bb-dots"><div class="wf-bb-dot"></div><div class="wf-bb-dot"></div><div class="wf-bb-dot"></div></div>
+            <div class="wf-bb-url"></div>
+          </div>
+          <div class="wf-desktop-screen">
+            <div class="wf-screen-label">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="13" rx="2" stroke="#ccc" stroke-width="1.4"/><path d="M7 21h10" stroke="#ccc" stroke-width="1.4" stroke-linecap="round"/><path d="M12 16v5" stroke="#ccc" stroke-width="1.4" stroke-linecap="round"/></svg>
+              <div class="wf-screen-name">Medical Dashboard</div>
+              <div class="wf-screen-sub">의료진 웹 대시보드</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  12 · DESIGN SYSTEM
+══════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Design System</span>
+    <span class="s-num">12 / 14</span>
+  </div>
+  <div class="s-body pad-sm" style="display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <div class="eyebrow">Design System</div>
+      <div class="h2">하나의 토큰, 네 개의 얼굴.</div>
+      <div class="body-md" style="max-width:66ch;">5종 앱 모두 단일 tokens.css 한 파일을 import합니다. 역할별 분기는 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#f4f4f4;padding:1px 5px;">data-role</code> 속성만으로 처리.</div>
+    </div>
+    <div class="ds-grid" style="height:auto;">
+      <div class="ds-cell">
+        <span class="t-label">Primary</span>
+        <div class="ds-color-name">하루안부 블루</div>
+        <div class="ds-color-hex">#2C7AFC</div>
+      </div>
+      <div class="ds-cell blue-cell">
+        <span class="t-label">Application</span>
+        <div class="ds-color-name">신뢰 위에 따뜻함</div>
+        <div class="ds-color-hex">단일 액센트 컬러</div>
+      </div>
+      <div class="ds-cell dark-cell">
+        <span class="t-label">Typography</span>
+        <div class="ds-typo-sample">하루안부</div>
+        <div class="ds-typo-meta">Pretendard Variable · 단일 패밀리</div>
+      </div>
+      <div class="ds-cell">
+        <span class="t-label">Accessibility</span>
+        <div class="ds-color-name">+2px / 56px</div>
+        <div class="ds-color-hex">data-role="patient" 자동 확대</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  13 · IMPACT / ROI
+══════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Impact</span>
+    <span class="s-num">13 / 14</span>
+  </div>
+  <div class="s-body pad-sm" style="display:flex;flex-direction:column;gap:16px;">
+    <div>
+      <div class="eyebrow">Impact</div>
+      <div class="h2">보호자 무료, 시설은 4.4배 남는다.</div>
+    </div>
+    <div class="roi-tabs">
+      <div class="roi-tab">
+        <div class="rt-label">Type 01</div>
+        <div class="rt-name">소형 — 30명</div>
+      </div>
+      <div class="roi-tab active">
+        <div class="rt-label">Type 02</div>
+        <div class="rt-name">중형 — 100명</div>
+      </div>
+      <div class="roi-tab">
+        <div class="rt-label">Type 03</div>
+        <div class="rt-name">대형 — 100명+</div>
+      </div>
+    </div>
+    <div class="roi-result">
+      <div class="roi-cell">
+        <div class="rc-label">Current</div>
+        <div class="roi-val">22<span class="unit">통</span></div>
+        <div class="rc-foot">의료진 일일 안부 응대 평균.</div>
+      </div>
+      <div class="roi-cell">
+        <div class="rc-label">Reduction</div>
+        <div class="roi-val accent">−50<span class="unit">%</span></div>
+        <div class="rc-foot">반복 질의가 보호자 앱으로 자동 응답.</div>
+      </div>
+      <div class="roi-cell">
+        <div class="rc-label">Time Saved</div>
+        <div class="roi-val">22<span class="unit">시간/월</span></div>
+        <div class="rc-foot">간호사 시급 2만원 환산 기준.</div>
+      </div>
+      <div class="roi-cell">
+        <div class="rc-label">Cost Saved</div>
+        <div class="roi-val accent">44<span class="unit">만원</span></div>
+        <div class="rc-foot">구독료 9.9만 → ROI 4.4배.</div>
+      </div>
+    </div>
+    <p class="roi-summary">보호자 무료로 빠른 확산 — 시설이 ROI <em>4.4배</em>를 회수하는 구조. 돈을 따라가는 모델이 아니라 <strong>시간</strong>을 따라가는 모델입니다.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+  14 · CLOSING
+══════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="s-nav">
+    <div class="s-nav-left">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none"><path class="logo-path" d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.9 1658.86 1262.5C2641.88 1314.2 2521.32 2101.8 2521.32 2506.66Z"/><path class="logo-path" d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.1 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z"/></svg>
+      <span class="logo-text">하루안부</span>
+    </div>
+    <span class="s-nav-section">Epilogue</span>
+    <span class="s-num">14 / 14</span>
+  </div>
+  <div class="s-body">
+    <div class="closing-inner">
+      <div class="closing-mark">— Epilogue —</div>
+      <h2 class="closing-title">오늘 하루도,<br><em>안녕하셨습니다.</em></h2>
+      <p class="closing-line">매일 잊지 않고 안부를 묻는 마음.<br>그것이 곧 하루안부입니다.</p>
+      <div class="closing-tags">
+        <span class="closing-tag">UX · UI · Brand</span>
+        <span class="closing-tag">·</span>
+        <span class="closing-tag">Care Communication Platform</span>
+        <span class="closing-tag">·</span>
+        <span class="closing-tag">2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

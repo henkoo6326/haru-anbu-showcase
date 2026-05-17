@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390">
+<title>하루안부 — 환자 v3</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:390px;min-height:844px;background:#F2F2F7;font-family:'Pretendard',-apple-system,sans-serif;color:#000;-webkit-font-smoothing:antialiased}
+.sb{height:54px;padding:14px 16px 0;display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:600}
+.grad-header{background:linear-gradient(180deg,#F5E6D8 0%,#F2F2F7 100%);padding:0 0 8px}
+/* 환자용: 큰 글자 */
+.lt{padding:8px 20px 12px}
+.lt h1{font-size:32px;font-weight:800;letter-spacing:-0.5px;line-height:1.3}
+.lt h1 em{font-style:normal;color:#D4A574}
+.lt-date{font-size:20px;color:#3C3C43;opacity:0.6;margin-top:6px}
+.sc{padding:0 16px 110px}
+.gt{background:#fff;border-radius:12px;margin-bottom:16px;overflow:hidden}
+.gt-head{padding:6px 16px 0}
+.gt-label{font-size:15px;font-weight:600;color:#3C3C43;padding:8px 0}
+
+/* Medication alert — Apple Health notification style */
+.med-alert{background:#34C759;border-radius:12px;padding:16px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.med-icon{font-size:36px}
+.med-body{flex:1}
+.med-title{font-size:20px;font-weight:700}
+.med-sub{font-size:15px;opacity:0.85;margin-top:2px}
+.med-btn{background:rgba(255,255,255,0.25);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:17px;font-weight:600;flex-shrink:0}
+
+/* Next schedule — Apple large number style */
+.next{padding:20px 16px;text-align:center}
+.next-label{font-size:15px;color:#3C3C43;opacity:0.6}
+.next-time{font-size:54px;font-weight:800;letter-spacing:-2px;color:#D4A574;margin-top:4px}
+.next-what{font-size:22px;font-weight:600;margin-top:4px}
+.next-count{font-size:15px;color:#3C3C43;opacity:0.6;margin-top:8px}
+
+/* Schedule — Apple Health checklist row style */
+.sched{display:flex;align-items:center;padding:14px 16px;border-bottom:0.33px solid rgba(60,60,67,0.12);gap:14px}
+.sched:last-child{border:none}
+.sched-time{font-size:20px;font-weight:600;color:#8E8E93;width:60px}
+.sched-pill{padding:8px 18px;border-radius:10px;font-size:17px;font-weight:600;color:#fff}
+.sched-check{font-size:20px;margin-left:auto}
+.sched.done{opacity:0.4}
+.sched.now .sched-time{color:#D4A574}
+
+/* Mood — Apple Health Mood exact style (slider concept) */
+.mood{padding:20px 16px;text-align:center}
+.mood-q{font-size:20px;font-weight:700;margin-bottom:16px}
+.mood-faces{display:flex;justify-content:center;gap:16px}
+.mood-opt{text-align:center}
+.mood-face{width:56px;height:56px;border-radius:16px;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:32px}
+.mood-face.sel{background:#FFF0E0;box-shadow:0 0 0 2px #D4A574}
+.mood-text{font-size:13px;color:#8E8E93;margin-top:6px}
+
+/* Family — Apple Sharing style */
+.fam{padding:16px}
+.fam-from{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fam-avatar{width:40px;height:40px;border-radius:50%;background:#4A7FBF;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700}
+.fam-name{font-size:17px;font-weight:600}
+.fam-time{font-size:13px;color:#3C3C43;opacity:0.6}
+.fam-text{font-size:20px;line-height:1.6}
+.fam-photo{width:100%;height:140px;background:#F2F2F7;border-radius:12px;margin-top:12px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#8E8E93}
+
+/* Help — Apple Emergency SOS style big buttons */
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.help-btn{background:#fff;border-radius:12px;padding:24px 8px;text-align:center}
+.help-emoji{font-size:40px;margin-bottom:6px}
+.help-label{font-size:20px;font-weight:600}
+
+/* Tab bar */
+.tb{position:fixed;bottom:0;left:0;width:390px;height:90px;background:rgba(249,249,249,0.94);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:0.33px solid rgba(60,60,67,0.15);display:flex;padding:8px 0 30px}
+.t{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:#999;border:none;background:none}
+.t.active{color:#D4A574}
+.t-i{font-size:28px;height:30px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="grad-header">
+<div class="sb"><span>9:41</span><span style="font-size:14px">●●● ▶ 🔋</span></div>
+<div class="lt">
+  <h1>안녕하세요,<br><em>순자</em> 어르신 😊</h1>
+  <div class="lt-date">2026년 3월 23일 일요일</div>
+</div>
+</div>
+
+<div class="sc">
+
+<!-- Medication alert -->
+<div class="med-alert">
+  <div class="med-icon">💊</div>
+  <div class="med-body"><div class="med-title">약 드실 시간이에요</div><div class="med-sub">오후 투약 · 14:00</div></div>
+  <button class="med-btn">확인</button>
+</div>
+
+<!-- Next schedule -->
+<div class="gt">
+  <div class="next">
+    <div class="next-label">다음 일정</div>
+    <div class="next-time">14:00</div>
+    <div class="next-what">💊 오후 투약</div>
+    <div class="next-count">30분 후</div>
+  </div>
+</div>
+
+<!-- Today schedule -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">📅 오늘 일과</span></div>
+  <div class="sched done"><div class="sched-time">07:00</div><div class="sched-pill" style="background:#FF9500">🍚 조식</div><div class="sched-check">✅</div></div>
+  <div class="sched done"><div class="sched-time">09:00</div><div class="sched-pill" style="background:#34C759">💊 오전 투약</div><div class="sched-check">✅</div></div>
+  <div class="sched done"><div class="sched-time">10:00</div><div class="sched-pill" style="background:#007AFF">🚶 재활 30분</div><div class="sched-check">✅</div></div>
+  <div class="sched done"><div class="sched-time">12:00</div><div class="sched-pill" style="background:#FF9500">🍚 점심</div><div class="sched-check">✅</div></div>
+  <div class="sched now"><div class="sched-time">14:00</div><div class="sched-pill" style="background:#34C759">💊 오후 투약</div></div>
+  <div class="sched"><div class="sched-time">15:00</div><div class="sched-pill" style="background:#8E8E93">🚿 위생</div></div>
+  <div class="sched"><div class="sched-time">17:00</div><div class="sched-pill" style="background:#FF9500">🍚 석식</div></div>
+</div>
+
+<!-- Mood — Apple Health Mood style -->
+<div class="gt">
+  <div class="mood">
+    <div class="mood-q">오늘 기분이 어떠세요?</div>
+    <div class="mood-faces">
+      <div class="mood-opt"><div class="mood-face">😢</div><div class="mood-text">안좋아요</div></div>
+      <div class="mood-opt"><div class="mood-face">😐</div><div class="mood-text">보통</div></div>
+      <div class="mood-opt"><div class="mood-face sel">😊</div><div class="mood-text">좋아요</div></div>
+      <div class="mood-opt"><div class="mood-face">😄</div><div class="mood-text">아주좋아요</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Family -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">👨‍👩‍👧 가족 소식</span></div>
+  <div class="fam">
+    <div class="fam-from">
+      <div class="fam-avatar">미</div>
+      <div><div class="fam-name">딸 미영이</div><div class="fam-time">오늘 08:30</div></div>
+    </div>
+    <div class="fam-text">엄마~ 오늘도 건강하게 보내세요!<br>손녀가 엄마 보고 싶대요 ❤️</div>
+    <div class="fam-photo">📸 손녀 사진 [탭하면 크게 보기]</div>
+  </div>
+</div>
+
+<!-- Help -->
+<div class="gt">
+  <div class="gt-head"><span class="gt-label">🆘 도움이 필요해요</span></div>
+  <div style="padding:12px 16px 16px">
+    <div class="help-grid">
+      <div class="help-btn"><div class="help-emoji">💧</div><div class="help-label">물 주세요</div></div>
+      <div class="help-btn"><div class="help-emoji">🥶</div><div class="help-label">추워요</div></div>
+      <div class="help-btn"><div class="help-emoji">🤕</div><div class="help-label">아파요</div></div>
+      <div class="help-btn"><div class="help-emoji">🔔</div><div class="help-label">도움 요청</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="tb">
+  <div class="t active"><div class="t-i">🏠</div>홈</div>
+  <div class="t"><div class="t-i">👨‍👩‍👧</div>가족</div>
+  <div class="t"><div class="t-i">🆘</div>도움</div>
+</div>
+</body></html>

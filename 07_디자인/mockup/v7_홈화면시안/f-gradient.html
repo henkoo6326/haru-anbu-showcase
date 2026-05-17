@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 v7 — Gradient 비교 (환자 · 보호자)</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    /* ─── 비교 레이아웃 ─── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+      gap: 48px;
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+    }
+    .page-header {
+      text-align: center;
+    }
+    .page-header h1 {
+      font-size: 20px; font-weight: 700; color: white; margin-bottom: 6px;
+    }
+    .page-header p {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+    }
+    .frames-row {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .frame-label {
+      font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+
+    /* ─── 폰 프레임 ─── */
+    .phone {
+      position: relative;
+      width: 375px; height: 812px;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 0 0 3px #2a2a2a, 0 0 0 5px #111, 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .phone-inner {
+      width: 100%; height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 100px;
+    }
+    .phone-inner::-webkit-scrollbar { display: none; }
+    /* 다이나믹 아일랜드 */
+    .dynamic-island {
+      position: sticky; top: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px 8px;
+      z-index: 10;
+      font-size: 15px; font-weight: 700;
+    }
+    .di-pill {
+      width: 120px; height: 34px;
+      border-radius: 17px;
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    }
+    .di-time { font-size: 15px; font-weight: 700; }
+    .di-icons { display: flex; gap: 4px; align-items: center; font-size: 12px; }
+
+    /* ════════════════════════════════════════════
+       환자 (Patient) — 따뜻한 오렌지 메시 그라데이션
+       ════════════════════════════════════════════ */
+    .phone--patient .phone-inner { background: white; }
+    .phone--patient .dynamic-island { color: white; }
+    .phone--patient .di-pill { background: #1a1a1a; }
+
+    .hero-patient {
+      position: relative;
+      min-height: 420px;
+      padding: 48px 24px 56px;
+      overflow: hidden;
+
+      /* Mesh gradient */
+      background:
+        radial-gradient(ellipse 260px 220px at 85% 15%, rgba(251,146,60,0.85)  0%, transparent 55%),
+        radial-gradient(ellipse 200px 200px at 10% 70%, rgba(245,211,16,0.6)   0%, transparent 55%),
+        radial-gradient(ellipse 300px 180px at 50% 95%, rgba(234,88,12,0.4)    0%, transparent 55%),
+        radial-gradient(ellipse 180px 160px at 70% 55%, rgba(251,191,36,0.35)  0%, transparent 55%),
+        #FFF5EB;
+    }
+    /* 노이즈 텍스처 (grain) */
+    .hero-patient::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    /* 플로팅 오브 애니메이션 */
+    .hero-patient::after {
+      content: '';
+      position: absolute;
+      top: 30px; right: -20px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+      filter: blur(30px);
+      animation: floatOrb 8s ease-in-out infinite;
+    }
+    @keyframes floatOrb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-20px) scale(1.08); }
+    }
+
+    /* 환자 인삿말 */
+    .p-greeting-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .p-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: white;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.55; transform:scale(.82); }
+    }
+    .p-greeting-main {
+      font-size: 32px; font-weight: 800;
+      line-height: 1.2; letter-spacing: -0.8px;
+      color: white;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.12);
+      margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .p-greeting-sub {
+      font-size: 16px; color: rgba(255,255,255,0.8);
+      line-height: 1.55;
+      position: relative; z-index: 1;
+    }
+
+    /* 환자 퀵 액션 — 그라데이션 위 frosted glass */
+    .p-pills {
+      position: relative; z-index: 2;
+      padding: 0 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: -28px; /* 그라데이션 영역으로 살짝 올라감 */
+    }
+    .p-pill-label {
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase; letter-spacing: 0.7px;
+      margin-bottom: 4px;
+    }
+    .p-pill {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 15px 20px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      font-size: 16px; font-weight: 600; color: white;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      width: fit-content;
+    }
+    .p-pill:active { background: rgba(255,255,255,0.35); transform: scale(0.97); }
+    .p-pill--cta {
+      background: white;
+      color: #EA580C;
+      border: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .p-pill--cta:active { background: #FFF5EB; }
+    .p-pill-icon { font-size: 18px; }
+
+    /* 그라데이션 → 흰색 페이드 */
+    .gradient-fade {
+      height: 48px;
+      background: linear-gradient(180deg, #FFF5EB 0%, white 100%);
+    }
+    .phone--patient .gradient-fade {
+      background: linear-gradient(180deg, rgba(255,245,235,0) 0%, white 100%);
+      margin-top: -48px;
+      position: relative; z-index: 3;
+    }
+
+    /* 환자 상태 카드 (흰 배경 위) */
+    .p-content {
+      background: white;
+      padding: 16px 20px 0;
+      position: relative; z-index: 4;
+    }
+    .p-stat-chips {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .p-stat {
+      background: #F5F5F7; border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .p-stat-label { font-size: 12px; color: #8E8E93; margin-bottom: 4px; }
+    .p-stat-value { font-size: 22px; font-weight: 700; }
+    .p-stat-sub { font-size: 11px; color: #9E9E9E; margin-top: 3px; }
+    .p-stat-bar { height: 3px; background: #E5E5EA; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .p-stat-fill { height: 100%; border-radius: 2px; }
+    .p-family-row {
+      background: #D9F0F7; border-radius: 14px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .p-fam-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #0891B2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .p-fam-name { font-size: 12px; font-weight: 600; color: #0891B2; }
+    .p-fam-msg { font-size: 14px; color: #1C1C1E; margin-top: 2px; }
+    .p-fam-time { font-size: 11px; color: #9E9E9E; margin-left: auto; white-space: nowrap; }
+
+    /* 환자 AI 입력창 */
+    .p-ai-bar {
+      position: sticky; bottom: 0;
+      background: white;
+      padding: 10px 20px 20px;
+      z-index: 10;
+    }
+    .p-ai-inner {
+      background: #F0F0F3;
+      border-radius: 999px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+    }
+    .p-ai-icon {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #FB923C, #EA580C);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .p-ai-placeholder { flex: 1; font-size: 15px; color: #9E9E9E; }
+    .p-ai-mic {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: white; border: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer;
+    }
+
+    /* 환자 탭바 */
+    .p-tabbar {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid #E5E5EA;
+      display: flex; justify-content: space-around;
+      padding: 10px 0 20px;
+    }
+    .p-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 500; color: #9E9E9E;
+    }
+    .p-tab.active { color: #FB923C; }
+    .p-tab-icon { font-size: 22px; line-height: 1; }
+
+
+    /* ════════════════════════════════════════════
+       보호자 (Guardian) — 쿨 청록 메시 그라데이션
+       ════════════════════════════════════════════ */
+    .phone--guardian .phone-inner { background: white; }
+    .phone--guardian .dynamic-island { color: white; }
+    .phone--guardian .di-pill { background: #111; }
+
+    .hero-guardian {
+      position: relative;
+      min-height: 420px;
+      padding: 48px 24px 56px;
+      overflow: hidden;
+
+      /* Mesh gradient — teal + sky + emerald */
+      background:
+        radial-gradient(ellipse 280px 220px at 85% 10%, rgba(8,145,178,0.9)    0%, transparent 55%),
+        radial-gradient(ellipse 200px 200px at 5%  75%, rgba(14,165,233,0.55)  0%, transparent 55%),
+        radial-gradient(ellipse 250px 180px at 55% 95%, rgba(5,150,105,0.45)   0%, transparent 55%),
+        radial-gradient(ellipse 160px 160px at 75% 55%, rgba(56,189,248,0.3)   0%, transparent 55%),
+        #EFF9FD;
+    }
+    .hero-guardian::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: 0.5;
+    }
+    .hero-guardian::after {
+      content: '';
+      position: absolute;
+      top: 20px; right: -30px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+      filter: blur(35px);
+      animation: floatOrb 10s ease-in-out infinite;
+    }
+
+    /* 보호자 인삿말 */
+    .g-greeting-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.9);
+      margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .g-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ADE80;
+      animation: pulse 2s infinite;
+    }
+    .g-greeting-main {
+      font-size: 32px; font-weight: 800;
+      line-height: 1.2; letter-spacing: -0.8px;
+      color: white;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.12);
+      margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .g-greeting-sub {
+      font-size: 16px; color: rgba(255,255,255,0.8);
+      line-height: 1.55;
+      position: relative; z-index: 1;
+    }
+
+    /* 보호자 퀵 액션 pills */
+    .g-pills {
+      position: relative; z-index: 2;
+      padding: 0 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: -28px;
+    }
+    .g-pill-label {
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase; letter-spacing: 0.7px;
+      margin-bottom: 4px;
+    }
+    .g-pill {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 15px 20px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      font-size: 16px; font-weight: 600; color: white;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      width: fit-content;
+    }
+    .g-pill:active { background: rgba(255,255,255,0.32); transform: scale(0.97); }
+    .g-pill--cta {
+      background: white; color: #0891B2;
+      border: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .g-pill--cta:active { background: #EFF9FD; }
+    .g-new-badge {
+      padding: 2px 8px; background: rgba(255,255,255,0.25); border-radius: 999px;
+      font-size: 10px; font-weight: 700; color: white;
+    }
+    .g-pill-icon { font-size: 18px; }
+
+    /* 그라데이션 → 흰색 */
+    .g-fade {
+      height: 48px;
+      background: linear-gradient(180deg, rgba(239,249,253,0) 0%, white 100%);
+      margin-top: -48px;
+      position: relative; z-index: 3;
+    }
+
+    /* 보호자 콘텐츠 */
+    .g-content {
+      background: white; padding: 16px 20px 0;
+      position: relative; z-index: 4;
+    }
+    /* 환자 상태 카드 */
+    .g-patient-card {
+      background: #EFF9FD; border-radius: 20px;
+      padding: 18px; margin-bottom: 10px;
+    }
+    .g-pc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .g-pc-who { display: flex; align-items: center; gap: 10px; }
+    .g-pc-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #FB923C, #EA580C);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .g-pc-name { font-size: 16px; font-weight: 700; }
+    .g-pc-meta { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+    .g-ok-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px; background: #DCFCE7; border-radius: 999px;
+      font-size: 12px; font-weight: 600; color: #059669;
+    }
+    .g-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .g-stat {
+      background: white; border-radius: 12px; padding: 12px 14px;
+    }
+    .g-stat-label { font-size: 11px; color: #8E8E93; margin-bottom: 4px; }
+    .g-stat-value { font-size: 20px; font-weight: 700; }
+    .g-stat-sub { font-size: 10px; color: #9E9E9E; margin-top: 3px; }
+    .g-stat-bar { height: 3px; background: #E5E5EA; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .g-stat-fill { height: 100%; border-radius: 2px; }
+
+    /* AI 요약 한줄 */
+    .g-ai-row {
+      margin-top: 10px; padding: 12px 14px;
+      background: white; border-radius: 12px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .g-ai-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: linear-gradient(135deg, #0891B2, #38BDF8);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .g-ai-text { font-size: 13px; line-height: 1.5; color: #1C1C1E; }
+    .g-ai-text b { color: #0891B2; }
+
+    /* 간호사 */
+    .g-nurse-row {
+      background: #F5F5F7; border-radius: 14px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .g-nurse-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #059669, #047857);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .g-nurse-name { font-size: 14px; font-weight: 600; }
+    .g-nurse-meta { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+    .g-nurse-btn {
+      height: 32px; padding: 0 14px;
+      background: #059669; color: white; border: none;
+      border-radius: 999px; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+
+    /* 보호자 AI 입력창 */
+    .g-ai-bar {
+      position: sticky; bottom: 0;
+      background: white; padding: 10px 20px 20px; z-index: 10;
+    }
+    .g-ai-inner {
+      background: #F0F0F3; border-radius: 999px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+    }
+    .g-ai-icon2 {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #0891B2, #38BDF8);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .g-ai-ph { flex: 1; font-size: 15px; color: #9E9E9E; }
+    .g-ai-mic {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: white; border: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer;
+    }
+
+    /* 보호자 탭바 */
+    .g-tabbar {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid #E5E5EA;
+      display: flex; justify-content: space-around;
+      padding: 10px 0 20px;
+    }
+    .g-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 500; color: #9E9E9E;
+    }
+    .g-tab.active { color: #0891B2; }
+    .g-tab-icon { font-size: 20px; line-height: 1; }
+
+    .spacer { height: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>v7-f — Mesh Gradient</h1>
+    <p>환자 (Patient) · 보호자 (Guardian)</p>
+  </div>
+
+  <div class="frames-row">
+
+    <!-- ══════ 환자 폰 ══════ -->
+    <div class="frame-wrap">
+      <div class="frame-label">환자 · 정희님</div>
+      <div class="phone phone--patient">
+        <div class="phone-inner">
+
+          <!-- 상태바 -->
+          <div class="dynamic-island" style="background: transparent;">
+            <span class="di-time" style="color:rgba(0,0,0,0.55);font-size:15px;font-weight:700;">9:41</span>
+            <div class="di-pill" style="background:#1a1a1a;"></div>
+            <div class="di-icons" style="color:rgba(0,0,0,0.55);">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="9" y="0" width="3" height="12" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="currentColor" opacity=".3"/></svg>
+              <svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 4C3.5 1.5 7 0 9 0s5.5 1.5 8 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M3.5 6.5C5.5 4.5 7.5 3.5 9 3.5s3.5 1 5.5 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/></svg>
+              🔋
+            </div>
+          </div>
+
+          <!-- 히어로 그라데이션 존 -->
+          <div class="hero-patient">
+            <div class="p-greeting-badge">
+              <div class="p-badge-dot"></div>
+              예찬님이 오늘 확인했어요
+            </div>
+            <div class="p-greeting-main">좋은 저녁이에요,<br>정희님</div>
+            <div class="p-greeting-sub">오늘 하루도 수고하셨어요.<br>무엇을 도와드릴까요?</div>
+          </div>
+
+          <!-- 퀵 액션 pills (그라데이션 위 frosted) -->
+          <div class="p-pills">
+            <div class="p-pill-label">바로 하기</div>
+            <button class="p-pill p-pill--cta">
+              <span class="p-pill-icon">💊</span> 점심 약 먹었어요
+            </button>
+            <button class="p-pill">
+              <span class="p-pill-icon">📅</span> 오늘 일과 보기
+            </button>
+            <button class="p-pill">
+              <span class="p-pill-icon">🆘</span> 도움 요청하기
+            </button>
+            <button class="p-pill">
+              <span class="p-pill-icon">💬</span> 가족에게 연락
+            </button>
+          </div>
+
+          <!-- 그라데이션 → 흰색 페이드 -->
+          <div style="height:56px; background: linear-gradient(180deg, #FFF5EB 0%, white 100%);"></div>
+
+          <!-- 상태 + 가족 -->
+          <div class="p-content">
+            <div class="p-stat-chips">
+              <div class="p-stat">
+                <div class="p-stat-label">투약</div>
+                <div class="p-stat-value" style="color:#FB923C;">1/3</div>
+                <div class="p-stat-sub">다음: 오후 6시</div>
+                <div class="p-stat-bar"><div class="p-stat-fill" style="width:33%;background:#FB923C;"></div></div>
+              </div>
+              <div class="p-stat">
+                <div class="p-stat-label">일과</div>
+                <div class="p-stat-value" style="color:#4285F4;">2/5</div>
+                <div class="p-stat-sub">다음: 오후 산책</div>
+                <div class="p-stat-bar"><div class="p-stat-fill" style="width:40%;background:#4285F4;"></div></div>
+              </div>
+            </div>
+            <div class="p-family-row">
+              <div class="p-fam-avatar">예</div>
+              <div>
+                <div class="p-fam-name">예찬님</div>
+                <div class="p-fam-msg">엄마 저녁은 드셨어요? 😊</div>
+              </div>
+              <div class="p-fam-time">5분 전</div>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <!-- AI 입력창 -->
+          <div class="p-ai-bar">
+            <div class="p-ai-inner">
+              <div class="p-ai-icon">
+                <i data-lucide="sparkles" style="width:14px;height:14px;color:white;"></i>
+              </div>
+              <span class="p-ai-placeholder">하루안부에게 물어보세요...</span>
+              <button class="p-ai-mic">
+                <i data-lucide="mic" style="width:16px;height:16px;color:#FB923C;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 탭바 -->
+          <div class="p-tabbar">
+            <div class="p-tab active">
+              <span class="p-tab-icon"><i data-lucide="home"></i></span>홈
+            </div>
+            <div class="p-tab">
+              <span class="p-tab-icon"><i data-lucide="heart"></i></span>가족
+            </div>
+            <div class="p-tab" style="color:#DC2626;">
+              <span class="p-tab-icon"><i data-lucide="bell-ring"></i></span>도움
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /환자 폰 -->
+
+
+    <!-- ══════ 보호자 폰 ══════ -->
+    <div class="frame-wrap">
+      <div class="frame-label">보호자 · 예찬님</div>
+      <div class="phone phone--guardian">
+        <div class="phone-inner">
+
+          <!-- 상태바 -->
+          <div class="dynamic-island" style="background: transparent;">
+            <span class="di-time" style="color:rgba(0,0,0,0.55);font-size:15px;font-weight:700;">9:41</span>
+            <div class="di-pill" style="background:#111;"></div>
+            <div class="di-icons" style="color:rgba(0,0,0,0.55);">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="9" y="0" width="3" height="12" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="currentColor" opacity=".3"/></svg>
+              <svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 4C3.5 1.5 7 0 9 0s5.5 1.5 8 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M3.5 6.5C5.5 4.5 7.5 3.5 9 3.5s3.5 1 5.5 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/></svg>
+              🔋
+            </div>
+          </div>
+
+          <!-- 히어로 그라데이션 존 -->
+          <div class="hero-guardian">
+            <div class="g-greeting-badge">
+              <div class="g-badge-dot"></div>
+              정희님 오늘 괜찮습니다
+            </div>
+            <div class="g-greeting-main">좋은 저녁이에요,<br>예찬님</div>
+            <div class="g-greeting-sub">정희님이 오늘도 잘 지내고 계세요.<br>무엇을 확인하시겠어요?</div>
+          </div>
+
+          <!-- 퀵 액션 pills -->
+          <div class="g-pills">
+            <div class="g-pill-label">바로 확인</div>
+            <button class="g-pill g-pill--cta">
+              <span class="g-pill-icon">🤖</span> 오늘 AI 리포트 보기
+              <span class="g-new-badge">NEW</span>
+            </button>
+            <button class="g-pill">
+              <span class="g-pill-icon">📅</span> 정희님 오늘 일정
+            </button>
+            <button class="g-pill">
+              <span class="g-pill-icon">💬</span> 간호사에게 연락
+            </button>
+            <button class="g-pill">
+              <span class="g-pill-icon">🔔</span> 알림 설정 바꾸기
+            </button>
+          </div>
+
+          <!-- 그라데이션 → 흰색 -->
+          <div class="g-fade"></div>
+
+          <!-- 환자 상태 + 간호사 -->
+          <div class="g-content">
+            <div class="g-patient-card">
+              <div class="g-pc-header">
+                <div class="g-pc-who">
+                  <div class="g-pc-avatar">정</div>
+                  <div>
+                    <div class="g-pc-name">정희님</div>
+                    <div class="g-pc-meta">요양원 3동 201호</div>
+                  </div>
+                </div>
+                <div class="g-ok-badge">
+                  <i data-lucide="check-circle" style="width:12px;height:12px;"></i>
+                  괜찮아요
+                </div>
+              </div>
+              <div class="g-stats">
+                <div class="g-stat">
+                  <div class="g-stat-label">투약</div>
+                  <div class="g-stat-value" style="color:#FB923C;">1/3</div>
+                  <div class="g-stat-sub">다음: 오후 6시</div>
+                  <div class="g-stat-bar"><div class="g-stat-fill" style="width:33%;background:#FB923C;"></div></div>
+                </div>
+                <div class="g-stat">
+                  <div class="g-stat-label">일과</div>
+                  <div class="g-stat-value" style="color:#0891B2;">2/5</div>
+                  <div class="g-stat-sub">산책 예정</div>
+                  <div class="g-stat-bar"><div class="g-stat-fill" style="width:40%;background:#0891B2;"></div></div>
+                </div>
+              </div>
+              <div class="g-ai-row">
+                <div class="g-ai-icon">
+                  <i data-lucide="sparkles" style="width:12px;height:12px;color:white;"></i>
+                </div>
+                <div class="g-ai-text">오늘 식사는 <b>잘 드셨어요.</b> 점심 투약이 아직 남아있어요. 전반적으로 <b>안정적인 하루</b>입니다.</div>
+              </div>
+            </div>
+
+            <div class="g-nurse-row">
+              <div class="g-nurse-avatar">김</div>
+              <div style="flex:1;">
+                <div class="g-nurse-name">김수연 간호사</div>
+                <div class="g-nurse-meta">오늘 3회 확인 · 마지막 오후 1:20</div>
+              </div>
+              <button class="g-nurse-btn">
+                <i data-lucide="message-circle" style="width:13px;height:13px;"></i> 연락
+              </button>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <!-- AI 입력창 -->
+          <div class="g-ai-bar">
+            <div class="g-ai-inner">
+              <div class="g-ai-icon2">
+                <i data-lucide="sparkles" style="width:14px;height:14px;color:white;"></i>
+              </div>
+              <span class="g-ai-ph">정희님에 대해 물어보세요...</span>
+              <button class="g-ai-mic">
+                <i data-lucide="mic" style="width:16px;height:16px;color:#0891B2;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 탭바 -->
+          <div class="g-tabbar">
+            <div class="g-tab active">
+              <span class="g-tab-icon"><i data-lucide="home"></i></span>홈
+            </div>
+            <div class="g-tab">
+              <span class="g-tab-icon"><i data-lucide="bar-chart-2"></i></span>리포트
+            </div>
+            <div class="g-tab">
+              <span class="g-tab-icon"><i data-lucide="message-circle"></i></span>채팅
+            </div>
+            <div class="g-tab">
+              <span class="g-tab-icon"><i data-lucide="user"></i></span>마이
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /보호자 폰 -->
+
+  </div><!-- /frames-row -->
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

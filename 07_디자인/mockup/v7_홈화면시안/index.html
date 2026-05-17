@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 v7 — 홈화면 시안 비교</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard Variable', -apple-system, sans-serif;
+      background: #F5F5F7;
+      color: #1C1C1E;
+      min-height: 100vh;
+    }
+
+    /* 헤더 */
+    .page-header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      background: white;
+      border-bottom: 1px solid #E5E5EA;
+    }
+    .page-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #0891B2;
+      color: white;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .page-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .page-desc {
+      font-size: 16px;
+      color: #8E8E93;
+      font-weight: 400;
+    }
+
+    /* 뷰 모드 토글 */
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px 24px;
+      background: white;
+      border-bottom: 1px solid #E5E5EA;
+    }
+    .view-btn {
+      padding: 8px 20px;
+      border: none;
+      background: #F5F5F7;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #8E8E93;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .view-btn.active {
+      background: #1C1C1E;
+      color: white;
+    }
+
+    /* 그리드 뷰 */
+    .grid-view {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      padding: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* 단일 뷰 */
+    .single-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+      padding: 32px 24px;
+    }
+
+    .mockup-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mockup-label {
+      text-align: center;
+    }
+    .mockup-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .mockup-desc {
+      font-size: 13px;
+      color: #8E8E93;
+      font-weight: 400;
+    }
+
+    .mockup-frame {
+      border: none;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+    .mockup-frame:hover {
+      transform: translateY(-4px);
+    }
+
+    /* 그리드에서는 작게 */
+    .grid-view .mockup-frame {
+      width: 393px;
+      height: 852px;
+      transform: scale(0.52);
+      transform-origin: top center;
+      margin-bottom: -408px;
+    }
+    .grid-view .mockup-frame:hover {
+      transform: scale(0.54);
+    }
+
+    /* 싱글에서는 크게 */
+    .single-view .mockup-frame {
+      width: 393px;
+      height: 852px;
+    }
+
+    /* 풀사이즈 링크 */
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      background: #F5F5F7;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0891B2;
+      text-decoration: none;
+      margin-top: 4px;
+      transition: background 0.2s;
+    }
+    .open-link:hover {
+      background: #E8E8ED;
+    }
+
+    /* 푸터 */
+    .page-footer {
+      text-align: center;
+      padding: 32px;
+      font-size: 13px;
+      color: #8E8E93;
+    }
+
+    @media (max-width: 900px) {
+      .grid-view {
+        grid-template-columns: 1fr;
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="page-tag">v7 Design Exploration</div>
+    <h1 class="page-title">홈화면 시안 비교</h1>
+    <p class="page-desc">보호자용 홈화면 — 4가지 디자인 방향</p>
+  </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="setView('grid')">그리드 보기</button>
+    <button class="view-btn" onclick="setView('single')">하나씩 보기</button>
+  </div>
+
+  <!-- 그리드 뷰 -->
+  <div class="grid-view" id="gridView">
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">A. 감성 히어로 이미지</div>
+        <div class="mockup-desc">풀폭 비주얼 + 그라디언트 오버레이</div>
+      </div>
+      <iframe class="mockup-frame" src="a-hero-image.html"></iframe>
+      <a class="open-link" href="a-hero-image.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">B. 대형 프로그레스 링</div>
+        <div class="mockup-desc">다크 배경 + 글로우 링 + 미니멀</div>
+      </div>
+      <iframe class="mockup-frame" src="b-progress-ring.html"></iframe>
+      <a class="open-link" href="b-progress-ring.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">C. 카드 카루셀</div>
+        <div class="mockup-desc">스와이프 카드 + 시간 컨텍스트</div>
+      </div>
+      <iframe class="mockup-frame" src="c-card-carousel.html"></iframe>
+      <a class="open-link" href="c-card-carousel.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">D. 일러스트/캐릭터</div>
+        <div class="mockup-desc">CSS 캐릭터 + 따뜻한 톤 + 말풍선</div>
+      </div>
+      <iframe class="mockup-frame" src="d-illustration.html"></iframe>
+      <a class="open-link" href="d-illustration.html" target="_blank">↗ 풀사이즈로 보기</a>
+    </div>
+  </div>
+
+  <!-- 싱글 뷰 -->
+  <div class="single-view" id="singleView">
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">A. 감성 히어로 이미지</div>
+        <div class="mockup-desc">풀폭 비주얼 + 그라디언트 오버레이</div>
+      </div>
+      <iframe class="mockup-frame" src="a-hero-image.html"></iframe>
+    </div>
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">B. 대형 프로그레스 링</div>
+        <div class="mockup-desc">다크 배경 + 글로우 링 + 미니멀</div>
+      </div>
+      <iframe class="mockup-frame" src="b-progress-ring.html"></iframe>
+    </div>
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">C. 카드 카루셀</div>
+        <div class="mockup-desc">스와이프 카드 + 시간 컨텍스트</div>
+      </div>
+      <iframe class="mockup-frame" src="c-card-carousel.html"></iframe>
+    </div>
+    <div class="mockup-item">
+      <div class="mockup-label">
+        <div class="mockup-name">D. 일러스트/캐릭터</div>
+        <div class="mockup-desc">CSS 캐릭터 + 따뜻한 톤 + 말풍선</div>
+      </div>
+      <iframe class="mockup-frame" src="d-illustration.html"></iframe>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    하루안부 v7 Design Exploration · 2026.04.07
+  </div>
+
+  <script>
+    function setView(mode) {
+      const grid = document.getElementById('gridView');
+      const single = document.getElementById('singleView');
+      const btns = document.querySelectorAll('.view-btn');
+
+      if (mode === 'grid') {
+        grid.style.display = 'grid';
+        single.style.display = 'none';
+        btns[0].classList.add('active');
+        btns[1].classList.remove('active');
+      } else {
+        grid.style.display = 'none';
+        single.style.display = 'flex';
+        btns[0].classList.remove('active');
+        btns[1].classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

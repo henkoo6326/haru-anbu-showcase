@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 v7 — 제미나이 스타일 홈 (보호자)</title>
+  <link rel="stylesheet" href="../v6_전체화면/common.css">
+  <style>
+    body {
+      background: #FFFFFF;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 120px;
+    }
+
+    /* ─── 상단 네비 ─── */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 56px var(--space-lg) var(--space-lg);
+    }
+    .top-nav-logo {
+      font-size: 18px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .top-nav-logo span { color: var(--guardian); }
+    .top-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .nav-icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #F5F5F7;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      position: relative;
+      transition: background var(--transition-fast);
+    }
+    .nav-icon-btn:active { background: #E5E5EA; }
+    .notif-dot {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--critical);
+      border: 2px solid white;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--guardian), #065F6B);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: var(--weight-bold);
+      color: white;
+    }
+
+    /* ─── Zone 1: 인삿말 ─── */
+    .greeting-zone {
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+    }
+    .greeting-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #F0FDF4;
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--nurse);
+      margin-bottom: var(--space-lg);
+    }
+    .greeting-status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--nurse);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.55; transform: scale(0.82); }
+    }
+    .greeting-main-text {
+      font-size: 30px;
+      font-weight: var(--weight-bold);
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+    .greeting-main-text span { color: var(--guardian); }
+    .greeting-sub-text {
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+
+    /* ─── Zone 2: 퀵 액션 pills ─── */
+    .quick-zone {
+      padding: 0 var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .quick-zone-label {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: var(--space-xs);
+    }
+    .pill-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 16px 20px;
+      background: #F5F5F7;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-family);
+      text-align: left;
+      width: fit-content;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pill-btn:active {
+      transform: scale(0.97);
+      background: #E5E5EA;
+    }
+    .pill-btn--primary {
+      background: var(--guardian);
+      color: white;
+    }
+    .pill-btn--primary:active { background: #065F6B; }
+    .pill-icon { font-size: 20px; flex-shrink: 0; width: 24px; text-align: center; }
+    .pill-text {
+      font-size: var(--text-body-large);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .pill-btn--primary .pill-text { color: white; }
+    .pill-badge {
+      margin-left: 4px;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.25);
+      border-radius: var(--radius-full);
+      font-size: var(--text-mini);
+      font-weight: var(--weight-bold);
+      color: white;
+    }
+
+    /* ─── 구분선 ─── */
+    .divider-zone {
+      margin: var(--space-2xl) var(--space-lg) var(--space-xl);
+      height: 1px;
+      background: var(--divider);
+    }
+
+    /* ─── Zone 3: 환자 상태 카드 ─── */
+    .patient-card {
+      margin: 0 var(--space-lg);
+      background: #F0F9FF;
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      border: 1px solid #BAE6FD;
+    }
+    .patient-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+    }
+    .patient-card-who {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .patient-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--patient), var(--patient-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      font-weight: var(--weight-bold);
+      color: white;
+    }
+    .patient-info-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+    }
+    .patient-info-meta {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .patient-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      background: #DCFCE7;
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--nurse);
+    }
+
+    /* 상태 수치 2열 */
+    .patient-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+    .pstat {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .pstat-label {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .pstat-value {
+      font-size: 20px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .pstat-sub {
+      font-size: var(--text-mini);
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+    .pstat-bar {
+      height: 3px;
+      background: var(--divider);
+      border-radius: 2px;
+      margin-top: var(--space-sm);
+      overflow: hidden;
+    }
+    .pstat-fill { height: 100%; border-radius: 2px; }
+    .pstat-fill--med      { background: var(--patient); width: 33%; }
+    .pstat-fill--schedule { background: var(--guardian); width: 40%; }
+
+    /* AI 요약 한 줄 */
+    .ai-summary-row {
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      background: white;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+    .ai-summary-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--guardian), #0EA5E9);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ai-summary-text {
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+      line-height: var(--line-height-relaxed);
+    }
+    .ai-summary-text b { color: var(--guardian); }
+
+    /* ─── 담당 간호사 ─── */
+    .nurse-row {
+      margin: var(--space-lg) var(--space-lg) 0;
+      background: #F5F5F7;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .nurse-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--nurse), #047857);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: var(--weight-bold);
+      color: white;
+      flex-shrink: 0;
+    }
+    .nurse-info { flex: 1; }
+    .nurse-name {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+    }
+    .nurse-meta {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .nurse-chat-btn {
+      height: 34px;
+      padding: 0 var(--space-lg);
+      background: var(--nurse);
+      color: white;
+      border: none;
+      border-radius: var(--radius-full);
+      font-family: var(--font-family);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ─── AI 입력창 ─── */
+    .ai-input-bar {
+      position: fixed;
+      bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 398px;
+      background: #F5F5F7;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 14px 20px;
+      box-shadow: 0 -1px 0 rgba(0,0,0,0.05), var(--shadow-md);
+      z-index: 50;
+    }
+    .ai-input-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--guardian), #0EA5E9);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ai-input-placeholder {
+      flex: 1;
+      font-size: var(--text-body);
+      color: var(--text-tertiary);
+      font-family: var(--font-family);
+    }
+    .ai-voice-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ─── 탭바 ─── */
+    .tabbar {
+      position: fixed;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      max-width: 430px; width: 100%;
+      height: calc(60px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--divider);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 40;
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      color: var(--text-tertiary);
+      transition: color var(--transition-fast);
+    }
+    .tab.active { color: var(--guardian); }
+    .tab-icon { font-size: 22px; line-height: 1; }
+    .tab-label { font-size: 11px; font-weight: var(--weight-medium); }
+
+    /* ─── AI 리포트 바텀시트 ─── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: var(--z-modal);
+    }
+    .overlay.show { display: flex; }
+    .bottom-sheet {
+      background: white;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: var(--space-xl) var(--space-xl) calc(var(--space-2xl) + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      max-width: 430px;
+    }
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: #E5E5EA;
+      border-radius: 2px;
+      margin: 0 auto var(--space-xl);
+    }
+    .sheet-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: var(--guardian-light);
+      color: var(--guardian);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-md);
+    }
+    .sheet-title {
+      font-size: 22px;
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--space-md);
+    }
+    .report-items {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .report-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      background: #F5F5F7;
+      border-radius: var(--radius-lg);
+    }
+    .report-row-icon {
+      font-size: 20px; flex-shrink: 0;
+    }
+    .report-row-text { flex: 1; }
+    .report-row-label {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .report-row-value {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+    }
+    .report-row-status {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+    .status--good { background: #DCFCE7; color: var(--nurse); }
+    .status--warn { background: #FEF3C7; color: #D97706; }
+    .sheet-cta {
+      width: 100%;
+      padding: 16px;
+      background: var(--guardian);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-family);
+      font-size: 17px;
+      font-weight: var(--weight-bold);
+      cursor: pointer;
+    }
+
+    /* ─── Toast ─── */
+    .toast {
+      position: fixed;
+      top: 80px; left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: #1C1C1E; color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      font-family: var(--font-family);
+      box-shadow: var(--shadow-lg);
+      z-index: var(--z-toast);
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 네비 -->
+  <nav class="top-nav">
+    <div class="top-nav-logo">하루<span>안부</span></div>
+    <div class="top-nav-actions">
+      <a href="#" class="nav-icon-btn" aria-label="알림">
+        <i data-lucide="bell" style="width:20px;height:20px;"></i>
+        <span class="notif-dot"></span>
+      </a>
+      <div class="avatar">예</div>
+    </div>
+  </nav>
+
+  <!-- Zone 1: 인삿말 -->
+  <section class="greeting-zone">
+    <div class="greeting-status-badge">
+      <div class="greeting-status-dot"></div>
+      정희님 오늘 괜찮습니다
+    </div>
+    <h1 class="greeting-main-text">좋은 저녁이에요,<br><span>예찬</span>님</h1>
+    <p class="greeting-sub-text">정희님이 오늘도 잘 지내고 계세요.<br>무엇을 확인하시겠어요?</p>
+  </section>
+
+  <!-- Zone 2: 퀵 액션 pills -->
+  <section class="quick-zone">
+    <div class="quick-zone-label">바로 확인</div>
+
+    <button class="pill-btn pill-btn--primary" onclick="showReportSheet()">
+      <span class="pill-icon">🤖</span>
+      <span class="pill-text">오늘 AI 리포트 보기</span>
+      <span class="pill-badge">NEW</span>
+    </button>
+
+    <button class="pill-btn" onclick="showToast('일정 화면으로 이동합니다')">
+      <span class="pill-icon">📅</span>
+      <span class="pill-text">정희님 오늘 일정</span>
+    </button>
+
+    <button class="pill-btn" onclick="showToast('간호사 채팅을 시작합니다')">
+      <span class="pill-icon">💬</span>
+      <span class="pill-text">간호사에게 연락</span>
+    </button>
+
+    <button class="pill-btn" onclick="showToast('알림 설정 화면으로 이동합니다')">
+      <span class="pill-icon">🔔</span>
+      <span class="pill-text">알림 설정 바꾸기</span>
+    </button>
+  </section>
+
+  <!-- 구분선 -->
+  <div class="divider-zone"></div>
+
+  <!-- Zone 3: 환자 상태 카드 -->
+  <section>
+    <div class="patient-card">
+      <div class="patient-card-header">
+        <div class="patient-card-who">
+          <div class="patient-avatar">정</div>
+          <div>
+            <div class="patient-info-name">정희님</div>
+            <div class="patient-info-meta">요양원 3동 201호 · 담당 김수연 간호사</div>
+          </div>
+        </div>
+        <div class="patient-status-badge">
+          <i data-lucide="check-circle" style="width:13px;height:13px;"></i>
+          괜찮아요
+        </div>
+      </div>
+
+      <div class="patient-stats">
+        <div class="pstat">
+          <div class="pstat-label">투약</div>
+          <div class="pstat-value">1/3</div>
+          <div class="pstat-sub">다음: 오후 6시</div>
+          <div class="pstat-bar"><div class="pstat-fill pstat-fill--med"></div></div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-label">일과</div>
+          <div class="pstat-value">2/5</div>
+          <div class="pstat-sub">산책 예정</div>
+          <div class="pstat-bar"><div class="pstat-fill pstat-fill--schedule"></div></div>
+        </div>
+      </div>
+
+      <div class="ai-summary-row">
+        <div class="ai-summary-icon">
+          <i data-lucide="sparkles" style="width:12px;height:12px;color:white;"></i>
+        </div>
+        <div class="ai-summary-text">
+          오늘 식사는 <b>잘 드셨어요.</b> 점심 투약이 아직 남아 있어요. 전반적으로 <b>안정적인 하루</b>입니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 담당 간호사 -->
+    <div class="nurse-row">
+      <div class="nurse-avatar">김</div>
+      <div class="nurse-info">
+        <div class="nurse-name">김수연 간호사</div>
+        <div class="nurse-meta">오늘 3회 확인 · 마지막 오후 1:20</div>
+      </div>
+      <button class="nurse-chat-btn" onclick="showToast('채팅 화면으로 이동합니다')">
+        <i data-lucide="message-circle" style="width:14px;height:14px;"></i>
+        연락
+      </button>
+    </div>
+  </section>
+
+  <!-- AI 입력창 -->
+  <div class="ai-input-bar">
+    <div class="ai-input-icon">
+      <i data-lucide="sparkles" style="width:16px;height:16px;color:white;"></i>
+    </div>
+    <span class="ai-input-placeholder">정희님에 대해 물어보세요...</span>
+    <button class="ai-voice-btn" aria-label="음성 입력">
+      <i data-lucide="mic" style="width:18px;height:18px;color:var(--guardian);"></i>
+    </button>
+  </div>
+
+  <!-- 탭바 -->
+  <nav class="tabbar">
+    <a href="#" class="tab active">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="#" class="tab">
+      <span class="tab-icon"><i data-lucide="bar-chart-2"></i></span>
+      <span class="tab-label">리포트</span>
+    </a>
+    <a href="#" class="tab">
+      <span class="tab-icon"><i data-lucide="message-circle"></i></span>
+      <span class="tab-label">채팅</span>
+    </a>
+    <a href="#" class="tab">
+      <span class="tab-icon"><i data-lucide="user"></i></span>
+      <span class="tab-label">마이</span>
+    </a>
+  </nav>
+
+  <!-- AI 리포트 바텀시트 -->
+  <div class="overlay" id="reportOverlay" onclick="closeSheet(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-tag">
+        <i data-lucide="sparkles" style="width:13px;height:13px;"></i>
+        AI 일일 리포트
+      </div>
+      <div class="sheet-title">정희님 오늘 하루 요약</div>
+      <div class="report-items">
+        <div class="report-row">
+          <span class="report-row-icon">🍱</span>
+          <div class="report-row-text">
+            <div class="report-row-label">식사</div>
+            <div class="report-row-value">세 끼 모두 드셨어요</div>
+          </div>
+          <span class="report-row-status status--good">양호</span>
+        </div>
+        <div class="report-row">
+          <span class="report-row-icon">💊</span>
+          <div class="report-row-text">
+            <div class="report-row-label">투약</div>
+            <div class="report-row-value">1/3 완료 · 점심 투약 대기</div>
+          </div>
+          <span class="report-row-status status--warn">주의</span>
+        </div>
+        <div class="report-row">
+          <span class="report-row-icon">🚶</span>
+          <div class="report-row-text">
+            <div class="report-row-label">활동</div>
+            <div class="report-row-value">오전 산책 15분 완료</div>
+          </div>
+          <span class="report-row-status status--good">양호</span>
+        </div>
+        <div class="report-row">
+          <span class="report-row-icon">😊</span>
+          <div class="report-row-text">
+            <div class="report-row-label">기분</div>
+            <div class="report-row-value">오전에 밝으셨어요</div>
+          </div>
+          <span class="report-row-status status--good">양호</span>
+        </div>
+      </div>
+      <button class="sheet-cta" onclick="closeSheet(); showToast('전체 리포트 페이지로 이동합니다')">전체 리포트 보기</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    /* ─ 시간대별 인삿말 ─ */
+    (function() {
+      const h = new Date().getHours();
+      const main = document.querySelector('.greeting-main-text');
+      const sub  = document.querySelector('.greeting-sub-text');
+      const badge = document.querySelector('.greeting-status-badge');
+
+      if (h >= 5 && h < 11) {
+        main.innerHTML = '좋은 아침이에요,<br><span>예찬</span>님';
+        sub.innerHTML  = '정희님 아침 식사 잘 드셨어요.<br>오늘 하루도 안심하세요.';
+        badge.innerHTML = '<div class="greeting-status-dot"></div>정희님 아침 식사 완료';
+      } else if (h >= 11 && h < 14) {
+        main.innerHTML = '점심시간이에요,<br><span>예찬</span>님';
+        sub.innerHTML  = '정희님 점심 투약이 곧 있어요.<br>간호사님이 챙기고 있어요.';
+        badge.innerHTML = '<div class="greeting-status-dot"></div>점심 투약 예정';
+      } else if (h >= 14 && h < 18) {
+        main.innerHTML = '좋은 오후예요,<br><span>예찬</span>님';
+        sub.innerHTML  = '정희님 오후 일과가 진행 중이에요.<br>오늘도 잘 지내고 계세요.';
+        badge.innerHTML = '<div class="greeting-status-dot"></div>정희님 오늘 괜찮습니다';
+      } else if (h >= 18 && h < 22) {
+        main.innerHTML = '좋은 저녁이에요,<br><span>예찬</span>님';
+        sub.innerHTML  = '정희님이 오늘도 잘 지내고 계세요.<br>무엇을 확인하시겠어요?';
+        badge.innerHTML = '<div class="greeting-status-dot"></div>정희님 오늘 괜찮습니다';
+      } else {
+        main.innerHTML = '편안한 밤이에요,<br><span>예찬</span>님';
+        sub.innerHTML  = '정희님 저녁 일과가 모두 완료됐어요.<br>오늘도 수고하셨어요.';
+        badge.innerHTML = '<div class="greeting-status-dot"></div>정희님 취침 준비 중';
+      }
+    })();
+
+    /* ─ 리포트 바텀시트 ─ */
+    function showReportSheet() {
+      document.getElementById('reportOverlay').classList.add('show');
+    }
+    function closeSheet(e) {
+      if (!e || e.target === document.getElementById('reportOverlay')) {
+        document.getElementById('reportOverlay').classList.remove('show');
+      }
+    }
+
+    /* ─ Toast ─ */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+  </script>
+</body>
+</html>

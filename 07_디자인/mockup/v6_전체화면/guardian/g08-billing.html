@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="guardian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 결제 / 청구</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body { background:transparent; max-width:430px; padding-top:calc(max(env(safe-area-inset-top, 0px), 44px) + 12px); margin:0 auto; min-height:100vh; padding-bottom:calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px + 68px + 16px); }
+    .content { padding:0 var(--space-lg); position: relative; z-index: 1; }
+    .page-title { font-size:var(--text-title); font-weight:var(--weight-bold); padding:var(--space-xs) 0 var(--space-md); }
+
+    /* ══ 총액 카드 ══ */
+    .total-card {
+      background: var(--bg);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      margin-top: var(--space-lg);
+    }
+    .total-label {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+    .total-amount {
+      font-size: 36px;
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+    .total-period-row {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      flex-wrap: wrap;
+    }
+    .total-period {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+    .dday-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 8px;
+      background: rgba(44,122,252,0.10);
+      border: 0.5px solid rgba(44,122,252,0.28);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      color: #1e6ce8;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .total-status {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      margin-top: var(--space-md);
+      padding: 6px var(--space-md);
+      background: #FFF3E0;
+      color: #E65100;
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* ══ 납부하기 버튼 ══ */
+    .btn-pay {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-top: var(--space-lg);
+      padding: 14px 0;
+      background: linear-gradient(135deg, rgba(44,122,252,0.90) 0%, rgba(56,189,248,0.85) 100%);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.40) inset, 0 4px 16px rgba(44,122,252,0.30);
+      border-radius: var(--radius-full);
+      color: #fff;
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      position: relative; z-index: 1;
+    }
+    .btn-pay:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(44,122,252,0.20); }
+
+    /* ══ 청구 내역 카드 ══ */
+    .breakdown-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md) 0;
+      font-size: var(--text-callout);
+    }
+    .breakdown-row + .breakdown-row {
+      border-top: 1px solid var(--divider);
+    }
+    .breakdown-label { color: var(--text-secondary); }
+    .breakdown-value { font-weight: var(--weight-semibold); }
+    .breakdown-total {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+    }
+
+    /* ══ 장기요양보험 카드 ══ */
+    .insurance-card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      overflow: hidden; position: relative;
+    }
+    .insurance-card::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+    .insurance-grade {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: rgba(44,122,252,0.12);
+      border: 0.5px solid rgba(44,122,252,0.25);
+      border-radius: var(--radius-full);
+      font-size: 12px; font-weight: var(--weight-semibold);
+      color: #1e6ce8;
+      margin-bottom: var(--space-md);
+      position: relative; z-index: 1;
+    }
+    .insurance-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0;
+      position: relative; z-index: 1;
+    }
+    .insurance-row + .insurance-row {
+      border-top: 0.5px solid rgba(255,255,255,0.28);
+    }
+    .insurance-row-label {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+    }
+    .insurance-row-value {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+    }
+    .insurance-row-value.deduct {
+      color: #2ca87f;
+    }
+    .insurance-divider {
+      height: 0.5px;
+      background: rgba(44,122,252,0.30);
+      margin: 4px 0;
+      position: relative; z-index: 1;
+    }
+    .insurance-row.total .insurance-row-label,
+    .insurance-row.total .insurance-row-value {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+    }
+
+    /* ══ 월별 추이 카드 ══ */
+    /* ══ 월별 추이 카드 ══ */
+    .trend-card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      overflow: hidden; position: relative;
+    }
+    .trend-card::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+    /* 요약 통계 */
+    .trend-stats {
+      display: flex; gap: 0;
+      margin-bottom: var(--space-lg);
+      position: relative; z-index: 1;
+    }
+    .trend-stat {
+      flex: 1; text-align: center;
+      padding: 10px 0;
+      border-right: 0.5px solid rgba(255,255,255,0.35);
+    }
+    .trend-stat:last-child { border-right: none; }
+    .trend-stat-label {
+      font-size: 10px; color: var(--text-secondary);
+      font-weight: var(--weight-medium); margin-bottom: 3px;
+    }
+    .trend-stat-value {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+    }
+    .trend-stat-value.up { color: #e65100; }
+    .trend-stat-value.primary { color: #1e6ce8; }
+    /* 차트 영역 */
+    .trend-chart-wrap {
+      position: relative; z-index: 1;
+      margin-bottom: var(--space-md);
+    }
+    /* 그리드라인 */
+    .trend-grid {
+      position: absolute; inset: 0 0 24px 0;
+      display: flex; flex-direction: column; justify-content: space-between;
+      pointer-events: none;
+    }
+    .trend-grid-line {
+      width: 100%; height: 0.5px;
+      background: rgba(44,122,252,0.12);
+    }
+    .trend-chart {
+      display: flex; align-items: flex-end; gap: 6px;
+      height: 150px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+    .trend-col {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0;
+      height: 100%; justify-content: flex-end;
+    }
+    .trend-value {
+      font-size: 9px; font-weight: var(--weight-bold);
+      color: var(--text-secondary);
+      margin-bottom: 4px; white-space: nowrap;
+      line-height: 1;
+    }
+    .trend-value.current { color: #1e6ce8; }
+    .trend-bar-wrap {
+      width: 100%; position: relative;
+    }
+    .trend-bar {
+      width: 100%; border-radius: 5px 5px 2px 2px;
+      background: rgba(44,122,252,0.13);
+      border: 0.5px solid rgba(44,122,252,0.22);
+      transform-origin: bottom;
+      animation: barRise 0.7s cubic-bezier(0.34,1.3,0.64,1) both;
+    }
+    .trend-bar.current {
+      background: linear-gradient(180deg, #2c7afc 0%, #60A5FA 100%);
+      border-color: rgba(44,122,252,0.50);
+      box-shadow: 0 6px 20px rgba(44,122,252,0.40), 0 2px 6px rgba(44,122,252,0.25);
+    }
+    @keyframes barRise {
+      from { transform: scaleY(0); }
+      to   { transform: scaleY(1); }
+    }
+    .trend-col:nth-child(1) .trend-bar { animation-delay: 0.00s; }
+    .trend-col:nth-child(2) .trend-bar { animation-delay: 0.06s; }
+    .trend-col:nth-child(3) .trend-bar { animation-delay: 0.12s; }
+    .trend-col:nth-child(4) .trend-bar { animation-delay: 0.18s; }
+    .trend-col:nth-child(5) .trend-bar { animation-delay: 0.24s; }
+    .trend-col:nth-child(6) .trend-bar { animation-delay: 0.30s; }
+    .trend-month {
+      font-size: 10px; color: var(--text-secondary);
+      font-weight: var(--weight-medium);
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      white-space: nowrap;
+    }
+    .trend-month.current { color: #1e6ce8; font-weight: var(--weight-bold); }
+    /* AI 코멘트 */
+    .trend-ai-comment {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.18);
+      border: 0.5px solid rgba(255,255,255,0.40);
+      border-radius: var(--radius-md);
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      line-height: 1.45;
+      position: relative; z-index: 1;
+    }
+    .trend-ai-comment .ai-dot {
+      width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #2c7afc, #38bdf8);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* ══ AI 인사이트 카드 ══ */
+    .ai-insight-card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      overflow: hidden; position: relative;
+      background: linear-gradient(135deg,
+        rgba(44,122,252,0.18) 0%,
+        rgba(99,102,241,0.12) 50%,
+        rgba(56,189,248,0.10) 100%) !important;
+      border: 0.5px solid rgba(44,122,252,0.35) !important;
+    }
+    .ai-insight-card::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    .ai-insight-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: var(--space-md);
+      position: relative; z-index: 1;
+    }
+    .ai-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, rgba(44,122,252,0.25), rgba(99,102,241,0.20));
+      border: 0.5px solid rgba(44,122,252,0.35);
+      border-radius: var(--radius-full);
+      font-size: 11px; font-weight: var(--weight-bold);
+      color: #1e6ce8;
+    }
+    .ai-insight-body {
+      font-size: var(--text-callout);
+      color: var(--text-primary);
+      line-height: 1.55;
+      position: relative; z-index: 1;
+    }
+    .ai-insight-body strong {
+      color: #1e6ce8;
+      font-weight: var(--weight-semibold);
+    }
+    .ai-insight-items {
+      margin-top: var(--space-md);
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative; z-index: 1;
+    }
+    .ai-insight-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .ai-insight-item .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #2c7afc; flex-shrink: 0; margin-top: 5px;
+    }
+    .btn-ask-ai {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; margin-top: var(--space-md);
+      padding: 11px 0;
+      background: rgba(44,122,252,0.12);
+      border: 0.5px solid rgba(44,122,252,0.35);
+      border-radius: var(--radius-full);
+      color: #1e6ce8;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.18s ease;
+      position: relative; z-index: 1;
+    }
+    .btn-ask-ai:active { transform: scale(0.97); }
+
+    /* ══ AI 맞춤 지원 혜택 ══ */
+    .benefit-intro {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.18);
+      border: 0.5px solid rgba(255,255,255,0.45);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .benefit-intro .ai-dot {
+      width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #2c7afc, #38bdf8);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .benefit-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .benefit-item {
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      overflow: hidden; position: relative;
+    }
+    .benefit-item::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.20) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    .benefit-item-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+      position: relative; z-index: 1;
+    }
+    .benefit-status {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      font-size: 11px; font-weight: var(--weight-semibold);
+    }
+    .benefit-status.applied {
+      background: rgba(16,185,129,0.10);
+      border: 0.5px solid rgba(16,185,129,0.30);
+      color: #059669;
+    }
+    .benefit-status.recommend {
+      background: rgba(44,122,252,0.10);
+      border: 0.5px solid rgba(44,122,252,0.28);
+      color: #1e6ce8;
+    }
+    .benefit-status.check {
+      background: rgba(245,158,11,0.10);
+      border: 0.5px solid rgba(245,158,11,0.28);
+      color: #b45309;
+    }
+    .benefit-savings-pill {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px;
+      background: rgba(44,122,252,0.08);
+      border: 0.5px solid rgba(44,122,252,0.20);
+      border-radius: var(--radius-full);
+      font-size: 11px; font-weight: var(--weight-semibold);
+      color: #1e6ce8;
+    }
+    .benefit-savings-pill.green {
+      background: rgba(16,185,129,0.08);
+      border-color: rgba(16,185,129,0.22);
+      color: #059669;
+    }
+    .benefit-title {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      position: relative; z-index: 1;
+    }
+    .benefit-desc {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .benefit-actions {
+      display: flex; gap: 8px;
+      position: relative; z-index: 1;
+    }
+    .btn-apply-sm {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, rgba(44,122,252,0.85), rgba(56,189,248,0.80));
+      border: 0.5px solid rgba(255,255,255,0.45);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 3px 10px rgba(44,122,252,0.22);
+      border-radius: var(--radius-full);
+      color: #fff; font-size: var(--text-caption); font-weight: var(--weight-semibold);
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.18s ease;
+    }
+    .btn-apply-sm:active { transform: scale(0.96); }
+    .btn-check-sm {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px;
+      background: rgba(245,158,11,0.10);
+      border: 0.5px solid rgba(245,158,11,0.32);
+      border-radius: var(--radius-full);
+      color: #b45309; font-size: var(--text-caption); font-weight: var(--weight-semibold);
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.18s ease;
+    }
+    .btn-check-sm:active { transform: scale(0.96); }
+    .btn-ask-benefit {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; margin-top: var(--space-md);
+      padding: 12px 0;
+      background: rgba(44,122,252,0.10);
+      border: 0.5px solid rgba(44,122,252,0.30);
+      border-radius: var(--radius-full);
+      color: #1e6ce8; font-size: var(--text-caption); font-weight: var(--weight-semibold);
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.18s ease;
+    }
+    .btn-ask-benefit:active { transform: scale(0.97); }
+
+    /* ══ 청구서 발급 버튼 ══ */
+    .receipt-section {
+      display: flex; gap: var(--space-sm);
+    }
+    .btn-receipt {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 13px 0;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.60);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.70) inset, 0 2px 8px rgba(0,0,0,0.06);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.18s ease;
+    }
+    .btn-receipt:active { transform: scale(0.97); }
+    .btn-receipt .btn-sub {
+      font-size: 10px; color: var(--text-secondary); font-weight: var(--weight-regular);
+      display: block; margin-top: 1px; text-align: center;
+    }
+    .btn-receipt-inner { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+    /* ══ 납부 이력 ══ */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .history-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .history-info { flex: 1; }
+    .history-label { font-size: var(--text-callout); font-weight: var(--weight-medium); }
+    .history-date { font-size: var(--text-mini); color: var(--text-secondary); margin-top: 1px; }
+    .history-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;
+    }
+    .history-amount {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-bold);
+    }
+    .history-receipt-btn {
+      font-size: 10px; color: rgba(44,122,252,0.80);
+      font-weight: var(--weight-medium);
+      cursor: pointer; white-space: nowrap;
+    }
+    /* 더보기 */
+    .history-more {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .history-more.open { max-height: 600px; }
+    .btn-more {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; margin-top: var(--space-sm);
+      padding: 12px 0;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.65) inset, 0 2px 8px rgba(0,0,0,0.05);
+      border-radius: var(--radius-full);
+      color: var(--text-secondary);
+      font-size: var(--text-caption); font-weight: var(--weight-semibold);
+      cursor: pointer; background: none; border: none;
+      width: 100%;
+    }
+    .btn-more-wrap {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 0;
+      background: rgba(44,122,252,0.07);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(44,122,252,0.22);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.65) inset, 0 2px 8px rgba(0,0,0,0.04);
+      border-radius: var(--radius-full);
+      color: rgba(44,122,252,0.80);
+      font-size: var(--text-caption); font-weight: var(--weight-semibold);
+      cursor: pointer;
+      margin-top: var(--space-sm);
+      transition: transform 0.18s ease;
+    }
+    .btn-more-wrap:active { transform: scale(0.97); }
+    .btn-more-chevron {
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-more-wrap.open .btn-more-chevron { transform: rotate(180deg); }
+
+    /* ══════════════════════════════
+       Glassmorphism — 홈화면 통일
+    ══════════════════════════════ */
+    html { background: #EEF5FF; }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.55)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.48)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.42)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.38)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC;
+      pointer-events: none;
+    }
+    .header {
+      position: fixed !important; top: 0 !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: 100% !important; max-width: 430px !important;
+      z-index: 10 !important; height: auto !important;
+      padding-top: max(env(safe-area-inset-top, 0px), 44px) !important;
+      padding-bottom: 12px !important;
+      padding-left: 16px !important; padding-right: 16px !important;
+      display: flex !important; align-items: center !important; justify-content: space-between !important;
+      background: rgba(255,255,255,0.04) !important;
+      backdrop-filter: blur(40px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(160%) !important;
+      border-bottom: 0.5px solid rgba(255,255,255,0.18) !important;
+      box-shadow: none !important;
+    }
+    .tabbar {
+      position: fixed !important;
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 20px) + 12px) !important;
+      left: 50% !important; transform: translateX(-50%) !important;
+      width: calc(100% - 32px) !important; max-width: 398px !important;
+      height: 68px !important; padding: 0 2px !important; padding-bottom: 0 !important;
+      border-top: none !important; border-radius: 999px !important;
+      background: rgba(255,255,255,0.07) !important;
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10) !important;
+      border: 0.5px solid rgba(255,255,255,0.55) !important;
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 -0.5px 0.5px rgba(255,255,255,0.25) inset, 0 4px 16px rgba(0,0,0,0.08) !important;
+      align-items: stretch !important; right: auto !important; gap: 0 !important; z-index: 40 !important;
+    }
+    .tab {
+      flex-direction: column !important; gap: 2px !important;
+      padding: 8px 4px !important; border-radius: 999px !important;
+      font-size: 0.75rem !important; font-weight: 500 !important;
+      color: rgba(28,28,30,0.45) !important;
+    }
+    .tab.active { background: rgba(255,255,255,0.22) !important; color: #1C1C1E !important; }
+
+    /* Glass 카드 공통 */
+    .total-card, .breakdown-card, .insurance-card, .trend-card, .ai-insight-card, .history-item, .btn-receipt, .benefit-item {
+      background: rgba(255,255,255,0.26) !important;
+      backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.06) !important;
+      border: 0.5px solid rgba(255,255,255,0.70) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
+    }
+    /* AI 인사이트만 덮어쓰기 */
+    .ai-insight-card {
+      background: linear-gradient(135deg,
+        rgba(44,122,252,0.16) 0%,
+        rgba(99,102,241,0.10) 50%,
+        rgba(56,189,248,0.09) 100%) !important;
+      border: 0.5px solid rgba(44,122,252,0.32) !important;
+    }
+    .breakdown-row + .breakdown-row { border-top: 0.5px solid rgba(255,255,255,0.28) !important; }
+    .insurance-row + .insurance-row { border-top: 0.5px solid rgba(255,255,255,0.28); }
+    .total-card, .breakdown-card, .insurance-card, .trend-card, .ai-insight-card {
+      position: relative; overflow: hidden;
+    }
+    .total-card::before, .breakdown-card::before, .insurance-card::before, .trend-card::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    .total-status {
+      background: rgba(230,81,0,0.08) !important;
+      border: 0.5px solid rgba(230,81,0,0.22) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+    }
+    .history-icon {
+      background: rgba(255,255,255,0.18) !important;
+      border: 0.5px solid rgba(255,255,255,0.45) !important;
+      backdrop-filter: blur(40px) !important;
+      -webkit-backdrop-filter: blur(40px) !important;
+    }
+    .btn-icon {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      -webkit-backdrop-filter: blur(72px) saturate(190%) brightness(1.10);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 1px rgba(255,255,255,0.6) inset, 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.18s ease;
+      color: rgba(28,28,30,0.7);
+      text-decoration: none; font-size: 22px; font-weight: 300;
+    }
+    .btn-icon:active { transform: scale(0.94); }
+
+    /* 내부 콘텐츠 z-index */
+    .total-card > *, .breakdown-card > *, .insurance-card > * { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h2 class="page-title">결제 / 청구</h2>
+
+    <!-- ① 이번 달 총액 + 납부하기 버튼 -->
+    <div class="section">
+      <div class="total-card">
+        <div class="total-label">이번 달 청구 금액</div>
+        <div class="total-amount">1,200,000원</div>
+        <div class="total-period-row">
+          <span class="total-period">2026년 4월 1일 ~ 4월 30일</span>
+          <span class="dday-badge"><i data-lucide="calendar" style="width:11px;height:11px;"></i> D-12</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:var(--space-md);">
+          <span class="total-status"><i data-lucide="clock" style="width:14px;height:14px;"></i> 납부 예정</span>
+          <span style="font-size:var(--text-caption);color:var(--text-secondary);">마감 4월 25일</span>
+        </div>
+        <a href="#" class="btn-pay" role="button" aria-label="이번 달 결제하기">
+          <i data-lucide="credit-card" style="width:18px;height:18px;"></i>
+          납부하기 · 1,200,000원
+        </a>
+      </div>
+    </div>
+
+    <!-- ② 장기요양보험 적용 현황 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">장기요양보험 적용 현황</h2></div>
+      <div class="insurance-card">
+        <div class="insurance-grade">
+          <i data-lucide="shield-check" style="width:13px;height:13px;"></i>
+          요양 3등급 · 본인부담률 20%
+        </div>
+        <div class="insurance-row">
+          <span class="insurance-row-label">전체 서비스 비용</span>
+          <span class="insurance-row-value">1,500,000원</span>
+        </div>
+        <div class="insurance-row">
+          <span class="insurance-row-label">장기요양보험 적용</span>
+          <span class="insurance-row-value deduct">− 300,000원</span>
+        </div>
+        <div class="insurance-divider"></div>
+        <div class="insurance-row total">
+          <span class="insurance-row-label">실 청구 금액</span>
+          <span class="insurance-row-value">1,200,000원</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 청구 내역 (기존 유지) -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">청구 내역</h2></div>
+      <div class="breakdown-card">
+        <div class="breakdown-row">
+          <span class="breakdown-label">요양 서비스 이용료</span>
+          <span class="breakdown-value">800,000원</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">식비</span>
+          <span class="breakdown-value">180,000원</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">간병비</span>
+          <span class="breakdown-value">150,000원</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">기타 (약품비 등)</span>
+          <span class="breakdown-value">70,000원</span>
+        </div>
+        <div class="breakdown-row" style="border-top:1px solid rgba(44,122,252,0.30) !important;">
+          <span class="breakdown-total">합계</span>
+          <span class="breakdown-total">1,200,000원</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 월별 비용 추이 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">월별 비용 추이</h2></div>
+      <div class="trend-card">
+
+        <!-- 요약 통계 3칸 -->
+        <div class="trend-stats">
+          <div class="trend-stat">
+            <div class="trend-stat-label">6개월 평균</div>
+            <div class="trend-stat-value">115.8만</div>
+          </div>
+          <div class="trend-stat">
+            <div class="trend-stat-label">최저</div>
+            <div class="trend-stat-value">110만</div>
+          </div>
+          <div class="trend-stat">
+            <div class="trend-stat-label">전월 대비</div>
+            <div class="trend-stat-value up">▲ 5만</div>
+          </div>
+        </div>
+
+        <!-- 바 차트 -->
+        <div class="trend-chart-wrap">
+          <!-- 그리드라인 3개 -->
+          <div class="trend-grid">
+            <div class="trend-grid-line"></div>
+            <div class="trend-grid-line"></div>
+            <div class="trend-grid-line"></div>
+          </div>
+          <div class="trend-chart" aria-label="최근 6개월 비용 막대 그래프">
+            <div class="trend-col">
+              <span class="trend-value">110만</span>
+              <div class="trend-bar-wrap" style="height:101px;"><div class="trend-bar" style="height:100%;"></div></div>
+              <span class="trend-month">11월</span>
+            </div>
+            <div class="trend-col">
+              <span class="trend-value">118만</span>
+              <div class="trend-bar-wrap" style="height:108px;"><div class="trend-bar" style="height:100%;"></div></div>
+              <span class="trend-month">12월</span>
+            </div>
+            <div class="trend-col">
+              <span class="trend-value">118만</span>
+              <div class="trend-bar-wrap" style="height:108px;"><div class="trend-bar" style="height:100%;"></div></div>
+              <span class="trend-month">1월</span>
+            </div>
+            <div class="trend-col">
+              <span class="trend-value">115만</span>
+              <div class="trend-bar-wrap" style="height:105px;"><div class="trend-bar" style="height:100%;"></div></div>
+              <span class="trend-month">2월</span>
+            </div>
+            <div class="trend-col">
+              <span class="trend-value">115만</span>
+              <div class="trend-bar-wrap" style="height:105px;"><div class="trend-bar" style="height:100%;"></div></div>
+              <span class="trend-month">3월</span>
+            </div>
+            <div class="trend-col">
+              <span class="trend-value current">120만</span>
+              <div class="trend-bar-wrap" style="height:116px;"><div class="trend-bar current" style="height:100%;"></div></div>
+              <span class="trend-month current">4월</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI 코멘트 -->
+        <div class="trend-ai-comment">
+          <div class="ai-dot"><img src="../../logo/haru.svg" style="width:10px;height:10px;display:block;filter:brightness(0) invert(1);"></div>
+          <span>지난달 대비 <strong style="color:#1e6ce8">50,000원 증가</strong>했어요. 약품비 항목이 20,000원, 식비가 30,000원 소폭 늘었습니다.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ AI 비용 인사이트 -->
+    <div class="section">
+      <div class="ai-insight-card">
+        <div class="ai-insight-header">
+          <div class="ai-badge"><img src="../../logo/haru.svg" style="width:12px;height:12px;display:inline-block;vertical-align:middle;flex-shrink:0;"> AI 비용 인사이트</div>
+        </div>
+        <div class="ai-insight-body">
+          이달 전체 비용 중 <strong>요양 서비스(67%)</strong>가 가장 큰 비중을 차지해요.
+        </div>
+        <div class="ai-insight-items">
+          <div class="ai-insight-item">
+            <div class="dot"></div>
+            <span>간병비는 지난 3개월 <strong style="color:#2ca87f">0% 유지</strong> — 건강 상태 안정적이에요.</span>
+          </div>
+          <div class="ai-insight-item">
+            <div class="dot"></div>
+            <span>식비 증가는 영양보충식 추가 처방에 따른 것으로 보여요.</span>
+          </div>
+          <div class="ai-insight-item">
+            <div class="dot"></div>
+            <span>연말정산 의료비 공제 대상 금액: <strong style="color:#1e6ce8">누계 4,680,000원</strong></span>
+          </div>
+        </div>
+        <a href="g04-ai-guide.html" class="btn-ask-ai" aria-label="AI에게 비용 질문하기">
+          <i data-lucide="message-circle" style="width:15px;height:15px;"></i>
+          AI에게 비용 더 물어보기
+        </a>
+      </div>
+    </div>
+
+    <!-- ⑥ AI 맞춤 지원 혜택 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">AI 맞춤 지원 혜택</h2></div>
+
+      <div class="benefit-intro">
+        <div class="ai-dot"><img src="../../logo/haru.svg" style="width:10px;height:10px;display:block;filter:brightness(0) invert(1);"></div>
+        <span>손정희님(78세, 요양 3등급) 정보를 기반으로 받을 수 있는 혜택을 찾았어요.</span>
+      </div>
+
+      <div class="benefit-list">
+
+        <!-- 적용 중 -->
+        <div class="benefit-item">
+          <div class="benefit-item-top">
+            <span class="benefit-status applied"><i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> 적용 중</span>
+            <span class="benefit-savings-pill green">월 −300,000원</span>
+          </div>
+          <div class="benefit-title">장기요양보험 급여</div>
+          <div class="benefit-desc">국민건강보험 장기요양보험이 이미 적용돼 전체 비용의 80%를 보장받고 있어요.</div>
+        </div>
+
+        <!-- 신청 추천 1 -->
+        <div class="benefit-item">
+          <div class="benefit-item-top">
+            <span class="benefit-status recommend"><i data-lucide="star" style="width:12px;height:12px;"></i> 신청 추천</span>
+            <span class="benefit-savings-pill">연 최대 −840,000원</span>
+          </div>
+          <div class="benefit-title">의료비 본인부담 상한제</div>
+          <div class="benefit-desc">건강보험 연간 의료비가 소득 분위별 상한액을 초과하면 초과분을 전액 환급받을 수 있어요. 신청 없이 건강보험공단에서 자동 통보하지만 미수령 환급금이 있을 수 있어요.</div>
+          <div class="benefit-actions">
+            <a href="#" class="btn-apply-sm"><i data-lucide="external-link" style="width:13px;height:13px;"></i> 환급금 조회</a>
+          </div>
+        </div>
+
+        <!-- 신청 추천 2 -->
+        <div class="benefit-item">
+          <div class="benefit-item-top">
+            <span class="benefit-status recommend"><i data-lucide="star" style="width:12px;height:12px;"></i> 신청 추천</span>
+            <span class="benefit-savings-pill">월 최대 −30,000원</span>
+          </div>
+          <div class="benefit-title">치매 치료 관리비 지원</div>
+          <div class="benefit-desc">치매 진단을 받고 치료약을 처방받고 있다면 보건소에 신청해 월 최대 3만원을 지원받을 수 있어요. 치매안심센터에서 신청 가능해요.</div>
+          <div class="benefit-actions">
+            <a href="#" class="btn-apply-sm"><i data-lucide="external-link" style="width:13px;height:13px;"></i> 신청하기</a>
+          </div>
+        </div>
+
+        <!-- 확인 필요 -->
+        <div class="benefit-item">
+          <div class="benefit-item-top">
+            <span class="benefit-status check"><i data-lucide="help-circle" style="width:12px;height:12px;"></i> 확인 필요</span>
+          </div>
+          <div class="benefit-title">노인 틀니·임플란트 급여</div>
+          <div class="benefit-desc">만 65세 이상은 틀니·임플란트 건강보험 적용으로 최대 30~50% 절감 가능해요. 구강 상태 확인 후 대상 여부를 파악해보세요.</div>
+          <div class="benefit-actions">
+            <a href="#" class="btn-check-sm"><i data-lucide="search" style="width:13px;height:13px;"></i> 확인하기</a>
+          </div>
+        </div>
+
+      </div>
+
+      <a href="g04-ai-guide.html" class="btn-ask-benefit">
+        <img src="../../logo/haru.svg" style="width:15px;height:15px;display:inline-block;vertical-align:middle;flex-shrink:0;">
+        AI에게 지원 혜택 더 물어보기
+      </a>
+    </div>
+
+    <!-- ⑦ 청구서 발급 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">청구서 발급</h2></div>
+      <div class="receipt-section">
+        <a href="#" class="btn-receipt" role="button" aria-label="청구서 PDF 다운로드">
+          <div class="btn-receipt-inner">
+            <i data-lucide="file-down" style="width:20px;height:20px;color:var(--primary)"></i>
+            <span>청구서 PDF</span>
+            <span class="btn-sub">이번 달 · 4월</span>
+          </div>
+        </a>
+        <a href="#" class="btn-receipt" role="button" aria-label="의료비 영수증 발급 (연말정산용)">
+          <div class="btn-receipt-inner">
+            <i data-lucide="receipt" style="width:20px;height:20px;color:var(--primary)"></i>
+            <span>의료비 영수증</span>
+            <span class="btn-sub">연말정산 공제용</span>
+          </div>
+        </a>
+        <a href="#" class="btn-receipt" role="button" aria-label="세금계산서 발급">
+          <div class="btn-receipt-inner">
+            <i data-lucide="landmark" style="width:20px;height:20px;color:var(--primary)"></i>
+            <span>세금계산서</span>
+            <span class="btn-sub">사업자용</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ⑧ 납부 이력 -->
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">납부 이력</h2></div>
+
+      <!-- 기본 노출 3개월 -->
+      <div class="history-item">
+        <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+        <div class="history-info">
+          <div class="history-label">3월 청구</div>
+          <div class="history-date">2026.03.28 납부 완료</div>
+        </div>
+        <div class="history-right">
+          <span class="history-amount">1,150,000원</span>
+          <span class="history-receipt-btn">영수증 보기</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+        <div class="history-info">
+          <div class="history-label">2월 청구</div>
+          <div class="history-date">2026.02.27 납부 완료</div>
+        </div>
+        <div class="history-right">
+          <span class="history-amount">1,150,000원</span>
+          <span class="history-receipt-btn">영수증 보기</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+        <div class="history-info">
+          <div class="history-label">1월 청구</div>
+          <div class="history-date">2026.01.28 납부 완료</div>
+        </div>
+        <div class="history-right">
+          <span class="history-amount">1,180,000원</span>
+          <span class="history-receipt-btn">영수증 보기</span>
+        </div>
+      </div>
+
+      <!-- 더보기로 펼쳐지는 추가 이력 -->
+      <div class="history-more" id="historyMore">
+        <div class="history-item" style="margin-top:var(--space-sm)">
+          <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+          <div class="history-info">
+            <div class="history-label">12월 청구</div>
+            <div class="history-date">2025.12.26 납부 완료</div>
+          </div>
+          <div class="history-right">
+            <span class="history-amount">1,180,000원</span>
+            <span class="history-receipt-btn">영수증 보기</span>
+          </div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+          <div class="history-info">
+            <div class="history-label">11월 청구</div>
+            <div class="history-date">2025.11.27 납부 완료</div>
+          </div>
+          <div class="history-right">
+            <span class="history-amount">1,100,000원</span>
+            <span class="history-receipt-btn">영수증 보기</span>
+          </div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon"><i data-lucide="check-circle" style="width:20px;height:20px;color:var(--success)"></i></div>
+          <div class="history-info">
+            <div class="history-label">10월 청구</div>
+            <div class="history-date">2025.10.28 납부 완료</div>
+          </div>
+          <div class="history-right">
+            <span class="history-amount">1,100,000원</span>
+            <span class="history-receipt-btn">영수증 보기</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 더보기 버튼 -->
+      <div class="btn-more-wrap" id="historyMoreBtn" onclick="toggleHistory()" role="button" aria-expanded="false">
+        <span id="historyMoreLabel">이전 내역 더보기</span>
+        <i data-lucide="chevron-down" class="btn-more-chevron" id="historyMoreChevron" style="width:16px;height:16px;"></i>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="tabbar" role="navigation" aria-label="메인 내비게이션">
+    <a href="../../v7_홈화면시안/g-guardian-live.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home" style="width:20px;height:20px;"></i></span>
+      <span>홈</span>
+    </a>
+    <a href="g03-chat.html" class="tab">
+      <span class="tab-icon"><i data-lucide="message-circle" style="width:20px;height:20px;"></i></span>
+      <span>채팅</span>
+    </a>
+    <a href="g02-ai-report.html" class="tab">
+      <span class="tab-icon"><i data-lucide="clipboard-list" style="width:20px;height:20px;"></i></span>
+      <span>기록</span>
+    </a>
+    <a href="g08-billing.html" class="tab active" aria-current="page">
+      <span class="tab-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></span>
+      <span>결제</span>
+    </a>
+    <a href="g05-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="user" style="width:20px;height:20px;"></i></span>
+      <span>마이</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function toggleHistory() {
+      const more = document.getElementById('historyMore');
+      const btn  = document.getElementById('historyMoreBtn');
+      const label = document.getElementById('historyMoreLabel');
+      const open = more.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      label.textContent = open ? '접기' : '이전 내역 더보기';
+    }
+  </script>
+  <div class="ios-home-indicator"></div>
+</body>
+</html>

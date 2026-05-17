@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — 기본 정보</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    html { background: #EEF5FF; }
+
+    #bg-gradient {
+      position: fixed; inset: 0; z-index: -1;
+      pointer-events: none;
+      transition: background 0.4s ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      max-width: 430px; left: 50%; transform: translateX(-50%);
+    }
+
+    body {
+      max-width: 430px;
+      padding-top: 72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .profile-header-bar {
+      display: flex;
+      align-items: center;
+      padding: 0 var(--space-lg);
+      height: 44px;
+      position: absolute;
+      top: 72px;
+      left: 0; right: 0;
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: calc(max(env(safe-area-inset-top, 0px), 59px) + 8px);
+      left: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 0.5px solid rgba(255,255,255,0.55);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .back-btn:active { opacity: 0.6; }
+
+    .profile-content {
+      flex: 1;
+      padding: 56px var(--space-xl) 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .profile-content::-webkit-scrollbar { display: none; }
+
+
+    .profile-heading {
+      padding: var(--space-md) 0 var(--space-xl);
+      animation: fadeInUp 0.5s ease both;
+    }
+
+    .profile-heading h1 {
+      font-size: 26px;
+      font-weight: var(--weight-bold);
+      letter-spacing: -0.5px;
+      margin-bottom: var(--space-sm);
+      line-height: 1.3;
+    }
+
+    .profile-heading p {
+      font-size: var(--text-callout);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      letter-spacing: -0.2px;
+    }
+
+    /* 프로필 사진 */
+    .avatar-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: var(--space-xl);
+      animation: fadeInUp 0.5s ease 0.05s both;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .avatar-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s;
+    }
+    .avatar-wrap:active .avatar-circle { transform: scale(0.95); }
+
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .avatar-hint {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: var(--space-sm);
+    }
+
+    /* 폼 */
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      animation: fadeInUp 0.5s ease 0.1s both;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+
+    .form-label {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+    }
+
+    .form-label .opt {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-regular);
+      color: var(--text-secondary);
+      margin-left: 4px;
+    }
+
+    .form-input {
+      height: var(--input-height);
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--divider);
+      background: var(--surface);
+      padding: 0 var(--space-lg);
+      font-size: var(--text-body);
+      font-family: var(--font-family);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-input.error {
+      border-color: #EF4444;
+      box-shadow: 0 0 0 3px #FEE2E2;
+    }
+
+    .form-input::placeholder { color: var(--text-tertiary); }
+
+    /* 인라인 에러 */
+    .field-error {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-medium);
+      color: #DC2626;
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      transition: opacity 0.2s, height 0.2s;
+    }
+    .field-error.visible { opacity: 1; height: 18px; }
+
+    /* 힌트 텍스트 */
+    .form-hint {
+      font-size: var(--text-caption);
+      color: var(--text-tertiary);
+      line-height: 1.5;
+    }
+
+    /* 두 컬럼 입력 */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    /* 선택 칩 */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .sel-chip {
+      padding: 9px 16px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--divider);
+      background: var(--surface);
+      font-size: var(--text-callout);
+      font-weight: var(--weight-medium);
+      font-family: var(--font-family);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sel-chip.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* 섹션 구분선 */
+    .form-divider {
+      height: 1px;
+      background: var(--divider);
+      margin: var(--space-sm) 0;
+    }
+
+    /* 역할별 섹션 */
+    .role-extra { display: none; }
+    .role-extra.visible { display: contents; }
+
+    /* 하단 버튼 */
+    .profile-bottom {
+      padding: var(--space-xl) var(--space-xl) 52px;
+    }
+
+    .btn-complete {
+      width: 100%;
+      height: 54px;
+      border-radius: 14px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 17px;
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-family);
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-complete:active { transform: scale(0.97); opacity: 0.88; }
+    .btn-complete.disabled {
+      background: var(--divider);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+    .shake { animation: shake 0.35s ease; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .profile-heading, .avatar-section, .form-section { animation: none; }
+      .shake { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg-gradient"></div>
+  <div class="profile-header-bar">
+    <button class="back-btn" onclick="history.back()" aria-label="뒤로가기">
+      <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
+        <path d="M9 1L2 8.5L9 16" stroke="#1C1C1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-heading">
+      <h1>거의 다 왔어요!</h1>
+      <p id="headingDesc">기본 정보를 입력해주세요</p>
+    </div>
+
+    <!-- 프로필 사진 -->
+    <div class="avatar-section">
+      <div class="avatar-wrap" onclick="alert('사진 선택 (목업)')">
+        <div class="avatar-circle" id="avatarCircle">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="#8E8E93" stroke-width="1.8"/>
+            <path d="M4 20v-1a8 8 0 0116 0v1" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="avatar-edit" id="avatarEdit">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <span class="avatar-hint">사진 추가 (선택)</span>
+    </div>
+
+    <div class="form-section">
+
+      <!-- ── 공통: 이름 ── -->
+      <div class="form-group">
+        <label class="form-label" for="inputName">이름</label>
+        <input class="form-input" id="inputName" type="text" inputmode="text"
+          placeholder="실명을 입력해주세요" autocomplete="name"
+          oninput="onNameInput()" aria-describedby="nameError">
+        <div class="field-error" id="nameError" role="alert">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#DC2626" stroke-width="2"/>
+            <path d="M12 8v4M12 16h.01" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          이름을 입력해주세요
+        </div>
+      </div>
+
+      <!-- ── 공통: 연락처 ── -->
+      <div class="form-group">
+        <label class="form-label" for="inputPhone">휴대폰 번호</label>
+        <input class="form-input" id="inputPhone" type="tel" inputmode="numeric"
+          placeholder="010-0000-0000" autocomplete="tel"
+          oninput="formatPhone(this); checkReady()">
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- ══ 보호자 전용 ══ -->
+      <div class="role-extra" id="extraGuardian">
+
+        <div class="form-group">
+          <label class="form-label">환자와의 관계</label>
+          <div class="chip-group">
+            <button class="sel-chip" onclick="selectChip(this, 'relation')">자녀</button>
+            <button class="sel-chip" onclick="selectChip(this, 'relation')">배우자</button>
+            <button class="sel-chip" onclick="selectChip(this, 'relation')">형제·자매</button>
+            <button class="sel-chip" onclick="selectChip(this, 'relation')">부모</button>
+            <button class="sel-chip" onclick="selectChip(this, 'relation')">기타</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputEmergency">비상연락처 <span class="opt">(선택)</span></label>
+          <input class="form-input" id="inputEmergency" type="tel" inputmode="numeric"
+            placeholder="010-0000-0000" autocomplete="tel"
+            oninput="formatPhone(this)">
+          <span class="form-hint">본인 외 추가 연락이 필요한 경우 입력해주세요</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputAddress">주소 <span class="opt">(선택)</span></label>
+          <input class="form-input" id="inputAddress" type="text" inputmode="text"
+            placeholder="거주지 주소를 입력해주세요">
+        </div>
+
+      </div>
+
+      <!-- ══ 의료진 전용 ══ -->
+      <div class="role-extra" id="extraNurse">
+
+        <div class="form-group">
+          <label class="form-label">직책</label>
+          <div class="chip-group">
+            <button class="sel-chip" onclick="selectChip(this, 'job')">간호사</button>
+            <button class="sel-chip" onclick="selectChip(this, 'job')">의사</button>
+            <button class="sel-chip" onclick="selectChip(this, 'job')">요양보호사</button>
+            <button class="sel-chip" onclick="selectChip(this, 'job')">사회복지사</button>
+            <button class="sel-chip" onclick="selectChip(this, 'job')">기타</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputFacility">근무 시설</label>
+          <input class="form-input" id="inputFacility" type="text" inputmode="text"
+            placeholder="시설명을 입력해주세요" oninput="checkReady()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputLicense">면허·자격증 번호 <span class="opt">(선택)</span></label>
+          <input class="form-input" id="inputLicense" type="text" inputmode="text"
+            placeholder="면허 번호를 입력해주세요">
+          <span class="form-hint">입력 시 인증 뱃지가 프로필에 표시돼요</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">근무 형태</label>
+            <div class="chip-group">
+              <button class="sel-chip" onclick="selectChip(this, 'shift')">주간</button>
+              <button class="sel-chip" onclick="selectChip(this, 'shift')">야간</button>
+              <button class="sel-chip" onclick="selectChip(this, 'shift')">교대</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">경력</label>
+            <div class="chip-group">
+              <button class="sel-chip" onclick="selectChip(this, 'career')">1년 미만</button>
+              <button class="sel-chip" onclick="selectChip(this, 'career')">1–5년</button>
+              <button class="sel-chip" onclick="selectChip(this, 'career')">5년 이상</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ 환자 전용 ══ -->
+      <div class="role-extra" id="extraPatient">
+
+        <div class="form-group">
+          <label class="form-label" for="inputBirth">생년월일</label>
+          <input class="form-input" id="inputBirth" type="text" inputmode="numeric"
+            placeholder="YYYY.MM.DD" maxlength="10"
+            oninput="formatBirth(this); checkReady()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">성별</label>
+          <div class="chip-group">
+            <button class="sel-chip" onclick="selectChip(this, 'gender')">남성</button>
+            <button class="sel-chip" onclick="selectChip(this, 'gender')">여성</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputRoom">병실·호실 <span class="opt">(선택)</span></label>
+          <input class="form-input" id="inputRoom" type="text" inputmode="text"
+            placeholder="예) 301호">
+          <span class="form-hint">입력 시 의료진이 더 쉽게 찾을 수 있어요</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div style="height: var(--space-2xl);"></div>
+  </div>
+
+  <div class="profile-bottom">
+    <button class="btn-complete disabled" id="btnComplete" onclick="tryComplete()">시작하기</button>
+  </div>
+
+  <div class="ios-home-indicator"></div>
+
+  <script>
+    const roleColors = {
+      guardian: { color: '#0891B2', light: '#D9F0F7', home: '../guardian/g01-home.html' },
+      nurse:    { color: '#059669', light: '#D1FAE5', home: '../nurse/n01-dashboard.html' },
+      patient:  { color: '#FB923C', light: '#FFEDD5', home: '../patient/p01-home.html' },
+    };
+
+    const params = new URLSearchParams(location.search);
+    const role = params.get('role') || 'guardian';
+    const cfg  = roleColors[role] || roleColors.guardian;
+
+    document.documentElement.style.setProperty('--primary', cfg.color);
+    document.documentElement.style.setProperty('--primary-light', cfg.light);
+    document.getElementById('avatarCircle').style.background = cfg.light;
+    document.getElementById('avatarEdit').style.background = cfg.color;
+
+    /* 역할별 배경 그라디언트 */
+    const gradients = {
+      guardian: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(100,178,255,0.95)  0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(56,189,248,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(99,102,241,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(44,122,252,0.78)   0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E4EEFC`,
+      nurse: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(52,211,153,0.95)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(6,182,212,0.88)    0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(16,185,129,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(5,150,105,0.78)    0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #E0F5EE`,
+      patient: `
+        radial-gradient(ellipse 68% 44% at  -4%   0%,  rgba(251,191,36,0.90)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at 104%   0%,  rgba(251,146,60,0.88)   0%, transparent 60%),
+        radial-gradient(ellipse 62% 44% at 106% 100%,  rgba(245,158,11,0.82)   0%, transparent 62%),
+        radial-gradient(ellipse 58% 38% at  -4% 100%,  rgba(234,88,12,0.70)    0%, transparent 60%),
+        radial-gradient(ellipse 42% 32% at  50%  50%,  rgba(255,255,255,0.58)  0%, transparent 65%),
+        #FEF3E2`,
+    };
+    const bg = document.getElementById('bg-gradient');
+    bg.style.background = gradients[role] || gradients.guardian;
+    document.documentElement.style.background = role === 'nurse' ? '#E0F5EE' : role === 'patient' ? '#FEF3E2' : '#EEF5FF';
+
+    // 역할별 섹션 표시
+    const extraMap = {
+      guardian: ['extraGuardian'],
+      nurse:    ['extraNurse'],
+      patient:  ['extraPatient'],
+    };
+    (extraMap[role] || []).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('visible');
+    });
+
+    // 역할별 안내 문구
+    if (role === 'patient') {
+      document.getElementById('headingDesc').textContent = '간단한 정보만 입력해주세요';
+    } else if (role === 'nurse') {
+      document.getElementById('headingDesc').textContent = '프로필 정보를 입력해주세요';
+    }
+
+    // 칩 선택
+    const chipSelected = {};
+    function selectChip(el, group) {
+      el.closest('.chip-group').querySelectorAll('.sel-chip').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      chipSelected[group] = true;
+      checkReady();
+    }
+
+    // 전화번호 포맷 (010-0000-0000)
+    function formatPhone(input) {
+      let v = input.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length >= 8) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
+      else if (v.length >= 4) v = v.slice(0,3) + '-' + v.slice(3);
+      input.value = v;
+    }
+
+    // 생년월일 포맷 (YYYY.MM.DD)
+    function formatBirth(input) {
+      let v = input.value.replace(/\D/g, '');
+      if (v.length > 8) v = v.slice(0, 8);
+      if (v.length >= 6) v = v.slice(0,4) + '.' + v.slice(4,6) + '.' + v.slice(6);
+      else if (v.length >= 5) v = v.slice(0,4) + '.' + v.slice(4);
+      input.value = v;
+    }
+
+    // 이름 입력 시 에러 해제
+    function onNameInput() {
+      const input = document.getElementById('inputName');
+      input.classList.remove('error');
+      document.getElementById('nameError').classList.remove('visible');
+      checkReady();
+    }
+
+    // 완료 버튼 활성화 조건
+    function checkReady() {
+      const name  = document.getElementById('inputName').value.trim();
+      const phone = document.getElementById('inputPhone').value.replace(/\D/g,'');
+      let ready = name.length >= 1 && phone.length >= 10;
+
+      if (role === 'guardian') ready = ready && !!chipSelected['relation'];
+      if (role === 'nurse')    ready = ready && !!chipSelected['job']
+                                             && document.getElementById('inputFacility').value.trim().length >= 1;
+      if (role === 'patient')  ready = ready && document.getElementById('inputBirth').value.replace(/\D/g,'').length === 8;
+
+      document.getElementById('btnComplete').classList.toggle('disabled', !ready);
+    }
+
+    function tryComplete() {
+      const name = document.getElementById('inputName').value.trim();
+      if (!name) {
+        const input = document.getElementById('inputName');
+        input.classList.add('error', 'shake');
+        document.getElementById('nameError').classList.add('visible');
+        input.focus();
+        input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
+        return;
+      }
+
+      const btn = document.getElementById('btnComplete');
+      if (btn.classList.contains('disabled')) return;
+
+      window.location.href = cfg.home;
+    }
+  </script>
+</body>
+</html>

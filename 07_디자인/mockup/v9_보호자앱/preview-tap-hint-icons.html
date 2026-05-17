@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>더블탭 인라인 힌트 아이콘 후보</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#2C7AFC;--blue-l:#5B9BFF;--t1:#111827;--t2:rgba(0,0,0,.5);--t3:rgba(0,0,0,.3)}
+  html,body{min-height:100vh;font-family:'Pretendard Variable','Pretendard',-apple-system,system-ui,sans-serif;color:var(--t1);background:#0d1220}
+  .wrap{max-width:720px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.6px;margin-bottom:6px;color:#fff}
+  .lead{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.55}
+  .lead code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:5px;font-size:12px;color:#cfe0ff}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#8FB6FF;text-decoration:none;font-weight:600;margin-bottom:16px}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+
+  .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden}
+  /* 실제 홈 오브 배경 시뮬레이션 — 민트→블루 그라디언트 */
+  .preview{padding:26px 22px 22px;background:radial-gradient(circle at 50% 30%,#1BE7EA 0%,rgba(70,195,230,.9) 35%,#46A8FF 68%,rgba(70,168,255,.4) 88%,transparent 100%),#0d1220;background-blend-mode:normal}
+  .mock-greet{color:#2a1810;font-size:17px;font-weight:800;letter-spacing:-.4px;text-shadow:0 1px 0 rgba(255,255,255,.25);margin-bottom:3px;line-height:1.2}
+  .mock-sub{color:rgba(42,24,16,.55);font-size:12px;font-weight:500;margin-bottom:10px}
+  .tap-row{display:flex;justify-content:flex-end}
+  .tap-inline{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:400;color:rgba(255,255,255,.92);letter-spacing:-.15px;line-height:1.3;text-shadow:0 1px 3px rgba(0,0,0,.12);padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:.5px solid rgba(255,255,255,.18)}
+  .tap-inline iconify-icon{font-size:13px;opacity:.95;animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.95}50%{opacity:.45}}
+
+  .meta{padding:12px 18px 14px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06)}
+  .no{font-size:10.5px;font-weight:700;color:#8FB6FF;letter-spacing:.3px}
+  .name{font-size:14px;font-weight:700;margin:2px 0 3px;letter-spacing:-.2px;color:#fff}
+  .id{font-size:11.5px;color:rgba(255,255,255,.45);font-family:ui-monospace,'SF Mono',Menlo,monospace;word-break:break-all}
+  .note{font-size:11.5px;color:rgba(255,255,255,.55);margin-top:5px;line-height:1.45}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="g-guardian-live.html" class="back"><iconify-icon icon="fluent:chevron-left-24-filled"></iconify-icon> 홈으로</a>
+    <h1>더블탭 인라인 힌트 — 아이콘 후보</h1>
+    <p class="lead">홈 greeting 우측 아래에 얇은 흰색 칩으로 등장. 손가락 없는 추상 아이콘만 선별. 실제 오브 배경 위 모습.<br>번호 알려주면 <code>g-guardian-live.html</code>에 바로 교체.</p>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="fluent:tap-double-24-regular"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">01 · 현재 적용됨</div>
+          <div class="name">Tap Double (Fluent)</div>
+          <div class="id">fluent:tap-double-24-regular</div>
+          <div class="note">더블탭 전용 아이콘. 동심원 + 작은 원 — 의미 가장 직접적.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="fluent:tap-single-24-regular"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">02</div>
+          <div class="name">Tap Single (Fluent)</div>
+          <div class="id">fluent:tap-single-24-regular</div>
+          <div class="note">싱글탭 버전. 더 미니멀, 공간 차지 적음.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="mingcute:tap-line"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">03</div>
+          <div class="name">Tap Line (MingCute)</div>
+          <div class="id">mingcute:tap-line</div>
+          <div class="note">파동+점, 얇고 둥근 느낌. 앱 톤과 잘 맞음.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="tabler:click"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">04</div>
+          <div class="name">Click (Tabler)</div>
+          <div class="id">tabler:click</div>
+          <div class="note">사선 방사+점. "클릭됨"이라는 행위감 명확.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="tabler:target"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">05</div>
+          <div class="name">Target (Tabler)</div>
+          <div class="id">tabler:target</div>
+          <div class="note">타겟 동심원. 깔끔하고 기하학적, 조준 느낌.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="tabler:focus-2"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">06</div>
+          <div class="name">Focus (Tabler)</div>
+          <div class="id">tabler:focus-2</div>
+          <div class="note">카메라 포커스 프레임. 조준/찍는 느낌, 추상적.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="mdi:gesture-double-tap"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">07</div>
+          <div class="name">Gesture Double Tap (MDI)</div>
+          <div class="id">mdi:gesture-double-tap</div>
+          <div class="note">머티리얼 제스처 공식. 더블탭 의미 직관적.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <div class="mock-greet">편안한 밤 되세요,<br>정희님도 잘 쉬고 있어요</div>
+          <div class="mock-sub">오늘 일과 모두 잘 마무리됐어요.</div>
+          <div class="tap-row"><span class="tap-inline"><iconify-icon icon="material-symbols:radio-button-checked-outline-rounded"></iconify-icon>화면을 두 번 탭하면 AI와 대화할 수 있어요</span></div>
+        </div>
+        <div class="meta">
+          <div class="no">08</div>
+          <div class="name">Radio Ring (Material)</div>
+          <div class="id">material-symbols:radio-button-checked-outline-rounded</div>
+          <div class="note">속 채워진 동심원. "활성화된 포인트" 느낌.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="lead" style="margin-top:24px;font-size:12.5px">
+      <b>추천</b>: 01 (tap-double, 더블탭 전용) → 07 (mdi gesture-double-tap, 머티리얼 스탠다드) → 03 (mingcute:tap-line, 톤 어울림)
+    </p>
+  </div>
+</body>
+</html>

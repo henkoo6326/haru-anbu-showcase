@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko" data-role="nurse">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>하루안부 — SOS 알림</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    body {
+      background: var(--bg);
+      max-width: 430px; padding-top:72px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 108px;
+    }
+    .content { padding: 0 var(--space-lg); }
+
+    /* 활성 알림 카드 */
+    .active-alert {
+      background: #FFEBEE;
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      border-left: 4px solid var(--critical);
+      margin-bottom: var(--space-md);
+      animation: pulse-border 2s ease infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-left-color: var(--critical); }
+      50% { border-left-color: #FF8A80; }
+    }
+    .active-alert-header {
+      display: flex; align-items: center; gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .active-alert-badge {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      padding: 4px var(--space-md);
+      background: var(--critical);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: var(--text-mini);
+      font-weight: var(--weight-bold);
+      animation: blink 1.5s ease infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .active-alert-time {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+    }
+    .active-alert-patient {
+      display: flex; align-items: center; gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .active-alert-avatar {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-full);
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .active-alert-name {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-bold);
+    }
+    .active-alert-meta {
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .active-alert-type {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--critical);
+      margin-bottom: var(--space-md);
+      display: flex; align-items: center; gap: var(--space-sm);
+    }
+    .active-alert-actions {
+      display: flex; gap: var(--space-sm);
+    }
+    .alert-action-btn {
+      flex: 1;
+      height: 44px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-size: var(--text-callout);
+      font-weight: var(--weight-semibold);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: var(--space-xs);
+    }
+    .alert-action-btn--primary {
+      background: var(--primary);
+      color: white;
+    }
+    .alert-action-btn--secondary {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--divider);
+    }
+    .alert-action-btn--outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--divider);
+    }
+
+    /* 주의 알림 카드 */
+    .warning-alert {
+      background: #FFF3E0;
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      border-left: 4px solid var(--warning);
+      margin-bottom: var(--space-md);
+    }
+    .warning-alert-type {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: #E65100;
+      margin-bottom: var(--space-md);
+      display: flex; align-items: center; gap: var(--space-sm);
+    }
+
+    /* SOS 이력 */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .history-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+    .history-icon--resolved { background: #E8F8ED; color: var(--success); }
+    .history-icon--delegated { background: #E8F0FE; color: var(--info); }
+    .history-info { flex: 1; min-width: 0; }
+    .history-title {
+      font-size: var(--text-callout);
+      font-weight: var(--weight-medium);
+    }
+    .history-meta {
+      font-size: var(--text-mini);
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .history-time {
+      font-size: var(--text-mini);
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    /* 토스트 */
+    .toast-custom {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      padding: var(--space-md) var(--space-xl);
+      background: var(--text-primary);
+      color: var(--surface);
+      border-radius: var(--radius-full);
+      font-size: var(--text-callout);
+      font-weight: var(--weight-medium);
+      box-shadow: var(--shadow-lg);
+      z-index: var(--z-toast);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .toast-custom.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .active-alert,
+      .active-alert-badge,
+      .emergency-call {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <a href="n01-dashboard.html" class="btn-icon" aria-label="뒤로 가기">‹</a>
+    </div>
+    <span class="header-title">SOS 알림 센터</span>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- 활성 알림 -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">활성 알림</h2>
+        <span style="font-size:var(--text-mini); padding:2px 8px; background:#FFEBEE; color:var(--critical); border-radius:var(--radius-full); font-weight:var(--weight-semibold);">2건</span>
+      </div>
+
+      <!-- 긴급 알림 -->
+      <div class="active-alert">
+        <div class="active-alert-header">
+          <span class="active-alert-badge"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> 긴급</span>
+          <span class="active-alert-time">2분 전</span>
+        </div>
+        <div class="active-alert-patient">
+          <div class="active-alert-avatar"><i data-lucide="user-round" style="color:var(--critical)"></i></div>
+          <div>
+            <div class="active-alert-name">박영수</div>
+            <div class="active-alert-meta">82세 · 305호</div>
+          </div>
+        </div>
+        <div class="active-alert-type">
+          <i data-lucide="thermometer" style="width:18px;height:18px;"></i>
+          통증 호소 — "가슴이 답답해요"
+        </div>
+        <div class="active-alert-actions">
+          <button class="alert-action-btn alert-action-btn--primary" onclick="showToast('확인 완료 처리했어요')">
+            <i data-lucide="check" style="width:16px;height:16px;"></i> 확인 완료
+          </button>
+          <button class="alert-action-btn alert-action-btn--secondary" onclick="showToast('이동 중 상태로 변경했어요')">
+            <i data-lucide="navigation" style="width:16px;height:16px;"></i> 이동 중
+          </button>
+          <button class="alert-action-btn alert-action-btn--outline" onclick="showToast('다른 간호사에게 전달했어요')">
+            전달
+          </button>
+        </div>
+      </div>
+
+      <!-- 주의 알림 -->
+      <div class="warning-alert">
+        <div class="active-alert-header">
+          <span class="active-alert-badge" style="background:var(--warning);"><i data-lucide="droplets" style="width:12px;height:12px;"></i> 요청</span>
+          <span class="active-alert-time">8분 전</span>
+        </div>
+        <div class="active-alert-patient">
+          <div class="active-alert-avatar"><i data-lucide="user-round" style="color:var(--warning)"></i></div>
+          <div>
+            <div class="active-alert-name">손정희</div>
+            <div class="active-alert-meta">78세 · 302호</div>
+          </div>
+        </div>
+        <div class="warning-alert-type">
+          <i data-lucide="droplets" style="width:18px;height:18px;"></i>
+          물 요청
+        </div>
+        <div class="active-alert-actions">
+          <button class="alert-action-btn alert-action-btn--primary" onclick="showToast('확인 완료 처리했어요')">
+            <i data-lucide="check" style="width:16px;height:16px;"></i> 확인 완료
+          </button>
+          <button class="alert-action-btn alert-action-btn--secondary" onclick="showToast('이동 중 상태로 변경했어요')">
+            <i data-lucide="navigation" style="width:16px;height:16px;"></i> 이동 중
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 오늘 이력 -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">오늘 이력</h2>
+      </div>
+
+      <div class="history-item">
+        <div class="history-icon history-icon--resolved"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
+        <div class="history-info">
+          <div class="history-title">이순자 310호 — 담요 요청</div>
+          <div class="history-meta">직접 처리 완료</div>
+        </div>
+        <span class="history-time">11:30</span>
+      </div>
+
+      <div class="history-item">
+        <div class="history-icon history-icon--resolved"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
+        <div class="history-info">
+          <div class="history-title">김옥순 301호 — 물 요청</div>
+          <div class="history-meta">직접 처리 완료</div>
+        </div>
+        <span class="history-time">10:15</span>
+      </div>
+
+      <div class="history-item">
+        <div class="history-icon history-icon--delegated"><i data-lucide="forward" style="width:18px;height:18px;"></i></div>
+        <div class="history-info">
+          <div class="history-title">최영호 303호 — 통증 호소</div>
+          <div class="history-meta">이정은 간호사에게 전달</div>
+        </div>
+        <span class="history-time">09:45</span>
+      </div>
+
+      <div class="history-item">
+        <div class="history-icon history-icon--resolved"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
+        <div class="history-info">
+          <div class="history-title">정미숙 306호 — 더위 호소</div>
+          <div class="history-meta">환기 조치 완료</div>
+        </div>
+        <span class="history-time">08:20</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast-custom" id="toast"></div>
+
+  <nav class="tabbar" style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); max-width:430px; width:100%; height:calc(50px + 44px + 8px); padding-bottom:44px;">
+    <a href="n01-dashboard.html" class="tab">
+      <span class="tab-icon"><i data-lucide="home"></i></span>
+      <span class="tab-label">홈</span>
+    </a>
+    <a href="n02-patients.html" class="tab">
+      <span class="tab-icon"><i data-lucide="users"></i></span>
+      <span class="tab-label">환자</span>
+    </a>
+    <a href="n03-checklist.html" class="tab">
+      <span class="tab-icon"><i data-lucide="list-checks"></i></span>
+      <span class="tab-label">체크리스트</span>
+    </a>
+    <a href="n04-mypage.html" class="tab">
+      <span class="tab-icon"><i data-lucide="user"></i></span>
+      <span class="tab-label">내 정보</span>
+    </a>
+  </nav>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+  </script>
+<div class="ios-home-indicator"></div>
+</body>
+</html>
