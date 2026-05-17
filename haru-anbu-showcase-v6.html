@@ -532,6 +532,20 @@
     .pain-scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2);white-space:nowrap;pointer-events:none;animation:pain-cue 2.2s ease-in-out infinite}
     @keyframes pain-cue{0%,100%{opacity:.9;transform:translateX(-50%) translateY(0)}55%{opacity:.35;transform:translateX(-50%) translateY(6px)}}
 
+    /* ── Problem Bridge: 잘 계십니다. 아마도. ── */
+    .problem-bridge{padding-top:clamp(96px,12vw,160px);padding-bottom:clamp(96px,12vw,160px)}
+    .pb-eyebrow{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:56px}
+    .pb-copy-wrap{margin-bottom:40px}
+    .pb-line{font-size:clamp(52px,8vw,108px);font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--ink)}
+    .pb-line--main{margin-bottom:12px}
+    .pb-line--maybe{
+      color:#aaa;font-style:italic;
+      opacity:0;transform:translateY(10px);
+      transition:opacity 1s ease .9s,transform 1s ease .9s;
+    }
+    .pb-line--maybe.in{opacity:1;transform:none}
+    .pb-sub{font-size:17px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:80px;max-width:52ch}
+
     .concept{background:var(--dark);color:white}
     .concept-inner{display:grid;grid-template-columns:200px 1fr;gap:64px}
     .concept-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
@@ -573,6 +587,14 @@
     .ft-meta{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
     .reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
     .reveal.in{opacity:1;transform:none}
+
+    /* ── CARE ALERTS ── */
+    .ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:56px}
+    .ca-card{padding:48px 36px;background:var(--bg)}
+    .ca-num{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2);margin-bottom:32px;font-feature-settings:"tnum" 1}
+    .ca-title{font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.3;margin-bottom:16px}
+    .ca-desc{font-size:15px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em}
+    @media(max-width:768px){.ca-grid{grid-template-columns:1fr;border-radius:16px}}
 
     /* ── INTERACTIVE TOGGLE ── */
     #interact-toggle{
@@ -1089,7 +1111,7 @@
       <div class="mkt-inner">
         <div class="reveal"><div class="mkt-label">The Backdrop</div></div>
         <div class="reveal">
-          <p class="mkt-statement">세계 어느 나라도<br>이만큼 빠르게 늙지 않았습니다.</p>
+          <p class="mkt-statement">65만 명의 부모님이<br>지금 시설에 있습니다.<br>그 가족들은 괜찮을까요?</p>
           <p class="mkt-sub">고령화사회(7%)에서 고령사회(14%)까지, 프랑스는 <em>115년</em>·미국은 <em>73년</em>이 걸렸습니다. 한국은 <em>17년</em>이었고, 초고령사회(20%)까지 <em>7년</em>이 더 걸렸습니다. 현재 65세 이상 1인 가구는 <em>214만 명</em>을 넘어섰고, <em>OECD 노인 빈곤율 1위</em>라는 수치는 이 변화가 단순한 인구 통계가 아닌 사회적 위기임을 말해줍니다. 돌봄의 수요는 폭발하고 있지만, 가족과 의료진이 연결되는 방식은 여전히 전화 한 통에 머물러 있습니다.</p>
 
           <div class="mkt-chart-wrap">
@@ -1143,6 +1165,20 @@
     <div id="mktEndSentinel" style="height:1px"></div>
   </section>
 
+  <section id="problem" class="problem-bridge container">
+    <div class="pb-eyebrow reveal">Problem</div>
+    <div class="pb-copy-wrap">
+      <p class="pb-line pb-line--main reveal" id="pbMain">잘 계십니다.</p>
+      <p class="pb-line pb-line--maybe" id="pbMaybe">아마도.</p>
+    </div>
+    <p class="pb-sub reveal" id="pbSub">"오늘 어머니 어떠세요?" — 이 한 마디가 전부인 날들이 있습니다.</p>
+    <div class="stats-row reveal">
+      <div class="stat"><div class="stat-num">187<span class="unit">만 가구</span></div><div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div><div class="stat-source">통계청 2024</div></div>
+      <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
+      <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 4자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
+    </div>
+  </section>
+
   <!-- ══ PAIN ZONE: 질문(index 0) + 카피(index 1-7) 통합 ══ -->
   <div class="pain-zone" id="painZone">
     <!-- 드라이버: 8 앵커 (질문 1 + 카피 7) -->
@@ -1177,93 +1213,34 @@
     <div class="pain-scroll-hint">scroll</div>
   </div>
 
-  <section id="problem" class="container">
-    <div class="sec-head reveal"><div class="sec-eyebrow">Problem</div><h2 class="sec-title">국내 6개 경쟁사,<br>모두 같은 자리에 있었다.</h2><p class="sec-sub">시설 매칭, 시설 운영, 보호자 결제 — '입소 후 3자 실시간 소통'은 단 한 곳도 다루지 않았습니다.</p></div>
-    <div class="stats-row reveal">
-      <div class="stat"><div class="stat-num">187<span class="unit">만 가구</span></div><div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div><div class="stat-source">통계청 2024</div></div>
-      <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
-      <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 3자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
-    </div>
-  </section>
-
   <div class="hairline"></div>
 
-  <!-- ══ CONNECTION ══ -->
-  <section id="connection" class="container">
+  <!-- ══ CARE ALERTS ══ -->
+  <section id="care-alerts" class="container">
     <div class="sec-head reveal">
-      <div class="sec-eyebrow">Connection</div>
-      <h2 class="sec-title">경쟁사가 멈춘 자리에서,<br>하루안부가 시작됩니다.</h2>
-      <p class="sec-sub">국내 6개 경쟁사 모두 최대 2자 연결. 입소 후 3자 실시간 소통은 단 한 곳도 없었습니다.</p>
+      <div class="sec-eyebrow">Care Alerts</div>
+      <h2 class="sec-title">걱정하지 않아도 됩니다</h2>
+      <p class="sec-sub">멀리 있으면 더 불안합니다. 하루안부는 이상 징후 감지부터 보호자 알림까지 자동으로 연결되어, 중요한 순간을 절대 놓치지 않습니다.</p>
     </div>
-    <div class="conn-wrap reveal">
-      <div class="conn-diagram">
-        <svg class="conn-svg" viewBox="0 0 480 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Connection lines -->
-          <path id="cpg" d="M 240 72 L 58 268" stroke="#2C7AFC" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <path id="cpm" d="M 240 72 L 422 268" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <path id="cgm" d="M 108 304 L 372 304" stroke="#FB923C" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <!-- Animated flow dots -->
-          <circle r="4.5" fill="#2C7AFC" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#cpg"/></animateMotion>
-          </circle>
-          <circle r="4.5" fill="#22C55E" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.8s"><mpath href="#cpm"/></animateMotion>
-          </circle>
-          <circle r="4.5" fill="#FB923C" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#cgm"/></animateMotion>
-          </circle>
-          <!-- Reverse dots -->
-          <circle r="3" fill="#2C7AFC" opacity="0.4">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.2s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpg"/></animateMotion>
-          </circle>
-          <circle r="3" fill="#22C55E" opacity="0.4">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="2.0s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpm"/></animateMotion>
-          </circle>
-        </svg>
-        <!-- Patient — top center -->
-        <div class="conn-node patient">
-          <div class="conn-circle">환자</div>
-          <div class="conn-node-label">김순자 어르신</div>
-          <div class="conn-node-sub">Patient Tablet</div>
-        </div>
-        <!-- Guardian — bottom left -->
-        <div class="conn-node guardian">
-          <div class="conn-circle">보호자</div>
-          <div class="conn-node-label">김미영</div>
-          <div class="conn-node-sub">Guardian App</div>
-        </div>
-        <!-- Medical — bottom right -->
-        <div class="conn-node medical">
-          <div class="conn-circle">의료진</div>
-          <div class="conn-node-label">박지현</div>
-          <div class="conn-node-sub">Medical Web</div>
-        </div>
-        <!-- Center badge -->
-        <div class="conn-center">
-          <svg class="conn-center-logo" viewBox="0 0 2526 2526" fill="none">
-            <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
-            <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
-          </svg>
-          <div class="conn-center-badge">3자 실시간</div>
-        </div>
+    <div class="ca-grid reveal">
+      <div class="ca-card">
+        <div class="ca-num">01</div>
+        <h3 class="ca-title">AI가 먼저 알아챕니다</h3>
+        <p class="ca-desc">매일 쌓인 기록으로 AI 안심지수를 계산합니다. 평소와 다른 패턴이 감지되면 즉시 알림이 시작됩니다.</p>
       </div>
-      <!-- vs row -->
-      <div class="conn-compare">
-        <div class="cc-col competitor">
-          <div class="cc-label">경쟁사 최대</div>
-          <div class="cc-val">2자</div>
-          <div class="cc-note">시설 매칭 · 운영 · 결제</div>
-        </div>
-        <div class="cc-divider">vs</div>
-        <div class="cc-col haru">
-          <div class="cc-label">하루안부</div>
-          <div class="cc-val">3자 실시간</div>
-          <div class="cc-note">보호자 · 의료진 · 환자 동시</div>
-        </div>
+      <div class="ca-card">
+        <div class="ca-num">02</div>
+        <h3 class="ca-title">요양보호사가 현장에서 먼저 확인합니다</h3>
+        <p class="ca-desc">알림은 현장의 요양보호사에게 먼저 전달됩니다. 직접 확인한 내용만 다음 단계로 넘어갑니다.</p>
+      </div>
+      <div class="ca-card">
+        <div class="ca-num">03</div>
+        <h3 class="ca-title">보호자에게 정리된 상황이 옵니다</h3>
+        <p class="ca-desc">날것의 알림이 아닙니다. 무슨 일이 있었고 어떻게 조치됐는지, 한 문장으로 정리해 전달합니다.</p>
       </div>
     </div>
   </section>
-  <div class="hairline"></div>
+
 
   <section id="showcase" class="container">
     <div class="sec-head reveal">
@@ -2180,7 +2157,14 @@ window.addEventListener('scroll', () => {
 }, {passive:true});
 
 const io = new IntersectionObserver(es => {
-  es.forEach(e => e.isIntersecting && e.target.classList.add('in'));
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    // "잘 계십니다." 진입 시 "아마도." 딜레이 페이드인
+    if (e.target.id === 'pbMain') {
+      document.getElementById('pbMaybe')?.classList.add('in');
+    }
+  });
 }, {threshold:.1});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
@@ -2296,9 +2280,9 @@ document.getElementById('roi-staff')?.addEventListener('input', calcROI);
   setActive(0);
 })();
 
-// ── The Backdrop → Pain zone 오토스크롤 (easeOutBack 쫀득) ──
+// ── Problem bridge → Pain zone 오토스크롤 (easeOutBack 쫀득) ──
 (function () {
-  const mkt    = document.querySelector('.mkt-section');
+  const mkt    = document.getElementById('problem');
   const target = document.getElementById('painZone');
   if (!mkt || !target) return;
 
@@ -2331,9 +2315,8 @@ document.getElementById('roi-staff')?.addEventListener('input', calcROI);
     lastY = nowY;
     if (triggered || !goingDown) return;
 
-    // scrollY(뷰포트 상단)이 mkt-section 중간을 지나야 발동
-    // → 사용자가 Backdrop을 절반 이상 스크롤한 뒤에만 다음으로 넘어감
-    if (nowY >= mkt.offsetTop + mkt.offsetHeight * 0.5) {
+    // mkt 20% 통과 후 발동. pain-zone 이미 도달했으면 재발화 안 함.
+    if (nowY >= mkt.offsetTop + mkt.offsetHeight * 0.2 && nowY < target.offsetTop) {
       triggered = true;
       springScrollTo(target.offsetTop);
     }
