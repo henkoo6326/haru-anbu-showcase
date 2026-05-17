@@ -1073,7 +1073,6 @@
     <div class="topbar-nav">
       <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
       <a class="nav-link" href="#problem" data-nav="problem">Problem</a>
-      <a class="nav-link" href="#connection" data-nav="connection">Connection</a>
       <a class="nav-link" href="#ai" data-nav="ai">리포트</a>
       <a class="nav-link" href="#roi" data-nav="roi">ROI</a>
     </div>
@@ -1176,6 +1175,65 @@
       <div class="stat"><div class="stat-num">187<span class="unit">만 가구</span></div><div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div><div class="stat-source">통계청 2024</div></div>
       <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
       <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 4자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
+    </div>
+    <div class="conn-wrap reveal">
+      <div class="conn-diagram">
+        <svg class="conn-svg" viewBox="0 0 480 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="cpg" d="M 240 72 L 58 268" stroke="#2C7AFC" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <path id="cpm" d="M 240 72 L 422 268" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <path id="cgm" d="M 108 304 L 372 304" stroke="#FB923C" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
+          <circle r="4.5" fill="#2C7AFC" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#cpg"/></animateMotion>
+          </circle>
+          <circle r="4.5" fill="#22C55E" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.8s"><mpath href="#cpm"/></animateMotion>
+          </circle>
+          <circle r="4.5" fill="#FB923C" opacity="0.75">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#cgm"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#2C7AFC" opacity="0.4">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.2s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpg"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#22C55E" opacity="0.4">
+            <animateMotion dur="2.4s" repeatCount="indefinite" begin="2.0s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpm"/></animateMotion>
+          </circle>
+        </svg>
+        <div class="conn-node patient">
+          <div class="conn-circle">환자</div>
+          <div class="conn-node-label">김순자 어르신</div>
+          <div class="conn-node-sub">Patient Tablet</div>
+        </div>
+        <div class="conn-node guardian">
+          <div class="conn-circle">보호자</div>
+          <div class="conn-node-label">김미영</div>
+          <div class="conn-node-sub">Guardian App</div>
+        </div>
+        <div class="conn-node medical">
+          <div class="conn-circle">의료진</div>
+          <div class="conn-node-label">박지현</div>
+          <div class="conn-node-sub">Medical Web</div>
+        </div>
+        <div class="conn-center">
+          <svg class="conn-center-logo" viewBox="0 0 2526 2526" fill="none">
+            <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+            <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+          </svg>
+          <div class="conn-center-badge">3자 실시간</div>
+        </div>
+      </div>
+      <div class="conn-compare">
+        <div class="cc-col competitor">
+          <div class="cc-label">경쟁사 최대</div>
+          <div class="cc-val">2자</div>
+          <div class="cc-note">시설 매칭 · 운영 · 결제</div>
+        </div>
+        <div class="cc-divider">vs</div>
+        <div class="cc-col haru">
+          <div class="cc-label">하루안부</div>
+          <div class="cc-val">3자 실시간</div>
+          <div class="cc-note">보호자 · 의료진 · 환자 동시</div>
+        </div>
+      </div>
     </div>
   </section>
 
