@@ -723,71 +723,82 @@
     .cc-divider{font-size:12px;font-weight:500;color:var(--mute-2);letter-spacing:.1em}
 
     /* ═══════════════════ DAILY REPORT SECTION ═══════════════════ */
-    .report-section{background:white;padding:120px 0 0;overflow:hidden}
+    .report-section{background:white;padding:120px 0 120px;overflow:hidden}
     .report-sec-head{text-align:center;margin-bottom:80px}
-    /* ── Three-phone stage ── */
+    /* ── Stage: 3-column flex ── */
     .report-stage{
-      position:relative;
-      width:100%;max-width:1400px;margin:0 auto;
-      height:900px;
-      padding:0 var(--gutter);
-      overflow:visible;
+      display:flex;align-items:flex-start;gap:44px;
+      max-width:1240px;margin:0 auto;padding:0 var(--gutter);
     }
-    .rp-phone{
-      position:absolute;bottom:80px;
-      display:flex;flex-direction:column;align-items:center;
+    /* ── Left: annotation text ── */
+    .rp-ann{flex:0 0 230px;display:flex;flex-direction:column;gap:44px;padding-top:100px}
+    .rp-ann-item{display:flex;flex-direction:column;gap:7px}
+    .rp-ann-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+    .rp-ann-title{font-size:18px;font-weight:700;letter-spacing:-.025em;color:var(--ink);line-height:1.3}
+    .rp-ann-desc{font-size:13px;color:var(--mute);line-height:1.75;letter-spacing:-.005em}
+    /* ── Center: phone ── */
+    .rp-phone-col{flex:0 0 auto}
+    .rp-phone-col .flow-png-phone{
+      filter:drop-shadow(0 24px 56px rgba(0,0,0,.10)) drop-shadow(0 4px 12px rgba(0,0,0,.05));
     }
-    .rp-phone.rp-left{left:4%;opacity:.35;z-index:1}
-    .rp-phone.rp-left .flow-png-phone{
-      transform:scale(.72);transform-origin:bottom center;
+    /* Embedded report screen (div replacing iframe) */
+    .flow-png-phone .device-screen .rp-screen{
+      position:absolute;left:0;top:0;width:390px;
+      transform:scale(0.732);transform-origin:top left;
+      font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);
+      color:#111827;padding:28px 14px 24px;
     }
-    .rp-phone.rp-center{left:50%;transform:translateX(-50%);z-index:2}
-    .rp-phone.rp-center .flow-png-phone{
-      transform:scale(.92);transform-origin:bottom center;
-      filter:drop-shadow(0 24px 56px rgba(0,0,0,.1)) drop-shadow(0 4px 12px rgba(0,0,0,.06));
+    .rp-screen-hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 12px}
+    .rp-screen-title{font-size:17px;font-weight:800;letter-spacing:-.3px;color:#111827}
+    .rp-screen-date{font-size:12px;color:rgba(0,0,0,.35)}
+    .rp-screen-mc{display:block;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);text-decoration:none;color:inherit}
+    .rp-screen-mc-photo{height:112px;background:#f3e9dc url('07_디자인/mockup/v11_보호자앱/mockup.png') center/cover no-repeat;position:relative}
+    .rp-screen-mc-photo::after{content:'';position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none}
+    .rp-screen-mc-body{padding:10px 14px 13px}
+    .rp-screen-mc-quote{font-size:11px;font-weight:600;line-height:1.5;letter-spacing:-.2px;color:#111827;margin-bottom:4px}
+    .rp-screen-mc-meta{font-size:9.5px;color:rgba(0,0,0,.35);display:flex;align-items:center;gap:4px}
+    .rp-screen-mc-meta::before{content:'';width:10px;height:1px;background:rgba(0,0,0,.15)}
+    .rp-screen-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .rp-screen-w{background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:16px;padding:13px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .rp-screen-wh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+    .rp-screen-wt{font-size:12px;font-weight:800;color:#111827;display:flex;align-items:center;gap:4px}
+    .rp-screen-mb{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+    .rp-screen-mr{display:flex;align-items:center;gap:5px}
+    .rp-screen-ml{font-size:9px;font-weight:600;width:16px;flex-shrink:0;color:#111827}
+    .rp-screen-mbg{flex:1;height:4px;background:rgba(0,0,0,.05);border-radius:2px;overflow:hidden}
+    .rp-screen-mf{height:100%;border-radius:2px}
+    /* ── Right: float cards ── */
+    .rp-floats{flex:0 0 360px;display:flex;flex-direction:column;gap:16px;padding-top:32px}
+    .rp-float{
+      background:white;border-radius:20px;overflow:hidden;
+      box-shadow:0 12px 40px rgba(0,0,0,.09),0 2px 8px rgba(0,0,0,.04);
+      border:1px solid rgba(0,0,0,.04);
     }
-    .rp-phone.rp-right{right:4%;z-index:3}
-    .rp-phone.rp-right .flow-png-phone{
-      transform:scale(1.18);transform-origin:bottom center;
-      filter:drop-shadow(0 40px 80px rgba(0,0,0,.14)) drop-shadow(0 8px 24px rgba(0,0,0,.07));
-    }
-    .rp-label{
-      margin-top:22px;font-size:11px;font-weight:500;
-      letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
-      text-align:center;white-space:nowrap;
-    }
-    /* Green pulsing dot — marks the logo button */
-    .rp-dot{
-      position:absolute;
-      top:118px;left:232px;
-      width:20px;height:20px;border-radius:50%;
-      background:var(--green);border:3px solid white;
-      box-shadow:0 0 0 5px rgba(34,197,94,.18),0 2px 8px rgba(34,197,94,.3);
-      z-index:10;pointer-events:none;
-      animation:rp-pulse 2.2s ease-in-out infinite;
-    }
-    @keyframes rp-pulse{
-      0%,100%{box-shadow:0 0 0 5px rgba(34,197,94,.18),0 2px 8px rgba(34,197,94,.3)}
-      50%{box-shadow:0 0 0 10px rgba(34,197,94,.06),0 2px 8px rgba(34,197,94,.15)}
-    }
-    /* Chip annotation near dot */
-    .rp-chip{
-      position:absolute;
-      top:104px;right:-104px;
-      background:white;border:1px solid var(--line);border-radius:100px;
-      padding:5px 14px 5px 10px;
-      font-size:11px;font-weight:600;color:var(--ink);
-      white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.08);
-      display:flex;align-items:center;gap:6px;z-index:11;
-    }
-    .rp-chip-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
-    /* Arrow SVG between center and right */
-    .rp-arrow{
-      position:absolute;
-      left:calc(50% + 147px);
-      top:162px;
-      pointer-events:none;z-index:5;
-    }
+    /* Sleep float */
+    .rp-float-sleep-pad{padding:20px 20px 18px}
+    .sf-head{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+    .sf-title{font-size:15px;font-weight:800;color:#111827;letter-spacing:-.3px}
+    .sf-big{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:3px;color:#111827}
+    .sf-sub{font-size:12px;color:rgba(0,0,0,.4);margin-bottom:8px}
+    .sf-bars{display:flex;align-items:flex-end;gap:5px;height:80px;padding:0 2px}
+    .sf-bars .sb{flex:1;border-radius:4px;min-height:3px}
+    .sf-ticks{display:flex;margin-top:4px;height:10px;position:relative}
+    .sf-ticks .tk{flex:1;position:relative}
+    .sf-ticks .tk::before{content:'';position:absolute;left:0;top:0;width:1px;height:4px;background:rgba(0,0,0,.13)}
+    .sf-ticks .tk.major::before{height:9px;background:rgba(0,0,0,.45);width:1.5px}
+    .sf-ticks::after{content:'';position:absolute;right:0;top:0;width:1.5px;height:9px;background:rgba(0,0,0,.45)}
+    .sf-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:rgba(0,0,0,.35);font-weight:600;letter-spacing:.2px}
+    .sf-legend{display:flex;align-items:center;gap:10px;margin-top:13px;font-size:11px;color:rgba(0,0,0,.35);font-weight:500}
+    .sf-legend .grad-bar{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,hsl(217,85%,88%) 0%,hsl(217,90%,69%) 50%,hsl(217,95%,50%) 100%)}
+    /* Moment float */
+    .rp-float-mc-photo{height:156px;background:#f3e9dc url('07_디자인/mockup/v11_보호자앱/mockup.png') center/cover no-repeat;position:relative;overflow:hidden}
+    .rp-float-mc-photo::after{content:'';position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none}
+    .rp-float-mc-body{padding:16px 20px 20px}
+    .rp-float-mc-quote{font-size:14px;font-weight:600;line-height:1.6;letter-spacing:-.3px;color:#111827;margin-bottom:8px}
+    .rp-float-mc-meta{font-size:11.5px;color:rgba(0,0,0,.4);display:flex;align-items:center;gap:6px}
+    .rp-float-mc-meta::before{content:'';width:14px;height:1px;background:rgba(0,0,0,.15)}
 
     /* ═══════════════════ ROI ═══════════════════ */
     .roi-section{background:var(--paper)}
@@ -866,10 +877,10 @@
       .concept-meta{grid-template-columns:1fr;gap:24px}
       .conn-diagram{width:320px;height:280px}
       .conn-compare{flex-direction:column;gap:24px;padding:28px 32px}
-      .rp-phone.rp-left,.rp-phone.rp-right,.rp-arrow,.rp-chip{display:none}
-      .report-stage{height:auto;padding:0 var(--gutter) 60px}
-      .rp-phone.rp-center{position:relative;left:auto;transform:none;bottom:auto;margin:0 auto}
-      .rp-phone.rp-center .flow-png-phone{transform:none;filter:drop-shadow(0 24px 56px rgba(0,0,0,.1))}
+      .report-stage{flex-direction:column;align-items:center;gap:28px;padding-bottom:60px}
+      .rp-ann{flex:none;width:100%;max-width:400px;flex-direction:row;flex-wrap:wrap;padding-top:0;gap:20px}
+      .rp-ann-item{flex:1;min-width:140px}
+      .rp-floats{flex:none;width:100%;max-width:400px;align-items:stretch}
       .ai-cards{grid-template-columns:1fr}
       .roi-inner{grid-template-columns:1fr;gap:40px}
       .roi-results-grid{grid-template-columns:1fr}
@@ -1367,50 +1378,122 @@
       <h2 class="sec-title">물어보면 바로 답하고,<br>매일 아침 먼저 전합니다.</h2>
     </div>
 
-    <div class="report-stage" id="report-stage">
+    <div class="report-stage">
 
-      <!-- Left phone: AI daily report -->
-      <div class="rp-phone rp-left reveal">
+      <!-- Left: annotation text -->
+      <div class="rp-ann reveal">
+        <div class="rp-ann-item">
+          <div class="rp-ann-tag">Daily Report</div>
+          <div class="rp-ann-title">매일 아침,<br>먼저 전해집니다</div>
+          <p class="rp-ann-desc">AI가 전날 케어 데이터를 분석해 수면·투약·식사·기분을 한눈에 정리해 보냅니다.</p>
+        </div>
+        <div class="rp-ann-item">
+          <div class="rp-ann-tag">Moment</div>
+          <div class="rp-ann-title">현장의 목소리가<br>직접 닿습니다</div>
+          <p class="rp-ann-desc">케어워커가 직접 기록한 오늘의 순간이 사진과 코멘트로 전해집니다.</p>
+        </div>
+      </div>
+
+      <!-- Center: phone with embedded static report content -->
+      <div class="rp-phone-col reveal">
         <div class="flow-png-phone">
           <div class="device-screen">
-            <iframe src="07_디자인/mockup/v11_보호자앱/g02-ai-report.html" title="AI 일일 리포트"></iframe>
+            <div class="rp-screen">
+
+              <!-- Section header -->
+              <div class="rp-screen-hdr">
+                <div class="rp-screen-title">일일 리포트</div>
+                <div class="rp-screen-date">5월 18일 (월)</div>
+              </div>
+
+              <!-- Moment card (small, in-phone) -->
+              <div class="rp-screen-mc">
+                <div class="rp-screen-mc-photo"></div>
+                <div class="rp-screen-mc-body">
+                  <div class="rp-screen-mc-quote">"오전 산책 때 햇빛이 좋아서 한참 머무르셨어요. 기분이 정말 좋아 보이셨어요."</div>
+                  <div class="rp-screen-mc-meta">김미영 간호사 · 10:24</div>
+                </div>
+              </div>
+
+              <!-- 2×2 widget grid -->
+              <div class="rp-screen-grid">
+
+                <!-- 투약 -->
+                <div class="rp-screen-w">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="tabler:pill-filled" style="color:#6EE7B7;font-size:14px"></iconify-icon>투약</div>
+                    <div style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:999px;color:#059669;background:rgba(52,211,153,.12)">완료</div>
+                  </div>
+                  <div style="font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:3px;color:#111827">3<span style="font-size:12px;font-weight:600;color:rgba(0,0,0,.35)">/3</span></div>
+                  <div style="font-size:9px;color:rgba(0,0,0,.4)">아침·점심·오후 완료</div>
+                </div>
+
+                <!-- 맥박 -->
+                <div class="rp-screen-w">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="fluent:pulse-24-filled" style="color:#EF4444;font-size:14px"></iconify-icon>맥박</div>
+                  </div>
+                  <div style="font-size:30px;font-weight:800;letter-spacing:-1.5px;line-height:.9;margin-bottom:3px;color:#111827">72</div>
+                  <div style="font-size:9px;font-weight:700;color:rgba(0,0,0,.35);letter-spacing:.2px">BPM · 평균 근처</div>
+                </div>
+
+                <!-- 기분 -->
+                <div class="rp-screen-w">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="fluent:emoji-24-filled" style="color:#2C7AFC;font-size:14px"></iconify-icon>기분</div>
+                  </div>
+                  <div style="font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:2px;color:#111827">87<span style="font-size:10px;font-weight:500;color:rgba(0,0,0,.35)">점</span></div>
+                  <div style="font-size:9px;color:rgba(0,0,0,.4)">밝고 안정적</div>
+                </div>
+
+                <!-- 식사 -->
+                <div class="rp-screen-w">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="fluent:food-24-filled" style="color:#059669;font-size:14px"></iconify-icon>식사</div>
+                  </div>
+                  <div style="font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;color:#111827">3<span style="font-size:10px;font-weight:500;color:rgba(0,0,0,.35)"> 끼</span></div>
+                  <div class="rp-screen-mb">
+                    <div class="rp-screen-mr"><span class="rp-screen-ml">아침</span><div class="rp-screen-mbg"><div class="rp-screen-mf" style="width:100%;background:#34D399"></div></div></div>
+                    <div class="rp-screen-mr"><span class="rp-screen-ml">점심</span><div class="rp-screen-mbg"><div class="rp-screen-mf" style="width:55%;background:#F59E0B"></div></div></div>
+                    <div class="rp-screen-mr"><span class="rp-screen-ml">저녁</span><div class="rp-screen-mbg"><div class="rp-screen-mf" style="width:90%;background:#34D399"></div></div></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
           <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
         </div>
-        <div class="rp-label">AI 일일 리포트</div>
       </div>
 
-      <!-- Center phone: AI home with logo button -->
-      <div class="rp-phone rp-center reveal">
-        <div class="flow-png-phone">
-          <div class="device-screen">
-            <iframe src="07_디자인/mockup/v11_보호자앱/g-guardian-live.html" title="하루 AI 홈"></iframe>
+      <!-- Right: enlarged float cards -->
+      <div class="rp-floats reveal">
+
+        <!-- Sleep widget (enlarged) -->
+        <div class="rp-float">
+          <div class="rp-float-sleep-pad">
+            <div class="sf-head">
+              <iconify-icon icon="fluent:weather-moon-24-filled" style="font-size:18px;color:#2C7AFC"></iconify-icon>
+              <span class="sf-title">수면</span>
+            </div>
+            <div class="sf-big">7<span style="font-size:18px;font-weight:600;opacity:.4">시간 </span>32<span style="font-size:18px;font-weight:600;opacity:.4">분</span></div>
+            <div class="sf-sub">지난 밤 · 깨심 1회</div>
+            <div class="sf-bars"><div class="sb" style="height:4px;background:hsl(217,85%,88%)"></div><div class="sb" style="height:8px;background:hsl(217,85%,86%)"></div><div class="sb" style="height:14px;background:hsl(217,86%,84%)"></div><div class="sb" style="height:22px;background:hsl(217,87%,81%)"></div><div class="sb" style="height:34px;background:hsl(217,88%,76%)"></div><div class="sb" style="height:50px;background:hsl(217,90%,70%)"></div><div class="sb" style="height:66px;background:hsl(217,91%,63%)"></div><div class="sb" style="height:80px;background:hsl(217,93%,58%)"></div><div class="sb" style="height:90px;background:hsl(217,94%,54%)"></div><div class="sb" style="height:98px;background:hsl(217,95%,51%)"></div><div class="sb" style="height:100px;background:hsl(217,95%,50%)"></div><div class="sb" style="height:94px;background:hsl(217,94%,52%)"></div><div class="sb" style="height:84px;background:hsl(217,93%,56%)"></div><div class="sb" style="height:72px;background:hsl(217,92%,61%)"></div><div class="sb" style="height:58px;background:hsl(217,91%,67%)"></div><div class="sb" style="height:42px;background:hsl(217,89%,73%)"></div><div class="sb" style="height:28px;background:hsl(217,88%,79%)"></div><div class="sb" style="height:18px;background:hsl(217,86%,82%)"></div><div class="sb" style="height:10px;background:hsl(217,86%,86%)"></div><div class="sb" style="height:5px;background:hsl(217,85%,88%)"></div></div>
+            <div class="sf-ticks"><div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div><div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div><div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div><div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div><div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div></div>
+            <div class="sf-labels"><span>22시</span><span>00시</span><span>02시</span><span>04시</span><span>06시</span><span>08시</span></div>
+            <div class="sf-legend"><span>깨어있음</span><div class="grad-bar"></div><span>깊은 수면</span></div>
           </div>
-          <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
         </div>
-        <!-- Pulsing dot over logo button + annotation chip -->
-        <div class="rp-dot"></div>
-        <div class="rp-chip"><span class="rp-chip-dot"></span>탭하면 대화 기록이 열립니다</div>
-        <div class="rp-label">하루 AI 홈</div>
-      </div>
 
-      <!-- Arrow: center → right -->
-      <div class="rp-arrow">
-        <svg width="136" height="52" viewBox="0 0 136 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 44 Q68 44 132 10" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 3.5" stroke-linecap="round"/>
-          <polyline points="122,4 134,10 124,18" stroke="#22C55E" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-
-      <!-- Right phone: chat history (result of tapping logo) -->
-      <div class="rp-phone rp-right reveal">
-        <div class="flow-png-phone">
-          <div class="device-screen">
-            <iframe src="07_디자인/mockup/v11_보호자앱/g03-chat-ai.html" title="대화 기록"></iframe>
+        <!-- Moment card (enlarged) -->
+        <div class="rp-float">
+          <div class="rp-float-mc-photo"></div>
+          <div class="rp-float-mc-body">
+            <div class="rp-float-mc-quote">"오전 산책 때 햇빛이 좋아서 한참 머무르셨어요.<br>기분이 정말 좋아 보이셨어요."</div>
+            <div class="rp-float-mc-meta">김미영 간호사 · 10:24</div>
           </div>
-          <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
         </div>
-        <div class="rp-label">대화 기록</div>
+
       </div>
 
     </div>
