@@ -619,18 +619,36 @@
     }
     #interact-next:hover{background:var(--blue)}
 
-    /* ── SHOWCASE SECTION ── */
-    .showcase-tabs{display:flex;gap:8px;margin-bottom:56px;flex-wrap:wrap}
-    .sc-tab{
-      padding:10px 24px;border-radius:100px;
-      font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:-.01em;
-      color:var(--mute);background:var(--paper);border:1px solid var(--line);
-      transition:all .2s;cursor:pointer;
-    }
-    .sc-tab:hover{border-color:var(--ink-2);color:var(--ink)}
-    .sc-tab.active{background:var(--ink);color:white;border-color:var(--ink)}
-    .showcase-stage{display:flex;justify-content:center;gap:40px;align-items:flex-start;flex-wrap:wrap;min-height:640px}
-    .showcase-hint{text-align:center;margin-top:32px;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+    /* ── SOLUTION CARDS ── */
+    .sol-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:64px;transition:opacity .3s,transform .3s}
+    .sol-grid.hidden{opacity:0;pointer-events:none;transform:translateY(8px)}
+    .sol-card{position:relative;border:1px solid var(--line);border-radius:24px;padding:28px 22px 22px;background:#fff;cursor:pointer;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s;display:flex;flex-direction:column;overflow:hidden;text-align:left;width:100%;font-family:var(--font)}
+    .sol-card:hover{transform:translateY(-6px);box-shadow:0 24px 64px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.05);border-color:transparent}
+    .sol-card:hover .sol-card-cta{background:var(--green);color:#fff;border-color:var(--green)}
+    .sol-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .sol-card-num{font-size:11px;font-weight:500;color:var(--mute-2);letter-spacing:.14em;font-feature-settings:"tnum" 1}
+    .sol-card-badge{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);background:var(--paper);border:1px solid var(--line);border-radius:100px;padding:3px 8px}
+    .sol-card-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-height:1.2;margin-bottom:4px}
+    .sol-card-en{font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+    .sol-card-desc{font-size:12.5px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;flex:1;margin-bottom:20px}
+    .sol-card-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:-.01em;color:var(--ink);background:var(--paper);border:1px solid var(--line);transition:all .2s;align-self:flex-start;font-family:var(--font)}
+    /* Demo panel */
+    .sol-demo-panel{display:none;margin-top:64px;gap:32px;align-items:flex-start;opacity:0;transition:opacity .3s}
+    .sol-demo-panel.active{display:flex;opacity:1}
+    .sol-demo-nav{flex-shrink:0;width:200px;display:flex;flex-direction:column;gap:6px;position:sticky;top:100px}
+    .sol-demo-nav-item{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:14px;border:1px solid transparent;cursor:pointer;background:transparent;text-align:left;width:100%;transition:all .15s;font-family:var(--font)}
+    .sol-demo-nav-item:hover{background:var(--paper);border-color:var(--line)}
+    .sol-demo-nav-item.active{background:var(--ink);border-color:var(--ink)}
+    .sol-demo-nav-item.active .sni-num,.sol-demo-nav-item.active .sni-name,.sol-demo-nav-item.active .sni-en{color:rgba(255,255,255,.6)}
+    .sol-demo-nav-item.active .sni-name{color:#fff}
+    .sni-num{font-size:9px;font-weight:500;color:var(--mute-2);letter-spacing:.1em;font-feature-settings:"tnum" 1;margin-bottom:2px}
+    .sni-name{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.2}
+    .sni-en{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px}
+    .sol-demo-right{flex:1;min-width:0;display:flex;flex-direction:column}
+    .sol-demo-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;padding:8px 16px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:-.01em;color:var(--mute);background:var(--paper);border:1px solid var(--line);cursor:pointer;font-family:var(--font);transition:all .2s;align-self:flex-start}
+    .sol-demo-back:hover{color:var(--ink);border-color:var(--ink-2)}
+    .sol-demo-stage{display:flex;justify-content:center;align-items:flex-start;min-height:600px;overflow:hidden}
+    .showcase-hint{text-align:center;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
 
     /* ── PNG DEVICE MOCKUPS (Showcase) ── */
     .sc-device-col{display:flex;flex-direction:column;align-items:center;gap:28px;width:100%}
@@ -824,6 +842,11 @@
       .stats-row,.persona-grid{grid-template-columns:1fr;border-radius:16px}
       .role-row{grid-template-columns:40px 1fr;gap:16px}
       .role-row .role-desc,.role-row .role-platform{grid-column:2}
+      .sol-grid{grid-template-columns:1fr 1fr;gap:12px;margin-top:40px}
+      .sol-demo-panel.active{flex-direction:column}
+      .sol-demo-nav{width:100%;position:static;flex-direction:row;flex-wrap:wrap;gap:8px}
+      .sol-demo-nav-item{width:auto;flex-direction:row;gap:8px;padding:8px 14px}
+      .sni-en{display:none}
       .concept-meta{grid-template-columns:1fr;gap:24px}
       .conn-diagram{width:320px;height:280px}
       .conn-compare{flex-direction:column;gap:24px;padding:28px 32px}
@@ -1176,65 +1199,6 @@
       <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
       <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 4자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
     </div>
-    <div class="conn-wrap reveal">
-      <div class="conn-diagram">
-        <svg class="conn-svg" viewBox="0 0 480 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path id="cpg" d="M 240 72 L 58 268" stroke="#2C7AFC" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <path id="cpm" d="M 240 72 L 422 268" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <path id="cgm" d="M 108 304 L 372 304" stroke="#FB923C" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.22"/>
-          <circle r="4.5" fill="#2C7AFC" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#cpg"/></animateMotion>
-          </circle>
-          <circle r="4.5" fill="#22C55E" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.8s"><mpath href="#cpm"/></animateMotion>
-          </circle>
-          <circle r="4.5" fill="#FB923C" opacity="0.75">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#cgm"/></animateMotion>
-          </circle>
-          <circle r="3" fill="#2C7AFC" opacity="0.4">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="1.2s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpg"/></animateMotion>
-          </circle>
-          <circle r="3" fill="#22C55E" opacity="0.4">
-            <animateMotion dur="2.4s" repeatCount="indefinite" begin="2.0s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#cpm"/></animateMotion>
-          </circle>
-        </svg>
-        <div class="conn-node patient">
-          <div class="conn-circle">환자</div>
-          <div class="conn-node-label">김순자 어르신</div>
-          <div class="conn-node-sub">Patient Tablet</div>
-        </div>
-        <div class="conn-node guardian">
-          <div class="conn-circle">보호자</div>
-          <div class="conn-node-label">김미영</div>
-          <div class="conn-node-sub">Guardian App</div>
-        </div>
-        <div class="conn-node medical">
-          <div class="conn-circle">의료진</div>
-          <div class="conn-node-label">박지현</div>
-          <div class="conn-node-sub">Medical Web</div>
-        </div>
-        <div class="conn-center">
-          <svg class="conn-center-logo" viewBox="0 0 2526 2526" fill="none">
-            <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
-            <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
-          </svg>
-          <div class="conn-center-badge">3자 실시간</div>
-        </div>
-      </div>
-      <div class="conn-compare">
-        <div class="cc-col competitor">
-          <div class="cc-label">경쟁사 최대</div>
-          <div class="cc-val">2자</div>
-          <div class="cc-note">시설 매칭 · 운영 · 결제</div>
-        </div>
-        <div class="cc-divider">vs</div>
-        <div class="cc-col haru">
-          <div class="cc-label">하루안부</div>
-          <div class="cc-val">3자 실시간</div>
-          <div class="cc-note">보호자 · 의료진 · 환자 동시</div>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- ══ PAIN ZONE: 질문(index 0) + 카피(index 1-7) 통합 ══ -->
@@ -1300,32 +1264,83 @@
   </section>
 
 
-  <section id="showcase" class="container">
-    <div class="sec-head reveal">
-      <div class="sec-eyebrow">Interactive Demo</div>
-      <h2 class="sec-title">직접 써보세요.</h2>
-      <p class="sec-sub">각 역할의 화면을 스크롤하고 탭하며 직접 경험해보세요.</p>
-    </div>
-    <div class="showcase-tabs reveal">
-      <button class="sc-tab active" data-role="guardian">보호자 앱</button>
-      <button class="sc-tab" data-role="caregiver">요양보호사 앱</button>
-      <button class="sc-tab" data-role="patient">환자 앱</button>
-      <button class="sc-tab" data-role="nurse">의료진 웹</button>
-    </div>
-    <div class="showcase-stage reveal" id="showcase-stage"></div>
-    <p class="showcase-hint reveal">스크롤하고 탭해보세요 — 실제 앱과 동일합니다</p>
-  </section>
-  <div class="hairline"></div>
-
   <section id="solution" class="container">
-    <div class="sec-head reveal"><div class="sec-eyebrow">Solution</div><h2 class="sec-title">한 번의 안부,<br>다섯 개의 화면.</h2><p class="sec-sub">같은 데이터를 보호자는 안심 지수로, 요양보호사는 스텝퍼로, 환자는 큰 글씨 한 화면으로, 의료진은 47명 대시보드로 봅니다.</p></div>
-    <div class="roles-list reveal">
-      <div class="role-row"><div class="role-num">01</div><div class="role-name">보호자 앱<span>Guardian</span></div><div class="role-desc">멀리 있어도 오늘이 보이는 한 화면. 식사·복약·기분 흐름과 안심 지수를 1일 1회 자동 수신합니다.</div><div class="role-platform">Mobile</div></div>
-      <div class="role-row"><div class="role-num">02</div><div class="role-name">요양보호사 앱<span>Caregiver</span></div><div class="role-desc">방문 동선 위에서 8단계 스텝퍼로 빠르게 기록. SOS 즉시 간호사 전달.</div><div class="role-platform">Mobile</div></div>
-      <div class="role-row"><div class="role-num">03</div><div class="role-name">환자 앱<span>Patient</span></div><div class="role-desc">거실 거치형 태블릿. 화면 3개·터치 56px·글자 +2px. 조작이 아니라 '있는 것'.</div><div class="role-platform">Tablet</div></div>
-      <div class="role-row"><div class="role-num">04</div><div class="role-name">의료진 웹<span>Medical</span></div><div class="role-desc">47명의 환자를 한 대시보드에. AI가 이상 신호를 중요도 순으로 정렬합니다.</div><div class="role-platform">Desktop</div></div>
-      <div class="role-row"><div class="role-num">05</div><div class="role-name">의료진 앱<span>Medical</span></div><div class="role-desc">병동 이동 중에도 환자 상태를 즉시 확인. SOS 수신·처치 기록·간호사 인계를 모바일에서 처리합니다.</div><div class="role-platform">Mobile</div></div>
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Solution</div>
+      <h2 class="sec-title">하나의 케어,<br>다섯 개의 시선.</h2>
+      <p class="sec-sub">같은 환자를 보호자는 안심 지수로, 요양보호사는 스텝퍼로, 의료진은 47명 대시보드로 읽습니다.<br>모두가 같은 데이터를, 자신의 방식으로.</p>
     </div>
+
+    <!-- STATE 1: 카드 그리드 -->
+    <div class="sol-grid reveal" id="sol-grid">
+
+      <button class="sol-card" data-role="guardian">
+        <div class="sol-card-top">
+          <span class="sol-card-num">01</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">보호자 앱</div>
+        <div class="sol-card-en">Guardian</div>
+        <div class="sol-card-desc">어제와 오늘이 한눈에. 식사·복약·수면이 안심 지수 하나로 응축됩니다. 전화 없이도 오늘이 보입니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="caregiver">
+        <div class="sol-card-top">
+          <span class="sol-card-num">02</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">요양보호사 앱</div>
+        <div class="sol-card-en">Caregiver</div>
+        <div class="sol-card-desc">기록에 10초. 스텝퍼 8단계로 방문 케어 전체를 완성하고, SOS는 의료진에게 즉시 전달됩니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="patient">
+        <div class="sol-card-top">
+          <span class="sol-card-num">03</span>
+          <span class="sol-card-badge">Tablet</span>
+        </div>
+        <div class="sol-card-name">환자 앱</div>
+        <div class="sol-card-en">Patient</div>
+        <div class="sol-card-desc">화면 3개, 글자는 크게, 터치는 넓게. 설명 없이도 첫날부터 혼자 씁니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="nurse">
+        <div class="sol-card-top">
+          <span class="sol-card-num">04</span>
+          <span class="sol-card-badge">Desktop</span>
+        </div>
+        <div class="sol-card-name">의료진 웹</div>
+        <div class="sol-card-en">Medical Web</div>
+        <div class="sol-card-desc">47명을 한 화면에. AI가 이상 신호를 중요도 순으로 정렬해 아무도 놓치지 않습니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="nurse-app">
+        <div class="sol-card-top">
+          <span class="sol-card-num">05</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">의료진 앱</div>
+        <div class="sol-card-en">Medical App</div>
+        <div class="sol-card-desc">SOS가 울리면 2초 안에 환자를 특정합니다. 병동을 걸으면서 처치 기록부터 인계까지.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+    </div>
+
+    <!-- STATE 2: 인터랙티브 데모 패널 -->
+    <div class="sol-demo-panel" id="sol-demo-panel">
+      <div class="sol-demo-nav" id="sol-demo-nav"></div>
+      <div class="sol-demo-right">
+        <button class="sol-demo-back" id="sol-demo-back">← 목록으로</button>
+        <div class="sol-demo-stage" id="sol-demo-stage"></div>
+        <p class="showcase-hint" style="margin-top:24px">스크롤하고 탭해보세요 — 실제 앱과 동일합니다</p>
+      </div>
+    </div>
+
   </section>
 
   <!-- ══ DAILY REPORT SECTION ══ -->
@@ -2050,10 +2065,11 @@ function interactNext() {
 }
 
 /* ══════════════════════════════════════════
-   SHOWCASE — PNG Device Mockups
+   SOLUTION — PNG Device Mockups
 ══════════════════════════════════════════ */
 const SC_ROLES = {
   guardian: {
+    label: '보호자 앱', en: 'Guardian', num: '01',
     type: 'phone',
     iframeStyle: 'top:-7px;height:809px;',
     screens: [
@@ -2064,6 +2080,7 @@ const SC_ROLES = {
     ]
   },
   caregiver: {
+    label: '요양보호사 앱', en: 'Caregiver', num: '02',
     type: 'phone',
     iframeStyle: 'top:-46px;height:857px;',
     screens: [
@@ -2073,6 +2090,7 @@ const SC_ROLES = {
     ]
   },
   patient: {
+    label: '환자 앱', en: 'Patient', num: '03',
     type: 'ipad',
     screens: [
       {label:'오늘',      src:'07_디자인/mockup/v12_환자앱/p01-today.html'},
@@ -2082,6 +2100,7 @@ const SC_ROLES = {
     ]
   },
   nurse: {
+    label: '의료진 웹', en: 'Medical Web', num: '04',
     type: 'imac',
     url: 'haru-anbu.kr/nurse',
     screens: [
@@ -2089,6 +2108,16 @@ const SC_ROLES = {
       {label:'환자 목록', src:'07_디자인/mockup/v1_의료진웹/n02-patients.html'},
       {label:'체크리스트',src:'07_디자인/mockup/v1_의료진웹/n03-checklist.html'},
       {label:'SOS',       src:'07_디자인/mockup/v1_의료진웹/n05-sos.html'},
+    ]
+  },
+  'nurse-app': {
+    label: '의료진 앱', en: 'Medical App', num: '05',
+    type: 'phone',
+    iframeStyle: 'top:-46px;height:857px;',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html'},
+      {label:'소통',      src:'07_디자인/mockup/v11_요양보호사앱/c03-sotong.html'},
     ]
   }
 };
@@ -2165,7 +2194,6 @@ function renderScRole(role, stageEl) {
   else if (d.type === 'ipad')  deviceWrap = buildIpadMockup(role);
   else                          deviceWrap = buildImacMockup(role);
 
-  // screen selector — find the iframe inside the device
   const tabsEl = document.createElement('div');
   tabsEl.className = 'sc-screen-tabs';
   d.screens.forEach((sc, i) => {
@@ -2186,23 +2214,52 @@ function renderScRole(role, stageEl) {
   stageEl.appendChild(col);
 }
 
-function initShowcase() {
-  const scStage = document.getElementById('showcase-stage');
-  const tabs    = document.querySelectorAll('.sc-tab[data-role]');
-  if (!scStage || !tabs.length) return;
+/* ── SOLUTION INTERACTIVE DEMO ── */
+function initSolDemo() {
+  const grid      = document.getElementById('sol-grid');
+  const panel     = document.getElementById('sol-demo-panel');
+  const navEl     = document.getElementById('sol-demo-nav');
+  const stageEl   = document.getElementById('sol-demo-stage');
+  const backBtn   = document.getElementById('sol-demo-back');
+  if (!grid || !panel) return;
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderScRole(tab.dataset.role, scStage);
+  const roleOrder = ['guardian','caregiver','patient','nurse','nurse-app'];
+
+  function buildNav(activeRole) {
+    navEl.innerHTML = '';
+    roleOrder.forEach(role => {
+      const d = SC_ROLES[role];
+      const btn = document.createElement('button');
+      btn.className = 'sol-demo-nav-item' + (role === activeRole ? ' active' : '');
+      btn.innerHTML = `<span class="sni-num">${d.num}</span><span class="sni-name">${d.label}</span><span class="sni-en">${d.en}</span>`;
+      btn.addEventListener('click', () => openDemo(role));
+      navEl.appendChild(btn);
     });
+  }
+
+  function openDemo(role) {
+    grid.classList.add('hidden');
+    panel.classList.add('active');
+    buildNav(role);
+    renderScRole(role, stageEl);
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function closeDemo() {
+    panel.classList.remove('active');
+    grid.classList.remove('hidden');
+    stageEl.innerHTML = '';
+    grid.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.querySelectorAll('.sol-card[data-role]').forEach(card => {
+    card.addEventListener('click', () => openDemo(card.dataset.role));
   });
 
-  renderScRole('guardian', scStage);
+  backBtn.addEventListener('click', closeDemo);
 }
 
-initShowcase();
+initSolDemo();
 
 /* ══════════════════════════════════════════
    MAIN PAGE
