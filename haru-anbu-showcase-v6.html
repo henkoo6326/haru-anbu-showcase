@@ -725,7 +725,6 @@
     /* ═══════════════════ DAILY REPORT SECTION ═══════════════════ */
     .report-section{background:white;padding:120px 0 140px;overflow:hidden}
     .report-sec-head{text-align:center;margin-bottom:80px}
-    /* Stage: centered phone + floating UI cards */
     .report-stage{
       position:relative;
       display:flex;justify-content:center;align-items:center;
@@ -734,44 +733,33 @@
     }
     .report-phone-hero{position:relative;z-index:2}
     .report-phone-hero .flow-png-phone{
-      transform:scale(1.1);transform-origin:center center;
+      transform:scale(1.15);transform-origin:center center;
       filter:drop-shadow(0 40px 80px rgba(0,0,0,.13)) drop-shadow(0 8px 24px rgba(0,0,0,.07));
     }
-    /* ── Sleep widget float ── */
-    .sleep-float{
-      position:absolute;
-      left:calc(50% + 110px);
-      top:50%;
-      transform:translateY(-50%) scale(1.13);
-      transform-origin:left center;
-      width:272px;
-      z-index:10;
-      filter:drop-shadow(0 28px 64px rgba(0,0,0,.14)) drop-shadow(0 4px 16px rgba(0,0,0,.08));
+    /* ── Annotation callouts ── */
+    .r-ann{
+      position:absolute;display:flex;align-items:center;gap:0;
+      opacity:0;transition:opacity .5s ease,transform .5s ease;
     }
-    .sleep-float .sf-w{
-      background:rgba(255,255,255,.98);
-      border:1px solid rgba(0,0,0,.07);
-      border-radius:20px;
-      padding:18px;
-      font-family:var(--font);
-      -webkit-font-smoothing:antialiased;
-    }
-    .sleep-float .sf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .sleep-float .sf-title{font-size:15px;font-weight:800;color:#111827;display:flex;align-items:center;gap:6px;letter-spacing:-.3px}
-    .sleep-float .sf-big{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px;color:#111827}
-    .sleep-float .sf-big span{font-size:16px;font-weight:600;opacity:.4}
-    .sleep-float .sf-sub{font-size:11px;color:rgba(0,0,0,.35)}
-    .sleep-float .sf-chart{margin-top:10px}
-    .sleep-float .sf-bars{display:flex;align-items:flex-end;gap:5px;height:96px;padding:0 2px}
-    .sleep-float .sf-bars .sb{flex:1;border-radius:4px;min-height:3px}
-    .sleep-float .sf-ticks{display:flex;margin-top:4px;height:10px;position:relative}
-    .sleep-float .sf-ticks .tk{flex:1;position:relative}
-    .sleep-float .sf-ticks .tk::before{content:'';position:absolute;left:0;top:0;width:1px;height:4px;background:rgba(0,0,0,.13)}
-    .sleep-float .sf-ticks .tk.major::before{height:9px;background:rgba(0,0,0,.45);width:1.5px}
-    .sleep-float .sf-ticks::after{content:'';position:absolute;right:0;top:0;width:1.5px;height:9px;background:rgba(0,0,0,.45)}
-    .sleep-float .sf-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:rgba(0,0,0,.35);font-weight:600;letter-spacing:.2px}
-    .sleep-float .sf-legend{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:10px;color:rgba(0,0,0,.35);font-weight:500}
-    .sleep-float .sf-legend .grad-bar{flex:1;height:5px;border-radius:3px;background:linear-gradient(90deg,hsl(217,85%,88%) 0%,hsl(217,90%,69%) 50%,hsl(217,95%,50%) 100%)}
+    .r-ann.visible{opacity:1;transform:none}
+    .r-ann.r-left{right:calc(50% + 186px);flex-direction:row;transform:translateX(-12px)}
+    .r-ann.r-right{left:calc(50% + 186px);flex-direction:row;transform:translateX(12px)}
+    .r-ann.visible.r-left,.r-ann.visible.r-right{transform:translateX(0)}
+    .r-ann-body{display:flex;flex-direction:column;gap:2px}
+    .r-ann.r-left .r-ann-body{text-align:right}
+    .r-ann.r-right .r-ann-body{text-align:left}
+    .r-ann-label{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.3}
+    .r-ann-desc{font-size:11px;color:var(--mute);letter-spacing:-.005em;line-height:1.4;max-width:130px}
+    .r-ann.r-left .r-ann-desc{margin-left:auto}
+    .r-ann-connector{display:flex;align-items:center;flex-shrink:0}
+    .r-ann.r-left .r-ann-connector{margin-left:14px}
+    .r-ann.r-right .r-ann-connector{margin-right:14px}
+    .r-ann-line{height:1px;background:var(--line);flex-shrink:0}
+    .r-ann.r-left .r-ann-line{width:44px}
+    .r-ann.r-right .r-ann-line{width:44px}
+    .r-ann-dot{width:5px;height:5px;border-radius:50%;background:var(--mute-2);flex-shrink:0}
+    .r-ann.r-left .r-ann-connector{flex-direction:row}
+    .r-ann.r-right .r-ann-connector{flex-direction:row}
 
     /* ═══════════════════ ROI ═══════════════════ */
     .roi-section{background:var(--paper)}
@@ -850,9 +838,9 @@
       .concept-meta{grid-template-columns:1fr;gap:24px}
       .conn-diagram{width:320px;height:280px}
       .conn-compare{flex-direction:column;gap:24px;padding:28px 32px}
-      .sleep-float{display:none}
+      .r-ann{display:none}
       .report-stage{min-height:auto;padding:20px var(--gutter)}
-      .report-phone-hero .flow-png-phone{transform:scale(.88)}
+      .report-phone-hero .flow-png-phone{transform:scale(.95)}
       .ai-cards{grid-template-columns:1fr}
       .roi-inner{grid-template-columns:1fr;gap:40px}
       .roi-results-grid{grid-template-columns:1fr}
@@ -1350,49 +1338,61 @@
       <h2 class="sec-title">매일 아침 8시,<br>어머니의 하루가 도착합니다.</h2>
     </div>
 
-    <div class="report-stage">
+    <div class="report-stage" id="report-stage">
 
-      <!-- Center phone hero -->
+      <!-- Left annotations -->
+      <div class="r-ann r-left" style="top:22%">
+        <div class="r-ann-body">
+          <div class="r-ann-label">AI 안심 지수</div>
+          <div class="r-ann-desc">하루 케어를 숫자 하나로 압축합니다</div>
+        </div>
+        <div class="r-ann-connector">
+          <div class="r-ann-line"></div>
+          <div class="r-ann-dot"></div>
+        </div>
+      </div>
+
+      <div class="r-ann r-left" style="top:52%">
+        <div class="r-ann-body">
+          <div class="r-ann-label">수면 분석</div>
+          <div class="r-ann-desc">7시간 32분, 깨심 1회 자동 기록</div>
+        </div>
+        <div class="r-ann-connector">
+          <div class="r-ann-line"></div>
+          <div class="r-ann-dot"></div>
+        </div>
+      </div>
+
+      <!-- Center phone showing actual AI report UI -->
       <div class="report-phone-hero reveal">
         <div class="flow-png-phone">
           <div class="device-screen">
-            <iframe src="07_디자인/mockup/v11_보호자앱/g-guardian-live.html" title="보호자 앱 홈"></iframe>
+            <iframe src="07_디자인/mockup/v11_보호자앱/g02-ai-report.html" title="보호자 AI 일일리포트"></iframe>
           </div>
           <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
         </div>
       </div>
 
-      <!-- Floating sleep widget — 폰 오른쪽에 겹쳐서 팝업 -->
-      <div class="sleep-float reveal">
-        <div class="sf-w">
-          <div class="sf-head">
-            <div class="sf-title">
-              <iconify-icon icon="fluent:weather-moon-24-filled" style="color:#2C7AFC;font-size:17px"></iconify-icon>
-              수면
-            </div>
-          </div>
-          <div class="sf-big">7<span>시간 </span>32<span>분</span></div>
-          <div class="sf-sub">지난 밤 · 깨심 1회</div>
-          <div class="sf-chart">
-            <div class="sf-bars">
-              <div class="sb" style="height:4px;background:hsl(217,85%,88%)"></div><div class="sb" style="height:8px;background:hsl(217,85%,86%)"></div><div class="sb" style="height:14px;background:hsl(217,86%,84%)"></div><div class="sb" style="height:22px;background:hsl(217,87%,81%)"></div><div class="sb" style="height:34px;background:hsl(217,88%,76%)"></div><div class="sb" style="height:50px;background:hsl(217,90%,70%)"></div><div class="sb" style="height:66px;background:hsl(217,91%,63%)"></div><div class="sb" style="height:80px;background:hsl(217,93%,58%)"></div><div class="sb" style="height:90px;background:hsl(217,94%,54%)"></div><div class="sb" style="height:96px;background:hsl(217,95%,51%)"></div><div class="sb" style="height:96px;background:hsl(217,95%,50%)"></div><div class="sb" style="height:90px;background:hsl(217,94%,52%)"></div><div class="sb" style="height:80px;background:hsl(217,93%,56%)"></div><div class="sb" style="height:68px;background:hsl(217,92%,61%)"></div><div class="sb" style="height:54px;background:hsl(217,91%,67%)"></div><div class="sb" style="height:38px;background:hsl(217,89%,73%)"></div><div class="sb" style="height:24px;background:hsl(217,88%,79%)"></div><div class="sb" style="height:14px;background:hsl(217,86%,82%)"></div><div class="sb" style="height:8px;background:hsl(217,86%,86%)"></div><div class="sb" style="height:4px;background:hsl(217,85%,88%)"></div>
-            </div>
-            <div class="sf-ticks">
-              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
-              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
-              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
-              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
-              <div class="tk major"></div><div class="tk"></div><div class="tk"></div><div class="tk"></div>
-            </div>
-            <div class="sf-labels">
-              <span>22시</span><span>00시</span><span>02시</span><span>04시</span><span>06시</span><span>08시</span>
-            </div>
-          </div>
-          <div class="sf-legend">
-            <span>깨어있음</span>
-            <div class="grad-bar"></div>
-            <span>깊은 수면</span>
-          </div>
+      <!-- Right annotations -->
+      <div class="r-ann r-right" style="top:36%">
+        <div class="r-ann-connector">
+          <div class="r-ann-dot"></div>
+          <div class="r-ann-line"></div>
+        </div>
+        <div class="r-ann-body">
+          <div class="r-ann-label">AI 리포트 문장</div>
+          <div class="r-ann-desc">매일 아침 케어 데이터를 문장으로</div>
+        </div>
+      </div>
+
+      <div class="r-ann r-right" style="top:65%">
+        <div class="r-ann-connector">
+          <div class="r-ann-dot"></div>
+          <div class="r-ann-line"></div>
+        </div>
+        <div class="r-ann-body">
+          <div class="r-ann-label">식사 · 복약</div>
+          <div class="r-ann-desc">드신 것, 드실 것이 한눈에</div>
         </div>
       </div>
 
@@ -2282,6 +2282,22 @@ const io = new IntersectionObserver(es => {
   });
 }, {threshold:.1});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Annotation callout reveal — staggered when report-stage enters view
+(function(){
+  const stage = document.getElementById('report-stage');
+  if (!stage) return;
+  const anns = stage.querySelectorAll('.r-ann');
+  const annObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        anns.forEach((a, i) => setTimeout(() => a.classList.add('visible'), 300 + i * 150));
+        annObs.disconnect();
+      }
+    });
+  }, {threshold: .25});
+  annObs.observe(stage);
+})();
 
 const navLinks = document.querySelectorAll('.nav-link[data-nav]');
 const navObs = new IntersectionObserver(es => {
