@@ -1,0 +1,3207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루안부 — Service Showcase v6</title>
+  <link rel="preload" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    :root {
+      --blue:#2C7AFC; --green:#22C55E; --orange:#FB923C; --red:#EF4444;
+      --ink:#111111; --ink-2:#333333; --mute:#888888; --mute-2:#B5B5B5;
+      --line:#E8E8E8; --line-soft:#F1F1F1; --paper:#FAFAFA; --bg:#FFFFFF; --dark:#0A0A0A;
+      --sys:#F2F2F7;
+      --font:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+      --container:1200px; --gutter:clamp(24px,5vw,64px); --pad-section:clamp(96px,14vw,180px);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);font-size:16px;line-height:1.75;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    /* (formerly: body.flow-active{overflow:hidden} — popup removed) */
+    a{color:inherit;text-decoration:none}
+    img,svg{display:block;max-width:100%}
+    button{font-family:inherit;cursor:pointer;border:none;outline:none}
+
+    /* ═══════════════════════ EXPERIENCE SECTION (showcase layout) ═══════════════════════ */
+    #flow-overlay{
+      position:relative;width:100%;
+      min-height:100vh;
+      background:var(--sys);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:96px var(--gutter);
+      overflow:hidden;
+    }
+
+    /* Modal frame — inline container, lays out as showcase column */
+    #flow-modal{
+      position:relative;
+      width:100%;max-width:1280px;
+      background:transparent;
+      display:none;
+    }
+    #flow-modal.show{display:flex;flex-direction:column;gap:56px}
+
+    /* Showcase body grid: left mockup | right info (left-aligned) */
+    .flow-body{
+      display:grid;
+      grid-template-columns:1.15fr 1fr;
+      gap:72px;
+      align-items:center;
+      min-height:600px;
+    }
+    .flow-info{
+      display:flex;flex-direction:column;align-items:flex-start;
+      text-align:left;gap:18px;padding-right:24px;
+    }
+    .flow-info .info-eyebrow{
+      font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--blue);display:flex;align-items:center;gap:8px;
+    }
+    .flow-info .info-eyebrow::before{
+      content:'';width:8px;height:8px;border-radius:50%;background:var(--blue);
+      box-shadow:0 0 0 4px rgba(44,122,252,.12);
+    }
+
+    /* Close buttons removed in section context */
+    .modal-close,.intro-close{display:none !important}
+
+    @media (max-width:900px){
+      .flow-body{grid-template-columns:1fr;gap:40px;min-height:auto}
+      .flow-info{padding-right:0;align-items:center;text-align:center}
+    }
+
+    /* ── INTRO SCREEN ── */
+    #intro-screen{
+      display:flex;flex-direction:column;align-items:center;
+      width:100%;padding:0 var(--gutter);
+    }
+
+    .notif-app-header{
+      display:flex;align-items:center;gap:8px;
+      padding:12px 24px 0;
+    }
+    .notif-app-icon{
+      width:22px;height:22px;border-radius:6px;
+      background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .notif-app-name{font-size:12px;font-weight:600;color:rgba(0,0,0,.45);letter-spacing:.01em}
+
+    @keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    /* SOS Card — centered popup (large) */
+    .intro-sos-card{
+      position:relative;
+      background:#ffffff;
+      border-radius:32px;
+      width:100%;max-width:560px;
+      overflow:hidden;
+      box-shadow:0 24px 60px rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.12);
+      opacity:0;
+      animation:notif-in .7s cubic-bezier(.34,1.56,.64,1) .1s both;
+    }
+    .intro-sos-card .intro-close{
+      position:absolute;top:14px;right:14px;z-index:2;
+      width:30px;height:30px;border-radius:50%;
+      background:rgba(0,0,0,.05);color:rgba(0,0,0,.5);
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;line-height:1;border:0;cursor:pointer;
+      transition:background .15s ease;
+    }
+    .intro-sos-card .intro-close:hover{background:rgba(0,0,0,.12);color:rgba(0,0,0,.8)}
+    @keyframes notif-in{
+      from{transform:translateY(32px) scale(.97);opacity:0}
+      to{transform:none;opacity:1}
+    }
+    .sos-drag-handle{
+      width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,.1);
+      margin:24px auto 0;
+    }
+    .sos-content{padding:22px 24px 0}
+    .sos-title{
+      font-size:22px;font-weight:800;color:var(--ink);
+      letter-spacing:-.03em;line-height:1.28;margin-bottom:12px;
+    }
+    .sos-desc{
+      font-size:15px;line-height:1.65;color:rgba(0,0,0,.48);
+      letter-spacing:-.01em;margin-bottom:0;
+    }
+    .sos-illust{
+      display:flex;align-items:center;justify-content:center;
+      padding:36px 0 28px;position:relative;
+    }
+    .sos-illust-circle{
+      width:120px;height:120px;border-radius:50%;
+      background:radial-gradient(circle at 38% 36%,rgba(239,68,68,.18) 0%,rgba(239,68,68,.06) 60%,transparent 100%);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    .sos-ring{
+      position:absolute;inset:0;border-radius:50%;
+      border:2px solid rgba(239,68,68,.22);
+      animation:sos-ring 2.2s ease-out infinite;pointer-events:none;
+    }
+    .sos-ring:nth-child(2){animation-delay:1.1s}
+    @keyframes sos-ring{
+      0%{opacity:.9;transform:scale(.8)}
+      100%{opacity:0;transform:scale(1.55)}
+    }
+    .sos-badge-wrap{
+      width:80px;height:80px;border-radius:50%;
+      background:var(--red);
+      box-shadow:0 12px 32px rgba(239,68,68,.38);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;z-index:1;
+    }
+    .sos-excl{font-size:38px;font-weight:900;color:white;line-height:1;letter-spacing:-.02em;margin-top:-2px}
+    .sos-who-tag{
+      position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+      background:white;border:1.5px solid rgba(239,68,68,.2);
+      color:var(--red);font-size:11px;font-weight:700;letter-spacing:.04em;
+      padding:4px 12px;border-radius:100px;white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+    }
+    .sos-actions{
+      display:grid;grid-template-columns:1fr 1.6fr;gap:10px;
+      padding:14px 24px 28px;
+    }
+    .sos-action-btn{
+      padding:17px 0;text-align:center;
+      font-size:16px;font-weight:700;
+      border-radius:16px;cursor:pointer;
+      letter-spacing:-.01em;
+    }
+    .sos-action-btn.sos-dismiss{
+      background:rgba(0,0,0,.06);color:rgba(0,0,0,.45);
+    }
+    .sos-action-btn.sos-accept{
+      background:var(--red);color:white;
+      box-shadow:0 6px 20px rgba(239,68,68,.32);
+    }
+
+
+    /* ── FLOW SCREEN ── */
+    #flow-screen{display:flex;flex-direction:column;width:100%;gap:48px}
+    #flow-screen.hidden{display:none}
+
+    #flow-header{
+      display:flex;flex-direction:column;align-items:stretch;
+      gap:24px;padding:0;position:relative;
+      background:transparent;
+    }
+    #flow-header .sec-head{text-align:left !important}
+    #flow-header .sec-head .sec-sub{margin-left:0 !important;margin-right:0 !important;max-width:520px}
+    #flow-header .flow-steps{
+      align-self:flex-start;justify-content:flex-start;
+      /* offset so the FIRST dot's left edge aligns with the header text's left edge */
+      margin-left:-26px;
+    }
+    /* ── 6-step indicator (redesigned: numbered circles + gradient progress) ── */
+    .flow-steps{
+      display:flex;align-items:flex-start;justify-content:center;
+      gap:0;margin-top:40px;
+    }
+    .flow-step{
+      display:flex;flex-direction:column;align-items:center;gap:14px;
+      flex:0 0 auto;width:96px;
+    }
+    .fs-dot{
+      position:relative;
+      width:44px;height:44px;border-radius:50%;
+      border:1.5px solid rgba(0,0,0,.1);
+      background:white;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .4s cubic-bezier(.4,.2,.2,1);
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+    }
+    .fs-num{
+      font-size:13px;font-weight:700;letter-spacing:-.01em;
+      color:rgba(0,0,0,.32);
+      font-variant-numeric:tabular-nums;
+      transition:color .3s,opacity .25s;
+    }
+    .fs-check{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-size:18px;color:white;font-weight:700;line-height:1;
+      opacity:0;transition:opacity .25s;
+    }
+    /* Done state: filled ink with check */
+    .flow-step.done .fs-dot{
+      background:var(--ink);border-color:var(--ink);
+      box-shadow:0 4px 10px rgba(17,17,17,.18);
+    }
+    .flow-step.done .fs-num{opacity:0}
+    .flow-step.done .fs-check{opacity:1}
+    /* Active state: blue with pulse ring */
+    .flow-step.active .fs-dot{
+      background:var(--blue);border-color:var(--blue);
+      box-shadow:0 0 0 6px rgba(44,122,252,.14),0 6px 14px rgba(44,122,252,.28);
+      transform:scale(1.08);
+    }
+    .flow-step.active .fs-num{color:white}
+    /* Labels */
+    .fs-label{
+      font-size:12px;font-weight:500;letter-spacing:-.01em;
+      color:rgba(0,0,0,.32);white-space:nowrap;
+      transition:color .3s,font-weight .3s;
+    }
+    .flow-step.done   .fs-label{color:rgba(0,0,0,.55);font-weight:500}
+    .flow-step.active .fs-label{color:var(--ink);font-weight:700}
+    /* Connector */
+    .fs-line{
+      flex:1;height:2px;max-width:64px;
+      background:rgba(0,0,0,.08);border-radius:1px;
+      margin:0 -8px;align-self:flex-start;margin-top:21px; /* center on 44px dot */
+      position:relative;overflow:hidden;
+      transition:background .4s;
+    }
+    .fs-line.done{background:var(--ink)}
+    /* (formerly: .flow-desc absolute left text — replaced by sec-eyebrow/sec-title above) */
+
+    #flow-stage{
+      display:flex;align-items:center;justify-content:center;
+      gap:32px;position:relative;
+      background:transparent;
+      min-height:600px;
+    }
+    /* footer style only applies when used as bar; in showcase layout the
+       title/sub/button live inside .flow-info column so this is no-op */
+    #flow-footer{display:none}
+    #flow-title{
+      font-size:clamp(28px,2.6vw,38px);font-weight:700;color:var(--ink);
+      letter-spacing:-.03em;line-height:1.2;margin:0;text-align:left;
+    }
+    #flow-sub{
+      font-size:16px;color:var(--ink-2);line-height:1.75;
+      letter-spacing:-.005em;margin:0;text-align:left;max-width:42ch;
+    }
+
+    /* ── DEVICE MOCKUPS ── */
+    .flow-device{flex-shrink:0;position:relative}
+
+    /* iPhone */
+    .flow-device.phone{
+      width:286px;
+      background:linear-gradient(160deg,#323235 0%,#1c1c1e 100%);
+      border-radius:52px;
+      padding:14px 12px 30px;
+      box-shadow:
+        inset 0 0 0 .5px rgba(255,255,255,.08),
+        0 2px 4px rgba(0,0,0,.3),
+        0 20px 60px rgba(0,0,0,.36),
+        0 48px 80px -16px rgba(0,0,0,.3);
+    }
+    /* Volume buttons left */
+    .flow-device.phone::before{
+      content:'';position:absolute;
+      left:-2px;top:106px;
+      width:2px;height:32px;
+      background:#2a2a2c;border-radius:1px 0 0 1px;
+      box-shadow:-1px 0 0 rgba(255,255,255,.04),-2px 0 6px rgba(0,0,0,.4);
+    }
+    /* Power button right */
+    .flow-device.phone::after{
+      content:'';position:absolute;
+      right:-2px;top:126px;
+      width:2px;height:64px;
+      background:#2a2a2c;border-radius:0 1px 1px 0;
+      box-shadow:1px 0 0 rgba(255,255,255,.04),2px 0 6px rgba(0,0,0,.4);
+    }
+
+    /* Dynamic Island overlay */
+    .device-island{
+      position:absolute;
+      top:16px;left:50%;transform:translateX(-50%);
+      width:90px;height:28px;
+      background:#0d0d0f;
+      border-radius:100px;
+      z-index:15;pointer-events:none;
+    }
+
+    .flow-device.phone .device-screen{
+      width:262px;height:566px;
+      background:white;
+      border-radius:40px;
+      overflow:hidden;position:relative;
+    }
+
+    /* iPad */
+    .flow-device.tablet{
+      width:420px;
+      background:linear-gradient(160deg,#323235 0%,#1c1c1e 100%);
+      border-radius:26px;
+      padding:16px 14px 20px;
+      box-shadow:
+        inset 0 0 0 .5px rgba(255,255,255,.08),
+        0 2px 4px rgba(0,0,0,.3),
+        0 20px 60px rgba(0,0,0,.36),
+        0 48px 80px -16px rgba(0,0,0,.3);
+    }
+    .flow-device.tablet::before{
+      content:'';position:absolute;
+      top:50%;left:8px;transform:translateY(-50%);
+      width:4px;height:4px;
+      background:#1e1e20;border-radius:50%;
+      box-shadow:0 0 0 1px rgba(255,255,255,.05);
+    }
+    .flow-device.tablet .device-screen{
+      width:392px;height:518px;
+      background:white;
+      border-radius:11px;
+      overflow:hidden;position:relative;
+    }
+
+    /* AI panel */
+    .flow-device.ai-panel{
+      width:272px;min-height:490px;
+      background:#0d0d12;
+      border:1px solid rgba(44,122,252,.16);
+      border-radius:28px;
+      box-shadow:0 0 60px rgba(44,122,252,.07),0 40px 80px -20px rgba(0,0,0,.35);
+      padding:28px 22px;
+      display:flex;flex-direction:column;
+      position:relative;overflow:hidden;
+    }
+    .flow-device.ai-panel::before{
+      content:'';position:absolute;
+      top:-100px;left:-60px;
+      width:260px;height:260px;
+      background:radial-gradient(circle,rgba(44,122,252,.1) 0%,transparent 70%);
+      pointer-events:none;
+    }
+
+    /* ── FLOW PNG DEVICE FRAMES ── */
+    /* Phone: 320×654 (iPhone PNG at 8/9 size) */
+    .flow-png-phone{position:relative;width:320px;height:654px;flex-shrink:0}
+    .flow-png-phone .device-screen{position:absolute;left:5.33%;top:7.97%;width:89.26%;height:89.49%;overflow:hidden;background:transparent;z-index:1}
+    .flow-png-phone .device-screen iframe{position:absolute;left:0;top:0;width:390px;height:801px;transform:scale(0.732);transform-origin:top left;border:0;display:block;background:white}
+    .flow-png-phone .flow-sb{position:absolute;left:5.33%;top:5.4%;width:89.26%;z-index:2;display:flex;align-items:center;pointer-events:none}
+    .flow-png-phone .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+    /* Tablet: 918×654 (iPad PNG, same height as single phone) */
+    .flow-png-tablet{position:relative;width:918px;height:654px;flex-shrink:0}
+    .flow-png-tablet .device-screen{position:absolute;left:4.17%;top:5.64%;width:91.63%;height:88.67%;overflow:hidden;border-radius:7px;background:#fff;z-index:1}
+    .flow-png-tablet .device-screen iframe{width:768px;height:529px;transform:scale(1.096);transform-origin:top left;border:0;display:block;background:white}
+    .flow-png-tablet .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+
+    /* Iframe inside screen */
+    .device-screen iframe{display:block;border:0;pointer-events:none;background:white}
+
+    /* Tap overlay */
+    .tap-overlay{position:absolute;inset:0;z-index:10;cursor:pointer;background:transparent}
+
+    /* ── DEVICE NOTIFICATION BANNER ── */
+    .device-notif-banner{
+      position:absolute;
+      top:10px;left:8px;right:8px;
+      background:rgba(252,252,254,.94);
+      backdrop-filter:saturate(200%) blur(32px);
+      -webkit-backdrop-filter:saturate(200%) blur(32px);
+      border-radius:18px;
+      padding:11px 12px;
+      display:flex;align-items:center;gap:10px;
+      box-shadow:0 4px 28px rgba(0,0,0,.15),0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.05);
+      z-index:20;pointer-events:none;
+      animation:dnb-in .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .device-notif-banner.bottom{
+      top:auto;bottom:10px;
+      animation:dnb-up .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes dnb-in{from{transform:translateY(-100px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes dnb-up{from{transform:translateY(80px);opacity:0} to{transform:none;opacity:1}}
+
+    /* Pulsing ring — tappable hint */
+    .device-notif-banner.tappable{animation:dnb-in .5s cubic-bezier(.34,1.56,.64,1) both}
+    .device-notif-banner.tappable::after{
+      content:'';position:absolute;inset:-3px;border-radius:21px;
+      border:1.5px solid rgba(44,122,252,.45);
+      animation:notif-ring 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .device-notif-banner.bottom.tappable::after{border-radius:21px}
+    @keyframes notif-ring{0%,100%{opacity:.7;transform:scale(1)} 50%{opacity:.15;transform:scale(1.025)}}
+
+    .dnb-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .dnb-icon.sos     {background:var(--red)}
+    .dnb-icon.care    {background:var(--green)}
+    .dnb-icon.ai      {background:var(--blue)}
+    .dnb-icon.guardian{background:var(--ink)}
+    .dnb-icon-label{font-size:13px;font-weight:800;color:white;letter-spacing:-.01em}
+
+    .dnb-body{flex:1;min-width:0}
+    .dnb-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.25}
+    .dnb-msg{font-size:11px;color:var(--mute);margin-top:2px;letter-spacing:-.005em;line-height:1.3}
+    .dnb-time{font-size:10px;color:rgba(0,0,0,.25);flex-shrink:0;align-self:flex-start;margin-top:2px;white-space:nowrap}
+
+    /* iPad/tablet: notification pill centered — uses own keyframes to preserve translateX(-50%) */
+    @keyframes dnb-in-tablet{from{transform:translateX(-50%) translateY(-80px);opacity:0}to{transform:translateX(-50%);opacity:1}}
+    @keyframes dnb-up-tablet{from{transform:translateX(-50%) translateY(60px);opacity:0} to{transform:translateX(-50%);opacity:1}}
+
+    .flow-png-tablet .device-notif-banner,
+    .flow-png-tablet .device-notif-banner.tappable,
+    .sc-ipad-screen .device-notif-banner,
+    .sc-ipad-screen .device-notif-banner.tappable {
+      left:50%;right:auto;
+      width:max-content;max-width:320px;min-width:240px;
+      top:14px;
+      animation:dnb-in-tablet .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .flow-png-tablet .device-notif-banner.bottom,
+    .flow-png-tablet .device-notif-banner.bottom.tappable,
+    .sc-ipad-screen .device-notif-banner.bottom,
+    .sc-ipad-screen .device-notif-banner.bottom.tappable {
+      top:auto;bottom:14px;
+      animation:dnb-up-tablet .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    /* Phase enter/exit */
+    @keyframes enter-right  {from{transform:translateX(64px);opacity:0} to{transform:none;opacity:1}}
+    @keyframes enter-left   {from{transform:translateX(-64px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes enter-center {from{opacity:0;transform:scale(.94)}       to{opacity:1;transform:none}}
+    @keyframes exit-left    {from{transform:none;opacity:1}to{transform:translateX(-80px);opacity:0}}
+    @keyframes exit-right   {from{transform:none;opacity:1}to{transform:translateX(80px);opacity:0}}
+    @keyframes exit-fade    {from{opacity:1}to{opacity:0;transform:scale(.96)}}
+    .anim-enter-right {animation:enter-right  .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-enter-left  {animation:enter-left   .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-enter-center{animation:enter-center .45s cubic-bezier(.22,1,.36,1) both}
+    .anim-exit-left   {animation:exit-left  .32s ease forwards}
+    .anim-exit-right  {animation:exit-right .32s ease forwards}
+    .anim-exit-fade   {animation:exit-fade  .32s ease forwards}
+
+    /* AI panel content */
+    .ai-header{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-shrink:0;position:relative}
+    .ai-dot-pulse{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:ai-blink 1.5s ease-in-out infinite}
+    @keyframes ai-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .ai-header-label{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+    .ai-lines{display:flex;flex-direction:column;gap:0;flex:1;position:relative}
+    .ai-line{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);opacity:0;animation:ai-appear .4s ease both}
+    .ai-line:last-child{border-bottom:none}
+    .ai-line-title{font-size:13px;color:rgba(255,255,255,.6);font-weight:400;margin-bottom:3px}
+    .ai-line-title.bold{font-weight:600;color:white}
+    .ai-line-title.blue{color:var(--blue);font-weight:600}
+    .ai-line-sub{font-size:11px;color:rgba(255,255,255,.28);line-height:1.4}
+    .ai-line-sub.blue{color:rgba(44,122,252,.5)}
+    @keyframes ai-appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .ai-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);font-size:10px;color:rgba(255,255,255,.16);letter-spacing:.06em;position:relative}
+
+    /* ── COMPLETE ── */
+    #complete-screen{
+      display:none;flex-direction:column;align-items:center;justify-content:center;
+      gap:24px;text-align:center;padding:48px;width:100%;height:100%;background:var(--sys);
+    }
+    #complete-screen.show{display:flex}
+    .complete-headline{font-size:clamp(26px,4vw,40px);font-weight:700;color:var(--ink);letter-spacing:-.03em;line-height:1.2}
+    .complete-flow-pills{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+    .flow-pill{font-size:12px;color:rgba(0,0,0,.5);background:rgba(0,0,0,.06);padding:6px 16px;border-radius:100px}
+    .flow-pill-arrow{font-size:12px;color:rgba(0,0,0,.2)}
+    .complete-sub{font-size:15px;color:var(--mute);letter-spacing:-.01em}
+    #complete-cta{
+      background:var(--ink);color:white;
+      padding:15px 32px;border-radius:14px;
+      font-size:14px;font-weight:600;letter-spacing:-.01em;
+      display:inline-flex;align-items:center;gap:10px;
+      transition:background .2s,transform .1s;
+    }
+    #complete-cta:hover{background:var(--blue)}
+
+    /* ═══════════════════════ MAIN PAGE ═══════════════════════ */
+    #main-page{transition:filter .7s ease,opacity .7s ease}
+    /* (formerly: body.flow-active #main-page blur — popup removed) */
+    #main-page.revealed{filter:none;opacity:1;pointer-events:auto;user-select:auto}
+
+    .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+    section{padding-top:var(--pad-section);padding-bottom:var(--pad-section)}
+    .hairline{height:1px;background:var(--line);width:100%}
+    .progress-bar{position:fixed;top:0;left:0;height:2px;background:var(--blue);width:0%;z-index:200;transition:width .08s linear}
+    .topbar{
+      position:fixed;top:0;left:0;right:0;height:60px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--gutter);z-index:100;
+      background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(14px);
+      -webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s;
+    }
+    .topbar.scrolled{border-bottom-color:var(--line)}
+    .topbar-left{display:flex;align-items:center;gap:10px}
+    .logo-mark{width:18px;height:18px}
+    .logo-text{font-size:14px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+    .topbar-nav{display:flex;gap:28px}
+    .nav-link{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);transition:color .2s;position:relative;padding-bottom:2px}
+    .nav-link::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+    .nav-link:hover,.nav-link.active{color:var(--ink)}
+    .nav-link.active::after{transform:scaleX(1)}
+
+    .hero{min-height:100vh;padding:0;display:flex;flex-direction:column;position:relative;overflow:hidden;background:url('Gemini_Generated_Image_nagze5nagze5nagz.png') center 30%/cover no-repeat}
+    .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.45) 55%,rgba(255,255,255,.08) 100%);z-index:1}
+    .hero-inner{position:relative;z-index:2;max-width:var(--container);margin:0 auto;padding:100px var(--gutter) 0;flex:1;display:flex;flex-direction:column;width:100%}
+    .hero-body{display:flex;flex-direction:column;justify-content:flex-end;flex:1;padding-bottom:64px;max-width:680px}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px}
+    .hero-eyebrow::before{content:'';display:inline-block;width:6px;height:6px;background:var(--blue);border-radius:50%;flex-shrink:0}
+    .hero-title{font-size:clamp(72px,11vw,148px);font-weight:700;line-height:.95;letter-spacing:-.05em;color:var(--ink);margin-bottom:40px}
+    .hero-sub{font-size:clamp(17px,1.6vw,20px);font-weight:400;line-height:1.7;color:var(--ink-2);max-width:46ch;letter-spacing:-.01em;margin-bottom:52px}
+    .hero-sub strong{font-weight:600;color:var(--ink)}
+    .hero-actions{display:flex;align-items:center;gap:28px}
+    .btn-primary{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;background:var(--blue);color:white;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;transition:transform .2s ease,box-shadow .2s ease;border-radius:12px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(44,122,252,.35)}
+    .btn-primary:active{transform:translateY(0);box-shadow:none}
+    .btn-primary::after{content:"→"}
+    .hero-hint{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute-2)}
+    .hero-foot{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-top:1px solid rgba(255,255,255,.18)}
+    .hero .hero-eyebrow{color:var(--mute)}
+    .hero .hero-eyebrow::before{background:var(--blue)}
+    .hero .hero-title{color:var(--ink)}
+    .hero .hero-sub{color:var(--ink-2)}
+    .hero .hero-sub strong{color:var(--ink)}
+    .hero .hero-hint{color:var(--mute)}
+    .hero-tags{display:flex;gap:24px}
+    .hero-tag{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+    .hero-feed{background:var(--paper);border:1px solid var(--line);padding:24px;border-radius:20px;align-self:end}
+    .hf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+    .hf-time{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+    .hf-live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#22C55E}
+    .hf-live::before{content:'';width:5px;height:5px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:hf-blink 2s ease-in-out infinite}
+    @keyframes hf-blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .hf-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+    .hf-item:last-of-type{border-bottom:0}
+    .hf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;background:var(--mute-2);position:relative}
+    .hf-dot.care{background:#22C55E}.hf-dot.ai-dot{background:var(--blue);width:10px;height:10px;margin-top:3px}.hf-dot.guardian{background:var(--ink)}.hf-dot.medical{background:var(--mute)}
+    .hf-pulse{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--blue);animation:hf-pulse 2.2s ease-out infinite}
+    @keyframes hf-pulse{0%{opacity:.7;transform:scale(.7)}100%{opacity:0;transform:scale(2.4)}}
+    .hf-body{flex:1;min-width:0}
+    .hf-who{display:block;font-size:12px;font-weight:600;color:var(--ink);letter-spacing:-.01em;line-height:1.3}
+    .hf-what{display:block;font-size:11px;color:var(--mute);letter-spacing:-.005em;margin-top:2px;line-height:1.4}
+    .hf-badge{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);white-space:nowrap;flex-shrink:0;margin-top:2px}
+    .hf-badge.done{color:#22C55E}.hf-badge.alert{color:#EF4444}
+    .hf-stat{display:flex;justify-content:space-between;align-items:baseline;padding-top:18px;margin-top:4px;border-top:1px solid var(--line)}
+    .hf-stat-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .hf-stat-val{font-size:28px;font-weight:700;letter-spacing:-.04em;color:var(--ink);font-feature-settings:"tnum" 1}
+    .hf-stat-val small{font-size:13px;font-weight:500;color:var(--mute);margin-left:2px}
+
+    .sec-head{margin-bottom:72px}
+    .sec-eyebrow{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:18px}
+    .sec-title{font-size:clamp(32px,4.5vw,52px);font-weight:700;line-height:1.15;letter-spacing:-.03em;color:var(--ink);margin-bottom:20px}
+    .sec-title em{font-style:normal;color:var(--blue)}
+    .sec-sub{max-width:60ch;font-size:17px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;font-weight:400}
+    .overview-grid{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .overview-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+    .overview-body p{font-size:18px;line-height:1.85;color:var(--ink-2);letter-spacing:-.01em}
+    .overview-body p+p{margin-top:24px}
+    .overview-body strong{font-weight:600;color:var(--ink)}
+    /* ── MARKET RESEARCH ─────────────────────────── */
+    .mkt-section{background:var(--paper)}
+    .mkt-inner{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .mkt-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-top:4px}
+    .mkt-statement{font-size:clamp(22px,2.4vw,30px);font-weight:600;line-height:1.5;letter-spacing:-.025em;color:var(--ink);margin-bottom:12px}
+    .mkt-sub{font-size:15px;line-height:1.8;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:48px}
+    .mkt-sub em{font-style:normal;font-weight:600;color:var(--ink)}
+    .mkt-chart-wrap{margin-bottom:48px}
+    .mkt-chart-hed{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:20px}
+    .mkt-chart-svg{width:100%;height:auto;display:block;overflow:visible}
+    .mkt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E8E8E8;border:1px solid #E8E8E8;border-radius:16px;overflow:hidden}
+    .mkt-stat{background:white;padding:28px 24px}
+    .mkt-stat-num{font-size:38px;font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1}
+    .mkt-stat-num sup{font-size:16px;font-weight:500;color:var(--mute);vertical-align:super;margin-left:2px}
+    .mkt-stat-desc{font-size:13px;line-height:1.65;color:var(--ink-2);margin-top:8px}
+    .mkt-stat-source{font-size:10px;font-weight:500;letter-spacing:.08em;color:#B5B5B5;margin-top:10px;text-transform:uppercase}
+
+    /* ── Pain bridge + scroll zone ── */
+    /* pain-zone: sticky 스크롤 — 페이지 스크롤로 카피 전환 */
+    /* zone 높이 = intro 100vh + 카피 7개 × 100vh = 800vh */
+    .pain-zone{position:relative;background:var(--paper);height:800vh}
+    .pain-stage{position:sticky;top:0;height:100vh;overflow:hidden;z-index:1}
+    .pain-list{position:absolute;top:0;left:0;width:100%;transition:transform .72s cubic-bezier(.16,1,.3,1);will-change:transform}
+    /* intro item: 질문 전체화면 */
+    .pain-item--intro{height:100vh;display:flex;align-items:center;justify-content:center;padding:0 clamp(32px,8vw,140px);text-align:center}
+    .pain-copy--intro{font-size:clamp(28px,4vw,52px);font-weight:700;letter-spacing:-.03em;color:var(--ink);line-height:1.3;opacity:1!important;transform:none!important;transition:none!important}
+    /* copy items: 180px 슬라이딩 */
+    .pain-item{height:180px;display:flex;align-items:center;justify-content:center;padding:0 clamp(32px,8vw,140px);text-align:center}
+    .pain-copy{font-size:clamp(24px,3.8vw,48px);font-weight:700;letter-spacing:-.03em;line-height:1.38;color:var(--ink);text-align:center;opacity:.04;transform:scale(.84);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1)}
+    .pain-item[data-dist="0"] .pain-copy{opacity:1;transform:scale(1)}
+    .pain-item[data-dist="1"] .pain-copy{opacity:.18;transform:scale(.93)}
+    .pain-item[data-dist="2"] .pain-copy{opacity:.08;transform:scale(.88)}
+    .pain-item[data-dist="3"] .pain-copy{opacity:.04;transform:scale(.84)}
+
+    .pain-nav{position:absolute;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;pointer-events:none}
+    .pain-dot{width:4px;height:4px;border-radius:50%;background:#d0d0d0;transition:background .4s,transform .4s}
+    .pain-dot.on{background:var(--ink);transform:scale(1.6)}
+
+    .pain-scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2);white-space:nowrap;pointer-events:none;animation:pain-cue 2.2s ease-in-out infinite}
+    @keyframes pain-cue{0%,100%{opacity:.9;transform:translateX(-50%) translateY(0)}55%{opacity:.35;transform:translateX(-50%) translateY(6px)}}
+
+    /* ── Problem Bridge: 잘 계십니다. 아마도. ── */
+    .problem-bridge{padding-top:clamp(96px,12vw,160px);padding-bottom:clamp(96px,12vw,160px)}
+    .pb-eyebrow{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:56px}
+    .pb-copy-wrap{margin-bottom:40px}
+    .pb-line{font-size:clamp(52px,8vw,108px);font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--ink)}
+    .pb-line--main{margin-bottom:12px}
+    .pb-line--maybe{
+      color:#aaa;font-style:italic;
+      opacity:0;transform:translateY(10px);
+      transition:opacity 1s ease .9s,transform 1s ease .9s;
+    }
+    .pb-line--maybe.in{opacity:1;transform:none}
+    .pb-sub{font-size:17px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:80px;max-width:52ch}
+
+    .concept{background:var(--dark);color:white}
+    .concept-inner{display:grid;grid-template-columns:200px 1fr;gap:64px}
+    .concept-label{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+    .concept-statement{font-size:clamp(28px,3.6vw,44px);font-weight:400;line-height:1.4;letter-spacing:-.02em;color:white}
+    .concept-statement em{font-style:normal;color:var(--blue);font-weight:600}
+    .concept-meta{margin-top:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding-top:40px;border-top:1px solid rgba(255,255,255,.1)}
+    .concept-meta-cell .ck{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+    .concept-meta-cell .cv{font-size:15px;color:rgba(255,255,255,.72);line-height:1.62;letter-spacing:-.01em}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .stat{padding:56px 32px;background:white}
+    .stat-num{font-size:clamp(48px,6vw,72px);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);margin-bottom:16px;font-feature-settings:"tnum" 1}
+    .stat-num .unit{font-size:.4em;font-weight:500;color:var(--mute);margin-left:6px}
+    .stat-desc{font-size:15px;line-height:1.6;color:var(--ink-2);margin-bottom:16px;max-width:24ch;letter-spacing:-.005em}
+    .stat-source{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+    .persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .persona{padding:48px 32px;background:white}
+    .persona-tag{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:24px}
+    .persona-name{font-size:28px;font-weight:600;letter-spacing:-.025em;color:var(--ink);margin-bottom:6px}
+    .persona-meta{font-size:13px;color:var(--mute);margin-bottom:28px;letter-spacing:-.005em}
+    .persona-quote{font-size:15px;font-weight:400;line-height:1.72;color:var(--ink-2);letter-spacing:-.008em;padding:18px 20px;background:var(--paper);border-radius:12px}
+    .roles-list{border-top:1px solid var(--line)}
+    .role-row{display:grid;grid-template-columns:56px 1fr 2fr 90px;gap:48px;align-items:baseline;padding:36px 0;border-bottom:1px solid var(--line)}
+    .role-num{font-size:12px;font-weight:500;color:var(--mute);font-feature-settings:"tnum" 1}
+    .role-name{font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+    .role-name span{display:block;font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+    .role-desc{font-size:15px;line-height:1.7;color:var(--ink-2);letter-spacing:-.01em}
+    .role-platform{font-size:11px;font-weight:500;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;text-align:right}
+    .closing{padding-top:clamp(140px,18vw,220px);padding-bottom:clamp(140px,18vw,220px);text-align:center}
+    .closing-mark{font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:48px}
+    .closing-title{font-size:clamp(40px,6vw,80px);font-weight:700;line-height:1.1;letter-spacing:-.04em;color:var(--ink);margin-bottom:28px}
+    .closing-title em{font-style:normal;color:var(--blue)}
+    .closing-line{font-size:17px;line-height:1.72;color:var(--ink-2);max-width:38ch;margin:0 auto 56px;letter-spacing:-.01em}
+    .closing-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;border:1px solid var(--ink);font-size:13px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);transition:all .2s;border-radius:12px}
+    .closing-cta:hover{background:var(--ink);color:white}
+    .closing-cta::after{content:"→"}
+    footer{padding:40px var(--gutter);border-top:1px solid var(--line)}
+    .ft-wrap{max-width:var(--container);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap}
+    .ft-brand{display:flex;align-items:center;gap:10px}
+    .ft-meta{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
+    .reveal.in{opacity:1;transform:none}
+
+    /* ── CARE ALERTS ── */
+    .ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:56px}
+    .ca-card{padding:48px 36px;background:var(--bg)}
+    .ca-num{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2);margin-bottom:32px;font-feature-settings:"tnum" 1}
+    .ca-title{font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.3;margin-bottom:16px}
+    .ca-desc{font-size:15px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em}
+    @media(max-width:768px){.ca-grid{grid-template-columns:1fr;border-radius:16px}}
+
+    /* ── INTERACTIVE TOGGLE ── */
+    #interact-toggle{
+      position:absolute;left:24px;top:50%;transform:translateY(-50%);
+      background:rgba(0,0,0,.06);color:rgba(0,0,0,.42);
+      padding:7px 14px;border-radius:100px;
+      font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+      transition:all .2s;
+    }
+    #interact-toggle:hover{background:rgba(0,0,0,.1);color:var(--ink)}
+    #interact-toggle.on{background:var(--ink);color:white}
+    #flow-stage.interact-mode .tap-overlay{display:none}
+    #flow-stage.interact-mode iframe{pointer-events:auto !important}
+    #flow-stage.interact-mode .device-notif-banner.tappable::after{display:none}
+    #interact-next-wrap{display:none;justify-content:flex-start;padding-top:8px}
+    #interact-next-wrap.show{display:flex}
+    .flow-info #interact-next-wrap{justify-content:flex-start}
+    @media (max-width:900px){.flow-info #interact-next-wrap{justify-content:center}}
+    #interact-next{
+      background:var(--ink);color:white;
+      padding:14px 28px;border-radius:14px;
+      font-family:var(--font);font-size:14px;font-weight:600;letter-spacing:-.005em;
+      transition:background .2s,transform .15s;
+      display:inline-flex;align-items:center;gap:8px;
+    }
+    #interact-next:hover{background:var(--blue);transform:translateY(-1px)}
+
+    /* ── SOLUTION CARDS ── */
+    .sol-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:64px;transition:opacity .3s,transform .3s}
+    .sol-grid.hidden{opacity:0;pointer-events:none;transform:translateY(8px)}
+    .sol-card{position:relative;border:1px solid var(--line);border-radius:24px;padding:28px 22px 22px;background:#fff;cursor:pointer;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s;display:flex;flex-direction:column;overflow:hidden;text-align:left;width:100%;font-family:var(--font)}
+    .sol-card:hover{transform:translateY(-6px);box-shadow:0 24px 64px rgba(0,0,0,.1),0 4px 16px rgba(0,0,0,.05);border-color:transparent}
+    .sol-card:hover .sol-card-cta{background:var(--green);color:#fff;border-color:var(--green)}
+    .sol-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .sol-card-num{font-size:11px;font-weight:500;color:var(--mute-2);letter-spacing:.14em;font-feature-settings:"tnum" 1}
+    .sol-card-badge{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);background:var(--paper);border:1px solid var(--line);border-radius:100px;padding:3px 8px}
+    .sol-card-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.025em;line-height:1.2;margin-bottom:4px}
+    .sol-card-en{font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+    .sol-card-desc{font-size:12.5px;line-height:1.72;color:var(--ink-2);letter-spacing:-.01em;flex:1;margin-bottom:20px}
+    .sol-card-cta{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:-.01em;color:var(--ink);background:var(--paper);border:1px solid var(--line);transition:all .2s;align-self:flex-start;font-family:var(--font)}
+    /* Demo panel */
+    .sol-demo-panel{display:none;margin-top:64px;gap:32px;align-items:flex-start;opacity:0;transition:opacity .3s}
+    .sol-demo-panel.active{display:flex;opacity:1}
+    .sol-demo-nav{flex-shrink:0;width:200px;display:flex;flex-direction:column;gap:6px;position:sticky;top:100px}
+    .sol-demo-nav-item{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:14px;border:1px solid transparent;cursor:pointer;background:transparent;text-align:left;width:100%;transition:all .15s;font-family:var(--font)}
+    .sol-demo-nav-item:hover{background:var(--paper);border-color:var(--line)}
+    .sol-demo-nav-item.active{background:var(--ink);border-color:var(--ink)}
+    .sol-demo-nav-item.active .sni-num,.sol-demo-nav-item.active .sni-name,.sol-demo-nav-item.active .sni-en{color:rgba(255,255,255,.6)}
+    .sol-demo-nav-item.active .sni-name{color:#fff}
+    .sni-num{font-size:9px;font-weight:500;color:var(--mute-2);letter-spacing:.1em;font-feature-settings:"tnum" 1;margin-bottom:2px}
+    .sni-name{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.2}
+    .sni-en{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px}
+    .sol-demo-right{flex:1;min-width:0;display:flex;flex-direction:column}
+    .sol-demo-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;padding:8px 16px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:-.01em;color:var(--mute);background:var(--paper);border:1px solid var(--line);cursor:pointer;font-family:var(--font);transition:all .2s;align-self:flex-start}
+    .sol-demo-back:hover{color:var(--ink);border-color:var(--ink-2)}
+    .sol-demo-stage{display:flex;justify-content:center;align-items:flex-start;min-height:600px;overflow:hidden}
+    .showcase-hint{text-align:center;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+
+    /* ── PNG DEVICE MOCKUPS (Showcase) ── */
+    .sc-device-col{display:flex;flex-direction:column;align-items:center;gap:28px;width:100%}
+    .sc-screen-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .sc-stab{padding:7px 16px;border:1px solid var(--line);border-radius:100px;background:transparent;color:var(--mute);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font)}
+    .sc-stab:hover{border-color:rgba(0,0,0,.3);color:var(--ink)}
+    .sc-stab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    /* Phone */
+    .sc-phone-wrap{position:relative;width:360px;height:736px;flex-shrink:0}
+    .sc-phone-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-phone-screen{position:absolute;left:5.33%;top:7.97%;width:89.26%;height:89.49%;overflow:hidden;background:transparent;z-index:1}
+    .sc-phone-screen iframe{position:absolute;left:0;top:0;width:390px;height:801px;transform:scale(0.823);transform-origin:top left;border:none;pointer-events:auto;display:block}
+    .sc-ios-statusbar{position:absolute;left:5.33%;top:5.4%;width:89.26%;z-index:2;display:flex;align-items:center;pointer-events:none}
+    .sc-ios-sb-left{width:34%;display:flex;justify-content:center;align-items:center}
+    .sc-ios-sb-mid{flex:0 0 32%}
+    .sc-ios-sb-right{width:34%;display:flex;justify-content:center;align-items:center;gap:5px}
+    .sc-ios-statusbar img{height:11px;width:auto;display:block}
+    /* iPad */
+    .sc-ipad-wrap{position:relative;width:720px;height:513px;flex-shrink:0}
+    .sc-ipad-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-ipad-screen{position:absolute;left:4.17%;top:5.64%;width:91.63%;height:88.67%;overflow:hidden;border-radius:10px;background:#fff;z-index:1}
+    .sc-ipad-screen iframe{width:1102px;height:760px;transform:scale(0.599);transform-origin:top left;border:none;pointer-events:auto;display:block}
+    /* iMac */
+    .sc-imac-wrap{position:relative;width:820px;height:698px;flex-shrink:0}
+    .sc-imac-wrap .sc-frame-png{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block}
+    .sc-imac-screen{position:absolute;left:2.60%;top:3.40%;width:94.80%;height:62.80%;overflow:hidden;background:#fff;z-index:1;display:flex;flex-direction:column}
+    .sc-browser-bar{flex-shrink:0;height:34px;background:#EBEBEB;border-bottom:1px solid #CACACA;display:flex;align-items:center;padding:0 12px;gap:8px}
+    .sc-b-dots{display:flex;gap:6px}
+    .sc-b-dot{width:11px;height:11px;border-radius:50%}
+    .sc-b-dot.r{background:#FF5F57}.sc-b-dot.y{background:#FEBC2E}.sc-b-dot.g{background:#28C840}
+    .sc-b-url{flex:1;height:20px;background:#fff;border-radius:5px;margin:0 60px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;font-family:-apple-system,sans-serif}
+    .sc-browser-content{flex:1;overflow:hidden;position:relative}
+    .sc-browser-content iframe{width:1200px;height:622px;transform:scale(0.643);transform-origin:top left;border:none;pointer-events:auto;display:block}
+
+    /* ═══════════════════ CONNECTION ═══════════════════ */
+    .conn-wrap{display:flex;flex-direction:column;align-items:center;gap:64px}
+    .conn-diagram{position:relative;width:480px;height:380px;flex-shrink:0}
+    .conn-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .conn-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .conn-node.patient {top:0;left:50%;transform:translateX(-50%)}
+    .conn-node.guardian{bottom:0;left:0}
+    .conn-node.medical {bottom:0;right:0}
+    .conn-circle{
+      width:72px;height:72px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;color:white;letter-spacing:.04em;
+    }
+    .conn-node.guardian .conn-circle{background:var(--blue)}
+    .conn-node.medical  .conn-circle{background:var(--green)}
+    .conn-node.patient  .conn-circle{background:var(--orange)}
+    .conn-node-label{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+    .conn-node-sub{font-size:10px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+    .conn-center{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+    }
+    .conn-center-logo{width:28px;height:28px}
+    .conn-center-badge{
+      font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--green);background:rgba(34,197,94,.1);padding:5px 12px;border-radius:100px;white-space:nowrap;
+    }
+    .conn-compare{
+      display:flex;align-items:center;gap:56px;
+      padding:36px 64px;border:1px solid var(--line);border-radius:20px;background:var(--paper);
+    }
+    .cc-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .cc-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .cc-val{font-size:36px;font-weight:700;letter-spacing:-.04em}
+    .cc-col.competitor .cc-val{color:var(--mute-2)}
+    .cc-col.haru .cc-val{color:var(--ink)}
+    .cc-note{font-size:13px;color:var(--mute);letter-spacing:-.005em;text-align:center}
+    .cc-divider{font-size:12px;font-weight:500;color:var(--mute-2);letter-spacing:.1em}
+
+    /* ═══════════════════ DAILY REPORT SECTION ═══════════════════ */
+    .report-section{background:white;padding:120px 0 40px;overflow:visible}
+    .report-sec-head{text-align:center;margin-bottom:80px}
+    /* ── Stage: phone left + annotation right ── */
+    .report-stage{
+      display:flex;align-items:flex-start;gap:64px;justify-content:center;
+      max-width:1240px;margin:0 auto;padding:0 var(--gutter);
+    }
+    /* ── Left: phone + overlapping float card ── */
+    .rp-phone-wrap{flex:0 0 auto;position:relative;padding-bottom:110px}
+    .rp-phone-wrap .flow-png-phone{
+      filter:drop-shadow(0 24px 56px rgba(0,0,0,.10)) drop-shadow(0 4px 12px rgba(0,0,0,.05));
+    }
+    /* Embedded report screen */
+    .flow-png-phone .device-screen .rp-screen{
+      position:absolute;left:0;top:0;width:390px;height:801px;
+      transform:scale(0.732);transform-origin:top left;
+      font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      background:linear-gradient(180deg,#d4e4ff 0%,#e8f0fe 40%,#f2f6ff 70%,#EEF3FB 100%);
+      color:#111827;padding:28px 14px 24px;
+      display:flex;flex-direction:column;
+    }
+    .flow-png-phone .device-screen .rp-screen-grid{flex:1;grid-auto-rows:1fr}
+    .rp-screen-hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 14px}
+    .rp-screen-title{font-size:17px;font-weight:800;letter-spacing:-.3px;color:#111827}
+    .rp-screen-date{font-size:12px;color:rgba(0,0,0,.35)}
+    .rp-screen-mc{display:block;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);text-decoration:none;color:inherit}
+    .rp-screen-mc-photo{height:136px;background:#f3e9dc url('07_디자인/mockup/v11_보호자앱/mockup.png') center/cover no-repeat;position:relative}
+    .rp-screen-mc-photo::after{content:'';position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none}
+    .rp-screen-mc-body{padding:12px 16px 14px}
+    .rp-screen-mc-quote{font-size:12px;font-weight:600;line-height:1.5;letter-spacing:-.2px;color:#111827;margin-bottom:5px}
+    .rp-screen-mc-meta{font-size:10px;color:rgba(0,0,0,.35);display:flex;align-items:center;gap:4px}
+    .rp-screen-mc-meta::before{content:'';width:12px;height:1px;background:rgba(0,0,0,.15)}
+    .rp-screen-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .rp-screen-w{background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.04);border-radius:20px;padding:16px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);min-height:168px}
+    .rp-screen-wh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .rp-screen-wt{font-size:13px;font-weight:800;color:#111827;display:flex;align-items:center;gap:5px;letter-spacing:-.2px}
+    /* Pulse widget tall layout */
+    .rp-pw{display:flex;flex-direction:column}
+    .rp-pw-main{margin-top:auto}
+    /* Mood dot grid */
+    .rp-mood-dots{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px}
+    .rp-mood-dot{width:100%;aspect-ratio:1;border-radius:50%}
+    /* Food widget — photo fill */
+    .rp-food-w{padding:0!important;background:#f3e9dc url('07_디자인/mockup/v11_보호자앱/mockup.png') center bottom/cover no-repeat}
+    .rp-food-overlay{position:absolute;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.82) 100%);color:#fff}
+    /* ── Floating moment card (absolute, overlaps phone bottom) ── */
+    .rp-float-mc{
+      position:absolute;left:50%;transform:translateX(-50%);
+      bottom:57%;width:316px;z-index:10;
+      background:white;border-radius:22px;overflow:hidden;
+      box-shadow:0 20px 64px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.06);
+      border:1px solid rgba(0,0,0,.04);
+    }
+    .rp-float-mc-photo{height:164px;background:#f3e9dc url('07_디자인/mockup/v11_보호자앱/mockup.png') center/cover no-repeat;position:relative;overflow:hidden}
+    .rp-float-mc-photo::after{content:'';position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none}
+    .rp-float-mc-body{padding:18px 20px 22px}
+    .rp-float-mc-quote{font-size:14px;font-weight:600;line-height:1.6;letter-spacing:-.3px;color:#111827;margin-bottom:8px}
+    .rp-float-mc-meta{font-size:12px;color:rgba(0,0,0,.4);display:flex;align-items:center;gap:6px}
+    .rp-float-mc-meta::before{content:'';width:14px;height:1px;background:rgba(0,0,0,.15)}
+    /* ── Right: annotation text ── */
+    .rp-ann{flex:0 0 256px;display:flex;flex-direction:column;gap:44px;padding-top:72px}
+    .rp-ann-item{display:flex;flex-direction:column;gap:7px}
+    .rp-ann-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+    .rp-ann-title{font-size:18px;font-weight:700;letter-spacing:-.025em;color:var(--ink);line-height:1.3}
+    .rp-ann-desc{font-size:13px;color:var(--mute);line-height:1.75;letter-spacing:-.005em}
+
+    /* ═══════════════════════ FEATURES BY ROLE (joined to #ai as one long flow) ═══════════════════════ */
+    #features-by-role{background:white;padding:0;overflow:visible}
+    .feat-sub{display:flex;align-items:center;padding:clamp(80px,10vw,140px) 0;overflow:visible;background:white;position:relative}
+    /* subtle hairline that reads as a "step divider" rather than a section break */
+    .feat-sub::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:48px;height:1px;background:rgba(0,0,0,.12)}
+    .feat-sub-inner{max-width:var(--container);margin:0 auto;padding:0 var(--gutter);width:100%;display:grid;gap:64px;align-items:center;position:relative}
+    .feat-sub-inner.layout-left,.feat-sub-inner.layout-right{grid-template-columns:1fr 1fr}
+    .feat-sub-inner.layout-right .feat-device-side{order:2}
+    .feat-sub-inner.layout-right .feat-info-side{order:1}
+    .feat-sub-inner.layout-center{grid-template-columns:1fr;justify-items:center;text-align:center}
+    .feat-counter{position:absolute;top:-32px;right:0;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--mute-2);font-feature-settings:"tnum" 1}
+    .feat-device-side{display:flex;justify-content:center;position:relative}
+    .feat-info-side{display:flex;flex-direction:column;max-width:460px}
+    .feat-role-tag{align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 14px;border-radius:100px;margin-bottom:14px}
+    .feat-sub-inner.layout-center .feat-role-tag{align-self:center}
+    .feat-role-tag.caregiver{background:rgba(44,122,252,.1);color:var(--blue)}
+    .feat-role-tag.medical{background:rgba(34,197,94,.1);color:var(--green)}
+    .feat-role-tag.patient{background:rgba(239,68,68,.1);color:var(--red)}
+    .feat-platform-tag{font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+    .feat-title{font-size:clamp(26px,3vw,40px);font-weight:700;letter-spacing:-.03em;line-height:1.2;color:var(--ink);margin-bottom:14px}
+    .feat-desc{font-size:15px;line-height:1.78;color:var(--ink-2);margin-bottom:24px;max-width:42ch}
+    .feat-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+    .feat-bullets li{font-size:13px;color:var(--ink-2);line-height:1.55;display:flex;gap:10px;align-items:flex-start}
+    .feat-bullets li::before{content:'';flex-shrink:0;width:5px;height:5px;border-radius:50%;background:var(--blue);margin-top:8px}
+
+    /* Device mockups (interaction-disabled iframes) */
+    .feat-phone-wrap{position:relative;width:280px;height:572px;padding-bottom:0;flex-shrink:0}
+    .feat-phone-screen{position:absolute;left:5.33%;top:7.97%;width:89.26%;height:89.49%;overflow:hidden;background:white;z-index:1;border-radius:30px}
+    .feat-phone-screen iframe{position:absolute;left:0;top:0;width:390px;height:801px;transform:scale(0.641);transform-origin:top left;border:0;pointer-events:none;display:block}
+    .feat-frame-img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:block;filter:drop-shadow(0 24px 56px rgba(0,0,0,.10)) drop-shadow(0 4px 12px rgba(0,0,0,.05))}
+    .feat-ipad-wrap{position:relative;width:520px;height:370px;flex-shrink:0}
+    .feat-ipad-screen{position:absolute;left:4.17%;top:5.64%;width:91.63%;height:88.67%;overflow:hidden;border-radius:6px;background:white;z-index:1}
+    .feat-ipad-screen iframe{width:768px;height:529px;transform:scale(0.622);transform-origin:top left;border:0;pointer-events:none;display:block}
+    .feat-imac-wrap{position:relative;width:620px;height:527px;flex-shrink:0}
+    .feat-imac-screen{position:absolute;left:2.60%;top:3.40%;width:94.80%;height:62.80%;overflow:hidden;background:white;z-index:1;display:flex;flex-direction:column}
+    .feat-browser-bar{flex-shrink:0;height:26px;background:#EBEBEB;border-bottom:1px solid #CACACA;display:flex;align-items:center;padding:0 8px;gap:5px}
+    .feat-b-dots{display:flex;gap:4px}
+    .feat-b-dot{width:9px;height:9px;border-radius:50%}
+    .feat-b-dot.r{background:#FF5F57}.feat-b-dot.y{background:#FEBC2E}.feat-b-dot.g{background:#28C840}
+    .feat-b-url{flex:1;height:15px;background:white;border-radius:4px;margin:0 40px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#bbb;font-family:-apple-system,sans-serif}
+    .feat-browser-content{flex:1;overflow:hidden;position:relative}
+    .feat-browser-content iframe{width:1200px;height:480px;transform:scale(0.486);transform-origin:top left;border:0;pointer-events:none;display:block}
+
+    /* Floating callout cards — mockup-UI style (matches .rp-float-mc quality) */
+    .feat-float{
+      position:absolute;z-index:10;
+      background:white;border-radius:22px;overflow:hidden;
+      box-shadow:0 20px 64px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.06);
+      border:1px solid rgba(0,0,0,.04);
+      animation:feat-float-in .7s cubic-bezier(.22,1.4,.42,1) both;
+      pointer-events:none;user-select:none;
+    }
+    @keyframes feat-float-in{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+
+    /* Header strip (small caption bar at top of card) */
+    .ff-strip{
+      padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;
+      text-transform:uppercase;display:flex;align-items:center;gap:6px;
+      border-bottom:1px solid rgba(0,0,0,.05);
+    }
+    .ff-strip::before{content:'';width:6px;height:6px;border-radius:50%}
+    .ff-strip.blue {background:rgba(44,122,252,.06);color:var(--blue)}
+    .ff-strip.blue::before{background:var(--blue)}
+    .ff-strip.red  {background:rgba(239,68,68,.07);color:#EF4444}
+    .ff-strip.red::before{background:#EF4444;animation:ff-pulse 1.6s ease-in-out infinite}
+    .ff-strip.green{background:rgba(34,197,94,.06);color:#22C55E}
+    .ff-strip.green::before{background:#22C55E}
+    .ff-strip.orange{background:rgba(251,146,60,.06);color:#FB923C}
+    .ff-strip.orange::before{background:#FB923C}
+    @keyframes ff-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
+    .ff-strip-right{margin-left:auto;font-size:10px;font-weight:600;color:rgba(0,0,0,.35);letter-spacing:0;text-transform:none}
+
+    /* ───── Caregiver 1: 오늘 방문 progress ───── */
+    .ff-caregiver-visit{width:212px}
+    .ff-cv-body{padding:13px 16px 14px}
+    .ff-cv-row{display:flex;align-items:baseline;gap:6px;margin-bottom:10px}
+    .ff-cv-num{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:.9;color:#111827}
+    .ff-cv-num small{font-size:14px;font-weight:600;color:rgba(0,0,0,.35);letter-spacing:0;margin-left:2px}
+    .ff-cv-lbl{font-size:10.5px;color:rgba(0,0,0,.42);font-weight:600;letter-spacing:-.1px}
+    .ff-cv-bar{height:5px;border-radius:100px;background:rgba(0,0,0,.06);overflow:hidden;display:flex;margin-bottom:8px}
+    .ff-cv-bar-done{background:#22C55E;flex:5}
+    .ff-cv-bar-prog{background:#2C7AFC;flex:2}
+    .ff-cv-bar-wait{background:#FCD34D;flex:2}
+    .ff-cv-legend{display:flex;gap:10px;font-size:9.5px;font-weight:500}
+    .ff-cv-legend span{display:inline-flex;align-items:center;gap:4px}
+    .ff-cv-legend span::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+    .ff-cv-legend .lg-done{color:#22C55E}
+    .ff-cv-legend .lg-prog{color:#2C7AFC}
+    .ff-cv-legend .lg-wait{color:#B45309}
+
+    /* ───── Caregiver 2: SOS 수신 alert ───── */
+    .ff-caregiver-sos{width:226px}
+    .ff-sos-body{padding:13px 16px 14px}
+    .ff-sos-name{font-size:14px;font-weight:800;letter-spacing:-.3px;color:#111827;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+    .ff-sos-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#FEE2E2 0%,#FECACA 100%);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B91C1C;flex-shrink:0}
+    .ff-sos-status{font-size:10.5px;color:rgba(0,0,0,.45);line-height:1.45;letter-spacing:-.1px;margin-bottom:9px}
+    .ff-sos-status b{color:#22C55E;font-weight:700}
+    .ff-sos-actions{display:flex;gap:6px}
+    .ff-sos-btn{flex:1;padding:8px 0;text-align:center;font-size:11px;font-weight:700;border-radius:10px;letter-spacing:-.1px}
+    .ff-sos-btn.primary{background:#EF4444;color:white}
+    .ff-sos-btn.ghost{background:rgba(0,0,0,.05);color:rgba(0,0,0,.55)}
+
+    /* ───── Medical 1: AI 우선순위 (patient list) ───── */
+    .ff-medical-priority{width:240px}
+    .ff-mp-body{padding:10px 14px 12px}
+    .ff-mp-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed rgba(0,0,0,.06)}
+    .ff-mp-row:last-child{border-bottom:none;padding-bottom:0}
+    .ff-mp-row:first-child{padding-top:4px}
+    .ff-mp-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+    .ff-mp-avatar.a1{background:linear-gradient(135deg,#FB7185 0%,#E11D48 100%)}
+    .ff-mp-avatar.a2{background:linear-gradient(135deg,#FBBF24 0%,#D97706 100%)}
+    .ff-mp-avatar.a3{background:linear-gradient(135deg,#60A5FA 0%,#2563EB 100%)}
+    .ff-mp-mid{flex:1;min-width:0}
+    .ff-mp-name{font-size:12px;font-weight:700;color:#111827;letter-spacing:-.2px;line-height:1.2}
+    .ff-mp-sign{font-size:9.5px;color:rgba(0,0,0,.42);margin-top:1px;letter-spacing:-.1px}
+    .ff-mp-vital{font-size:11px;font-weight:800;color:#EF4444;letter-spacing:-.3px;flex-shrink:0;font-feature-settings:"tnum" 1}
+    .ff-mp-vital.warn{color:#F59E0B}
+    .ff-mp-vital.ok{color:#22C55E}
+
+    /* ───── Medical 2: 인계 노트 (bar chart) ───── */
+    .ff-medical-handover{width:220px}
+    .ff-mh-body{padding:13px 16px 14px}
+    .ff-mh-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px}
+    .ff-mh-num{font-size:32px;font-weight:800;letter-spacing:-1.4px;line-height:.9;color:#111827}
+    .ff-mh-num small{font-size:13px;font-weight:600;color:rgba(0,0,0,.35);letter-spacing:0;margin-left:2px}
+    .ff-mh-pill{font-size:9.5px;font-weight:700;color:#22C55E;background:rgba(34,197,94,.1);padding:3px 8px;border-radius:100px;letter-spacing:-.1px}
+    .ff-mh-bars{display:flex;align-items:flex-end;gap:5px;height:34px;margin-bottom:7px}
+    .ff-mh-bar{flex:1;background:linear-gradient(180deg,#86EFAC 0%,#22C55E 100%);border-radius:3px;opacity:.88}
+    .ff-mh-bar:nth-child(1){height:50%}
+    .ff-mh-bar:nth-child(2){height:72%}
+    .ff-mh-bar:nth-child(3){height:42%}
+    .ff-mh-bar:nth-child(4){height:88%}
+    .ff-mh-bar:nth-child(5){height:65%}
+    .ff-mh-bar:nth-child(6){height:96%}
+    .ff-mh-bar:nth-child(7){height:78%}
+    .ff-mh-lbl{font-size:10px;color:rgba(0,0,0,.42);letter-spacing:-.1px;line-height:1.4}
+
+    /* ───── Patient 1: 복약 알림 (big-text) ───── */
+    .ff-patient-med{width:236px}
+    .ff-pm-body{padding:14px 18px 16px;background:linear-gradient(180deg,#FFF7ED 0%,#FFFFFF 100%)}
+    .ff-pm-icon-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .ff-pm-pill-icon{width:36px;height:36px;border-radius:50%;background:#FB923C;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(251,146,60,.32);flex-shrink:0}
+    .ff-pm-time{font-size:20px;font-weight:800;letter-spacing:-.6px;color:#111827;line-height:1}
+    .ff-pm-time small{font-size:11px;font-weight:600;color:rgba(0,0,0,.4);display:block;margin-top:2px;letter-spacing:-.1px}
+    .ff-pm-name{font-size:18px;font-weight:800;letter-spacing:-.5px;color:#111827;margin-top:4px;line-height:1.25}
+
+    /* ───── Patient 2: 영상통화 (incoming call) ───── */
+    .ff-patient-call{width:232px}
+    .ff-pc-body{padding:16px 16px 14px;display:flex;align-items:center;gap:12px}
+    .ff-pc-avatar{
+      width:48px;height:48px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,#FECACA 0%,#FB7185 60%,#E11D48 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;font-weight:800;color:white;letter-spacing:-.5px;
+      box-shadow:0 0 0 3px white,0 0 0 5px rgba(239,68,68,.22);
+      position:relative;
+    }
+    .ff-pc-avatar::after{
+      content:'';position:absolute;inset:-5px;border-radius:50%;
+      border:1.5px solid rgba(239,68,68,.35);
+      animation:ff-call-ring 1.8s ease-out infinite;
+    }
+    @keyframes ff-call-ring{0%{opacity:.8;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+    .ff-pc-mid{flex:1;min-width:0}
+    .ff-pc-label{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#EF4444;margin-bottom:2px}
+    .ff-pc-name{font-size:16px;font-weight:800;letter-spacing:-.4px;color:#111827;line-height:1.15}
+    .ff-pc-sub{font-size:10.5px;color:rgba(0,0,0,.4);margin-top:2px;letter-spacing:-.1px}
+    .ff-pc-btn{width:36px;height:36px;border-radius:50%;background:#22C55E;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(34,197,94,.4)}
+
+    /* Per-sub positioning */
+    .feat-float.caregiver-1{top:-14px;right:-72px}
+    .feat-float.caregiver-2{bottom:6%;left:-84px}
+    .feat-float.medical-1{top:8%;left:-96px}
+    .feat-float.medical-2{bottom:8%;right:-80px}
+    .feat-float.patient-1{top:-28px;left:-48px}
+    .feat-float.patient-2{bottom:-20px;right:-48px}
+
+    /* ═══════════════════════ CONCEPT — 세 시선 → 한 하루 ═══════════════════════ */
+    .concept-section{padding:var(--pad-section) 0;background:var(--paper);overflow:visible;position:relative}
+    .cc-head{max-width:760px;margin:0 auto 80px;text-align:center}
+    .cc-head .sec-eyebrow{display:block;text-align:center;color:var(--blue);margin-bottom:18px}
+    .cc-head .sec-title{margin-bottom:28px;line-height:1.34}
+    .cc-head .sec-sub{margin:0 auto;text-align:center}
+    .cc-head .sec-sub strong{color:var(--ink);font-weight:600}
+
+    .cc-diagram{
+      display:grid;grid-template-columns:1fr 96px 1fr;gap:28px;
+      align-items:center;max-width:1000px;margin:0 auto 96px;
+    }
+    .cc-side{display:flex;flex-direction:column;align-items:center;gap:18px}
+    .cc-state-label{
+      font-size:11px;font-weight:600;letter-spacing:-.02em;
+      color:var(--mute);
+      padding:6px 16px;border-radius:100px;background:rgba(0,0,0,.05);
+    }
+    .cc-state-label.active{color:var(--blue);background:rgba(44,122,252,.1)}
+
+    .cc-orbit{
+      position:relative;width:100%;max-width:380px;aspect-ratio:1/1;
+      border-radius:28px;border:1px solid var(--line);
+      box-shadow:0 8px 32px rgba(0,0,0,.04);overflow:hidden;
+    }
+    .cc-orbit--scatter{background:linear-gradient(135deg,#FAFAFA 0%,#EEEEEE 100%)}
+    .cc-orbit--connect{
+      background:
+        radial-gradient(circle at 50% 50%,rgba(44,122,252,.08) 0%,transparent 60%),
+        linear-gradient(135deg,#FFFFFF 0%,#F8FAFD 100%);
+    }
+    .cc-svg-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+    .cc-node{
+      position:absolute;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;
+      transform:translate(-50%,-50%);
+    }
+    .cc-node-dot{
+      width:52px;height:52px;border-radius:50%;
+      background:white;border:2px solid var(--line);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
+    .cc-node-dot iconify-icon{font-size:22px}
+    .cc-node-tag{
+      font-size:11px;font-weight:700;letter-spacing:-.1px;color:var(--mute);
+      padding:3px 11px;border-radius:100px;background:white;border:1px solid var(--line);
+    }
+    .cc-orbit--scatter .cc-node-dot{opacity:.55;filter:grayscale(.5)}
+    .cc-orbit--scatter .cc-node-dot iconify-icon{color:rgba(0,0,0,.45)}
+    .cc-orbit--scatter .cc-node-tag{color:rgba(0,0,0,.4)}
+
+    .cc-orbit--connect .cc-node--guardian .cc-node-dot{border-color:#FB923C;background:rgba(251,146,60,.1)}
+    .cc-orbit--connect .cc-node--guardian .cc-node-dot iconify-icon{color:#FB923C}
+    .cc-orbit--connect .cc-node--guardian .cc-node-tag{color:#FB923C;border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.06)}
+    .cc-orbit--connect .cc-node--care .cc-node-dot{border-color:#2C7AFC;background:rgba(44,122,252,.1)}
+    .cc-orbit--connect .cc-node--care .cc-node-dot iconify-icon{color:#2C7AFC}
+    .cc-orbit--connect .cc-node--care .cc-node-tag{color:#2C7AFC;border-color:rgba(44,122,252,.3);background:rgba(44,122,252,.06)}
+    .cc-orbit--connect .cc-node--patient .cc-node-dot{border-color:#EF4444;background:rgba(239,68,68,.1)}
+    .cc-orbit--connect .cc-node--patient .cc-node-dot iconify-icon{color:#EF4444}
+    .cc-orbit--connect .cc-node--patient .cc-node-tag{color:#EF4444;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06)}
+
+    .cc-hub{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:84px;height:84px;border-radius:50%;
+      background:linear-gradient(135deg,#3B86FF 0%,#1E5FCC 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      box-shadow:0 14px 36px rgba(44,122,252,.36),0 0 0 7px rgba(44,122,252,.08);
+      z-index:3;
+    }
+    .cc-hub-logo{width:22px;height:22px}
+    .cc-hub-label{font-size:10px;font-weight:700;letter-spacing:-.2px;color:white}
+    .cc-hub::before,.cc-hub::after{
+      content:'';position:absolute;inset:-14px;border-radius:50%;
+      border:1.5px solid rgba(44,122,252,.32);
+      animation:cc-hub-ring 2.6s ease-out infinite;
+    }
+    .cc-hub::after{animation-delay:1.3s;border-color:rgba(44,122,252,.22)}
+    @keyframes cc-hub-ring{0%{opacity:.8;transform:scale(.78)}100%{opacity:0;transform:scale(1.65)}}
+
+    .cc-arrow{display:flex;flex-direction:column;align-items:center;gap:12px}
+    .cc-arrow-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+    .cc-arrow-svg{width:72px;height:24px}
+
+    .cc-cards{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+      max-width:1080px;margin:0 auto;
+    }
+    .cc-card{
+      background:white;border:1px solid var(--line);border-radius:20px;
+      padding:32px 28px;position:relative;
+    }
+    .cc-card-role{
+      font-size:12px;font-weight:600;letter-spacing:-.01em;
+      margin-bottom:10px;
+    }
+    .cc-card--guardian .cc-card-role{color:#FB923C}
+    .cc-card--care     .cc-card-role{color:#2C7AFC}
+    .cc-card--patient  .cc-card-role{color:#EF4444}
+
+    .cc-card-h{
+      font-size:32px;font-weight:700;letter-spacing:-.03em;
+      color:var(--ink);margin-bottom:14px;line-height:1.1;
+    }
+    .cc-card-body{
+      font-size:14px;line-height:1.78;color:var(--ink-2);letter-spacing:-.005em;
+    }
+
+    /* Staggered scroll reveal */
+    .cc-card.reveal:nth-child(2){transition-delay:.15s}
+    .cc-card.reveal:nth-child(3){transition-delay:.3s}
+
+    @media (max-width:900px){
+      .cc-diagram{grid-template-columns:1fr;gap:24px}
+      .cc-arrow{transform:rotate(90deg)}
+      .cc-cards{grid-template-columns:1fr;max-width:480px}
+    }
+
+    /* ═══════════════════ ROI ═══════════════════ */
+    .roi-section{background:var(--paper)}
+    .roi-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .roi-controls{display:flex;flex-direction:column;gap:44px;padding-top:8px}
+    .roi-control{display:flex;flex-direction:column;gap:16px}
+    .roi-control-header{display:flex;justify-content:space-between;align-items:baseline}
+    .roi-control-label{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+    .roi-control-val{font-size:24px;font-weight:700;color:var(--green);letter-spacing:-.04em;font-feature-settings:"tnum" 1}
+    .roi-slider{
+      -webkit-appearance:none;appearance:none;
+      width:100%;height:3px;border-radius:2px;background:var(--line);outline:none;cursor:pointer;
+    }
+    .roi-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:22px;height:22px;border-radius:50%;background:var(--ink);cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .1s;
+    }
+    .roi-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+    .roi-results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .roi-result{padding:28px 24px;border-radius:16px;background:white;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+    .roi-result-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+    .roi-result-val{font-size:clamp(28px,3.5vw,40px);font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1;font-feature-settings:"tnum" 1;transition:color .3s}
+    .roi-result-val span{font-size:.38em;font-weight:500;color:var(--mute);margin-left:3px}
+    .roi-result-note{font-size:12px;color:var(--mute);letter-spacing:-.005em}
+    .roi-result-val.highlight{color:var(--green)}
+
+    /* ═══════════════════ PERSONA ENHANCED ═══════════════════ */
+    .persona-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+    .persona-v2{padding:40px 32px;background:white;display:flex;flex-direction:column}
+    .persona-role-badge{
+      display:inline-flex;align-items:center;
+      font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      padding:5px 12px;border-radius:100px;align-self:flex-start;margin-bottom:20px;
+    }
+    .persona-role-badge.guardian{background:rgba(44,122,252,.08);color:var(--blue)}
+    .persona-role-badge.medical {background:rgba(34,197,94,.08);color:var(--green)}
+    .persona-role-badge.patient {background:rgba(251,146,60,.08);color:var(--orange)}
+    .persona-v2 .p2-name{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink);margin-bottom:4px}
+    .persona-v2 .p2-meta{font-size:12px;color:var(--mute);margin-bottom:22px;letter-spacing:-.005em}
+    .persona-v2 .p2-pain{font-size:14px;font-weight:400;line-height:1.75;color:var(--ink-2);padding:16px 18px;background:var(--paper);border-radius:12px;margin-bottom:24px;flex:1}
+    .persona-v2 .p2-change-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+    .persona-v2 .p2-change{font-size:14px;font-weight:500;line-height:1.6;color:var(--ink);letter-spacing:-.01em}
+
+    /* CTA block */
+    .cta-block{background:var(--paper);padding:clamp(80px,12vw,140px) var(--gutter);text-align:center}
+    .cta-title{font-size:clamp(36px,5.5vw,72px);font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1.1;margin-bottom:18px}
+    .cta-sub{font-size:17px;color:var(--ink-2);letter-spacing:-.01em;margin-bottom:52px}
+    .cta-btns{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap}
+    .cta-btn-primary{
+      padding:16px 32px;border-radius:14px;background:var(--ink);color:white;
+      font-family:var(--font);font-size:14px;font-weight:600;letter-spacing:-.01em;
+      cursor:pointer;border:none;transition:all .2s;
+    }
+    .cta-btn-primary:hover{background:var(--ink-2);transform:translateY(-2px)}
+    .cta-btn-secondary{
+      display:inline-block;padding:16px 32px;border-radius:14px;background:transparent;color:var(--ink-2);
+      border:1px solid var(--line);font-family:var(--font);font-size:14px;font-weight:500;
+      letter-spacing:-.01em;cursor:pointer;transition:all .2s;
+    }
+    .cta-btn-secondary:hover{background:var(--line-soft);color:var(--ink)}
+
+    @media(max-width:900px){
+      .topbar-nav{display:none}
+      .hero-body{max-width:100%}
+      .overview-grid,.concept-inner,.mkt-inner{grid-template-columns:1fr;gap:28px}
+      .mkt-stats{grid-template-columns:1fr}
+      .stats-row,.persona-grid{grid-template-columns:1fr;border-radius:16px}
+      .role-row{grid-template-columns:40px 1fr;gap:16px}
+      .role-row .role-desc,.role-row .role-platform{grid-column:2}
+      .sol-grid{grid-template-columns:1fr 1fr;gap:12px;margin-top:40px}
+      .sol-demo-panel.active{flex-direction:column}
+      .sol-demo-nav{width:100%;position:static;flex-direction:row;flex-wrap:wrap;gap:8px}
+      .sol-demo-nav-item{width:auto;flex-direction:row;gap:8px;padding:8px 14px}
+      .sni-en{display:none}
+      .concept-meta{grid-template-columns:1fr;gap:24px}
+      .conn-diagram{width:320px;height:280px}
+      .conn-compare{flex-direction:column;gap:24px;padding:28px 32px}
+      .report-stage{flex-direction:column;align-items:center;gap:32px;padding-bottom:80px}
+      .rp-phone-wrap{padding-bottom:80px}
+      .rp-float-mc{width:min(316px,calc(100vw - 48px))}
+      .rp-ann{flex:none;width:100%;max-width:400px;flex-direction:row;flex-wrap:wrap;padding-top:0;gap:20px}
+      .rp-ann-item{flex:1;min-width:140px}
+      .feat-sub-inner.layout-left,.feat-sub-inner.layout-right{grid-template-columns:1fr;justify-items:center;text-align:center}
+      .feat-sub-inner.layout-right .feat-device-side{order:1}
+      .feat-sub-inner.layout-right .feat-info-side{order:2}
+      .feat-info-side{align-items:center}
+      .feat-role-tag{align-self:center !important}
+      .feat-bullets li{justify-content:flex-start;text-align:left}
+      .feat-ipad-wrap{width:min(420px,calc(100vw - 48px));height:auto;aspect-ratio:520/370}
+      .feat-imac-wrap{width:min(420px,calc(100vw - 48px));height:auto;aspect-ratio:620/527}
+      .feat-float{display:none}  /* hide floats on mobile to prevent layout chaos */
+      .ai-cards{grid-template-columns:1fr}
+      .roi-inner{grid-template-columns:1fr;gap:40px}
+      .roi-results-grid{grid-template-columns:1fr}
+      .persona-v2-grid{grid-template-columns:1fr}
+      #flow-stage{padding:16px;gap:16px}
+      .flow-png-phone{zoom:0.67}
+      .flow-png-tablet{zoom:0.37}
+      .intro-stack{max-width:calc(100vw - 48px)}
+    }
+
+    /* (formerly: #timestamp-screen, #morning-insert intermediate blue scenes — removed) */
+
+    /* ── SPEED BADGE ── */
+    .speed-badge{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:5px;flex-shrink:0;
+      opacity:0;animation:sb-pop .42s cubic-bezier(.34,1.56,.64,1) 0s both;
+    }
+    @keyframes sb-pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+    .sb-num{font-size:26px;font-weight:700;letter-spacing:-.04em;color:var(--ink)}
+    .sb-label{font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+    /* ── CTX LOCATION ── */
+    .ctx-location{
+      position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+      font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--mute);white-space:nowrap;
+      opacity:0;animation:fade-up .45s ease .5s both;
+    }
+
+    /* ── APPROVAL FLASH ── */
+    @keyframes apv-flash{
+      0%{opacity:0;transform:scale(.85)}
+      35%{opacity:1;transform:scale(1)}
+      100%{opacity:0;transform:scale(1.06)}
+    }
+    .approval-flash{
+      position:absolute;inset:0;z-index:30;
+      background:rgba(34,197,94,.13);
+      display:flex;align-items:center;justify-content:center;
+      animation:apv-flash .65s ease forwards;
+      pointer-events:none;border-radius:inherit;
+    }
+    .apv-icon{font-size:56px;color:#22C55E}
+
+    /* ── AI TYPING LINES ── */
+    .ai-line-typed{
+      padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);
+      opacity:0;animation:ai-appear .4s ease both;
+    }
+    .ai-line-typed:last-child{border-bottom:none}
+    .ai-line-typed .ai-line-title{font-size:13px;color:rgba(255,255,255,.6);font-weight:400;margin-bottom:3px}
+    .ai-line-typed .ai-line-title.bold{font-weight:600;color:white}
+    .ai-line-typed .ai-line-title.blue{color:var(--blue);font-weight:600}
+    .ai-line-typed .ai-line-sub{font-size:11px;color:rgba(255,255,255,.28);line-height:1.4}
+    .ai-line-typed .ai-line-sub.blue{color:rgba(44,122,252,.5)}
+
+    /* ── LOCK SCREEN DEVICE ── */
+    .lsphone-bg{
+      position:absolute;inset:0;
+      background:linear-gradient(175deg,#1a6fdd 0%,#0e4fc7 30%,#0838a8 62%,#041e6b 100%);
+      overflow:hidden;font-family:'Pretendard Variable',-apple-system,sans-serif;
+    }
+    .ls-time-block{display:flex;flex-direction:column;align-items:center;padding-top:44px}
+    .ls-date{font-size:14px;color:rgba(255,255,255,.82);font-weight:400;letter-spacing:.01em;margin-bottom:2px}
+    .ls-clock{font-size:74px;font-weight:200;color:#fff;letter-spacing:-.04em;line-height:1}
+    .ls-notif-wrap{position:absolute;top:188px;left:0;right:0;padding:0 10px;display:flex;flex-direction:column;gap:8px}
+    .ls-notif-card{
+      background:rgba(255,255,255,.22);
+      backdrop-filter:blur(30px) saturate(180%);
+      -webkit-backdrop-filter:blur(30px) saturate(180%);
+      border-radius:18px;padding:13px 14px 12px;
+      border:1px solid rgba(255,255,255,.28);
+      position:relative;
+      animation:ls-card-in .6s cubic-bezier(.34,1.56,.64,1) .5s both;
+    }
+    @keyframes ls-card-in{from{transform:translateY(-48px);opacity:0}to{transform:none;opacity:1}}
+    .ls-notif-card.tappable::after{
+      content:'';position:absolute;inset:-3px;border-radius:21px;
+      border:1.5px solid rgba(255,255,255,.4);
+      animation:notif-ring 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .ls-notif-hd{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+    .ls-notif-icon{
+      width:19px;height:19px;border-radius:5px;background:var(--blue);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .ls-notif-app{font-size:11px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .ls-notif-ago{font-size:11px;color:rgba(255,255,255,.48)}
+    .ls-notif-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.3;margin-bottom:4px}
+    .ls-notif-body{font-size:12px;color:rgba(255,255,255,.78);line-height:1.4}
+    .ls-notif-actions{display:flex;gap:8px;margin-top:10px}
+    .ls-notif-btn{
+      flex:1;background:rgba(255,255,255,.15);border-radius:10px;
+      padding:8px 6px;text-align:center;font-size:12px;font-weight:600;
+      color:rgba(255,255,255,.9);cursor:pointer;
+    }
+    .ls-notif-btn.allow{background:rgba(255,255,255,.9);color:var(--blue)}
+    .ls-bottom-btns{
+      position:absolute;bottom:28px;left:0;right:0;
+      display:flex;justify-content:space-between;padding:0 30px;
+    }
+    .ls-bottom-btn{
+      width:50px;height:50px;
+      background:rgba(255,255,255,.18);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+    }
+    .ls-home-bar{
+      position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+      width:118px;height:4px;background:rgba(255,255,255,.55);border-radius:2px;
+    }
+  </style>
+</head>
+<body tabindex="-1">
+
+<!-- ══════════════════════════════════ MAIN PAGE ══════════════════════════════════ -->
+<div id="main-page">
+  <div class="progress-bar" id="progressBar"></div>
+  <nav class="topbar" id="topbar">
+    <a class="topbar-left" href="#hero">
+      <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+        <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+        <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+      </svg>
+    </a>
+    <div class="topbar-nav">
+      <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
+      <a class="nav-link" href="#problem" data-nav="problem">Problem</a>
+      <a class="nav-link" href="#ai" data-nav="ai">리포트</a>
+      <a class="nav-link" href="#roi" data-nav="roi">ROI</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="hero-body">
+        <div class="hero-content">
+          <div class="hero-eyebrow reveal">AI Care Communication Platform — 2026</div>
+          <h1 class="hero-title reveal">하루안부.</h1>
+          <p class="hero-sub reveal"><strong>보호자 · 의료진 · 환자</strong>, 흩어진 세 시선을<br>하루의 안부 한 줄로 잇는 케어 플랫폼.</p>
+          <div class="hero-actions reveal">
+            <a class="btn-primary" href="#overview">서비스 소개 보기</a>
+            <span class="hero-hint">Scroll to explore</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="hairline"></div>
+
+  <section id="overview" class="container">
+    <div class="overview-grid">
+      <div class="reveal"><div class="overview-label">Overview</div></div>
+      <div class="overview-body reveal">
+        <p>하루안부는 <strong>환자 · 요양보호사 · 의료진 · 보호자</strong> — 요양 현장의 네 주체를 하나의 흐름으로 연결하는 케어 커뮤니케이션 플랫폼입니다.</p>
+        <p>환자의 하루 기록은 요양보호사의 현장 확인을 거쳐 의료진의 검토로 이어지고, 보호자에게 자동으로 공유됩니다. 긴급 SOS부터 복약 확인, 일상 안부, 방문 케어 기록까지 — <strong>한 번의 기록이 역할에 맞는 사람에게 정확히 전달</strong>됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mkt-section">
+    <div class="container">
+      <div class="mkt-inner">
+        <div class="reveal"><div class="mkt-label">The Backdrop</div></div>
+        <div class="reveal">
+          <p class="mkt-statement">65만 명의 부모님이<br>지금 시설에 있습니다.<br>그 가족들은 괜찮을까요?</p>
+          <p class="mkt-sub" style="margin-bottom:0">고령화사회(7%)에서 고령사회(14%)까지, 프랑스는 <em>115년</em>·미국은 <em>73년</em>이 걸렸습니다. 한국은 <em>17년</em>이었고, 초고령사회(20%)까지 <em>7년</em>이 더 걸렸습니다. 현재 65세 이상 1인 가구는 <em>214만 명</em>을 넘어섰고, <em>OECD 노인 빈곤율 1위</em>라는 수치는 이 변화가 단순한 인구 통계가 아닌 사회적 위기임을 말해줍니다. 돌봄의 수요는 폭발하고 있지만, 가족과 의료진이 연결되는 방식은 여전히 전화 한 통에 머물러 있습니다.</p>
+        </div>
+      </div>
+
+      <!-- Chart breaks out to full container width (matches v7 Impact) -->
+      <div class="mkt-chart-wrap reveal" style="margin-top:80px">
+            <div class="mkt-chart-hed">65세 이상 인구 비율 — 한국 (2000–2040)</div>
+            <svg class="mkt-chart-svg" viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bdGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2C7AFC" stop-opacity="0.16"/>
+                  <stop offset="100%" stop-color="#2C7AFC" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Horizontal gridlines -->
+              <line x1="0" y1="121" x2="560" y2="121" stroke="#F1F1F1" stroke-width="1"/>
+              <line x1="0" y1="88"  x2="560" y2="88"  stroke="#F1F1F1" stroke-width="1"/>
+              <line x1="0" y1="54"  x2="560" y2="54"  stroke="#F1F1F1" stroke-width="1"/>
+              <!-- Y-axis labels -->
+              <text x="566" y="124" font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">10%</text>
+              <text x="566" y="91"  font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">20%</text>
+              <text x="566" y="57"  font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">30%</text>
+              <!-- Area fill -->
+              <path d="M 0,131 L 70,124 L 140,118 L 210,111 L 238,108 L 280,102 L 350,87 L 420,69 L 490,53 L 560,39 L 560,155 L 0,155 Z" fill="url(#bdGrad)"/>
+              <!-- Solid line: actual 2000–2025 -->
+              <polyline points="0,131 70,124 140,118 210,111 238,108 280,102 350,87" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Dashed line: projected 2025–2040 -->
+              <polyline points="350,87 420,69 490,53 560,39" fill="none" stroke="#2C7AFC" stroke-width="2" stroke-dasharray="4 5" opacity="0.38" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Baseline -->
+              <line x1="0" y1="155" x2="560" y2="155" stroke="#E8E8E8" stroke-width="1"/>
+              <!-- Milestone: 2017 고령사회 -->
+              <line x1="238" y1="108" x2="238" y2="155" stroke="#EBEBEB" stroke-width="1" stroke-dasharray="3 4"/>
+              <circle cx="238" cy="108" r="3.5" fill="white" stroke="#CCCCCC" stroke-width="1.5"/>
+              <text x="238" y="169" text-anchor="middle" font-size="9" fill="#AAAAAA" font-family="system-ui,-apple-system,sans-serif">2017</text>
+              <text x="238" y="181" text-anchor="middle" font-size="8" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">고령사회 14%</text>
+              <!-- Milestone: 2025 NOW -->
+              <line x1="350" y1="87" x2="350" y2="155" stroke="#2C7AFC" stroke-width="1" stroke-dasharray="3 4" opacity="0.22"/>
+              <circle cx="350" cy="87" r="6" fill="#2C7AFC" stroke="white" stroke-width="2.5"/>
+              <!-- NOW pill -->
+              <rect x="323" y="60" width="54" height="18" rx="9" fill="#2C7AFC"/>
+              <text x="350" y="72.5" text-anchor="middle" font-size="9" fill="white" font-weight="700" letter-spacing="0.06em" font-family="system-ui,-apple-system,sans-serif">NOW</text>
+              <!-- Connector dot→pill -->
+              <line x1="350" y1="81" x2="350" y2="78" stroke="#2C7AFC" stroke-width="1.5"/>
+              <text x="350" y="169" text-anchor="middle" font-size="9" fill="#2C7AFC" font-weight="700" font-family="system-ui,-apple-system,sans-serif">2025</text>
+              <text x="350" y="181" text-anchor="middle" font-size="8" fill="#2C7AFC" opacity="0.75" font-family="system-ui,-apple-system,sans-serif">초고령사회 20.3%</text>
+              <!-- Year range labels -->
+              <text x="0"   y="169" text-anchor="start" font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">2000</text>
+              <text x="560" y="169" text-anchor="end"   font-size="9" fill="#CCCCCC" font-family="system-ui,-apple-system,sans-serif">2040 (추계)</text>
+            </svg>
+      </div>
+    </div>
+    <div id="mktEndSentinel" style="height:1px"></div>
+  </section>
+
+  <section id="problem" class="problem-bridge container">
+    <div class="pb-eyebrow reveal">Problem</div>
+    <div class="pb-copy-wrap">
+      <p class="pb-line pb-line--main reveal" id="pbMain">잘 계십니다.</p>
+      <p class="pb-line pb-line--maybe" id="pbMaybe">아마도.</p>
+    </div>
+    <p class="pb-sub reveal" id="pbSub">멀리 있을수록, 전화 한 통이 하루의 전부가 됩니다. 그리고 그마저도 늘 충분하지 않습니다.</p>
+    <div class="stats-row reveal">
+      <div class="stat"><div class="stat-num">187<span class="unit">만 가구</span></div><div class="stat-desc">국내 65세 이상 1인 가구. 5년간 +38% 증가.</div><div class="stat-source">통계청 2024</div></div>
+      <div class="stat"><div class="stat-num">22<span class="unit">통/일</span></div><div class="stat-desc">중형 요양원 의료진의 일일 안부 응대. 약 2시간 소요.</div><div class="stat-source">현장 인터뷰 v2.1</div></div>
+      <div class="stat"><div class="stat-num">0<span class="unit">곳</span></div><div class="stat-desc">입소 후 4자 실시간 소통 시장의 국내 사업자 수.</div><div class="stat-source">경쟁사 6곳 분석</div></div>
+    </div>
+  </section>
+
+  <!-- ══ PAIN ZONE: 질문(index 0) + 카피(index 1-7) 통합 ══ -->
+  <div class="pain-zone" id="painZone">
+    <!-- 시각 레이어 (sticky로 고정) -->
+    <div class="pain-stage">
+      <div class="pain-list" id="painList">
+        <!-- index 0: 질문 (100vh, 카피 완전히 숨김) -->
+        <div class="pain-item--intro" data-dist="0">
+          <p class="pain-copy--intro">그렇다면 왜 가족은<br>여전히 불안할까요?</p>
+        </div>
+        <!-- index 1-7: 보호자 카피 (180px, 전후 희미하게 노출) -->
+        <div class="pain-item" data-dist="1"><p class="pain-copy">오늘 밥은 잘 드셨는지<br>모르겠어요.</p></div>
+        <div class="pain-item" data-dist="2"><p class="pain-copy">면회 못 간 날은<br>하루 종일 불안해요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">멀리 살아서<br>자주 못 가요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">어떤 치료를<br>받고 계신지 알 수가 없어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">케어 기록을<br>직접 볼 수가 없어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">부모님 곁에<br>있어드리고 싶어요.</p></div>
+        <div class="pain-item" data-dist="3"><p class="pain-copy">상태가 나빠졌을 때<br>제때 연락이 올지 걱정돼요.</p></div>
+      </div>
+      <div class="pain-nav" id="painDots"></div>
+      <div class="pain-scroll-hint">scroll</div>
+    </div>
+  </div>
+
+  <div class="hairline"></div>
+
+  <!-- ══ EXPERIENCE — 새벽 SOS 시뮬레이션 (full-screen section) ══ -->
+  <section id="flow-overlay" aria-label="새벽 SOS 응답 플로우">
+    <!-- INTRO: centered SOS card -->
+    <div id="intro-screen">
+      <div class="intro-sos-card">
+        <div class="sos-drag-handle"></div>
+        <div class="notif-app-header">
+          <div class="notif-app-icon">
+            <svg viewBox="0 0 2526 2526" fill="none" style="width:14px;height:14px">
+              <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+              <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+            </svg>
+          </div>
+          <span class="notif-app-name">하루안부</span>
+        </div>
+        <div class="sos-content">
+          <div class="sos-title">SOS 도움 요청이<br>들어왔어요!</div>
+          <div class="sos-desc">102호 김순자 어르신이 도움을 요청하고 있어요. 즉시 확인해서 응답하거나, 필요 시 의료진과 보호자에게 알림이 전송됩니다.</div>
+        </div>
+        <div class="sos-illust">
+          <div class="sos-illust-circle">
+            <div class="sos-ring"></div>
+            <div class="sos-ring"></div>
+            <div class="sos-badge-wrap">
+              <span class="sos-excl">!</span>
+            </div>
+          </div>
+        </div>
+        <div class="sos-actions">
+          <div class="sos-action-btn sos-dismiss" onclick="skipExperience()">무시</div>
+          <div class="sos-action-btn sos-accept" onclick="startFlow()">즉시 응답</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FLOW STAGE container (timestamp / 6-step flow / complete) ── -->
+    <div id="flow-modal">
+      <!-- FLOW -->
+      <div id="flow-screen" class="hidden">
+        <div id="flow-header">
+          <div class="sec-head reveal" style="margin-bottom:0">
+            <div class="sec-eyebrow">Care Flow</div>
+            <h2 class="sec-title">하루안부 케어 플로우</h2>
+            <p class="sec-sub" style="margin-top:14px;font-size:15px;color:var(--mute);line-height:1.7">새벽 SOS부터 다음 날 아침 리포트까지, 여섯 단계로 이어집니다.</p>
+          </div>
+          <div class="flow-steps">
+            <div class="flow-step active" id="fs1"><div class="fs-dot"><span class="fs-num">01</span><span class="fs-check">✓</span></div><span class="fs-label">환자 SOS</span></div>
+            <div class="fs-line" id="fl1"></div>
+            <div class="flow-step" id="fs2"><div class="fs-dot"><span class="fs-num">02</span><span class="fs-check">✓</span></div><span class="fs-label">요양보호사</span></div>
+            <div class="fs-line" id="fl2"></div>
+            <div class="flow-step" id="fs3"><div class="fs-dot"><span class="fs-num">03</span><span class="fs-check">✓</span></div><span class="fs-label">간호사 연결</span></div>
+            <div class="fs-line" id="fl3"></div>
+            <div class="flow-step" id="fs4"><div class="fs-dot"><span class="fs-num">04</span><span class="fs-check">✓</span></div><span class="fs-label">AI 판단</span></div>
+            <div class="fs-line" id="fl4"></div>
+            <div class="flow-step" id="fs5"><div class="fs-dot"><span class="fs-num">05</span><span class="fs-check">✓</span></div><span class="fs-label">보호자 허용</span></div>
+            <div class="fs-line" id="fl5"></div>
+            <div class="flow-step" id="fs6"><div class="fs-dot"><span class="fs-num">06</span><span class="fs-check">✓</span></div><span class="fs-label">일일 리포트</span></div>
+          </div>
+        </div>
+        <div class="flow-body">
+          <!-- LEFT: device mockup interaction -->
+          <div id="flow-stage"></div>
+          <!-- RIGHT: current phase explanation (left-aligned) -->
+          <div class="flow-info">
+            <div class="info-eyebrow">현재 단계</div>
+            <div id="flow-title"></div>
+            <div id="flow-sub"></div>
+            <div id="interact-next-wrap">
+              <button id="interact-next" onclick="interactNext()">다음 단계 →</button>
+            </div>
+          </div>
+        </div>
+        <div id="flow-footer"></div>
+      </div>
+
+      <!-- COMPLETE -->
+      <div id="complete-screen">
+        <div class="complete-headline">오늘도, 안녕하셨습니다.</div>
+        <div class="complete-flow-pills">
+          <span class="flow-pill">새벽 2:34</span><span class="flow-pill-arrow">→</span>
+          <span class="flow-pill">SOS</span><span class="flow-pill-arrow">→</span>
+          <span class="flow-pill">AI 판단</span><span class="flow-pill-arrow">→</span>
+          <span class="flow-pill">보호자 허용</span><span class="flow-pill-arrow">→</span>
+          <span class="flow-pill">아침 8:00</span>
+        </div>
+        <div class="complete-sub">3분 안에 연결되고, 다음 날 아침 안심으로 마무리됩니다.</div>
+        <button id="complete-cta" onclick="completeFlow()">서비스 소개 보기 →</button>
+      </div>
+    </div><!-- /#flow-modal -->
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- ══ CARE ALERTS ══ -->
+  <section id="care-alerts" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Care Alerts</div>
+      <h2 class="sec-title">걱정하지 않아도 됩니다</h2>
+      <p class="sec-sub">멀리 있으면 더 불안합니다. 하루안부는 이상 징후 감지부터 보호자 알림까지 자동으로 연결되어, 중요한 순간을 절대 놓치지 않습니다.</p>
+    </div>
+    <div class="ca-grid reveal">
+      <div class="ca-card">
+        <div class="ca-num">01</div>
+        <h3 class="ca-title">AI가 먼저 알아챕니다</h3>
+        <p class="ca-desc">매일 쌓인 기록으로 AI 안심지수를 계산합니다. 평소와 다른 패턴이 감지되면 즉시 알림이 시작됩니다.</p>
+      </div>
+      <div class="ca-card">
+        <div class="ca-num">02</div>
+        <h3 class="ca-title">요양보호사가 현장에서 먼저 확인합니다</h3>
+        <p class="ca-desc">알림은 현장의 요양보호사에게 먼저 전달됩니다. 직접 확인한 내용만 다음 단계로 넘어갑니다.</p>
+      </div>
+      <div class="ca-card">
+        <div class="ca-num">03</div>
+        <h3 class="ca-title">보호자에게 정리된 상황이 옵니다</h3>
+        <p class="ca-desc">날것의 알림이 아닙니다. 무슨 일이 있었고 어떻게 조치됐는지, 한 문장으로 정리해 전달합니다.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="solution" class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Solution</div>
+      <h2 class="sec-title">하나의 케어,<br>다섯 개의 시선.</h2>
+      <p class="sec-sub">같은 환자를 보호자는 안심 지수로, 요양보호사는 스텝퍼로, 의료진은 대시보드로 읽습니다.<br>모두가 같은 데이터를 공유하지만, 자신의 역할에 맞는 방식과 언어로 마주합니다.</p>
+    </div>
+
+    <!-- STATE 1: 카드 그리드 -->
+    <div class="sol-grid reveal" id="sol-grid">
+
+      <button class="sol-card" data-role="guardian">
+        <div class="sol-card-top">
+          <span class="sol-card-num">01</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">보호자 앱</div>
+        <div class="sol-card-en">Guardian</div>
+        <div class="sol-card-desc">어제와 오늘이 한눈에. 식사·복약·수면이 안심 지수 하나로 응축됩니다. 전화 없이도 오늘이 보입니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="caregiver">
+        <div class="sol-card-top">
+          <span class="sol-card-num">02</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">요양보호사 앱</div>
+        <div class="sol-card-en">Caregiver</div>
+        <div class="sol-card-desc">기록에 10초. 스텝퍼 8단계로 방문 케어 전체를 완성하고, SOS는 의료진에게 즉시 전달됩니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="patient">
+        <div class="sol-card-top">
+          <span class="sol-card-num">03</span>
+          <span class="sol-card-badge">Tablet</span>
+        </div>
+        <div class="sol-card-name">환자 앱</div>
+        <div class="sol-card-en">Patient</div>
+        <div class="sol-card-desc">화면 3개, 글자는 크게, 터치는 넓게. 설명 없이도 첫날부터 혼자 씁니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="nurse">
+        <div class="sol-card-top">
+          <span class="sol-card-num">04</span>
+          <span class="sol-card-badge">Desktop</span>
+        </div>
+        <div class="sol-card-name">의료진 웹</div>
+        <div class="sol-card-en">Medical Web</div>
+        <div class="sol-card-desc">모든 환자를 한 화면에. AI가 이상 신호를 중요도 순으로 정렬해 아무도 놓치지 않습니다.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+      <button class="sol-card" data-role="nurse-app">
+        <div class="sol-card-top">
+          <span class="sol-card-num">05</span>
+          <span class="sol-card-badge">Mobile</span>
+        </div>
+        <div class="sol-card-name">의료진 앱</div>
+        <div class="sol-card-en">Medical App</div>
+        <div class="sol-card-desc">SOS가 울리면 2초 안에 환자를 특정합니다. 병동을 걸으면서 처치 기록부터 인계까지.</div>
+        <div class="sol-card-cta">직접 해보기 →</div>
+      </button>
+
+    </div>
+
+    <!-- STATE 2: 인터랙티브 데모 패널 -->
+    <div class="sol-demo-panel" id="sol-demo-panel">
+      <div class="sol-demo-nav" id="sol-demo-nav"></div>
+      <div class="sol-demo-right">
+        <button class="sol-demo-back" id="sol-demo-back">← 목록으로</button>
+        <div class="sol-demo-stage" id="sol-demo-stage"></div>
+        <p class="showcase-hint" style="margin-top:24px">스크롤하고 탭해보세요 — 실제 앱과 동일합니다</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══ CONCEPT — 흩어진 세 시선 → 한 하루 ══ -->
+  <section id="concept" class="concept-section">
+    <div class="container">
+      <div class="cc-head reveal">
+        <div class="sec-eyebrow">Concept</div>
+        <h2 class="sec-title">흩어진 세 시선을<br><em>한 하루</em>로 잇습니다.</h2>
+        <p class="sec-sub">환자·케어팀·보호자. 세 시선은 같은 사람을 바라보지만, 서로 다른 언어로 말합니다.<br>하루안부는 그 간극을 <strong>하루 한 줄</strong>로 닫습니다.</p>
+      </div>
+
+      <div class="cc-diagram reveal">
+        <div class="cc-side">
+          <div class="cc-state-label">흩어진 시선</div>
+          <div class="cc-orbit cc-orbit--scatter">
+            <svg class="cc-svg-layer" viewBox="0 0 380 380" preserveAspectRatio="none">
+              <path d="M70,80 Q200,170 70,260" stroke="#C7CCD4" stroke-width="1.2" stroke-dasharray="3 5" fill="none" opacity=".7"/>
+              <path d="M310,90 Q180,200 320,280" stroke="#C7CCD4" stroke-width="1.2" stroke-dasharray="3 5" fill="none" opacity=".7"/>
+              <path d="M80,290 Q220,310 300,80" stroke="#C7CCD4" stroke-width="1.2" stroke-dasharray="3 5" fill="none" opacity=".5"/>
+              <circle cx="200" cy="200" r="3" fill="#C7CCD4" opacity=".5"/>
+              <circle cx="150" cy="140" r="2" fill="#C7CCD4" opacity=".4"/>
+              <circle cx="260" cy="220" r="2" fill="#C7CCD4" opacity=".4"/>
+            </svg>
+            <div class="cc-node cc-node--patient" style="top:22%;left:22%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">환자</div>
+            </div>
+            <div class="cc-node cc-node--care" style="top:72%;left:18%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:stethoscope-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">케어팀</div>
+            </div>
+            <div class="cc-node cc-node--guardian" style="top:28%;left:78%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:home-heart-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">보호자</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cc-arrow">
+          <div class="cc-arrow-label">하루안부</div>
+          <svg class="cc-arrow-svg" viewBox="0 0 72 24" fill="none">
+            <defs>
+              <linearGradient id="ccArrowGrad" x1="0" x2="1">
+                <stop offset="0%" stop-color="#C7CCD4"/>
+                <stop offset="100%" stop-color="#2C7AFC"/>
+              </linearGradient>
+            </defs>
+            <path d="M2,12 H64" stroke="url(#ccArrowGrad)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M56,5 L66,12 L56,19" stroke="#2C7AFC" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)">connects</div>
+        </div>
+
+        <div class="cc-side">
+          <div class="cc-state-label active">연결된 하루</div>
+          <div class="cc-orbit cc-orbit--connect">
+            <svg class="cc-svg-layer" viewBox="0 0 380 380" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="ccLineG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FB923C" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#FB923C" stop-opacity="0.15"/>
+                </linearGradient>
+                <linearGradient id="ccLineC" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#2C7AFC" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#2C7AFC" stop-opacity="0.55"/>
+                </linearGradient>
+                <linearGradient id="ccLineP" x1="1" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="#EF4444" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#EF4444" stop-opacity="0.55"/>
+                </linearGradient>
+              </defs>
+              <line x1="190" y1="80" x2="190" y2="190" stroke="url(#ccLineG)" stroke-width="1.8"/>
+              <line x1="80" y1="280" x2="190" y2="190" stroke="url(#ccLineC)" stroke-width="1.8"/>
+              <line x1="300" y1="280" x2="190" y2="190" stroke="url(#ccLineP)" stroke-width="1.8"/>
+              <circle r="3.5" fill="#FB923C">
+                <animate attributeName="cx" values="190;190" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="80;185" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0" dur="2.4s" repeatCount="indefinite"/>
+              </circle>
+              <circle r="3.5" fill="#2C7AFC">
+                <animate attributeName="cx" values="80;188" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="280;192" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+              </circle>
+              <circle r="3.5" fill="#EF4444">
+                <animate attributeName="cx" values="300;192" dur="2.4s" begin="1.6s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="280;192" dur="2.4s" begin="1.6s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0;1;1;0" dur="2.4s" begin="1.6s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+
+            <div class="cc-hub">
+              <svg class="cc-hub-logo" viewBox="0 0 2526 2526" fill="none">
+                <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+                <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+              </svg>
+              <div class="cc-hub-label">하루안부</div>
+            </div>
+
+            <div class="cc-node cc-node--guardian" style="top:21%;left:50%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:home-heart-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">보호자</div>
+            </div>
+            <div class="cc-node cc-node--care" style="top:74%;left:21%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:stethoscope-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">케어팀</div>
+            </div>
+            <div class="cc-node cc-node--patient" style="top:74%;left:79%">
+              <div class="cc-node-dot"><iconify-icon icon="fluent:person-24-filled"></iconify-icon></div>
+              <div class="cc-node-tag">환자</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cc-cards">
+        <div class="cc-card cc-card--guardian reveal">
+          <div class="cc-card-role">보호자</div>
+          <div class="cc-card-h">안심</div>
+          <p class="cc-card-body">오늘 하루가 안심 지수 하나로 옵니다. 전화하지 않아도, 면회하지 않아도 보입니다.</p>
+        </div>
+        <div class="cc-card cc-card--care reveal">
+          <div class="cc-card-role">케어팀</div>
+          <div class="cc-card-h">효율</div>
+          <p class="cc-card-body">기록 한 번으로 모든 역할에 전달됩니다. 10초 스텝퍼가 방문 케어 전체를 완성합니다.</p>
+        </div>
+        <div class="cc-card cc-card--patient reveal">
+          <div class="cc-card-role">환자</div>
+          <div class="cc-card-h">연결</div>
+          <p class="cc-card-body">큰 버튼 하나로 가족과 이어집니다. AI가 매일 안부를 묻고 케어팀에 전달합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES — 역할별 화면 (보호자 → 요양보호사 → 의료진 → 환자) ══ -->
+  <section id="ai" class="report-section">
+    <div class="report-sec-head reveal">
+      <div class="sec-eyebrow">Features · By User</div>
+      <h2 class="sec-title">각자의 화면에서,<br>같은 케어를.</h2>
+      <p class="sec-sub" style="max-width:560px;margin:18px auto 0;font-size:15px;color:var(--mute);line-height:1.7">보호자는 안심지수로, 요양보호사는 스텝퍼로, 의료진은 대시보드로, 환자는 큰 글씨로.<br>같은 하루를 네 시선이 다르게 봅니다.</p>
+    </div>
+
+    <div class="report-stage" style="position:relative">
+      <div class="feat-counter" style="position:absolute;top:-32px;right:var(--gutter);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--mute-2)">01 / 04</div>
+
+      <!-- Left: phone with overlapping float card -->
+      <div class="rp-phone-wrap reveal">
+        <div class="flow-png-phone">
+          <div class="device-screen">
+            <div class="rp-screen">
+
+              <div class="rp-screen-hdr">
+                <div class="rp-screen-title">일일 리포트</div>
+                <div class="rp-screen-date">5월 18일 (월)</div>
+              </div>
+
+              <div class="rp-screen-mc">
+                <div class="rp-screen-mc-photo"></div>
+                <div class="rp-screen-mc-body">
+                  <div class="rp-screen-mc-quote">"오전 산책 때 햇빛이 좋아서 한참 머무르셨어요. 기분이 정말 좋아 보이셨어요."</div>
+                  <div class="rp-screen-mc-meta">김미영 간호사 · 10:24</div>
+                </div>
+              </div>
+
+              <div class="rp-screen-grid">
+
+                <!-- 투약 -->
+                <div class="rp-screen-w" style="padding:0">
+                  <svg style="position:absolute;bottom:0;left:-4px;width:calc(100% + 8px);height:52%" viewBox="0 0 200 50" preserveAspectRatio="none">
+                    <path d="M0,28 C25,8 55,48 90,22 C125,0 165,40 200,18 L200,50 L0,50 Z" fill="#34D399" opacity="0.30"/>
+                    <path d="M0,36 C30,22 65,44 100,30 C135,18 170,38 200,26 L200,50 L0,50 Z" fill="#34D399" opacity="0.18"/>
+                  </svg>
+                  <div style="position:relative;z-index:1;padding:16px">
+                    <div class="rp-screen-wh">
+                      <div class="rp-screen-wt"><iconify-icon icon="tabler:pill-filled" style="color:#6EE7B7;font-size:14px"></iconify-icon>투약</div>
+                    </div>
+                    <div style="font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:2px;color:#111827">33<span style="font-size:17px;font-weight:600;opacity:.4">%</span></div>
+                    <div style="font-size:10px;color:rgba(0,0,0,.4)">1/3 복용 완료</div>
+                    <div style="font-size:9.5px;color:rgba(0,0,0,.35);margin-top:2px">다음 복용 18:00</div>
+                  </div>
+                </div>
+
+                <!-- 맥박 -->
+                <div class="rp-screen-w rp-pw">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="fluent:pulse-24-filled" style="color:#EF4444;font-size:14px"></iconify-icon>맥박</div>
+                  </div>
+                  <div class="rp-pw-main">
+                    <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:3px">
+                      <span style="font-size:56px;font-weight:800;letter-spacing:-3px;line-height:.88;color:#111827">72</span>
+                      <span style="font-size:14px;font-weight:700;color:rgba(0,0,0,.35);letter-spacing:.3px">BPM</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:500;color:rgba(0,0,0,.4)">평균 근처 (±74)</div>
+                  </div>
+                </div>
+
+                <!-- 기분 -->
+                <div class="rp-screen-w">
+                  <div class="rp-screen-wh">
+                    <div class="rp-screen-wt"><iconify-icon icon="fluent:emoji-24-filled" style="color:#2C7AFC;font-size:14px"></iconify-icon>기분</div>
+                  </div>
+                  <div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:3px;color:#111827">87<span style="font-size:13px;font-weight:500;color:rgba(0,0,0,.35)">점</span></div>
+                  <div style="font-size:9.5px;color:rgba(0,0,0,.4);margin-bottom:6px">최근 28일</div>
+                  <div class="rp-mood-dots">
+                    <div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#93C5FD"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#93C5FD"></div><div class="rp-mood-dot" style="background:#FCD34D"></div>
+                    <div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#93C5FD"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#FCD34D"></div>
+                    <div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#93C5FD"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div><div class="rp-mood-dot" style="background:#2C7AFC"></div>
+                  </div>
+                </div>
+
+                <!-- 식사 -->
+                <div class="rp-screen-w rp-food-w">
+                  <div class="rp-food-overlay">
+                    <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+                      <iconify-icon icon="fluent:food-24-filled" style="color:#fff;font-size:12px;opacity:.9"></iconify-icon>
+                      <span style="font-size:9.5px;color:rgba(255,255,255,.88);font-weight:600;letter-spacing:.2px">오늘 저녁</span>
+                    </div>
+                    <div style="font-size:14px;font-weight:800;letter-spacing:-.3px;line-height:1.25;color:#fff">90% 드셨어요</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
+        </div>
+
+        <!-- Moment card floating over phone bottom -->
+        <div class="rp-float-mc">
+          <div class="rp-float-mc-photo"></div>
+          <div class="rp-float-mc-body">
+            <div class="rp-float-mc-quote">"오전 산책 때 햇빛이 좋아서 한참 머무르셨어요.<br>기분이 정말 좋아 보이셨어요."</div>
+            <div class="rp-float-mc-meta">김미영 간호사 · 10:24</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: annotation text -->
+      <div class="rp-ann reveal">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 14px;border-radius:100px;background:rgba(251,146,60,.1);color:#FB923C;align-self:flex-start;margin-bottom:6px">보호자 · Guardian</div>
+        <div style="font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:18px">Mobile · iPhone</div>
+        <div class="rp-ann-item">
+          <div class="rp-ann-tag">Daily Report</div>
+          <div class="rp-ann-title">매일 아침,<br>먼저 전해집니다</div>
+          <p class="rp-ann-desc">AI가 전날 케어 데이터를 분석해 수면·투약·식사·기분을 한눈에 정리해 보냅니다.</p>
+        </div>
+        <div class="rp-ann-item">
+          <div class="rp-ann-tag">Moment</div>
+          <div class="rp-ann-title">현장의 목소리가<br>직접 닿습니다</div>
+          <p class="rp-ann-desc">케어워커가 직접 기록한 오늘의 순간이 사진과 코멘트로 전해집니다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ FEATURES BY ROLE — 02~04 sub (#ai 섹션과 한 흐름) ══ -->
+  <section id="features-by-role">
+
+    <!-- ── 02 요양보호사: phone right + info left ── -->
+    <div class="feat-sub" id="feat-caregiver">
+      <div class="feat-sub-inner layout-right">
+        <div class="feat-counter">02 / 04</div>
+        <div class="feat-info-side reveal">
+          <div class="feat-role-tag caregiver">요양보호사 · Caregiver</div>
+          <div class="feat-platform-tag">Mobile · iPhone</div>
+          <h3 class="feat-title">현장에서 10초면,<br>오늘 기록이 끝납니다.</h3>
+          <p class="feat-desc">스텝퍼 8단계로 방문 케어 전체를 완성합니다. SOS는 의료진에게 즉시, 보호자에게는 정리된 한 줄로.</p>
+          <ul class="feat-bullets">
+            <li>오늘 방문 일정과 체크리스트가 한 화면에</li>
+            <li>스텝퍼 8단계 — 체크박스 대신 흐름으로 기록</li>
+            <li>SOS 수신·전달, 간호사 채팅 모두 같은 앱에서</li>
+          </ul>
+        </div>
+        <div class="feat-device-side reveal">
+          <div class="feat-phone-wrap">
+            <div class="feat-phone-screen">
+              <iframe src="07_디자인/mockup/v11_요양보호사앱/c02-checklist.html" style="top:-46px;height:857px" title="요양보호사 체크리스트"></iframe>
+            </div>
+            <img class="feat-frame-img" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
+            <!-- Floating cards -->
+            <div class="feat-float caregiver-1 ff-caregiver-visit">
+              <div class="ff-strip blue">오늘 방문<span class="ff-strip-right">05월 18일</span></div>
+              <div class="ff-cv-body">
+                <div class="ff-cv-row">
+                  <div class="ff-cv-num">9<small>건</small></div>
+                  <div class="ff-cv-lbl" style="margin-left:auto">진행률 56%</div>
+                </div>
+                <div class="ff-cv-bar">
+                  <div class="ff-cv-bar-done"></div>
+                  <div class="ff-cv-bar-prog"></div>
+                  <div class="ff-cv-bar-wait"></div>
+                </div>
+                <div class="ff-cv-legend">
+                  <span class="lg-done">완료 5</span>
+                  <span class="lg-prog">진행 2</span>
+                  <span class="lg-wait">대기 2</span>
+                </div>
+              </div>
+            </div>
+            <div class="feat-float caregiver-2 ff-caregiver-sos">
+              <div class="ff-strip red">SOS 수신<span class="ff-strip-right">방금</span></div>
+              <div class="ff-sos-body">
+                <div class="ff-sos-name"><span class="ff-sos-avatar">김</span>102호 김순자</div>
+                <div class="ff-sos-status">간호사에게 전달됨 · <b>0.3초</b></div>
+                <div class="ff-sos-actions">
+                  <div class="ff-sos-btn ghost">나중에</div>
+                  <div class="ff-sos-btn primary">바로 확인</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 03 의료진 웹: center iMac ── -->
+    <div class="feat-sub" id="feat-medical">
+      <div class="feat-sub-inner layout-center">
+        <div class="feat-counter">03 / 04</div>
+        <div class="feat-role-tag medical reveal">의료진 웹 · Medical Web</div>
+        <div class="feat-platform-tag reveal">Desktop · macOS</div>
+        <h3 class="feat-title reveal">전체 환자를<br>한 화면에.</h3>
+        <p class="feat-desc reveal" style="margin:0 auto 36px;text-align:center">AI가 이상 신호를 중요도 순으로 정렬해, 가장 먼저 봐야 할 환자를 가장 먼저 보여줍니다.</p>
+        <div class="feat-device-side reveal" style="margin:0 auto">
+          <div class="feat-imac-wrap">
+            <div class="feat-imac-screen">
+              <div class="feat-browser-bar">
+                <div class="feat-b-dots">
+                  <div class="feat-b-dot r"></div>
+                  <div class="feat-b-dot y"></div>
+                  <div class="feat-b-dot g"></div>
+                </div>
+                <div class="feat-b-url">haru-anbu.kr/nurse</div>
+              </div>
+              <div class="feat-browser-content">
+                <iframe src="07_디자인/mockup/v1_의료진웹/n01-dashboard.html" title="의료진 대시보드"></iframe>
+              </div>
+            </div>
+            <img class="feat-frame-img" src="Mockup-templates/iMac M4 24-inch Silver.png" alt="">
+            <!-- Floating cards -->
+            <div class="feat-float medical-1 ff-medical-priority">
+              <div class="ff-strip red">AI 우선순위<span class="ff-strip-right">즉시 확인 3명</span></div>
+              <div class="ff-mp-body">
+                <div class="ff-mp-row">
+                  <div class="ff-mp-avatar a1">김</div>
+                  <div class="ff-mp-mid">
+                    <div class="ff-mp-name">305호 김순자</div>
+                    <div class="ff-mp-sign">맥박 이상 · 새벽 2:34</div>
+                  </div>
+                  <div class="ff-mp-vital">112 BPM</div>
+                </div>
+                <div class="ff-mp-row">
+                  <div class="ff-mp-avatar a2">이</div>
+                  <div class="ff-mp-mid">
+                    <div class="ff-mp-name">208호 이정희</div>
+                    <div class="ff-mp-sign">수면 패턴 이상</div>
+                  </div>
+                  <div class="ff-mp-vital warn">3.2h</div>
+                </div>
+                <div class="ff-mp-row">
+                  <div class="ff-mp-avatar a3">박</div>
+                  <div class="ff-mp-mid">
+                    <div class="ff-mp-name">411호 박영수</div>
+                    <div class="ff-mp-sign">투약 미완료</div>
+                  </div>
+                  <div class="ff-mp-vital warn">2건</div>
+                </div>
+              </div>
+            </div>
+            <div class="feat-float medical-2 ff-medical-handover">
+              <div class="ff-strip green">오늘 인계<span class="ff-strip-right">자동 정리</span></div>
+              <div class="ff-mh-body">
+                <div class="ff-mh-top">
+                  <div class="ff-mh-num">12<small>건</small></div>
+                  <div class="ff-mh-pill">검토만 OK</div>
+                </div>
+                <div class="ff-mh-bars">
+                  <div class="ff-mh-bar"></div><div class="ff-mh-bar"></div><div class="ff-mh-bar"></div>
+                  <div class="ff-mh-bar"></div><div class="ff-mh-bar"></div><div class="ff-mh-bar"></div>
+                  <div class="ff-mh-bar"></div>
+                </div>
+                <div class="ff-mh-lbl">최근 7일 · 평균 9.4건</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 04 환자: center iPad ── -->
+    <div class="feat-sub" id="feat-patient">
+      <div class="feat-sub-inner layout-center">
+        <div class="feat-counter">04 / 04</div>
+        <div class="feat-role-tag patient reveal">환자 · Patient</div>
+        <div class="feat-platform-tag reveal">Tablet · iPad</div>
+        <h3 class="feat-title reveal">설명 없이도,<br>첫날부터 씁니다.</h3>
+        <p class="feat-desc reveal" style="margin:0 auto 36px;text-align:center">화면 3개, 글자는 크게, 터치는 넓게. 누구나 5초 안에 SOS를 누를 수 있습니다.</p>
+        <div class="feat-device-side reveal" style="margin:0 auto">
+          <div class="feat-ipad-wrap">
+            <div class="feat-ipad-screen">
+              <iframe src="07_디자인/mockup/v12_환자앱/p01-today.html" title="환자 오늘 화면"></iframe>
+            </div>
+            <img class="feat-frame-img" src='Mockup-templates/iPad Pro (M5) 11" - Silver - Landscape.png' alt="">
+            <!-- Floating cards -->
+            <div class="feat-float patient-1 ff-patient-med">
+              <div class="ff-strip orange">복약 알림<span class="ff-strip-right">지금</span></div>
+              <div class="ff-pm-body">
+                <div class="ff-pm-icon-row">
+                  <div class="ff-pm-pill-icon">
+                    <iconify-icon icon="tabler:pill-filled" style="color:#fff;font-size:20px"></iconify-icon>
+                  </div>
+                  <div class="ff-pm-time">오후 3:00<small>혈압약 복용 시간</small></div>
+                </div>
+                <div class="ff-pm-name">암로디핀 5mg<br>한 알 드세요</div>
+              </div>
+            </div>
+            <div class="feat-float patient-2 ff-patient-call">
+              <div class="ff-strip red">수신 전화<span class="ff-strip-right">02:14</span></div>
+              <div class="ff-pc-body">
+                <div class="ff-pc-avatar">미</div>
+                <div class="ff-pc-mid">
+                  <div class="ff-pc-label">영상통화</div>
+                  <div class="ff-pc-name">미영이 (딸)</div>
+                  <div class="ff-pc-sub">탭 한 번이면 연결돼요</div>
+                </div>
+                <div class="ff-pc-btn">
+                  <iconify-icon icon="fluent:video-24-filled" style="color:#fff;font-size:18px"></iconify-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROI ══ -->
+  <section id="roi" class="roi-section container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">ROI Calculator</div>
+      <h2 class="sec-title">숫자로 확인하는<br>도입 효과.</h2>
+      <p class="sec-sub">요양원 규모를 입력하면 하루안부 도입 후 절감 효과를 바로 확인할 수 있습니다.</p>
+    </div>
+    <div class="roi-inner reveal">
+      <div class="roi-controls">
+        <div class="roi-control">
+          <div class="roi-control-header">
+            <span class="roi-control-label">요양원 환자 수</span>
+            <span class="roi-control-val" id="roi-patients-val">50명</span>
+          </div>
+          <input class="roi-slider" id="roi-patients" type="range" min="10" max="200" value="50" step="5">
+        </div>
+        <div class="roi-control">
+          <div class="roi-control-header">
+            <span class="roi-control-label">의료진 수</span>
+            <span class="roi-control-val" id="roi-staff-val">5명</span>
+          </div>
+          <input class="roi-slider" id="roi-staff" type="range" min="1" max="20" value="5">
+        </div>
+      </div>
+      <div class="roi-results-grid">
+        <div class="roi-result">
+          <div class="roi-result-label">하루 절감 시간</div>
+          <div class="roi-result-val highlight" id="roi-daily">75<span>분</span></div>
+          <div class="roi-result-note">전화 응대 + 기록 시간 합산</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">월간 절감 시간</div>
+          <div class="roi-result-val" id="roi-monthly">27<span>시간</span></div>
+          <div class="roi-result-note">영업일 22일 기준</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">보호자 만족도 예상</div>
+          <div class="roi-result-val highlight" id="roi-satisfaction">82<span>점</span></div>
+          <div class="roi-result-note">안심지수 기반 추정</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-label">연간 운영 효율</div>
+          <div class="roi-result-val" id="roi-annual">330<span>시간</span></div>
+          <div class="roi-result-note">월간 × 12개월</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="hairline"></div>
+
+  <!-- ══ PERSONAS + CTA ══ -->
+  <section class="container">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Who It's For</div>
+      <h2 class="sec-title">기능이 아니라<br>안심을 설계합니다.</h2>
+    </div>
+    <div class="persona-v2-grid reveal">
+      <div class="persona-v2">
+        <div class="persona-role-badge guardian">Guardian</div>
+        <div class="p2-name">김미영</div>
+        <div class="p2-meta">53세 · 보호자 · 모친 5년 입소</div>
+        <div class="p2-pain">오늘 엄마가 식사를 하셨는지 알 길이 없다. 전화하긴 죄송하고, 기다리긴 불안하다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">매일 오전 8시, 안심지수 한 줄로 하루가 열립니다.</div>
+      </div>
+      <div class="persona-v2">
+        <div class="persona-role-badge medical">Medical</div>
+        <div class="p2-name">박지현</div>
+        <div class="p2-meta">38세 · 간호사 · 담당 의료진</div>
+        <div class="p2-pain">전화 응대에 하루 2시간. 같은 질문을 47번 받고 나면, 정작 환자를 볼 시간이 없다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">AI가 대신 답하고, 의료진은 의료에 집중합니다.</div>
+      </div>
+      <div class="persona-v2">
+        <div class="persona-role-badge patient">Patient</div>
+        <div class="p2-name">김순자</div>
+        <div class="p2-meta">82세 · 입소 환자 · 치매 초기</div>
+        <div class="p2-pain">아들 얼굴이 보고 싶다. 휴대폰은 어렵고, 누군가 도와주면 좋겠다.</div>
+        <div class="p2-change-label">하루안부로</div>
+        <div class="p2-change">큰 버튼 하나로 가족에게 영상 통화를 겁니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2 class="cta-title">오늘 하루도,<br>안녕하셨습니까?</h2>
+    <p class="cta-sub">하루안부가 매일 답합니다.</p>
+    <div class="cta-btns">
+      <button class="cta-btn-primary" onclick="window.scrollTo({top:0,behavior:'smooth'})">서비스 데모 다시 보기</button>
+      <a class="cta-btn-secondary" href="mailto:lg22twins@gmail.com">도입 문의</a>
+    </div>
+  </div>
+
+  <section class="closing container">
+    <div class="closing-mark">— Epilogue —</div>
+    <h2 class="closing-title">오늘 하루도,<br><em>안녕하셨습니다.</em></h2>
+    <p class="closing-line">매일 잊지 않고 안부를 묻는 마음.<br>그것이 곧 하루안부입니다.</p>
+  </section>
+
+  <footer>
+    <div class="ft-wrap">
+      <div class="ft-brand">
+        <svg class="logo-mark" viewBox="0 0 2526 2526" fill="none">
+          <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="#2C7AFC"/>
+          <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="#2C7AFC"/>
+        </svg>
+        <span class="logo-text">하루안부</span>
+      </div>
+      <div class="ft-meta">© 2026 — Showcase v6</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   IFRAME REGISTRY
+══════════════════════════════════════════ */
+const IFRAMES = {
+  'patient':         {src:'07_디자인/mockup/v12_환자앱/p09-sos.html',       nw:768, nh:1024},
+  'caregiver-today': {src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html',  nw:390, nh:844},
+  'caregiver-check': {src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html',nw:390, nh:844},
+  'nurse-sos':       {src:'07_디자인/mockup/v6_전체화면/nurse/n05-sos.html',   nw:390, nh:844},
+  'nurse-check':     {src:'07_디자인/mockup/v6_전체화면/nurse/n03-checklist.html',nw:390, nh:844},
+  'guardian-alert':  {src:'07_디자인/mockup/v11_보호자앱/g06-alert.html',      nw:390, nh:844},
+  'guardian-home':   {src:'07_디자인/mockup/v11_보호자앱/g-guardian-live.html', nw:390, nh:844},
+  'guardian-report': {src:'07_디자인/mockup/v11_보호자앱/g02-ai-report.html',   nw:390, nh:844},
+};
+
+/* Preload HTML content as srcdoc for reliable local file rendering */
+const SRCDOC = {};
+(async () => {
+  const jobs = Object.entries(IFRAMES).map(async ([key, d]) => {
+    try {
+      const resp = await fetch(d.src);
+      if (!resp.ok) throw new Error(resp.status);
+      let html = await resp.text();
+      const baseUrl = resp.url.substring(0, resp.url.lastIndexOf('/') + 1);
+      html = html.replace(/(<head[^>]*>)/i, `$1<base href="${baseUrl}">`);
+      SRCDOC[key] = html;
+    } catch(e) { /* fallback to src */ }
+  });
+  await Promise.all(jobs);
+})();
+
+const AI_STEPS = [
+  {title:'케어 데이터 분석 중',  sub:'305호 김순자 · 새벽 2:34', delay:500},
+  {title:'투약 이력 · 알레르기 확인', sub:'낙상 위험 지수 ↑, 통증 가능성 판단', delay:1800},
+  {title:'투약 필요 판단', sub:'진통제 500mg 권장', delay:3100, bold:true},
+  {title:'보호자에게 허용 요청 전송', sub:'김미영 → 투약 허용 요청 알림 발송', delay:4300, blue:true},
+];
+
+function buildAIPanel(containerEl) {
+  containerEl.innerHTML = `
+    <div class="ai-header"><div class="ai-dot-pulse"></div><span class="ai-header-label">AI 분석 중</span></div>
+    <div class="ai-lines" id="ai-lines-box" style="flex:1;display:flex;flex-direction:column;gap:0;position:relative"></div>
+    <div class="ai-footer">Claude API · 실시간 분석</div>
+  `;
+  const box = containerEl.querySelector('#ai-lines-box');
+  AI_STEPS.forEach(step => {
+    setTimeout(() => {
+      const line = document.createElement('div');
+      line.className = 'ai-line-typed';
+      line.innerHTML = `
+        <div class="ai-line-title${step.bold?' bold':''}${step.blue?' blue':''}">${step.title}</div>
+        <div class="ai-line-sub${step.blue?' blue':''}">${step.sub}</div>
+      `;
+      box.appendChild(line);
+    }, step.delay);
+  });
+}
+
+/* ══════════════════════════════════════════
+   DEVICE FACTORY
+══════════════════════════════════════════ */
+function makeIframeEl(key, cW, cH) {
+  const d = IFRAMES[key];
+  if (!d) return null;
+  const scale = cW / d.nw;
+  const iH = Math.ceil(cH / scale);
+  const ifr = document.createElement('iframe');
+  ifr.style.cssText = `width:${d.nw}px;height:${iH}px;transform:scale(${scale});transform-origin:top left;border:0;display:block;background:white;pointer-events:none;`;
+  if (SRCDOC[key]) {
+    ifr.srcdoc = SRCDOC[key];
+  } else {
+    ifr.src = d.src;
+  }
+  return ifr;
+}
+
+function getScreenDims(type) {
+  if (type === 'tablet') return {w:388, h:518};
+  return {w:262, h:566};
+}
+
+function makePngIframe(key, w, h, scale) {
+  const d = IFRAMES[key];
+  if (!d) return null;
+  const ifr = document.createElement('iframe');
+  ifr.style.cssText = `position:absolute;left:0;top:0;width:${w}px;height:${h}px;transform:scale(${scale});transform-origin:top left;border:0;display:block;background:white;`;
+  if (SRCDOC[key]) ifr.srcdoc = SRCDOC[key];
+  else ifr.src = d.src;
+  return ifr;
+}
+
+function createDevice(type, key) {
+  if (type === 'ai-panel') {
+    const el = document.createElement('div');
+    el.className = 'flow-device ai-panel';
+    buildAIPanel(el);
+    return el;
+  }
+
+  if (type === 'phone') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-phone';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen';
+    const ifr = makePngIframe(key, 390, 801, 0.732);
+    // apply caregiver/guardian status-bar offset
+    if (ifr) {
+      const d = IFRAMES[key];
+      if (d && d.nw === 390) {
+        const isSrc = d.src || '';
+        if (isSrc.includes('요양보호사') || isSrc.includes('caregiver')) {
+          ifr.style.top = '-46px'; ifr.style.height = '857px';
+        } else {
+          ifr.style.top = '-7px'; ifr.style.height = '809px';
+        }
+      }
+      screen.appendChild(ifr);
+    }
+    wrap.appendChild(screen);
+
+    const sb = document.createElement('div');
+    sb.className = 'flow-sb sc-ios-statusbar';
+    sb.innerHTML = `
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>`;
+    wrap.appendChild(sb);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPhone 17 Pro - Silver - Portrait.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  if (type === 'lockscreen') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-phone';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen lsphone-bg';
+    screen.style.background = 'linear-gradient(175deg,#1a6fdd 0%,#0e4fc7 30%,#0838a8 62%,#041e6b 100%)';
+    screen.innerHTML = `
+      <div class="ls-time-block">
+        <div class="ls-date">5월 17일 일요일</div>
+        <div class="ls-clock">2:35</div>
+      </div>
+      <div class="ls-notif-wrap">
+        <div class="ls-notif-card tappable" id="ls-notif-main">
+          <div class="ls-notif-hd">
+            <div class="ls-notif-icon">
+              <svg viewBox="0 0 2526 2526" fill="none" style="width:11px;height:11px">
+                <path d="M2521.32 2506.66C1239.65 2657.48 1239.65 1895.6 1239.65 1279.34L2497.69 0C2518.68 494.2 2522.27 1157.92 1658.86 1262.48C2641.88 1314.25 2521.32 2101.84 2521.32 2506.66Z" fill="white"/>
+                <path d="M4.68 19.34C1286.35-131.48 1286.35 630.4 1286.35 1246.66L28.31 2526C7.32 2031.8 3.73 1368.08 867.14 1263.52C-115.88 1211.75 4.68 424.16 4.68 19.34Z" fill="white"/>
+              </svg>
+            </div>
+            <span class="ls-notif-app">하루안부</span>
+            <span class="ls-notif-ago">지금</span>
+          </div>
+          <div class="ls-notif-title">투약 허용 요청</div>
+          <div class="ls-notif-body">진통제 500mg · 허용하시겠습니까?</div>
+          <div class="ls-notif-actions">
+            <div class="ls-notif-btn">거부</div>
+            <div class="ls-notif-btn allow" id="ls-allow-btn">허용</div>
+          </div>
+        </div>
+      </div>
+      <div class="ls-bottom-btns">
+        <div class="ls-bottom-btn">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+            <path d="M12 4v16M8 8l4-4 4 4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="18" r="2" fill="white"/>
+          </svg>
+        </div>
+        <div class="ls-bottom-btn">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+            <rect x="2" y="6" width="20" height="14" rx="3" stroke="white" stroke-width="1.5"/>
+            <circle cx="12" cy="13" r="3.5" stroke="white" stroke-width="1.5"/>
+            <path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ls-home-bar"></div>
+    `;
+
+    const card = screen.querySelector('#ls-notif-main');
+    if (card) card.addEventListener('click', (e) => { e.stopPropagation(); goToPhase('5b'); });
+
+    wrap.appendChild(screen);
+
+    const sb = document.createElement('div');
+    sb.className = 'flow-sb sc-ios-statusbar';
+    sb.innerHTML = `
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>`;
+    wrap.appendChild(sb);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPhone 17 Pro - Silver - Portrait.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  if (type === 'tablet') {
+    const wrap = document.createElement('div');
+    wrap.className = 'flow-png-tablet';
+
+    const screen = document.createElement('div');
+    screen.className = 'device-screen';
+    const ifr = makePngIframe(key, 768, 529, 1.096);
+    if (ifr) screen.appendChild(ifr);
+    wrap.appendChild(screen);
+
+    const img = document.createElement('img');
+    img.className = 'sc-frame-png';
+    img.src = 'Mockup-templates/iPad Pro (M5) 11" - Silver - Landscape.png';
+    img.alt = '';
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  // fallback
+  const el = document.createElement('div');
+  el.className = `flow-device ${type}`;
+  return el;
+}
+
+/* ══════════════════════════════════════════
+   FLOW STATE
+══════════════════════════════════════════ */
+const stage       = document.getElementById('flow-stage');
+const flowTitle   = document.getElementById('flow-title');
+const flowSub     = document.getElementById('flow-sub');
+const flowCounter = document.getElementById('flow-counter');
+let currentDevices = {};
+let autoTimer      = null;
+let currentPhase   = 1;
+let interactMode   = false;
+const NEXT_PHASE_MAP = {1:2,2:3,3:4,4:5,5:'5b','5b':6,6:'6b','6b':'done'};
+
+const PHASES = {
+  1:   {p:1, c:'01 / 06', t:'김순자 어르신이 갑자기 몸이 불편해졌습니다.',       s:'환자 태블릿에서 SOS 도움 요청을 받아보세요.'},
+  2:   {p:2, c:'02 / 06', t:'요양보호사 이서연에게 즉시 알림이 전달됩니다.',     s:'요양보호사가 SOS를 접수하고 간호사에게 전달합니다.'},
+  3:   {p:3, c:'03 / 06', t:'요양보호사와 간호사가 실시간으로 연결됩니다.',      s:'한 번의 전송으로 간호사에게 즉시 알림이 도착합니다.', auto:3200},
+  4:   {p:4, c:'04 / 06', t:'AI가 상황을 분석하고 판단합니다.',               s:'케어 데이터를 검토해 투약을 판단하고, 보호자에게 허용 요청을 보냅니다.', auto:5400},
+  5:   {p:5, c:'05 / 06', t:'보호자 김미영에게 알림이 도착했습니다.',           s:'알림을 탭해서 투약을 허용해보세요.'},
+  '5b':{p:5, c:'05 / 06', t:'투약이 허용되었습니다.',                        s:'간호사가 즉시 투약을 진행합니다.', auto:2800},
+  6:   {p:6, c:'06 / 06', t:'일일 케어 리포트가 도착했습니다.',                s:'AI 일일 리포트 알림을 탭해보세요.'},
+  '6b':{p:6, c:'06 / 06', t:'오늘 하루도, 안녕하셨습니다.',                   s:'AI가 매일 아침 케어 데이터를 분석해 이 리포트를 전달합니다.'},
+};
+
+function setProgress(p) {
+  for (let i = 1; i <= 6; i++) {
+    const dot  = document.getElementById('fs' + i);
+    const line = document.getElementById('fl' + i);
+    if (!dot) continue;
+    dot.classList.remove('active','done');
+    if (line) line.classList.remove('done');
+    if (i < p)  { dot.classList.add('done'); if (line) line.classList.add('done'); }
+    if (i === p)  dot.classList.add('active');
+  }
+}
+
+function setFooter(phase) {
+  const d = PHASES[phase];
+  if (!d) return;
+  flowTitle.textContent   = d.t;
+  flowSub.textContent     = d.s;
+  if (flowCounter) flowCounter.textContent = d.c;
+  setProgress(d.p);
+}
+
+function clearAuto() { if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } }
+
+/* Device helpers */
+function enterDevice(id, type, key, anim, delay) {
+  setTimeout(() => {
+    const el = createDevice(type, key);
+    el.id = `dev-${id}`;
+    el.classList.add(anim);
+    stage.appendChild(el);
+    currentDevices[id] = el;
+  }, delay || 0);
+}
+
+function exitDevice(id, dir, delay) {
+  const el = currentDevices[id];
+  if (!el) return;
+  setTimeout(() => {
+    el.classList.add(`anim-exit-${dir}`);
+    setTimeout(() => { el.remove(); delete currentDevices[id]; }, 380);
+  }, delay || 0);
+}
+
+function clearAll() {
+  Object.values(currentDevices).forEach(el => el.remove());
+  currentDevices = {};
+  document.getElementById('speed-badge')?.remove();
+  /* (formerly: morning-insert reset — element removed) */
+}
+
+/* Notification banner on device screen */
+function addNotifBanner(id, next, iconType, iconLabel, title, msg, time, bottomMode, delay) {
+  const el = currentDevices[id];
+  if (!el) return;
+  const screen = el.querySelector('.device-screen') || el;
+
+  setTimeout(() => {
+    const banner = document.createElement('div');
+    banner.className = 'device-notif-banner tappable' + (bottomMode ? ' bottom' : '');
+    banner.innerHTML = `
+      <div class="dnb-icon ${iconType}">
+        <span class="dnb-icon-label">${iconLabel}</span>
+      </div>
+      <div class="dnb-body">
+        <div class="dnb-title">${title}</div>
+        <div class="dnb-msg">${msg}</div>
+      </div>
+      <div class="dnb-time">${time}</div>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'tap-overlay';
+    overlay.onclick = () => {
+      if (next === 'done') showComplete();
+      else goToPhase(next);
+    };
+
+    screen.appendChild(banner);
+    screen.appendChild(overlay);
+  }, delay || 0);
+}
+
+function clearBanners(id) {
+  const el = currentDevices[id];
+  if (!el) return;
+  const screen = el.querySelector('.device-screen') || el;
+  screen.querySelectorAll('.device-notif-banner,.tap-overlay').forEach(n => n.remove());
+}
+
+function rebindIframe(id, newKey) {
+  const el = currentDevices[id];
+  if (!el) return;
+  clearBanners(id);
+  const ifr = el.querySelector('iframe');
+  if (!ifr) return;
+  el.style.transition = 'opacity .2s';
+  el.style.opacity = '0';
+  setTimeout(() => {
+    if (SRCDOC[newKey]) { ifr.srcdoc = SRCDOC[newKey]; }
+    else                { ifr.src   = IFRAMES[newKey].src; }
+    el.style.opacity = '1';
+  }, 240);
+}
+
+/* ══════════════════════════════════════════
+   PHASE MACHINE
+══════════════════════════════════════════ */
+function goToPhase(phase) {
+  currentPhase = phase;
+  clearAuto();
+  setFooter(phase);
+
+  if (phase === 1) {
+    clearAll();
+    stage.classList.remove('dual');
+    enterDevice('patient', 'tablet', 'patient', 'anim-enter-center', 0);
+    /* Notification: SOS received */
+    setTimeout(() => {
+      addNotifBanner('patient', 2, 'sos', '!',
+        'SOS 도움 요청',
+        '할머니가 도움을 요청하고 있어요',
+        '방금 전', false, 0);
+    }, 700);
+  }
+
+  else if (phase === 2) {
+    stage.classList.remove('dual');
+    exitDevice('patient', 'left', 0);
+    enterDevice('caregiver', 'phone', 'caregiver-today', 'anim-enter-right', 220);
+    setTimeout(() => {
+      addNotifBanner('caregiver', 3, 'sos', '!',
+        'SOS 수신',
+        '이서연 요양보호사 → 간호사에게 전달',
+        '방금 전', false, 0);
+    }, 800);
+  }
+
+  else if (phase === 3) {
+    stage.classList.add('dual');
+    clearBanners('caregiver');
+    rebindIframe('caregiver', 'caregiver-check');
+    enterDevice('nurse', 'phone', 'nurse-sos', 'anim-enter-right', 120);
+    /* Speed badge between the two phones */
+    setTimeout(() => {
+      const nurseEl   = currentDevices['nurse'];
+      const badge = document.createElement('div');
+      badge.className = 'speed-badge';
+      badge.id = 'speed-badge';
+      badge.innerHTML = '<div class="sb-num">0.3초</div><div class="sb-label">알림 전달</div>';
+      if (nurseEl) stage.insertBefore(badge, nurseEl);
+      else stage.appendChild(badge);
+    }, 750);
+    const d = PHASES[3];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(4), d.auto);
+  }
+
+  else if (phase === 4) {
+    document.getElementById('speed-badge')?.remove();
+    exitDevice('caregiver', 'left', 0);
+    enterDevice('ai', 'ai-panel', null, 'anim-enter-right', 180);
+    const d = PHASES[4];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(5), d.auto);
+  }
+
+  else if (phase === 5) {
+    stage.classList.remove('dual');
+    exitDevice('nurse', 'left', 0);
+    exitDevice('ai',    'right', 0);
+    enterDevice('guardian', 'lockscreen', null, 'anim-enter-right', 360);
+  }
+
+  else if (phase === '5b') {
+    stage.classList.add('dual');
+    clearBanners('guardian');
+    /* Approval flash on guardian screen */
+    setTimeout(() => {
+      const gEl = currentDevices['guardian'];
+      if (gEl) {
+        const screen = gEl.querySelector('.device-screen');
+        if (screen) {
+          const flash = document.createElement('div');
+          flash.className = 'approval-flash';
+          flash.innerHTML = '<span class="apv-icon">✓</span>';
+          screen.appendChild(flash);
+          setTimeout(() => flash.remove(), 700);
+        }
+      }
+    }, 80);
+    enterDevice('nurse-apv', 'phone', 'nurse-check', 'anim-enter-left', 100);
+    const d = PHASES['5b'];
+    if (d.auto) autoTimer = setTimeout(() => goToPhase(6), d.auto);
+  }
+
+  else if (phase === 6) {
+    stage.classList.remove('dual');
+    exitDevice('nurse-apv', 'left', 0);
+    /* If guardian is still a lockscreen, swap to app phone */
+    const gPrev = currentDevices['guardian'];
+    if (gPrev && gPrev.querySelector('.lsphone-bg')) {
+      exitDevice('guardian', 'fade', 0);
+      enterDevice('guardian', 'phone', 'guardian-home', 'anim-enter-center', 400);
+    }
+    /* Daily report notification (was preceded by morning-insert blue scene — removed) */
+    setTimeout(() => {
+      rebindIframe('guardian', 'guardian-home');
+      setTimeout(() => {
+        addNotifBanner('guardian', '6b', 'guardian', '♡',
+          'AI 일일 리포트 도착',
+          '안심 지수 87점 · 어젯밤 응급 처치 완료',
+          '방금', false, 0);
+      }, 600);
+    }, 700);
+  }
+
+  else if (phase === '6b') {
+    clearBanners('guardian');
+    rebindIframe('guardian', 'guardian-report');
+    setTimeout(() => {
+      addNotifBanner('guardian', 'done', 'guardian', '♡',
+        '오늘도, 안녕하셨습니다',
+        '새벽 2:34의 이야기가 아침 리포트로 닫혔습니다',
+        '', true, 0);
+    }, 800);
+  }
+}
+
+function showComplete() {
+  clearAuto();
+  document.getElementById('flow-screen').classList.add('hidden');
+  document.getElementById('complete-screen').classList.add('show');
+}
+
+/* ══════════════════════════════════════════
+   EXPERIENCE SECTION FLOW
+   - Inline section (no longer a popup).
+   - User clicks "즉시 응답" on intro card → 6-step flow plays in place.
+   - On complete → scrolls to Care Alerts.
+══════════════════════════════════════════ */
+
+function startFlow() {
+  const intro = document.getElementById('intro-screen');
+  const modal = document.getElementById('flow-modal');
+  const fs = document.getElementById('flow-screen');
+  const cs = document.getElementById('complete-screen');
+
+  intro.style.display = 'none';
+  cs.classList.remove('show');
+  fs.classList.remove('hidden');
+
+  modal.style.display = 'block';
+  modal.classList.add('show');
+
+  goToPhase(1);
+}
+
+function completeFlow() {
+  clearAuto();
+  const next = document.getElementById('care-alerts');
+  if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// "무시" — skip the experience and jump to the next section
+function skipExperience() {
+  const next = document.getElementById('care-alerts');
+  if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* Boot: ensure main-page is revealed; fix initial focus quirk */
+(function initExperienceSection() {
+  function setup() {
+    document.getElementById('main-page').classList.add('revealed');
+    const restoreFocus = () => {
+      if (document.activeElement && document.activeElement !== document.body
+          && document.activeElement.tagName !== 'INPUT'
+          && document.activeElement.tagName !== 'TEXTAREA') {
+        try { document.activeElement.blur(); } catch (e) {}
+      }
+      try { document.body.focus({ preventScroll: true }); } catch (e) {}
+    };
+    requestAnimationFrame(restoreFocus);
+    window.addEventListener('load', restoreFocus, { once: true });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();
+
+/* ══════════════════════════════════════════
+   INTERACTIVE MODE
+══════════════════════════════════════════ */
+function toggleInteract() {
+  interactMode = !interactMode;
+  const btn      = document.getElementById('interact-toggle');
+  const stageEl  = document.getElementById('flow-stage');
+  const nextWrap = document.getElementById('interact-next-wrap');
+  btn.classList.toggle('on', interactMode);
+  btn.textContent = interactMode ? '스토리로 보기' : '직접 조작';
+  stageEl.classList.toggle('interact-mode', interactMode);
+  nextWrap.classList.toggle('show', interactMode);
+  stageEl.querySelectorAll('iframe').forEach(ifr => {
+    ifr.style.pointerEvents = interactMode ? 'auto' : 'none';
+  });
+}
+
+function interactNext() {
+  const next = NEXT_PHASE_MAP[currentPhase];
+  if (!next) return;
+  if (interactMode) toggleInteract();
+  if (next === 'done') showComplete();
+  else goToPhase(next);
+}
+
+/* ══════════════════════════════════════════
+   SOLUTION — PNG Device Mockups
+══════════════════════════════════════════ */
+const SC_ROLES = {
+  guardian: {
+    label: '보호자 앱', en: 'Guardian', num: '01',
+    type: 'phone',
+    iframeStyle: 'top:-7px;height:809px;',
+    screens: [
+      {label:'실시간',    src:'07_디자인/mockup/v11_보호자앱/g-guardian-live.html'},
+      {label:'알림',      src:'07_디자인/mockup/v11_보호자앱/g06-alert.html'},
+      {label:'AI 리포트', src:'07_디자인/mockup/v11_보호자앱/g02-ai-report.html'},
+      {label:'채팅',      src:'07_디자인/mockup/v11_보호자앱/g03-chat-nurse.html'},
+    ]
+  },
+  caregiver: {
+    label: '요양보호사 앱', en: 'Caregiver', num: '02',
+    type: 'phone',
+    iframeStyle: 'top:-46px;height:857px;',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html'},
+      {label:'소통',      src:'07_디자인/mockup/v11_요양보호사앱/c03-sotong.html'},
+    ]
+  },
+  patient: {
+    label: '환자 앱', en: 'Patient', num: '03',
+    type: 'ipad',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v12_환자앱/p01-today.html'},
+      {label:'복약 알림', src:'07_디자인/mockup/v12_환자앱/p02-med-alert.html'},
+      {label:'영상통화',  src:'07_디자인/mockup/v12_환자앱/p03-call.html'},
+      {label:'SOS',       src:'07_디자인/mockup/v12_환자앱/p09-sos.html'},
+    ]
+  },
+  nurse: {
+    label: '의료진 웹', en: 'Medical Web', num: '04',
+    type: 'imac',
+    url: 'haru-anbu.kr/nurse',
+    screens: [
+      {label:'대시보드',  src:'07_디자인/mockup/v1_의료진웹/n01-dashboard.html'},
+      {label:'환자 목록', src:'07_디자인/mockup/v1_의료진웹/n02-patients.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v1_의료진웹/n03-checklist.html'},
+      {label:'SOS',       src:'07_디자인/mockup/v1_의료진웹/n05-sos.html'},
+    ]
+  },
+  'nurse-app': {
+    label: '의료진 앱', en: 'Medical App', num: '05',
+    type: 'phone',
+    iframeStyle: 'top:-46px;height:857px;',
+    screens: [
+      {label:'오늘',      src:'07_디자인/mockup/v11_요양보호사앱/c01-today.html'},
+      {label:'체크리스트',src:'07_디자인/mockup/v11_요양보호사앱/c02-checklist.html'},
+      {label:'소통',      src:'07_디자인/mockup/v11_요양보호사앱/c03-sotong.html'},
+    ]
+  }
+};
+
+const SB_PATH = 'Mockup-templates/iOS iPadOS 26 Community/';
+
+function buildPhoneMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-phone-wrap';
+  wrap.innerHTML = `
+    <div class="sc-phone-screen">
+      <iframe src="${d.screens[0].src}" style="${d.iframeStyle||''}"></iframe>
+    </div>
+    <div class="sc-ios-statusbar">
+      <div class="sc-ios-sb-left"><img src="${SB_PATH}Time.svg" alt="9:41"></div>
+      <div class="sc-ios-sb-mid"></div>
+      <div class="sc-ios-sb-right">
+        <img src="${SB_PATH}Cellular Connection.svg" alt="">
+        <img src="${SB_PATH}Wifi.svg" alt="">
+        <img src="${SB_PATH}Frame.svg" alt="">
+      </div>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iPhone 17 Pro - Silver - Portrait.png" alt="">
+  `;
+  return wrap;
+}
+
+function buildIpadMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-ipad-wrap';
+  wrap.innerHTML = `
+    <div class="sc-ipad-screen">
+      <iframe src="${d.screens[0].src}"></iframe>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iPad Pro (M5) 11&quot; - Silver - Landscape.png" alt="">
+  `;
+  return wrap;
+}
+
+function buildImacMockup(role) {
+  const d = SC_ROLES[role];
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-imac-wrap';
+  wrap.innerHTML = `
+    <div class="sc-imac-screen">
+      <div class="sc-browser-bar">
+        <div class="sc-b-dots">
+          <div class="sc-b-dot r"></div>
+          <div class="sc-b-dot y"></div>
+          <div class="sc-b-dot g"></div>
+        </div>
+        <div class="sc-b-url">${d.url || 'haru-anbu.kr'}</div>
+      </div>
+      <div class="sc-browser-content">
+        <iframe src="${d.screens[0].src}"></iframe>
+      </div>
+    </div>
+    <img class="sc-frame-png" src="Mockup-templates/iMac M4 24-inch Silver.png" alt="">
+  `;
+  return wrap;
+}
+
+function renderScRole(role, stageEl) {
+  const d = SC_ROLES[role];
+  stageEl.innerHTML = '';
+
+  const col = document.createElement('div');
+  col.className = 'sc-device-col';
+
+  let deviceWrap;
+  if (d.type === 'phone')      deviceWrap = buildPhoneMockup(role);
+  else if (d.type === 'ipad')  deviceWrap = buildIpadMockup(role);
+  else                          deviceWrap = buildImacMockup(role);
+
+  const tabsEl = document.createElement('div');
+  tabsEl.className = 'sc-screen-tabs';
+  d.screens.forEach((sc, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sc-stab' + (i === 0 ? ' active' : '');
+    btn.textContent = sc.label;
+    btn.addEventListener('click', () => {
+      tabsEl.querySelectorAll('.sc-stab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const ifr = deviceWrap.querySelector('iframe');
+      if (ifr) ifr.src = sc.src;
+    });
+    tabsEl.appendChild(btn);
+  });
+
+  col.appendChild(deviceWrap);
+  col.appendChild(tabsEl);
+  stageEl.appendChild(col);
+}
+
+/* ── SOLUTION INTERACTIVE DEMO ── */
+function initSolDemo() {
+  const grid      = document.getElementById('sol-grid');
+  const panel     = document.getElementById('sol-demo-panel');
+  const navEl     = document.getElementById('sol-demo-nav');
+  const stageEl   = document.getElementById('sol-demo-stage');
+  const backBtn   = document.getElementById('sol-demo-back');
+  if (!grid || !panel) return;
+
+  const roleOrder = ['guardian','caregiver','patient','nurse','nurse-app'];
+
+  function buildNav(activeRole) {
+    navEl.innerHTML = '';
+    roleOrder.forEach(role => {
+      const d = SC_ROLES[role];
+      const btn = document.createElement('button');
+      btn.className = 'sol-demo-nav-item' + (role === activeRole ? ' active' : '');
+      btn.innerHTML = `<span class="sni-num">${d.num}</span><span class="sni-name">${d.label}</span><span class="sni-en">${d.en}</span>`;
+      btn.addEventListener('click', () => openDemo(role));
+      navEl.appendChild(btn);
+    });
+  }
+
+  function openDemo(role) {
+    grid.classList.add('hidden');
+    panel.classList.add('active');
+    buildNav(role);
+    renderScRole(role, stageEl);
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function closeDemo() {
+    panel.classList.remove('active');
+    grid.classList.remove('hidden');
+    stageEl.innerHTML = '';
+    grid.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.querySelectorAll('.sol-card[data-role]').forEach(card => {
+    card.addEventListener('click', () => openDemo(card.dataset.role));
+  });
+
+  backBtn.addEventListener('click', closeDemo);
+}
+
+initSolDemo();
+
+/* ══════════════════════════════════════════
+   MAIN PAGE
+══════════════════════════════════════════ */
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY, t = document.documentElement.scrollHeight - window.innerHeight;
+  if (progressBar) progressBar.style.width = (s / t * 100) + '%';
+  document.getElementById('topbar')?.classList.toggle('scrolled', window.scrollY > 20);
+}, {passive:true});
+
+const io = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    // "잘 계십니다." 진입 시 "아마도." 딜레이 페이드인
+    if (e.target.id === 'pbMain') {
+      document.getElementById('pbMaybe')?.classList.add('in');
+    }
+  });
+}, {threshold:.1});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+
+const navLinks = document.querySelectorAll('.nav-link[data-nav]');
+const navObs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.querySelector(`.nav-link[data-nav="${e.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, {threshold:.35, rootMargin:'-70px 0px -40% 0px'});
+document.querySelectorAll('section[id]').forEach(s => navObs.observe(s));
+
+/* ══════════════════════════════════════════
+   ROI CALCULATOR
+══════════════════════════════════════════ */
+function calcROI() {
+  const patients = parseInt(document.getElementById('roi-patients').value);
+  const staff    = parseInt(document.getElementById('roi-staff').value);
+
+  document.getElementById('roi-patients-val').textContent = patients + '명';
+  document.getElementById('roi-staff-val').textContent    = staff + '명';
+
+  const dailyMin   = Math.round(patients * 0.5 + staff * 10);
+  const monthlyHr  = Math.round(dailyMin * 22 / 60);
+  const annualHr   = monthlyHr * 12;
+  const satisfaction = Math.min(98, 80 + Math.floor(patients / 20));
+
+  animateNum('roi-daily',        dailyMin,     '분');
+  animateNum('roi-monthly',      monthlyHr,    '시간');
+  animateNum('roi-satisfaction', satisfaction, '점');
+  animateNum('roi-annual',       annualHr,     '시간');
+}
+
+function animateNum(id, target, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = parseInt(el.textContent) || 0;
+  const dur   = 420;
+  const t0    = performance.now();
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.innerHTML = Math.round(start + (target - start) * ease) + `<span>${unit}</span>`;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+document.getElementById('roi-patients')?.addEventListener('input', calcROI);
+document.getElementById('roi-staff')?.addEventListener('input', calcROI);
+
+// ── Pain scroll zone (질문 index=0 / 카피 index=1-7 혼합 높이) ──
+(function () {
+  const COPY_H   = 180;        // 카피 아이템 높이
+  const zone     = document.getElementById('painZone');
+  const list     = document.getElementById('painList');
+  const dotsWrap = document.getElementById('painDots');
+  const hint     = document.querySelector('.pain-scroll-hint');
+  if (!zone || !list || !dotsWrap) return;
+
+  // 0: intro(100vh), 1-7: 카피(180px)
+  const introEl  = list.querySelector('.pain-item--intro');
+  const copyEls  = Array.from(list.querySelectorAll('.pain-item'));
+  const allItems = [introEl, ...copyEls];
+  const dots     = [];
+
+  // 도트는 카피(index 1-7)에만 생성
+  copyEls.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'pain-dot';
+    dotsWrap.appendChild(d);
+    dots.push(d);
+  });
+
+  // stage(보이는 영역) 높이 = 1 viewport. zone은 800vh 런웨이라 별개.
+  function stageH() { return window.innerHeight; }
+
+  // pain-list 내 각 index의 top 위치 (px)
+  function itemTop(idx) {
+    return idx === 0 ? 0 : stageH() + (idx - 1) * COPY_H;
+  }
+
+  function setActive(idx) {
+    let ty;
+    if (idx === 0) {
+      ty = 0;
+    } else {
+      const centerY = stageH() / 2;
+      ty = -(itemTop(idx) - (centerY - COPY_H / 2));
+    }
+    list.style.transform = `translateY(${ty}px)`;
+
+    // data-dist: intro는 독립 처리
+    introEl.dataset.dist = idx === 0 ? '0' : '3';
+    copyEls.forEach((el, i) => {
+      el.dataset.dist = String(Math.min(Math.abs((i + 1) - idx), 3));
+    });
+
+    // 도트 (카피 구간에서만 표시)
+    dots.forEach((d, i) => d.classList.toggle('on', i + 1 === idx));
+    dotsWrap.style.opacity  = idx === 0 ? '0' : '1';
+    if (hint) hint.style.opacity = idx === 0 ? '1' : '0';
+
+  }
+
+  function onPageScroll() {
+    const rect = zone.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const scrolled = Math.max(0, -rect.top);
+    let idx = Math.round(scrolled / vh);
+    idx = Math.max(0, Math.min(idx, copyEls.length));
+    setActive(idx);
+  }
+  window.addEventListener('scroll', onPageScroll, { passive: true });
+  window.addEventListener('resize', onPageScroll, { passive: true });
+  onPageScroll();
+})();
+
+// Problem → Pain zone: 자연 스크롤로 이동 (스크롤 잠금 제거)
+</script>
+</body>
+</html>
